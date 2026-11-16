@@ -1,0 +1,467 @@
+[
+  {
+    "file": "C:\\Users\\Lenovo Yoga 7i\\Downloads\\A2058028.05",
+    "size": 185,
+    "sha256": "34428e84fec736a3b3d9722b535760514587af0c008e8e52a845407123c1a351",
+    "terminator_hex": "0a00",
+    "fields": [
+      {
+        "field": "ref_no",
+        "offset": 0,
+        "width": 6,
+        "raw": "058028",
+        "value": "058028"
+      },
+      {
+        "field": "batch_number",
+        "offset": 7,
+        "width": 20,
+        "raw": "                    ",
+        "value": ""
+      },
+      {
+        "field": "machine_no",
+        "offset": 28,
+        "width": 4,
+        "raw": "B009",
+        "value": "B009"
+      },
+      {
+        "field": "call_of_no",
+        "offset": 33,
+        "width": 2,
+        "raw": "05",
+        "value": "05"
+      },
+      {
+        "field": "correction_no",
+        "offset": 36,
+        "width": 2,
+        "raw": "00",
+        "value": "00"
+      },
+      {
+        "field": "tank",
+        "offset": 39,
+        "width": 2,
+        "raw": "01",
+        "value": "01"
+      },
+      {
+        "field": "call_of_type",
+        "offset": 42,
+        "width": 2,
+        "raw": "  ",
+        "value": ""
+      },
+      {
+        "field": "recipe_no",
+        "offset": 45,
+        "width": 20,
+        "raw": "                    ",
+        "value": ""
+      },
+      {
+        "field": "weight",
+        "offset": 66,
+        "width": 10,
+        "raw": "          ",
+        "value": ""
+      },
+      {
+        "field": "weight_unit",
+        "offset": 77,
+        "width": 10,
+        "raw": "          ",
+        "value": ""
+      },
+      {
+        "field": "liquor",
+        "offset": 88,
+        "width": 10,
+        "raw": "          ",
+        "value": ""
+      },
+      {
+        "field": "liquor_unit",
+        "offset": 99,
+        "width": 10,
+        "raw": "          ",
+        "value": ""
+      },
+      {
+        "field": "deadline",
+        "offset": 110,
+        "width": 17,
+        "raw": "                 ",
+        "value": ""
+      },
+      {
+        "field": "station",
+        "offset": 128,
+        "width": 2,
+        "raw": "  ",
+        "value": ""
+      },
+      {
+        "field": "request_type",
+        "offset": 131,
+        "width": 2,
+        "raw": "  ",
+        "value": ""
+      },
+      {
+        "field": "ratio",
+        "offset": 134,
+        "width": 10,
+        "raw": "          ",
+        "value": ""
+      },
+      {
+        "field": "ratio_unit",
+        "offset": 145,
+        "width": 10,
+        "raw": "          ",
+        "value": ""
+      },
+      {
+        "field": "batchp16",
+        "offset": 156,
+        "width": 10,
+        "raw": "          ",
+        "value": ""
+      },
+      {
+        "field": "required_in",
+        "offset": 167,
+        "width": 5,
+        "raw": "     ",
+        "value": ""
+      },
+      {
+        "field": "transfered_volume",
+        "offset": 173,
+        "width": 5,
+        "raw": "00000",
+        "value": "00000"
+      },
+      {
+        "field": "err_code",
+        "offset": 179,
+        "width": 4,
+        "raw": "0200",
+        "value": "0200"
+      }
+    ]
+  },
+  {
+    "file": "C:\\Users\\Lenovo Yoga 7i\\Downloads\\A2057986.13",
+    "size": 185,
+    "sha256": "380a429cc61a6b3d1d97b34c1c6c4e158e4e581aa1fa40c24ad5f2a6fa89ce14",
+    "terminator_hex": "0a00",
+    "fields": [
+      {
+        "field": "ref_no",
+        "offset": 0,
+        "width": 6,
+        "raw": "057986",
+        "value": "057986"
+      },
+      {
+        "field": "batch_number",
+        "offset": 7,
+        "width": 20,
+        "raw": "                    ",
+        "value": ""
+      },
+      {
+        "field": "machine_no",
+        "offset": 28,
+        "width": 4,
+        "raw": "B004",
+        "value": "B004"
+      },
+      {
+        "field": "call_of_no",
+        "offset": 33,
+        "width": 2,
+        "raw": "13",
+        "value": "13"
+      },
+      {
+        "field": "correction_no",
+        "offset": 36,
+        "width": 2,
+        "raw": "00",
+        "value": "00"
+      },
+      {
+        "field": "tank",
+        "offset": 39,
+        "width": 2,
+        "raw": "02",
+        "value": "02"
+      },
+      {
+        "field": "call_of_type",
+        "offset": 42,
+        "width": 2,
+        "raw": "  ",
+        "value": ""
+      },
+      {
+        "field": "recipe_no",
+        "offset": 45,
+        "width": 20,
+        "raw": "                    ",
+        "value": ""
+      },
+      {
+        "field": "weight",
+        "offset": 66,
+        "width": 10,
+        "raw": "          ",
+        "value": ""
+      },
+      {
+        "field": "weight_unit",
+        "offset": 77,
+        "width": 10,
+        "raw": "          ",
+        "value": ""
+      },
+      {
+        "field": "liquor",
+        "offset": 88,
+        "width": 10,
+        "raw": "          ",
+        "value": ""
+      },
+      {
+        "field": "liquor_unit",
+        "offset": 99,
+        "width": 10,
+        "raw": "          ",
+        "value": ""
+      },
+      {
+        "field": "deadline",
+        "offset": 110,
+        "width": 17,
+        "raw": "                 ",
+        "value": ""
+      },
+      {
+        "field": "station",
+        "offset": 128,
+        "width": 2,
+        "raw": "  ",
+        "value": ""
+      },
+      {
+        "field": "request_type",
+        "offset": 131,
+        "width": 2,
+        "raw": "  ",
+        "value": ""
+      },
+      {
+        "field": "ratio",
+        "offset": 134,
+        "width": 10,
+        "raw": "          ",
+        "value": ""
+      },
+      {
+        "field": "ratio_unit",
+        "offset": 145,
+        "width": 10,
+        "raw": "          ",
+        "value": ""
+      },
+      {
+        "field": "batchp16",
+        "offset": 156,
+        "width": 10,
+        "raw": "          ",
+        "value": ""
+      },
+      {
+        "field": "required_in",
+        "offset": 167,
+        "width": 5,
+        "raw": "     ",
+        "value": ""
+      },
+      {
+        "field": "transfered_volume",
+        "offset": 173,
+        "width": 5,
+        "raw": "00000",
+        "value": "00000"
+      },
+      {
+        "field": "err_code",
+        "offset": 179,
+        "width": 4,
+        "raw": "0200",
+        "value": "0200"
+      }
+    ]
+  },
+  {
+    "file": "C:\\Users\\Lenovo Yoga 7i\\Downloads\\A2058021.08",
+    "size": 185,
+    "sha256": "cca8f1ffc70d89ee9109cf81f76d4da5cd2ed79644e6e82a48e4a0f205015d70",
+    "terminator_hex": "0a00",
+    "fields": [
+      {
+        "field": "ref_no",
+        "offset": 0,
+        "width": 6,
+        "raw": "058021",
+        "value": "058021"
+      },
+      {
+        "field": "batch_number",
+        "offset": 7,
+        "width": 20,
+        "raw": "                    ",
+        "value": ""
+      },
+      {
+        "field": "machine_no",
+        "offset": 28,
+        "width": 4,
+        "raw": "B002",
+        "value": "B002"
+      },
+      {
+        "field": "call_of_no",
+        "offset": 33,
+        "width": 2,
+        "raw": "08",
+        "value": "08"
+      },
+      {
+        "field": "correction_no",
+        "offset": 36,
+        "width": 2,
+        "raw": "00",
+        "value": "00"
+      },
+      {
+        "field": "tank",
+        "offset": 39,
+        "width": 2,
+        "raw": "01",
+        "value": "01"
+      },
+      {
+        "field": "call_of_type",
+        "offset": 42,
+        "width": 2,
+        "raw": "  ",
+        "value": ""
+      },
+      {
+        "field": "recipe_no",
+        "offset": 45,
+        "width": 20,
+        "raw": "                    ",
+        "value": ""
+      },
+      {
+        "field": "weight",
+        "offset": 66,
+        "width": 10,
+        "raw": "          ",
+        "value": ""
+      },
+      {
+        "field": "weight_unit",
+        "offset": 77,
+        "width": 10,
+        "raw": "          ",
+        "value": ""
+      },
+      {
+        "field": "liquor",
+        "offset": 88,
+        "width": 10,
+        "raw": "          ",
+        "value": ""
+      },
+      {
+        "field": "liquor_unit",
+        "offset": 99,
+        "width": 10,
+        "raw": "          ",
+        "value": ""
+      },
+      {
+        "field": "deadline",
+        "offset": 110,
+        "width": 17,
+        "raw": "                 ",
+        "value": ""
+      },
+      {
+        "field": "station",
+        "offset": 128,
+        "width": 2,
+        "raw": "  ",
+        "value": ""
+      },
+      {
+        "field": "request_type",
+        "offset": 131,
+        "width": 2,
+        "raw": "  ",
+        "value": ""
+      },
+      {
+        "field": "ratio",
+        "offset": 134,
+        "width": 10,
+        "raw": "          ",
+        "value": ""
+      },
+      {
+        "field": "ratio_unit",
+        "offset": 145,
+        "width": 10,
+        "raw": "          ",
+        "value": ""
+      },
+      {
+        "field": "batchp16",
+        "offset": 156,
+        "width": 10,
+        "raw": "          ",
+        "value": ""
+      },
+      {
+        "field": "required_in",
+        "offset": 167,
+        "width": 5,
+        "raw": "     ",
+        "value": ""
+      },
+      {
+        "field": "transfered_volume",
+        "offset": 173,
+        "width": 5,
+        "raw": "00000",
+        "value": "00000"
+      },
+      {
+        "field": "err_code",
+        "offset": 179,
+        "width": 4,
+        "raw": "0200",
+        "value": "0200"
+      }
+    ]
+  }
+]

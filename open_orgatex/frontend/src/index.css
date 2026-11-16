@@ -1,0 +1,20 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply font-satoshi font-normal text-base text-body bg-whiten dark:bg-boxdark-2 dark:text-bodydark;
+  }
+}
+
+@layer utilities {
+  /* Custom scrollbars */
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+}

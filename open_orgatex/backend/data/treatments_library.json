@@ -1,0 +1,429 @@
+[
+  {
+    "id": 1,
+    "number": "TR-SCOUR",
+    "name": "Prapengolahan S/B (Scouring & Bleaching)",
+    "comment": "Pemasakan dan pengelantangan serat kapas suhu 98°C",
+    "category": "Pretreatment",
+    "machine_group": "Jet Dyeing HT / Overflow",
+    "parameters": {
+      "temperature": 98.0,
+      "gradient": 2.5,
+      "hold_time": 45.0,
+      "water_level": 3200.0,
+      "pump_speed": 85.0,
+      "dosing_time": 10.0
+    },
+    "steps": [
+      {
+        "step_no": 1,
+        "label": "Isi Air Hangat",
+        "functions": [{"function_id": 713, "name": "Water Fill", "column": 1, "params": [1.0, 3200.0]}],
+        "summary_water_l": 3200.0,
+        "summary_pump_pct": 0.0,
+        "summary_time_min": 8.0
+      },
+      {
+        "step_no": 2,
+        "label": "Sirkulasi Pompa & Dosing Kimia Prapengolahan",
+        "functions": [
+          {"function_id": 404, "name": "Circulation Pump", "column": 1, "params": [85.0]},
+          {"function_id": 85, "name": "Dosing Tank 1", "column": 2, "params": [10.0, 100.0]}
+        ],
+        "summary_pump_pct": 85.0,
+        "summary_time_min": 10.0
+      },
+      {
+        "step_no": 3,
+        "label": "Pemanasan ke Suhu 98°C",
+        "functions": [{"function_id": 141, "name": "Heating", "column": 1, "params": [98.0, 2.5]}],
+        "summary_temp": 98.0,
+        "summary_time_min": 25.0
+      },
+      {
+        "step_no": 4,
+        "label": "Tahan Suhu 98°C (Pemasakan)",
+        "functions": [{"function_id": 121, "name": "Hold", "column": 1, "params": [45.0]}],
+        "summary_temp": 98.0,
+        "summary_time_min": 45.0
+      },
+      {
+        "step_no": 5,
+        "label": "Drain Panas Total",
+        "functions": [{"function_id": 61, "name": "Drain", "column": 1, "params": []}],
+        "summary_time_min": 5.0
+      }
+    ]
+  },
+  {
+    "id": 2,
+    "number": "TR-DYE-REACT",
+    "name": "Pencelupan Reaktif Katun 60°C (Reactive Dyeing)",
+    "comment": "Pencelupan serat selulosa/katun dengan zat warna reaktif, garam & soda ash",
+    "category": "Dyeing",
+    "machine_group": "Jet Dyeing HT / Overflow",
+    "parameters": {
+      "temperature": 60.0,
+      "gradient": 1.5,
+      "hold_time": 60.0,
+      "water_level": 3000.0,
+      "pump_speed": 85.0,
+      "dosing_time_salt": 15.0,
+      "dosing_time_soda": 20.0
+    },
+    "steps": [
+      {
+        "step_no": 1,
+        "label": "Isi Air Celup",
+        "functions": [
+          {"function_id": 713, "name": "Water Fill", "column": 1, "params": [1.0, 3000.0]},
+          {"function_id": 404, "name": "Circulation Pump", "column": 2, "params": [85.0]}
+        ],
+        "summary_water_l": 3000.0,
+        "summary_pump_pct": 85.0,
+        "summary_time_min": 8.0
+      },
+      {
+        "step_no": 2,
+        "label": "Dosing Garam Glauber / Elektrolit (Tank 1)",
+        "functions": [{"function_id": 85, "name": "Dosing Tank 1", "column": 1, "params": [15.0, 100.0]}],
+        "summary_time_min": 15.0
+      },
+      {
+        "step_no": 3,
+        "label": "Dosing Zat Warna Reaktif (Tank 2)",
+        "functions": [{"function_id": 86, "name": "Dosing Tank 2", "column": 1, "params": [20.0, 100.0]}],
+        "summary_time_min": 20.0
+      },
+      {
+        "step_no": 4,
+        "label": "Heating ke Suhu Fiksasi 60°C",
+        "functions": [{"function_id": 141, "name": "Heating", "column": 1, "params": [60.0, 1.5]}],
+        "summary_temp": 60.0,
+        "summary_time_min": 15.0
+      },
+      {
+        "step_no": 5,
+        "label": "Dosing Soda Ash / Fiksasi Alkali",
+        "functions": [{"function_id": 85, "name": "Dosing Tank 1", "column": 1, "params": [20.0, 100.0]}],
+        "summary_temp": 60.0,
+        "summary_time_min": 20.0
+      },
+      {
+        "step_no": 6,
+        "label": "Tahan Fiksasi Suhu 60°C",
+        "functions": [{"function_id": 121, "name": "Hold", "column": 1, "params": [60.0]}],
+        "summary_temp": 60.0,
+        "summary_time_min": 60.0
+      },
+      {
+        "step_no": 7,
+        "label": "Cooling ke 50°C",
+        "functions": [{"function_id": 144, "name": "Cooling", "column": 1, "params": [50.0, 2.0]}],
+        "summary_temp": 50.0,
+        "summary_time_min": 6.0
+      },
+      {
+        "step_no": 8,
+        "label": "Drain Larutan Celup",
+        "functions": [{"function_id": 61, "name": "Drain", "column": 1, "params": []}],
+        "summary_time_min": 5.0
+      }
+    ]
+  },
+  {
+    "id": 3,
+    "number": "TR-DYE-DISP",
+    "name": "Pencelupan Disperse Poliester 130°C (HT Dyeing)",
+    "comment": "Pencelupan serat sintetis poliester suhu & tekanan tinggi (High Temp 130°C)",
+    "category": "Dyeing",
+    "machine_group": "Jet Dyeing HT High Pressure",
+    "parameters": {
+      "temperature": 130.0,
+      "gradient": 1.5,
+      "hold_time": 45.0,
+      "water_level": 2800.0,
+      "pump_speed": 90.0,
+      "dosing_time": 15.0
+    },
+    "steps": [
+      {
+        "step_no": 1,
+        "label": "Isi Air & Pompa Sirkulasi HT",
+        "functions": [
+          {"function_id": 713, "name": "Water Fill", "column": 1, "params": [1.0, 2800.0]},
+          {"function_id": 404, "name": "Circulation Pump", "column": 2, "params": [90.0]}
+        ],
+        "summary_water_l": 2800.0,
+        "summary_pump_pct": 90.0,
+        "summary_time_min": 7.0
+      },
+      {
+        "step_no": 2,
+        "label": "Dosing Zat Warna Disperse & Asam",
+        "functions": [{"function_id": 86, "name": "Dosing Tank 2", "column": 1, "params": [15.0, 100.0]}],
+        "summary_time_min": 15.0
+      },
+      {
+        "step_no": 3,
+        "label": "Pemanasan Awal ke 85°C",
+        "functions": [{"function_id": 141, "name": "Heating", "column": 1, "params": [85.0, 2.5]}],
+        "summary_temp": 85.0,
+        "summary_time_min": 20.0
+      },
+      {
+        "step_no": 4,
+        "label": "Pemanasan Kritis 85°C ke 130°C",
+        "functions": [{"function_id": 141, "name": "Heating", "column": 1, "params": [130.0, 1.5]}],
+        "summary_temp": 130.0,
+        "summary_time_min": 30.0
+      },
+      {
+        "step_no": 5,
+        "label": "Tahan Suhu HT 130°C",
+        "functions": [{"function_id": 121, "name": "Hold", "column": 1, "params": [45.0]}],
+        "summary_temp": 130.0,
+        "summary_time_min": 45.0
+      },
+      {
+        "step_no": 6,
+        "label": "Pendinginan Terkontrol ke 80°C",
+        "functions": [{"function_id": 144, "name": "Cooling", "column": 1, "params": [80.0, 1.5]}],
+        "summary_temp": 80.0,
+        "summary_time_min": 33.0
+      },
+      {
+        "step_no": 7,
+        "label": "Drain Tekanan Rendah",
+        "functions": [{"function_id": 61, "name": "Drain", "column": 1, "params": []}],
+        "summary_time_min": 5.0
+      }
+    ]
+  },
+  {
+    "id": 4,
+    "number": "TR-SOAP",
+    "name": "Pencucian Sabun Panas 95°C (Hot Soaping)",
+    "comment": "Pencucian sabun suhu tinggi untuk mengangkat zat warna yang tidak terfiksasi",
+    "category": "Washing",
+    "machine_group": "Semua Mesin Celup",
+    "parameters": {
+      "temperature": 95.0,
+      "gradient": 3.0,
+      "hold_time": 20.0,
+      "water_level": 3000.0,
+      "pump_speed": 80.0,
+      "dosing_time": 5.0
+    },
+    "steps": [
+      {
+        "step_no": 1,
+        "label": "Isi Air Bersih",
+        "functions": [
+          {"function_id": 713, "name": "Water Fill", "column": 1, "params": [1.0, 3000.0]},
+          {"function_id": 404, "name": "Circulation Pump", "column": 2, "params": [80.0]}
+        ],
+        "summary_water_l": 3000.0,
+        "summary_pump_pct": 80.0,
+        "summary_time_min": 7.0
+      },
+      {
+        "step_no": 2,
+        "label": "Dosing Agen Sabun / Deterjen",
+        "functions": [{"function_id": 85, "name": "Dosing Tank 1", "column": 1, "params": [5.0, 100.0]}],
+        "summary_time_min": 5.0
+      },
+      {
+        "step_no": 3,
+        "label": "Pemanasan Cepat ke 95°C",
+        "functions": [{"function_id": 141, "name": "Heating", "column": 1, "params": [95.0, 3.0]}],
+        "summary_temp": 95.0,
+        "summary_time_min": 20.0
+      },
+      {
+        "step_no": 4,
+        "label": "Tahan Sabun Suhu 95°C",
+        "functions": [{"function_id": 121, "name": "Hold", "column": 1, "params": [20.0]}],
+        "summary_temp": 95.0,
+        "summary_time_min": 20.0
+      },
+      {
+        "step_no": 5,
+        "label": "Drain Air Sabun Panas",
+        "functions": [{"function_id": 61, "name": "Drain", "column": 1, "params": []}],
+        "summary_time_min": 5.0
+      }
+    ]
+  },
+  {
+    "id": 5,
+    "number": "TR-NEUTR",
+    "name": "Netralisasi Asam Asetat 50°C (Acid Neutralize)",
+    "comment": "Menetralkan sisa alkali/basa pada kain ke pH 5.5",
+    "category": "Neutralization",
+    "machine_group": "Semua Mesin Celup",
+    "parameters": {
+      "temperature": 50.0,
+      "gradient": 2.0,
+      "hold_time": 15.0,
+      "water_level": 3000.0,
+      "pump_speed": 80.0,
+      "dosing_time": 5.0
+    },
+    "steps": [
+      {
+        "step_no": 1,
+        "label": "Isi Air Dingin & Pompa",
+        "functions": [
+          {"function_id": 713, "name": "Water Fill", "column": 1, "params": [1.0, 3000.0]},
+          {"function_id": 404, "name": "Circulation Pump", "column": 2, "params": [80.0]}
+        ],
+        "summary_water_l": 3000.0,
+        "summary_pump_pct": 80.0,
+        "summary_time_min": 7.0
+      },
+      {
+        "step_no": 2,
+        "label": "Dosing Asam Asetat (Tank 1)",
+        "functions": [{"function_id": 85, "name": "Dosing Tank 1", "column": 1, "params": [5.0, 100.0]}],
+        "summary_time_min": 5.0
+      },
+      {
+        "step_no": 3,
+        "label": "Pemanasan Hangat ke 50°C",
+        "functions": [{"function_id": 141, "name": "Heating", "column": 1, "params": [50.0, 2.0]}],
+        "summary_temp": 50.0,
+        "summary_time_min": 10.0
+      },
+      {
+        "step_no": 4,
+        "label": "Sirkulasi Penetrasi Asam",
+        "functions": [{"function_id": 121, "name": "Hold", "column": 1, "params": [15.0]}],
+        "summary_temp": 50.0,
+        "summary_time_min": 15.0
+      },
+      {
+        "step_no": 5,
+        "label": "Drain Air Netral",
+        "functions": [{"function_id": 61, "name": "Drain", "column": 1, "params": []}],
+        "summary_time_min": 5.0
+      }
+    ]
+  },
+  {
+    "id": 6,
+    "number": "TR-RINSE",
+    "name": "Pembilasan Air Dingin (Cold Overflow Rinse)",
+    "comment": "Bilas air bersih untuk menghilangkan sisa garam dan zat kimia terlarut",
+    "category": "Rinse",
+    "machine_group": "Semua Mesin Celup",
+    "parameters": {
+      "hold_time": 15.0,
+      "water_level": 3000.0,
+      "pump_speed": 75.0
+    },
+    "steps": [
+      {
+        "step_no": 1,
+        "label": "Isi Air Bersih",
+        "functions": [
+          {"function_id": 713, "name": "Water Fill", "column": 1, "params": [1.0, 3000.0]},
+          {"function_id": 404, "name": "Circulation Pump", "column": 2, "params": [75.0]}
+        ],
+        "summary_water_l": 3000.0,
+        "summary_pump_pct": 75.0,
+        "summary_time_min": 7.0
+      },
+      {
+        "step_no": 2,
+        "label": "Sirkulasi Bilas Dingin",
+        "functions": [{"function_id": 127, "name": "Rinse", "column": 1, "params": [15.0]}],
+        "summary_time_min": 15.0
+      },
+      {
+        "step_no": 3,
+        "label": "Drain Bilas",
+        "functions": [{"function_id": 61, "name": "Drain", "column": 1, "params": []}],
+        "summary_time_min": 5.0
+      }
+    ]
+  },
+  {
+    "id": 7,
+    "number": "TR-SOFT",
+    "name": "Pelembutan Kain 45°C (Softener Finishing)",
+    "comment": "Aplikasi finishing zat pelembut (softener kationik/silikon) pada kain",
+    "category": "Finishing",
+    "machine_group": "Semua Mesin Celup",
+    "parameters": {
+      "temperature": 45.0,
+      "gradient": 2.0,
+      "hold_time": 20.0,
+      "water_level": 2500.0,
+      "pump_speed": 70.0,
+      "dosing_time": 10.0
+    },
+    "steps": [
+      {
+        "step_no": 1,
+        "label": "Isi Air Bersih Terukur",
+        "functions": [
+          {"function_id": 713, "name": "Water Fill", "column": 1, "params": [1.0, 2500.0]},
+          {"function_id": 404, "name": "Circulation Pump", "column": 2, "params": [70.0]}
+        ],
+        "summary_water_l": 2500.0,
+        "summary_pump_pct": 70.0,
+        "summary_time_min": 6.0
+      },
+      {
+        "step_no": 2,
+        "label": "Dosing Softener / Pelembut (Tank 1)",
+        "functions": [{"function_id": 85, "name": "Dosing Tank 1", "column": 1, "params": [10.0, 100.0]}],
+        "summary_time_min": 10.0
+      },
+      {
+        "step_no": 3,
+        "label": "Pemanasan ke 45°C",
+        "functions": [{"function_id": 141, "name": "Heating", "column": 1, "params": [45.0, 2.0]}],
+        "summary_temp": 45.0,
+        "summary_time_min": 8.0
+      },
+      {
+        "step_no": 4,
+        "label": "Sirkulasi Penyerapan Softener",
+        "functions": [{"function_id": 121, "name": "Hold", "column": 1, "params": [20.0]}],
+        "summary_temp": 45.0,
+        "summary_time_min": 20.0
+      },
+      {
+        "step_no": 5,
+        "label": "Drain Akhir",
+        "functions": [{"function_id": 61, "name": "Drain", "column": 1, "params": []}],
+        "summary_time_min": 5.0
+      }
+    ]
+  },
+  {
+    "id": 8,
+    "number": "TR-UNLOAD",
+    "name": "Bongkar Kain & Selesai (Unload & End)",
+    "comment": "Panggilan operator untuk bongkar kain dan penutupan program mikro Secom 777",
+    "category": "End",
+    "machine_group": "Semua Mesin Celup",
+    "parameters": {},
+    "steps": [
+      {
+        "step_no": 1,
+        "label": "Sinyal Panggilan Operator / Siap Bongkar",
+        "functions": [{"function_id": 126, "name": "Check", "column": 1, "params": [1.0]}],
+        "summary_time_min": 10.0
+      },
+      {
+        "step_no": 2,
+        "label": "Program End / Stop Siklus",
+        "functions": [{"function_id": 2, "name": "Program End", "column": 1, "params": []}],
+        "summary_time_min": 0.0
+      }
+    ]
+  }
+]

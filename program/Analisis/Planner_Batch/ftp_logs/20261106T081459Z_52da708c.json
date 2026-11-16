@@ -1,0 +1,17 @@
+{
+  "job": "20261106T081459Z_52da708c",
+  "action": "check",
+  "machine": "A001",
+  "queue": "/custom/queues/A001/QUEUE.BTD",
+  "events": [],
+  "committed": false,
+  "existing": 2,
+  "added": 1,
+  "references": [
+    "800001"
+  ],
+  "validation": "OK: preserved 2, added 1; verified keys 0-4",
+  "original_sha256": "e98848eea5f535bd290a1d354b3a76855b1135c31e8b1a81753dfd9c1b1e7ebf",
+  "merged_sha256": "e874a186871e9c81090e990c3225b10ae4554010b27f372af88dcc84b1afc4c3",
+  "message": "Pemeriksaan baca berhasil; queue gabungan tervalidasi lokal. Belum ada file FTP ditulis atau nomor direservasi."
+}

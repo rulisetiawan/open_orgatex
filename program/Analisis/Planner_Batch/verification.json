@@ -1,0 +1,24 @@
+{
+  "passed": true,
+  "tests": [
+    "raw PRG edit",
+    "multi-machine planning",
+    "batch edit",
+    "duplicate rejection",
+    "draft roundtrip",
+    "ZIP export",
+    "mobile overflow",
+    "file-mode explanation",
+    "no JS errors"
+  ],
+  "editedPrgOffset": 588,
+  "zip_binary_check": true,
+  "prg_changed_offsets": [
+    590
+  ],
+  "source_files_unchanged": true,
+  "queue_engine_checks": {
+    "E013": "OK: 2 records; reopened and verified through keys 0-4",
+    "A001": "OK: 1 records; reopened and verified through keys 0-4"
+  }
+}

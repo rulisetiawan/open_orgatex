@@ -1,0 +1,568 @@
+{
+  "301": {
+    "program_no": 301,
+    "program_name": "COTTON REACTIVE DARK 60C (EDX300)",
+    "machine_code": "C012",
+    "sub_programs": [
+      {
+        "position": 1,
+        "treatment_id": null,
+        "treatment_number": "TR-SCOUR",
+        "treatment_name": "Prapengolahan S/B",
+        "parameters": {
+          "temperature": 98.0,
+          "hold_time": 45.0,
+          "water_level": 3200.0,
+          "pump_speed": 85.0
+        },
+        "steps": []
+      },
+      {
+        "position": 2,
+        "treatment_id": null,
+        "treatment_number": "TR-DYE-REACT",
+        "treatment_name": "Pencelupan Reaktif Katun 60C",
+        "parameters": {
+          "temperature": 60.0,
+          "hold_time": 60.0,
+          "water_level": 3000.0,
+          "pump_speed": 85.0
+        },
+        "steps": []
+      },
+      {
+        "position": 3,
+        "treatment_id": null,
+        "treatment_number": "TR-SOAP",
+        "treatment_name": "Pencucian Sabun Panas 95C",
+        "parameters": {
+          "temperature": 95.0,
+          "hold_time": 20.0,
+          "water_level": 3000.0,
+          "pump_speed": 80.0
+        },
+        "steps": []
+      },
+      {
+        "position": 4,
+        "treatment_id": null,
+        "treatment_number": "TR-RINSE",
+        "treatment_name": "Pembilasan Air Dingin",
+        "parameters": {
+          "hold_time": 15.0,
+          "water_level": 3000.0
+        },
+        "steps": []
+      },
+      {
+        "position": 5,
+        "treatment_id": null,
+        "treatment_number": "TR-UNLOAD",
+        "treatment_name": "Bongkar Kain & Selesai",
+        "parameters": {},
+        "steps": []
+      }
+    ],
+    "steps": [
+      {
+        "step_no": 1,
+        "label": "Isi Air Hangat",
+        "functions": [
+          {
+            "function_id": 713,
+            "name": "Water Fill",
+            "column": 1,
+            "flags": 0,
+            "params": [
+              1.0,
+              3200.0
+            ]
+          }
+        ],
+        "summary_temp": null,
+        "summary_time_min": 8.0,
+        "summary_pump_pct": 0.0,
+        "summary_reel_speed": 200.0,
+        "summary_water_l": 3200.0
+      },
+      {
+        "step_no": 2,
+        "label": "Sirkulasi Pompa & Dosing Kimia Prapengolahan",
+        "functions": [
+          {
+            "function_id": 404,
+            "name": "Circulation Pump",
+            "column": 1,
+            "flags": 0,
+            "params": [
+              85.0
+            ]
+          },
+          {
+            "function_id": 85,
+            "name": "Dosing Tank 1",
+            "column": 2,
+            "flags": 0,
+            "params": [
+              10.0,
+              100.0
+            ]
+          }
+        ],
+        "summary_temp": null,
+        "summary_time_min": 10.0,
+        "summary_pump_pct": 85.0,
+        "summary_reel_speed": 200.0,
+        "summary_water_l": 0
+      },
+      {
+        "step_no": 3,
+        "label": "Pemanasan ke Suhu 98\u00b0C",
+        "functions": [
+          {
+            "function_id": 141,
+            "name": "Heating",
+            "column": 1,
+            "flags": 0,
+            "params": [
+              98.0,
+              2.5
+            ]
+          }
+        ],
+        "summary_temp": 98.0,
+        "summary_time_min": 25.0,
+        "summary_pump_pct": 85.0,
+        "summary_reel_speed": 200.0,
+        "summary_water_l": 0
+      },
+      {
+        "step_no": 4,
+        "label": "Tahan Suhu 98\u00b0C (Pemasakan)",
+        "functions": [
+          {
+            "function_id": 121,
+            "name": "Hold",
+            "column": 1,
+            "flags": 0,
+            "params": [
+              45.0
+            ]
+          }
+        ],
+        "summary_temp": 98.0,
+        "summary_time_min": 45.0,
+        "summary_pump_pct": 85.0,
+        "summary_reel_speed": 200.0,
+        "summary_water_l": 0
+      },
+      {
+        "step_no": 5,
+        "label": "Drain Panas Total",
+        "functions": [
+          {
+            "function_id": 61,
+            "name": "Drain",
+            "column": 1,
+            "flags": 0,
+            "params": []
+          }
+        ],
+        "summary_temp": null,
+        "summary_time_min": 5.0,
+        "summary_pump_pct": 85.0,
+        "summary_reel_speed": 200.0,
+        "summary_water_l": 0
+      },
+      {
+        "step_no": 6,
+        "label": "Isi Air Celup",
+        "functions": [
+          {
+            "function_id": 713,
+            "name": "Water Fill",
+            "column": 1,
+            "flags": 0,
+            "params": [
+              1.0,
+              3000.0
+            ]
+          },
+          {
+            "function_id": 404,
+            "name": "Circulation Pump",
+            "column": 2,
+            "flags": 0,
+            "params": [
+              85.0
+            ]
+          }
+        ],
+        "summary_temp": null,
+        "summary_time_min": 8.0,
+        "summary_pump_pct": 85.0,
+        "summary_reel_speed": 200.0,
+        "summary_water_l": 3000.0
+      },
+      {
+        "step_no": 7,
+        "label": "Dosing Garam Glauber / Elektrolit (Tank 1)",
+        "functions": [
+          {
+            "function_id": 85,
+            "name": "Dosing Tank 1",
+            "column": 1,
+            "flags": 0,
+            "params": [
+              15.0,
+              100.0
+            ]
+          }
+        ],
+        "summary_temp": null,
+        "summary_time_min": 15.0,
+        "summary_pump_pct": 85.0,
+        "summary_reel_speed": 200.0,
+        "summary_water_l": 0
+      },
+      {
+        "step_no": 8,
+        "label": "Dosing Zat Warna Reaktif (Tank 2)",
+        "functions": [
+          {
+            "function_id": 86,
+            "name": "Dosing Tank 2",
+            "column": 1,
+            "flags": 0,
+            "params": [
+              20.0,
+              100.0
+            ]
+          }
+        ],
+        "summary_temp": null,
+        "summary_time_min": 20.0,
+        "summary_pump_pct": 85.0,
+        "summary_reel_speed": 200.0,
+        "summary_water_l": 0
+      },
+      {
+        "step_no": 9,
+        "label": "Heating ke Suhu Fiksasi 60\u00b0C",
+        "functions": [
+          {
+            "function_id": 141,
+            "name": "Heating",
+            "column": 1,
+            "flags": 0,
+            "params": [
+              60.0,
+              1.5
+            ]
+          }
+        ],
+        "summary_temp": 60.0,
+        "summary_time_min": 15.0,
+        "summary_pump_pct": 85.0,
+        "summary_reel_speed": 200.0,
+        "summary_water_l": 0
+      },
+      {
+        "step_no": 10,
+        "label": "Dosing Soda Ash / Fiksasi Alkali",
+        "functions": [
+          {
+            "function_id": 85,
+            "name": "Dosing Tank 1",
+            "column": 1,
+            "flags": 0,
+            "params": [
+              20.0,
+              100.0
+            ]
+          }
+        ],
+        "summary_temp": 60.0,
+        "summary_time_min": 20.0,
+        "summary_pump_pct": 85.0,
+        "summary_reel_speed": 200.0,
+        "summary_water_l": 0
+      },
+      {
+        "step_no": 11,
+        "label": "Tahan Fiksasi Suhu 60\u00b0C",
+        "functions": [
+          {
+            "function_id": 121,
+            "name": "Hold",
+            "column": 1,
+            "flags": 0,
+            "params": [
+              60.0
+            ]
+          }
+        ],
+        "summary_temp": 60.0,
+        "summary_time_min": 60.0,
+        "summary_pump_pct": 85.0,
+        "summary_reel_speed": 200.0,
+        "summary_water_l": 0
+      },
+      {
+        "step_no": 12,
+        "label": "Cooling ke 50\u00b0C",
+        "functions": [
+          {
+            "function_id": 144,
+            "name": "Cooling",
+            "column": 1,
+            "flags": 0,
+            "params": [
+              50.0,
+              2.0
+            ]
+          }
+        ],
+        "summary_temp": 50.0,
+        "summary_time_min": 6.0,
+        "summary_pump_pct": 85.0,
+        "summary_reel_speed": 200.0,
+        "summary_water_l": 0
+      },
+      {
+        "step_no": 13,
+        "label": "Drain Larutan Celup",
+        "functions": [
+          {
+            "function_id": 61,
+            "name": "Drain",
+            "column": 1,
+            "flags": 0,
+            "params": []
+          }
+        ],
+        "summary_temp": null,
+        "summary_time_min": 5.0,
+        "summary_pump_pct": 85.0,
+        "summary_reel_speed": 200.0,
+        "summary_water_l": 0
+      },
+      {
+        "step_no": 14,
+        "label": "Isi Air Bersih",
+        "functions": [
+          {
+            "function_id": 713,
+            "name": "Water Fill",
+            "column": 1,
+            "flags": 0,
+            "params": [
+              1.0,
+              3000.0
+            ]
+          },
+          {
+            "function_id": 404,
+            "name": "Circulation Pump",
+            "column": 2,
+            "flags": 0,
+            "params": [
+              80.0
+            ]
+          }
+        ],
+        "summary_temp": null,
+        "summary_time_min": 7.0,
+        "summary_pump_pct": 80.0,
+        "summary_reel_speed": 200.0,
+        "summary_water_l": 3000.0
+      },
+      {
+        "step_no": 15,
+        "label": "Dosing Agen Sabun / Deterjen",
+        "functions": [
+          {
+            "function_id": 85,
+            "name": "Dosing Tank 1",
+            "column": 1,
+            "flags": 0,
+            "params": [
+              5.0,
+              100.0
+            ]
+          }
+        ],
+        "summary_temp": null,
+        "summary_time_min": 5.0,
+        "summary_pump_pct": 85.0,
+        "summary_reel_speed": 200.0,
+        "summary_water_l": 0
+      },
+      {
+        "step_no": 16,
+        "label": "Pemanasan Cepat ke 95\u00b0C",
+        "functions": [
+          {
+            "function_id": 141,
+            "name": "Heating",
+            "column": 1,
+            "flags": 0,
+            "params": [
+              95.0,
+              3.0
+            ]
+          }
+        ],
+        "summary_temp": 95.0,
+        "summary_time_min": 20.0,
+        "summary_pump_pct": 85.0,
+        "summary_reel_speed": 200.0,
+        "summary_water_l": 0
+      },
+      {
+        "step_no": 17,
+        "label": "Tahan Sabun Suhu 95\u00b0C",
+        "functions": [
+          {
+            "function_id": 121,
+            "name": "Hold",
+            "column": 1,
+            "flags": 0,
+            "params": [
+              20.0
+            ]
+          }
+        ],
+        "summary_temp": 95.0,
+        "summary_time_min": 20.0,
+        "summary_pump_pct": 85.0,
+        "summary_reel_speed": 200.0,
+        "summary_water_l": 0
+      },
+      {
+        "step_no": 18,
+        "label": "Drain Air Sabun Panas",
+        "functions": [
+          {
+            "function_id": 61,
+            "name": "Drain",
+            "column": 1,
+            "flags": 0,
+            "params": []
+          }
+        ],
+        "summary_temp": null,
+        "summary_time_min": 5.0,
+        "summary_pump_pct": 85.0,
+        "summary_reel_speed": 200.0,
+        "summary_water_l": 0
+      },
+      {
+        "step_no": 19,
+        "label": "Isi Air Bersih",
+        "functions": [
+          {
+            "function_id": 713,
+            "name": "Water Fill",
+            "column": 1,
+            "flags": 0,
+            "params": [
+              1.0,
+              3000.0
+            ]
+          },
+          {
+            "function_id": 404,
+            "name": "Circulation Pump",
+            "column": 2,
+            "flags": 0,
+            "params": [
+              75.0
+            ]
+          }
+        ],
+        "summary_temp": null,
+        "summary_time_min": 7.0,
+        "summary_pump_pct": 75.0,
+        "summary_reel_speed": 200.0,
+        "summary_water_l": 3000.0
+      },
+      {
+        "step_no": 20,
+        "label": "Sirkulasi Bilas Dingin",
+        "functions": [
+          {
+            "function_id": 127,
+            "name": "Rinse",
+            "column": 1,
+            "flags": 0,
+            "params": [
+              15.0
+            ]
+          }
+        ],
+        "summary_temp": null,
+        "summary_time_min": 15.0,
+        "summary_pump_pct": 85.0,
+        "summary_reel_speed": 200.0,
+        "summary_water_l": 0
+      },
+      {
+        "step_no": 21,
+        "label": "Drain Bilas",
+        "functions": [
+          {
+            "function_id": 61,
+            "name": "Drain",
+            "column": 1,
+            "flags": 0,
+            "params": []
+          }
+        ],
+        "summary_temp": null,
+        "summary_time_min": 5.0,
+        "summary_pump_pct": 85.0,
+        "summary_reel_speed": 200.0,
+        "summary_water_l": 0
+      },
+      {
+        "step_no": 22,
+        "label": "Sinyal Panggilan Operator / Siap Bongkar",
+        "functions": [
+          {
+            "function_id": 126,
+            "name": "Check",
+            "column": 1,
+            "flags": 0,
+            "params": [
+              1.0
+            ]
+          }
+        ],
+        "summary_temp": null,
+        "summary_time_min": 10.0,
+        "summary_pump_pct": 85.0,
+        "summary_reel_speed": 200.0,
+        "summary_water_l": 0
+      },
+      {
+        "step_no": 23,
+        "label": "Program End / Stop Siklus",
+        "functions": [
+          {
+            "function_id": 2,
+            "name": "Program End",
+            "column": 1,
+            "flags": 0,
+            "params": []
+          }
+        ],
+        "summary_temp": null,
+        "summary_time_min": 0.0,
+        "summary_pump_pct": 85.0,
+        "summary_reel_speed": 200.0,
+        "summary_water_l": 0
+      }
+    ]
+  }
+}

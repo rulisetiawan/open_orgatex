@@ -1,0 +1,23 @@
+{
+  "group_id": "002",
+  "group_code": "GROUP_002_ATMOSPHERIC",
+  "group_name": "Atmospheric Dyeing (Winch / Soft Flow Atmos)",
+  "controller_type": "SECOM 777 (Windows CE)",
+  "temperature_range": {
+    "min": 20.0,
+    "max": 98.0,
+    "unit": "\u00b0C"
+  },
+  "tanks_count": 1,
+  "default_liquor_ratio": 10.0,
+  "description": "Kelompok mesin celup tekanan atmosfer (suhu kerja di bawah titik didih air / max 98\u00b0C).",
+  "files": {
+    "raw_typeconf": "raw/TYPECONF.CNF",
+    "raw_conftext": "raw/CONFTEXT.CNF",
+    "raw_fnlegend": "raw/FNLEGEND.CNF",
+    "raw_typecont": "raw/TYPECONT.CNF",
+    "decoded_functions": "decoded/typeconf_functions.json",
+    "decoded_conftext": "decoded/conftext_aligned.json"
+  },
+  "status": "incomplete"
+}

@@ -1,0 +1,15 @@
+{
+  "passed": true,
+  "tests": [
+    "raw PRG edit",
+    "multi-machine planning",
+    "batch edit",
+    "duplicate rejection",
+    "draft roundtrip",
+    "ZIP export",
+    "mobile overflow",
+    "file-mode explanation",
+    "no JS errors"
+  ],
+  "editedPrgOffset": 588
+}

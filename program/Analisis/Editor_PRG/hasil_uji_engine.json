@@ -1,0 +1,8 @@
+{
+  "templates_identical": 37,
+  "single_float_edit_only": true,
+  "invalid_limit_blocked": true,
+  "insert_delete_roundtrip": true,
+  "legacy_p6_preserved": true,
+  "new_program_roundtrip": true
+}

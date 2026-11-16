@@ -1,0 +1,8 @@
+{
+  "machine_no": "TD14",
+  "folder_name": "MESIN_TD14",
+  "controller_type": "SETEX SECOM 777 (Windows CE)",
+  "max_temp_c": 140.0,
+  "has_custom_hmi_config": false,
+  "status": "baseline_ready"
+}

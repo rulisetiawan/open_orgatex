@@ -1,0 +1,45 @@
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: openorgatex_backend
+    restart: unless-stopped
+    ports:
+      - "8743:8788"
+    environment:
+      - PORT=8788
+      - HOST=0.0.0.0
+      - DB_HOST=192.168.100.30
+      - DB_PORT=5433
+      - DB_NAME=pt_smm_jetflow
+      - DB_USER=postgres
+      - DB_PASSWORD=sensorSMM!
+      - DATABASE_URL=postgresql+psycopg2://postgres:sensorSMM!@192.168.100.30:5433/pt_smm_jetflow
+      - WRITE_MODE_ENABLED=false
+    volumes:
+      - ./backend/data:/app/open_orgatex/backend/data
+      - ../OrgaTex_Share:/app/OrgaTex_Share:ro
+      - ../Programs:/app/Programs:ro
+      - ../STATUS:/app/STATUS:ro
+      - ../plain_export:/app/plain_export:ro
+      - ..:/app/sc777ce_root:ro
+    networks:
+      - orgatex_net
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: openorgatex_frontend
+    restart: unless-stopped
+    ports:
+      - "4141:4141"
+    depends_on:
+      - backend
+    networks:
+      - orgatex_net
+
+networks:
+  orgatex_net:
+    driver: bridge

@@ -1,0 +1,13 @@
+{
+  "machine_no": "MC_TEMPLATE",
+  "display_name": "Contoh Template Mesin",
+  "group_code": "GROUP_001_HIGH_TEMP_JET",
+  "ip_address": "192.168.1.101",
+  "tcp_port": 50100,
+  "ftp_port": 21,
+  "capacity_kg": 500.0,
+  "default_liquor_ratio": 8.0,
+  "tanks_count": 2,
+  "machine_config_file": "MACHCONF.CNF",
+  "notes": "Salin template ini untuk membuat profil mesin spesifik (misal MC_TD01, MC_TD02)."
+}

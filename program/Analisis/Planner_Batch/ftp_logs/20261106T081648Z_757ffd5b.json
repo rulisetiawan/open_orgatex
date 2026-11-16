@@ -1,0 +1,23 @@
+{
+  "job": "20261106T081648Z_757ffd5b",
+  "action": "send",
+  "machine": "A001",
+  "queue": "/custom/queues/A001/QUEUE.BTD",
+  "events": [
+    "Stage folder /custom/batches/.pending_20261106T081648Z_757ffd5b_800001",
+    "Publish folder /custom/batches/800001",
+    "Backup queue /custom/queues/A001/QUEUE.BTD.backup_20261106T081648Z_757ffd5b",
+    "Nama queue lama dipulihkan"
+  ],
+  "committed": false,
+  "existing": 2,
+  "added": 1,
+  "references": [
+    "800001"
+  ],
+  "validation": "OK: preserved 2, added 1; verified keys 0-4",
+  "original_sha256": "e98848eea5f535bd290a1d354b3a76855b1135c31e8b1a81753dfd9c1b1e7ebf",
+  "merged_sha256": "e874a186871e9c81090e990c3225b10ae4554010b27f372af88dcc84b1afc4c3",
+  "error": "Injected commit failure",
+  "backup": "/custom/queues/A001/QUEUE.BTD.backup_20261106T081648Z_757ffd5b"
+}

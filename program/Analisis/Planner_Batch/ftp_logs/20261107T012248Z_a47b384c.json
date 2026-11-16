@@ -1,0 +1,10 @@
+{
+  "job": "20261107T012248Z_a47b384c",
+  "action": "check",
+  "machine": "E013",
+  "queue": "/Network/F/OT/MACHINES/E013/BATCHES/QUEUE.BTD",
+  "events": [],
+  "committed": false,
+  "error": "Queue tujuan belum tersedia/tidak terlihat. Siapkan queue mesin yang valid dahulu.",
+  "backup": null
+}

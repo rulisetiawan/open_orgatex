@@ -1,0 +1,10 @@
+{
+  "job": "20261106T081501Z_d7f9fbd1",
+  "action": "send",
+  "machine": "E013",
+  "queue": "/custom/queues/A001/QUEUE.BTD",
+  "events": [],
+  "committed": false,
+  "error": "Queue berisi mesin lain; periksa path tujuan",
+  "backup": null
+}

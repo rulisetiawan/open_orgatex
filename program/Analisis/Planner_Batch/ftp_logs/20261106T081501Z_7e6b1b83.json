@@ -1,0 +1,10 @@
+{
+  "job": "20261106T081501Z_7e6b1b83",
+  "action": "send",
+  "machine": "A001",
+  "queue": "/custom/queues/A001/QUEUE.BTD",
+  "events": [],
+  "committed": false,
+  "error": "Queue tujuan belum tersedia/tidak terlihat. Siapkan queue mesin yang valid dahulu.",
+  "backup": null
+}

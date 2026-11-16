@@ -1,0 +1,10 @@
+{
+  "job": "20261106T081459Z_8b310872",
+  "action": "send",
+  "machine": "A001",
+  "queue": "/custom/queues/A001/QUEUE.BTD",
+  "events": [],
+  "committed": false,
+  "error": "Folder referensi sudah ada: 800001",
+  "backup": null
+}

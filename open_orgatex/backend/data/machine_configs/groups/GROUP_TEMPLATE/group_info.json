@@ -1,0 +1,23 @@
+{
+  "group_id": "000",
+  "group_code": "GROUP_TEMPLATE",
+  "group_name": "Template Grup Mesin Baru",
+  "controller_type": "SECOM 777 / SETEX 737 / 838",
+  "temperature_range": {
+    "min": 20.0,
+    "max": 140.0,
+    "unit": "\u00b0C"
+  },
+  "tanks_count": 2,
+  "default_liquor_ratio": 8.0,
+  "description": "Copy folder ini untuk membuat grup tipe mesin baru (misal GROUP_004_JIGGER).",
+  "files": {
+    "raw_typeconf": "raw/TYPECONF.CNF",
+    "raw_conftext": "raw/CONFTEXT.CNF",
+    "raw_fnlegend": "raw/FNLEGEND.CNF",
+    "raw_typecont": "raw/TYPECONT.CNF",
+    "decoded_functions": "decoded/typeconf_functions.json",
+    "decoded_conftext": "decoded/conftext_aligned.json"
+  },
+  "status": "incomplete"
+}

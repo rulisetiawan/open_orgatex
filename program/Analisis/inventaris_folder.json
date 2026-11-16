@@ -1,0 +1,8402 @@
+[
+  {
+    "path": "Application Data/",
+    "count": 1,
+    "bytes": 69
+  },
+  {
+    "path": "My Documents/",
+    "count": 2,
+    "bytes": 105
+  },
+  {
+    "path": "Network/",
+    "count": 3464,
+    "bytes": 146205870
+  },
+  {
+    "path": "Network/F/",
+    "count": 3464,
+    "bytes": 146205870
+  },
+  {
+    "path": "Network/F/ENGLISH/",
+    "count": 30,
+    "bytes": 55267221
+  },
+  {
+    "path": "Network/F/OT/",
+    "count": 3401,
+    "bytes": 79691649
+  },
+  {
+    "path": "Network/F/OT/BATCH/",
+    "count": 3174,
+    "bytes": 35650246
+  },
+  {
+    "path": "Network/F/OT/BATCH/000124/",
+    "count": 1,
+    "bytes": 16569
+  },
+  {
+    "path": "Network/F/OT/BATCH/004186/",
+    "count": 0,
+    "bytes": 0
+  },
+  {
+    "path": "Network/F/OT/BATCH/004187/",
+    "count": 0,
+    "bytes": 0
+  },
+  {
+    "path": "Network/F/OT/BATCH/004656/",
+    "count": 1,
+    "bytes": 23719
+  },
+  {
+    "path": "Network/F/OT/BATCH/004711/",
+    "count": 1,
+    "bytes": 23459
+  },
+  {
+    "path": "Network/F/OT/BATCH/004712/",
+    "count": 1,
+    "bytes": 24954
+  },
+  {
+    "path": "Network/F/OT/BATCH/004713/",
+    "count": 0,
+    "bytes": 0
+  },
+  {
+    "path": "Network/F/OT/BATCH/005425/",
+    "count": 1,
+    "bytes": 18129
+  },
+  {
+    "path": "Network/F/OT/BATCH/007737/",
+    "count": 1,
+    "bytes": 25604
+  },
+  {
+    "path": "Network/F/OT/BATCH/007738/",
+    "count": 1,
+    "bytes": 25604
+  },
+  {
+    "path": "Network/F/OT/BATCH/008486/",
+    "count": 1,
+    "bytes": 29244
+  },
+  {
+    "path": "Network/F/OT/BATCH/011178/",
+    "count": 2,
+    "bytes": 28966
+  },
+  {
+    "path": "Network/F/OT/BATCH/011660/",
+    "count": 1,
+    "bytes": 21574
+  },
+  {
+    "path": "Network/F/OT/BATCH/014397/",
+    "count": 1,
+    "bytes": 13254
+  },
+  {
+    "path": "Network/F/OT/BATCH/021172/",
+    "count": 2,
+    "bytes": 30266
+  },
+  {
+    "path": "Network/F/OT/BATCH/029631/",
+    "count": 2,
+    "bytes": 24676
+  },
+  {
+    "path": "Network/F/OT/BATCH/029632/",
+    "count": 2,
+    "bytes": 26561
+  },
+  {
+    "path": "Network/F/OT/BATCH/029651/",
+    "count": 2,
+    "bytes": 26561
+  },
+  {
+    "path": "Network/F/OT/BATCH/029926/",
+    "count": 2,
+    "bytes": 26561
+  },
+  {
+    "path": "Network/F/OT/BATCH/029930/",
+    "count": 2,
+    "bytes": 28836
+  },
+  {
+    "path": "Network/F/OT/BATCH/029931/",
+    "count": 2,
+    "bytes": 28836
+  },
+  {
+    "path": "Network/F/OT/BATCH/029946/",
+    "count": 2,
+    "bytes": 28836
+  },
+  {
+    "path": "Network/F/OT/BATCH/031948/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/031952/",
+    "count": 1,
+    "bytes": 23459
+  },
+  {
+    "path": "Network/F/OT/BATCH/031956/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/031957/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/031958/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/031959/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/031960/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/031961/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/031962/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/031963/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/031964/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/031966/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/031967/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/031968/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/031970/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/031971/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/031972/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/031973/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/031974/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/031975/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/031976/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/031977/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/031978/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/031979/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/031980/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/031981/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/031982/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/031983/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/031984/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/031985/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/031986/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/031987/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/031988/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/031989/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/031990/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/031991/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/031992/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/031993/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/031994/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/031995/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/031996/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/031997/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/031998/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/031999/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032000/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032001/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032002/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032003/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032004/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032005/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032006/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032007/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032008/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032009/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032010/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032011/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032012/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032013/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032014/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032015/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032016/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032017/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032018/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032019/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032020/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032021/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032022/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032023/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032024/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032025/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032026/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032027/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032028/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032029/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032030/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032031/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032032/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032033/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032034/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032035/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032036/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032037/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032038/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032039/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032040/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032042/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032043/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032044/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032045/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032046/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032047/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032048/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032049/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032052/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032053/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032054/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032055/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032056/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032057/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032058/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032059/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032060/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032061/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032062/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032063/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032064/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032065/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032066/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032067/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032068/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032069/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032070/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032071/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032072/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032073/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032075/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032076/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032077/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032079/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032081/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032082/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032083/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032084/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032085/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032086/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032087/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032088/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032090/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032091/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032092/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032094/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032095/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032096/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032097/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032098/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032099/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032100/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032101/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032102/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032103/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032104/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032106/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032107/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032108/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032110/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032111/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032114/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032115/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032116/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032117/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032118/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032119/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032120/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032121/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032122/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032123/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032124/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032125/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032126/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032128/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032129/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032130/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032131/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032132/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032133/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032134/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032135/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032136/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032137/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032138/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032139/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032140/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032141/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032142/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032143/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032145/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032146/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032147/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032148/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032150/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032151/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032152/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032154/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032155/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032156/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032157/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032158/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032159/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032160/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032161/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032162/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032163/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032164/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032165/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032166/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032167/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032168/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032169/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032170/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032172/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032173/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032174/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032175/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032176/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032177/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032178/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032179/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032180/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032181/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032182/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032183/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032185/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032186/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032187/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032188/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032189/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032190/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032191/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032192/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032193/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032194/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032195/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032196/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032197/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032198/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032200/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032201/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032202/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032203/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032204/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032206/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032207/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032208/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032209/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032210/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032212/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032213/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032214/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032215/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032217/",
+    "count": 1,
+    "bytes": 21574
+  },
+  {
+    "path": "Network/F/OT/BATCH/032218/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032219/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032220/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032221/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032222/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032223/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032224/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032225/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032226/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032227/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032228/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032229/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032230/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032231/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032232/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032233/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032234/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032235/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032236/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032237/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032238/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032239/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032240/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032241/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032242/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032243/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032244/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032245/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032246/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032247/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032248/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032249/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032250/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032251/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032252/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032253/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032254/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032255/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032256/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032257/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032258/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032259/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032260/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032261/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032262/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032263/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032264/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032265/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032266/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032267/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032268/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032269/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032270/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032271/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032272/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032273/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032274/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032275/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032276/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032277/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032278/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032279/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032280/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032281/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032282/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032283/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032284/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032285/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032286/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032287/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032288/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032289/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032290/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032291/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032292/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032293/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032294/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032295/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032296/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032297/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032298/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032299/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032300/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032301/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032302/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032303/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032304/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032305/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032306/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032307/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032308/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032309/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032310/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032311/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032312/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032313/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032314/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032315/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032316/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032317/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032318/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032319/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032320/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032321/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032322/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032323/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032324/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032325/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032326/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032327/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032328/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032329/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032330/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032331/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032332/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032333/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032334/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032335/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032336/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032337/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032338/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032339/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032340/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032341/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032342/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032343/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032344/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032345/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032346/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032347/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032348/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032349/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032350/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032351/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032352/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032353/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032354/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032355/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032356/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032357/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032358/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032359/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032360/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032361/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032362/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032363/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032364/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032365/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032366/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032367/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032368/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032369/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032370/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032371/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032372/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032373/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032374/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032375/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032376/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032377/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032378/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032379/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032380/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032381/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032382/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032383/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032384/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032385/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032386/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032387/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032388/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032389/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032390/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032391/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032392/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032393/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032394/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032395/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032396/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032397/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032398/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032399/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032400/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032401/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032402/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032403/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032404/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032405/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032406/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032407/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032408/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032409/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032410/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032411/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032412/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032414/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032415/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032416/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032417/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032418/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032419/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032420/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032421/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032422/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032424/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032425/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032426/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032427/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032428/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032429/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032430/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032431/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032432/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032433/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032434/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032435/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032436/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032437/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032438/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032439/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032440/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032441/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032442/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032443/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032444/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032445/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032446/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032447/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032448/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032449/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032450/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032451/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032452/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032453/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032454/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032455/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032456/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032457/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032458/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032459/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032460/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032461/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032462/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032463/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032464/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032465/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032466/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032467/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032468/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032469/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032470/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032471/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032472/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032473/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032474/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032475/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032476/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032477/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032478/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032479/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032480/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032481/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032482/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032483/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032484/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032485/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032486/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032487/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032488/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032489/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032490/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032491/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032492/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032493/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032494/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032495/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032496/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032497/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032498/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032499/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032500/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032501/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032503/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032504/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032505/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032506/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032507/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032508/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032509/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032510/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032511/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032512/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032513/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032514/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032515/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032516/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032517/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032518/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032519/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032520/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032521/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032522/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032523/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032524/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032525/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032526/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032527/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032528/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032529/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032530/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032531/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032532/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032533/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032534/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032535/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032536/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032537/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032538/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032539/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032540/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032541/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032542/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032543/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032544/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032545/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032546/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032547/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032548/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032549/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032550/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032551/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032552/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032553/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032554/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032555/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032556/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032557/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032558/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032559/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032560/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032561/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032562/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032563/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032564/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032565/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032566/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032567/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032568/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032569/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032570/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032571/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032572/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032573/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032574/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032575/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032576/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032577/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032578/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032579/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032580/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032581/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032582/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032583/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032584/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032585/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032586/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032588/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032589/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032590/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032591/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032592/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032593/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032595/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032596/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032597/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032598/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032600/",
+    "count": 1,
+    "bytes": 21574
+  },
+  {
+    "path": "Network/F/OT/BATCH/032601/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032602/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032603/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032604/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032605/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032606/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032607/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032608/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032609/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032610/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032611/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032612/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032613/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032614/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032615/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032616/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032617/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032618/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032619/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032620/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032621/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032622/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032623/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032624/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032625/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032626/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032627/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032628/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032629/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032630/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032631/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032632/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032633/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032634/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032635/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032636/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032637/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032638/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032639/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032640/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032641/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032642/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032643/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032644/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032645/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032646/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032647/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032648/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032649/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032650/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032651/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032652/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032653/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032654/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032655/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032656/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032657/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032658/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032659/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032660/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032661/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032662/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032663/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032664/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032665/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032666/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032667/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032668/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032669/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032670/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032671/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032672/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032673/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032674/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032675/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032676/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032677/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032678/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032679/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032680/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032681/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032682/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032683/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032684/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032685/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032686/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032687/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032688/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032689/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032690/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032691/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032692/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032693/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032694/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032695/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032696/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032697/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032698/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032699/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032700/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032701/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032702/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032703/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032704/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032705/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032706/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032707/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032708/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032709/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032710/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032711/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032712/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032713/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032714/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032715/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032716/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032717/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032718/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032719/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032720/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032721/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032722/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032723/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032724/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032725/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032726/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032727/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032728/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032729/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032730/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032731/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032732/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032733/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032734/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032735/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032736/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032737/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032738/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032739/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032740/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032741/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032742/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032743/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032744/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032745/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032746/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032747/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032748/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032749/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032750/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032751/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032752/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032753/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032754/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032755/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032756/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032757/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032758/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032759/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032760/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032761/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032762/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032763/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032764/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032765/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032766/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032767/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032768/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032769/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032770/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032771/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032772/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032773/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032774/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032775/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032776/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032777/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032778/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032779/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032780/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032781/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032782/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032783/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032784/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032785/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032786/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032787/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032788/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032789/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032790/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032791/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032792/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032793/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032794/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032795/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032796/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032797/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032798/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032799/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032800/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032801/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032802/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032803/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032804/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032805/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032806/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032807/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032808/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032809/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032810/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032811/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032812/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032813/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032814/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032815/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032816/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032817/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032818/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032819/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032820/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032821/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032822/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032823/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032824/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032825/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032826/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032827/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032828/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032829/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032830/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032831/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032832/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032833/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032834/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032835/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032836/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032837/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032838/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032839/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032840/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032841/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032842/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032843/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032844/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032845/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032846/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032847/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032848/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032849/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032850/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032851/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032852/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032853/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032854/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032855/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032856/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032857/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032858/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032859/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032860/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032861/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032862/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032863/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032864/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032865/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032866/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032867/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032868/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032869/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032870/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032871/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032872/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032873/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032874/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032875/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032876/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032877/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032878/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032879/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032880/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032881/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032882/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032883/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032884/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032885/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032886/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032887/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032888/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032889/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032890/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032891/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032892/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032893/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032894/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032895/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032896/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032897/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032898/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032899/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032900/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032901/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032902/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032903/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032904/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032905/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032906/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032907/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032908/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032909/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032910/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032911/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032912/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032913/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032914/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032915/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032916/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032917/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032918/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032919/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032920/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032921/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032922/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032923/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032924/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032925/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032926/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032927/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032928/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032929/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032930/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032931/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032932/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032933/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032934/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032935/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032936/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032937/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032938/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032939/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032940/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032941/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032942/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032943/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032944/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032945/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032946/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032947/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032948/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032949/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032950/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032951/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032952/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032953/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032954/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032955/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032956/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032957/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032958/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032959/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032960/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032961/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032962/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032963/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032964/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032965/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032966/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032967/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032968/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032969/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032970/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032971/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032972/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032973/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032974/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032975/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032976/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032977/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032978/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032979/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032980/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032981/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032982/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032983/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032984/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032985/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032986/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032987/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032988/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032989/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032990/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032991/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032992/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032993/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032994/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032995/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032996/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032997/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032998/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/032999/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033000/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033001/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033002/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033003/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033004/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033005/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033006/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033007/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033008/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033009/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033010/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033011/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033012/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033013/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033014/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033015/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033016/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033017/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033018/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033019/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033020/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033021/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033022/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033023/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033024/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033025/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033026/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033027/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033028/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033029/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033030/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033035/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033041/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033043/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033044/",
+    "count": 1,
+    "bytes": 21574
+  },
+  {
+    "path": "Network/F/OT/BATCH/033045/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033046/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033047/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033048/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033049/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033050/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033051/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033052/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033053/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033054/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033055/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033056/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033057/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033058/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033059/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033067/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033069/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033070/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033072/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033073/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033074/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033075/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033076/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033077/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033078/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033079/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033080/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033081/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033082/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033083/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033084/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033085/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033086/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033087/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033088/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033089/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033090/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033091/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033092/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033093/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033094/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033095/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033096/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033097/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033098/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033099/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033100/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033101/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033102/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033103/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033104/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033105/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033106/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033107/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033108/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033109/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033110/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033111/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033112/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033113/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033114/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033115/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033116/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033117/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033118/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033119/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033120/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033121/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033122/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033123/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033124/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033125/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033126/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033127/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033128/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033129/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033130/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033131/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033132/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033133/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033134/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033135/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033136/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033137/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033138/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033139/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033140/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033141/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033142/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033143/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033144/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033145/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033146/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033147/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033148/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033149/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033150/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033151/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033152/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033153/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033154/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033155/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033156/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033157/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033158/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033159/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033160/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033161/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033162/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033163/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033164/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033165/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033166/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033167/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033168/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033169/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033170/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033171/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033172/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033173/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033174/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033175/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033176/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033177/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033178/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033179/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033180/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033181/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033182/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033183/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033184/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033185/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033186/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033187/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033188/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033189/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033190/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033191/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033192/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033193/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033194/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033195/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033196/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033197/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033198/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033199/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033200/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033201/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033202/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033203/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033204/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033205/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033206/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033207/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033208/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033209/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033210/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033211/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033212/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033213/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033214/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033215/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033216/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033217/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033218/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033219/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033220/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033221/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033222/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033223/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033224/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033225/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033226/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033227/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033228/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033229/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033230/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033231/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033232/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033233/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033234/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033235/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033236/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033237/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033238/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033239/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033240/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033241/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033242/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033243/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033244/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033245/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033246/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033247/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033248/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033249/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033250/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033251/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033252/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033253/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033254/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033255/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033256/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033257/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033258/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033259/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033260/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033261/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033262/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033263/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033264/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033265/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033266/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033267/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033268/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033269/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033270/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033271/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033272/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033273/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033274/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033275/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033276/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033277/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033278/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033279/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033280/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033281/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033282/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033283/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033284/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033285/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033286/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033287/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033288/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033289/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033290/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033291/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033292/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033293/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033294/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033295/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033296/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033297/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033298/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033299/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033300/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033301/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033302/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033303/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033304/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033305/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033306/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033307/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033308/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033309/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033311/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033312/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033313/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033314/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033315/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033316/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033317/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033318/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033319/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033320/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033321/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033322/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033323/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033324/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033325/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033326/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033327/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033328/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033329/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033330/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033331/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033332/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033333/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033334/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033335/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033336/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033337/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033338/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033339/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033340/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033341/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033342/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033343/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033344/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033345/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033346/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033347/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033348/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033349/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033350/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033351/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033352/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033353/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033354/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033355/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033356/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033357/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033358/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033359/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033360/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033361/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033362/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033363/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033364/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033365/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033366/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033367/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033368/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033369/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033370/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033371/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033372/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033373/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033374/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033375/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033376/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033377/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033378/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033379/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033380/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033381/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033382/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033383/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033384/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033385/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033386/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033387/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033388/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033389/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033390/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033391/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033392/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033393/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033394/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033395/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033396/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033397/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033398/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033399/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033400/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033401/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033402/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033403/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033404/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033405/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033406/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033407/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033408/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033409/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033410/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033411/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033412/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033413/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033414/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033415/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033416/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033417/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033418/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033419/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033420/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033421/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033422/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033423/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033424/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033425/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033426/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033427/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033428/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033429/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033430/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033431/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033432/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033433/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033434/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033435/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033436/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033437/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033438/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033439/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033440/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033441/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033442/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033443/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033444/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033445/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033446/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033447/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033448/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033449/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033450/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033451/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033452/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033453/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033454/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033455/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033456/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033457/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033458/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033459/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033460/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033461/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033462/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033463/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033464/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033465/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033466/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033467/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033468/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033469/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033470/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033471/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033472/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033473/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033474/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033475/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033476/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033477/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033478/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033479/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033480/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033481/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033482/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033483/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033484/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033485/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033486/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033487/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033488/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033489/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033490/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033491/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033492/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033493/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033494/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033495/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033496/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033497/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033498/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033499/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033500/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033501/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033502/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033503/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033504/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033505/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033506/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033507/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033508/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033509/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033510/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033511/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033512/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033513/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033514/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033515/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033516/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033517/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033518/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033519/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033520/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033521/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033522/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033523/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033524/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033525/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033526/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033527/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033528/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033529/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033530/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033531/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033532/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033533/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033534/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033535/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033536/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033537/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033538/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033539/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033540/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033541/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033542/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033543/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033544/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033545/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033546/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033547/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033548/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033549/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033550/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033551/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033552/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033553/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033554/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033555/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033556/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033557/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033558/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033559/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033560/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033561/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033562/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033563/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033564/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033565/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033566/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033567/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033568/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033569/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033570/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033571/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033572/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033573/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033574/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033575/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033576/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033577/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033578/",
+    "count": 2,
+    "bytes": 22336
+  },
+  {
+    "path": "Network/F/OT/BATCH/033579/",
+    "count": 0,
+    "bytes": 0
+  },
+  {
+    "path": "Network/F/OT/BIN/",
+    "count": 6,
+    "bytes": 50116
+  },
+  {
+    "path": "Network/F/OT/CFG/",
+    "count": 15,
+    "bytes": 12365
+  },
+  {
+    "path": "Network/F/OT/DOSING/",
+    "count": 5,
+    "bytes": 925
+  },
+  {
+    "path": "Network/F/OT/GROUP/",
+    "count": 72,
+    "bytes": 34149376
+  },
+  {
+    "path": "Network/F/OT/GROUP/001/",
+    "count": 36,
+    "bytes": 17057792
+  },
+  {
+    "path": "Network/F/OT/GROUP/001/BACKUP/",
+    "count": 18,
+    "bytes": 8528896
+  },
+  {
+    "path": "Network/F/OT/GROUP/002/",
+    "count": 36,
+    "bytes": 17091584
+  },
+  {
+    "path": "Network/F/OT/GROUP/002/BACKUP/",
+    "count": 18,
+    "bytes": 8562688
+  },
+  {
+    "path": "Network/F/OT/HISTORY/",
+    "count": 8,
+    "bytes": 1189624
+  },
+  {
+    "path": "Network/F/OT/HISTORY/HS045xxx/",
+    "count": 8,
+    "bytes": 1189624
+  },
+  {
+    "path": "Network/F/OT/PROCEDUR/",
+    "count": 16,
+    "bytes": 149504
+  },
+  {
+    "path": "Network/F/OT/PROCEDUR/001/",
+    "count": 1,
+    "bytes": 10240
+  },
+  {
+    "path": "Network/F/OT/PROCEDUR/002/",
+    "count": 1,
+    "bytes": 10240
+  },
+  {
+    "path": "Network/F/OT/PROCEDUR/003/",
+    "count": 1,
+    "bytes": 10240
+  },
+  {
+    "path": "Network/F/OT/PROCEDUR/004/",
+    "count": 1,
+    "bytes": 3072
+  },
+  {
+    "path": "Network/F/OT/PROCEDUR/005/",
+    "count": 1,
+    "bytes": 10240
+  },
+  {
+    "path": "Network/F/OT/PROCEDUR/006/",
+    "count": 1,
+    "bytes": 10240
+  },
+  {
+    "path": "Network/F/OT/PROCEDUR/007/",
+    "count": 1,
+    "bytes": 10240
+  },
+  {
+    "path": "Network/F/OT/PROCEDUR/008/",
+    "count": 1,
+    "bytes": 10240
+  },
+  {
+    "path": "Network/F/OT/PROCEDUR/009/",
+    "count": 1,
+    "bytes": 10240
+  },
+  {
+    "path": "Network/F/OT/PROCEDUR/010/",
+    "count": 1,
+    "bytes": 10240
+  },
+  {
+    "path": "Network/F/OT/PROCEDUR/011/",
+    "count": 1,
+    "bytes": 10240
+  },
+  {
+    "path": "Network/F/OT/PROCEDUR/012/",
+    "count": 1,
+    "bytes": 10240
+  },
+  {
+    "path": "Network/F/OT/PROCEDUR/013/",
+    "count": 1,
+    "bytes": 10240
+  },
+  {
+    "path": "Network/F/OT/PROCEDUR/014/",
+    "count": 1,
+    "bytes": 9728
+  },
+  {
+    "path": "Network/F/OT/PROCEDUR/015/",
+    "count": 1,
+    "bytes": 10240
+  },
+  {
+    "path": "Network/F/OT/PROCEDUR/016/",
+    "count": 1,
+    "bytes": 3584
+  },
+  {
+    "path": "Network/F/OT/PROCEDUR/018/",
+    "count": 0,
+    "bytes": 0
+  },
+  {
+    "path": "Network/F/OT/REPORTS/",
+    "count": 105,
+    "bytes": 8489493
+  },
+  {
+    "path": "Network/F/Update/",
+    "count": 21,
+    "bytes": 8903066
+  },
+  {
+    "path": "Network/F/Update/Config/",
+    "count": 21,
+    "bytes": 8903066
+  },
+  {
+    "path": "Program Files/",
+    "count": 5,
+    "bytes": 11896
+  },
+  {
+    "path": "Program Files/Office/",
+    "count": 3,
+    "bytes": 11808
+  },
+  {
+    "path": "Program Files/Office/Templates/",
+    "count": 2,
+    "bytes": 11787
+  },
+  {
+    "path": "Recycled/",
+    "count": 0,
+    "bytes": 0
+  },
+  {
+    "path": "Storage/",
+    "count": 168,
+    "bytes": 70915564
+  },
+  {
+    "path": "Storage/Documents and Settings/",
+    "count": 0,
+    "bytes": 0
+  },
+  {
+    "path": "Storage/Documents and Settings/default/",
+    "count": 0,
+    "bytes": 0
+  },
+  {
+    "path": "Storage/SC777CE/",
+    "count": 164,
+    "bytes": 55945898
+  },
+  {
+    "path": "Storage/SC777CE/BATCH/",
+    "count": 34,
+    "bytes": 3400927
+  },
+  {
+    "path": "Storage/SC777CE/BATCH/012282/",
+    "count": 4,
+    "bytes": 671382
+  },
+  {
+    "path": "Storage/SC777CE/BATCH/060066/",
+    "count": 3,
+    "bytes": 358125
+  },
+  {
+    "path": "Storage/SC777CE/BATCH/060218/",
+    "count": 3,
+    "bytes": 343130
+  },
+  {
+    "path": "Storage/SC777CE/BATCH/060267/",
+    "count": 3,
+    "bytes": 351704
+  },
+  {
+    "path": "Storage/SC777CE/BATCH/060348/",
+    "count": 3,
+    "bytes": 382563
+  },
+  {
+    "path": "Storage/SC777CE/BATCH/060406/",
+    "count": 3,
+    "bytes": 358637
+  },
+  {
+    "path": "Storage/SC777CE/BATCH/060455/",
+    "count": 3,
+    "bytes": 9418
+  },
+  {
+    "path": "Storage/SC777CE/BATCH/060735/",
+    "count": 3,
+    "bytes": 401330
+  },
+  {
+    "path": "Storage/SC777CE/BATCH/060766/",
+    "count": 4,
+    "bytes": 487327
+  },
+  {
+    "path": "Storage/SC777CE/BATCH/060892/",
+    "count": 3,
+    "bytes": 29893
+  },
+  {
+    "path": "Storage/SC777CE/Config/",
+    "count": 21,
+    "bytes": 8918562
+  },
+  {
+    "path": "Storage/SC777CE/Doc/",
+    "count": 2,
+    "bytes": 7160170
+  },
+  {
+    "path": "Storage/SC777CE/ERRORLOG/",
+    "count": 3,
+    "bytes": 72198
+  },
+  {
+    "path": "Storage/SC777CE/Loader/",
+    "count": 3,
+    "bytes": 900165
+  },
+  {
+    "path": "Storage/SC777CE/Programs/",
+    "count": 38,
+    "bytes": 524960
+  },
+  {
+    "path": "Storage/SC777CE/STATUS/",
+    "count": 9,
+    "bytes": 68016
+  },
+  {
+    "path": "Storage/SC777CE/System/",
+    "count": 6,
+    "bytes": 9145637
+  },
+  {
+    "path": "Storage/SC777CE/Udreg/",
+    "count": 1,
+    "bytes": 3491
+  },
+  {
+    "path": "Storage/SC777CE/Udtools/",
+    "count": 22,
+    "bytes": 3863168
+  },
+  {
+    "path": "Storage/SC777CE/Udtools/CI16/",
+    "count": 2,
+    "bytes": 144384
+  },
+  {
+    "path": "Storage/SC777CE/Udtools/CP14/",
+    "count": 14,
+    "bytes": 3491952
+  },
+  {
+    "path": "Storage/SC777CE/Udtools/CP8/",
+    "count": 3,
+    "bytes": 196608
+  },
+  {
+    "path": "Storage/SC777CE/Udtools/IMARC/",
+    "count": 3,
+    "bytes": 30224
+  },
+  {
+    "path": "Storage/SC777CE/Update/",
+    "count": 0,
+    "bytes": 0
+  },
+  {
+    "path": "Temp/",
+    "count": 470,
+    "bytes": 2541040
+  },
+  {
+    "path": "Temp/AlarmIcon/",
+    "count": 8,
+    "bytes": 88624
+  },
+  {
+    "path": "Temp/ProcIcon/",
+    "count": 462,
+    "bytes": 2452416
+  },
+  {
+    "path": "Windows/",
+    "count": 12,
+    "bytes": 495
+  },
+  {
+    "path": "Windows/Favorites/",
+    "count": 1,
+    "bytes": 69
+  },
+  {
+    "path": "Windows/Fonts/",
+    "count": 1,
+    "bytes": 69
+  },
+  {
+    "path": "Windows/Help/",
+    "count": 7,
+    "bytes": 150
+  },
+  {
+    "path": "Windows/Programs/",
+    "count": 1,
+    "bytes": 69
+  },
+  {
+    "path": "Windows/Programs/Microsoft File Viewers/",
+    "count": 0,
+    "bytes": 0
+  },
+  {
+    "path": "Windows/Recent/",
+    "count": 1,
+    "bytes": 69
+  },
+  {
+    "path": "Windows/StartUp/",
+    "count": 1,
+    "bytes": 69
+  }
+]

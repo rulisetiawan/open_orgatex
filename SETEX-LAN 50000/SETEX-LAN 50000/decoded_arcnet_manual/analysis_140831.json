@@ -1,0 +1,107 @@
+{
+  "source": "C:\\Users\\surface\\Downloads\\MANUAL_20261110_140831_152341.log",
+  "packets": 753,
+  "bad": [],
+  "begin": "2026-11-10T14:08:31.149+07:00",
+  "end": "2026-11-10T14:09:17.581+07:00",
+  "events": [
+    {
+      "time": "2026-11-10T14:08:37.597+07:00",
+      "src": 1,
+      "dst": 2,
+      "type": 1,
+      "service": 110,
+      "object": 1004,
+      "length": 0,
+      "data": ""
+    },
+    {
+      "time": "2026-11-10T14:08:37.663+07:00",
+      "src": 2,
+      "dst": 1,
+      "type": 2,
+      "service": 110,
+      "object": 1004,
+      "length": 0,
+      "data": ""
+    },
+    {
+      "time": "2026-11-10T14:09:12.278+07:00",
+      "src": 1,
+      "dst": 2,
+      "type": 1,
+      "service": 102,
+      "object": 1006,
+      "length": 64,
+      "function": 141,
+      "parameters": [
+        {
+          "slot": 1,
+          "raw": 2933,
+          "value": 44.0,
+          "id": 3
+        },
+        {
+          "slot": 2,
+          "raw": 133,
+          "value": 2.0,
+          "id": 4
+        },
+        {
+          "slot": 3,
+          "raw": 120,
+          "value": 2.0,
+          "id": 5
+        },
+        {
+          "slot": 4,
+          "raw": 0,
+          "value": 0.0,
+          "id": 0
+        },
+        {
+          "slot": 5,
+          "raw": 0,
+          "value": 0.0,
+          "id": 0
+        },
+        {
+          "slot": 6,
+          "raw": 0,
+          "value": 0.0,
+          "id": 0
+        }
+      ]
+    },
+    {
+      "time": "2026-11-10T14:09:12.424+07:00",
+      "src": 2,
+      "dst": 1,
+      "type": 2,
+      "service": 102,
+      "object": 1006,
+      "length": 0,
+      "data": ""
+    },
+    {
+      "time": "2026-11-10T14:09:12.569+07:00",
+      "src": 1,
+      "dst": 2,
+      "type": 1,
+      "service": 110,
+      "object": 1004,
+      "length": 0,
+      "data": ""
+    },
+    {
+      "time": "2026-11-10T14:09:12.617+07:00",
+      "src": 2,
+      "dst": 1,
+      "type": 2,
+      "service": 110,
+      "object": 1004,
+      "length": 0,
+      "data": ""
+    }
+  ]
+}

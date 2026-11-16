@@ -1,0 +1,26 @@
+const fs=require('fs'),path=require('path'),assert=require('node:assert/strict');
+const E=require('./engine.js'),D=JSON.parse(fs.readFileSync(path.join(__dirname,'data.json'),'utf8'));
+const source=t=>Buffer.from(t.base64,'base64');
+let templates=0;
+for(const t of D.templates){const b=source(t),m=E.parse(b,t.filename);assert.deepEqual(E.validate(m,D).errors,[]);assert.deepEqual(Buffer.from(E.serialize(m,D)),b,t.filename);templates++;}
+const t=D.templates.find(t=>t.id===182),b=source(t),m=E.parse(b,t.filename);
+const step35=m.steps[34].records.find(r=>r.line===1);assert.equal(step35.functionId,141);
+const rowIndex=m.steps.slice(0,34).reduce((n,s)=>n+s.records.length,0)+m.steps[34].records.indexOf(step35);
+step35.values[0]=125;
+const changed=E.serialize(m,D),floatOffset=384+rowIndex*65+9;
+assert.equal(new DataView(changed.buffer).getFloat32(floatOffset,true),125);
+for(let i=0;i<b.length;i++)if(i<floatOffset||i>=floatOffset+4)assert.equal(changed[i],b[i],'Unexpected byte change at '+i);
+step35.values[2]=181;assert.throws(()=>E.serialize(m,D),/maksimal/);step35.values[2]=30;
+m.programId=183;m.title='TEST EDITOR';
+const newstep=E.newStep(D,141);newstep.records[0].values=[80,2,15,0,0,0];E.setComment(newstep,'TEST TEMPERATURE');
+m.steps.splice(35,0,newstep);
+const added=E.serialize(m,D),parsed=E.parse(added,'M_0183.PRG');assert.equal(parsed.steps.length,59);assert.equal(parsed.programId,183);assert.equal(parsed.title,'TEST EDITOR');
+assert.equal(parsed.steps[35].records.find(r=>r.line===1).values[0],80);assert.equal(E.comments(parsed.steps[35]),'TEST TEMPERATURE');
+for(let i=0;i<parsed.steps.length;i++)for(const r of parsed.steps[i].records)assert.equal(E.view(E.bytes(r.raw)).getUint16(0,true),i+1);
+m.steps.splice(35,1);assert.equal(E.parse(E.serialize(m,D)).steps.length,58);
+const original=E.parse(b);const extra=original.steps[5].records.find(r=>r.functionId===718);assert.equal(extra.values[5],1);assert.equal(E.parse(E.serialize(original,D)).steps[5].records.find(r=>r.functionId===718).values[5],1);
+const blank={...E.clone(original),programId:200,title:'PROGRAM BARU',steps:[E.newStep(D,1),E.newStep(D,2)]};assert.equal(E.parse(E.serialize(blank,D)).steps.length,2);
+assert.throws(()=>E.parse(Buffer.alloc(400)),/Format PRG/);
+assert.equal(E.allowed(D,141,1),true);assert.equal(E.allowed(D,404,2),true);
+fs.writeFileSync(path.join(__dirname,'hasil_uji_engine.json'),JSON.stringify({templates_identical:templates,single_float_edit_only:true,invalid_limit_blocked:true,insert_delete_roundtrip:true,legacy_p6_preserved:true,new_program_roundtrip:true},null,2));
+console.log('PASS: 37 exact roundtrips, isolated float edit, limits, step insertion/deletion, comment/header, legacy P6 and new program.');

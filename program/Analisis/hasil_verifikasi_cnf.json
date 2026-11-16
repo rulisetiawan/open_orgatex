@@ -1,0 +1,477 @@
+{
+  "date": "2026-10-29",
+  "source": "D:\\File HMI\\Storage\\SC777CE\\Config\\TYPECONF.CNF",
+  "sha256": "2936ceff7a238bfff4b9512ca602d9cc85f132086d279674311432f424bd9f57",
+  "decoded_record_count": 3519,
+  "fragment_count": 4463,
+  "all_fragments_covered_once": true,
+  "unique_keys": true,
+  "record_bytes": 290,
+  "function_count": 105,
+  "parameter_definition_count": 105,
+  "program_function_count": 20,
+  "program_parameter_definition_count": 33,
+  "mapped_parameter_values": 468,
+  "nonzero_values_without_cnf_definition": [
+    {
+      "step": 6,
+      "slot": 5,
+      "function_id": 718,
+      "position": 6,
+      "metadata_u16": 0,
+      "value": 1.0,
+      "float_hex": "0000803f",
+      "reason": "Slot di luar parameter_count CNF lokal"
+    },
+    {
+      "step": 18,
+      "slot": 5,
+      "function_id": 718,
+      "position": 6,
+      "metadata_u16": 0,
+      "value": 1.0,
+      "float_hex": "0000803f",
+      "reason": "Slot di luar parameter_count CNF lokal"
+    },
+    {
+      "step": 23,
+      "slot": 5,
+      "function_id": 718,
+      "position": 6,
+      "metadata_u16": 0,
+      "value": 1.0,
+      "float_hex": "0000803f",
+      "reason": "Slot di luar parameter_count CNF lokal"
+    },
+    {
+      "step": 25,
+      "slot": 5,
+      "function_id": 718,
+      "position": 6,
+      "metadata_u16": 0,
+      "value": 1.0,
+      "float_hex": "0000803f",
+      "reason": "Slot di luar parameter_count CNF lokal"
+    }
+  ],
+  "functions": "omitted",
+  "parameter_definitions": "omitted",
+  "function_718_version_comparison": [
+    {
+      "source": "D:\\File HMI\\Network\\F\\OT\\GROUP\\001\\BACKUP\\TYPECONF.CNF",
+      "sha256": "2936ceff7a238bfff4b9512ca602d9cc85f132086d279674311432f424bd9f57",
+      "function": {
+        "id": 718,
+        "name_local": "BK Doldur",
+        "name": "Filling AT2 Level",
+        "ack": 6,
+        "type": 0,
+        "parameter_count": 5,
+        "parameters": [
+          {
+            "definition_id": 154,
+            "display_position": 1,
+            "minimum": 1.0,
+            "maximum": 2.0,
+            "default": 1.0,
+            "index_min": 0,
+            "index_max": 42,
+            "attribute": 0,
+            "reserved": 0
+          },
+          {
+            "definition_id": 158,
+            "display_position": 2,
+            "minimum": 0.0,
+            "maximum": 1.0,
+            "default": 1.0,
+            "index_min": 0,
+            "index_max": 0,
+            "attribute": 0,
+            "reserved": 0
+          },
+          {
+            "definition_id": 155,
+            "display_position": 4,
+            "minimum": 0.0,
+            "maximum": 0.0,
+            "default": 0.0,
+            "index_min": 0,
+            "index_max": 47,
+            "attribute": 0,
+            "reserved": 0
+          },
+          {
+            "definition_id": 156,
+            "display_position": 3,
+            "minimum": 0.0,
+            "maximum": 180.0,
+            "default": 0.0,
+            "index_min": 0,
+            "index_max": 48,
+            "attribute": 0,
+            "reserved": 0
+          },
+          {
+            "definition_id": 157,
+            "display_position": 5,
+            "minimum": 0.0,
+            "maximum": 99.0,
+            "default": 0.0,
+            "index_min": 0,
+            "index_max": 0,
+            "attribute": 0,
+            "reserved": 0
+          }
+        ]
+      }
+    },
+    {
+      "source": "D:\\File HMI\\Network\\F\\OT\\GROUP\\001\\TYPECONF.CNF",
+      "sha256": "7ba9ef061cffd6e941f1dab9c47c7147ceb537e55fb59bc80db71115a9e260e5",
+      "function": {
+        "id": 718,
+        "name_local": "BK Doldur",
+        "name": "Filling AT2 Level",
+        "ack": 6,
+        "type": 0,
+        "parameter_count": 5,
+        "parameters": [
+          {
+            "definition_id": 154,
+            "display_position": 1,
+            "minimum": 1.0,
+            "maximum": 2.0,
+            "default": 1.0,
+            "index_min": 0,
+            "index_max": 42,
+            "attribute": 0,
+            "reserved": 0
+          },
+          {
+            "definition_id": 158,
+            "display_position": 2,
+            "minimum": 0.0,
+            "maximum": 1.0,
+            "default": 1.0,
+            "index_min": 0,
+            "index_max": 0,
+            "attribute": 0,
+            "reserved": 0
+          },
+          {
+            "definition_id": 155,
+            "display_position": 4,
+            "minimum": 0.0,
+            "maximum": 0.0,
+            "default": 0.0,
+            "index_min": 0,
+            "index_max": 47,
+            "attribute": 0,
+            "reserved": 0
+          },
+          {
+            "definition_id": 156,
+            "display_position": 3,
+            "minimum": 0.0,
+            "maximum": 180.0,
+            "default": 0.0,
+            "index_min": 0,
+            "index_max": 48,
+            "attribute": 0,
+            "reserved": 0
+          },
+          {
+            "definition_id": 157,
+            "display_position": 5,
+            "minimum": 0.0,
+            "maximum": 99.0,
+            "default": 0.0,
+            "index_min": 0,
+            "index_max": 0,
+            "attribute": 0,
+            "reserved": 0
+          }
+        ]
+      }
+    },
+    {
+      "source": "D:\\File HMI\\Network\\F\\OT\\GROUP\\002\\BACKUP\\TYPECONF.CNF",
+      "sha256": "cf934ec436c34b2e2f71508a072b90e0599eb803f31ef484adeef091b8ec5ec9",
+      "function": {
+        "id": 718,
+        "name_local": "BK Doldur",
+        "name": "Filling AT2 Level",
+        "ack": 6,
+        "type": 0,
+        "parameter_count": 6,
+        "parameters": [
+          {
+            "definition_id": 154,
+            "display_position": 1,
+            "minimum": 1.0,
+            "maximum": 2.0,
+            "default": 1.0,
+            "index_min": 0,
+            "index_max": 42,
+            "attribute": 0,
+            "reserved": 0
+          },
+          {
+            "definition_id": 158,
+            "display_position": 2,
+            "minimum": 0.0,
+            "maximum": 1.0,
+            "default": 1.0,
+            "index_min": 0,
+            "index_max": 0,
+            "attribute": 0,
+            "reserved": 0
+          },
+          {
+            "definition_id": 155,
+            "display_position": 4,
+            "minimum": 0.0,
+            "maximum": 0.0,
+            "default": 0.0,
+            "index_min": 0,
+            "index_max": 47,
+            "attribute": 0,
+            "reserved": 0
+          },
+          {
+            "definition_id": 156,
+            "display_position": 3,
+            "minimum": 0.0,
+            "maximum": 180.0,
+            "default": 0.0,
+            "index_min": 0,
+            "index_max": 48,
+            "attribute": 0,
+            "reserved": 0
+          },
+          {
+            "definition_id": 157,
+            "display_position": 5,
+            "minimum": 0.0,
+            "maximum": 99.0,
+            "default": 0.0,
+            "index_min": 0,
+            "index_max": 0,
+            "attribute": 0,
+            "reserved": 0
+          },
+          {
+            "definition_id": 162,
+            "display_position": 6,
+            "minimum": 0.0,
+            "maximum": 1.0,
+            "default": 1.0,
+            "index_min": 0,
+            "index_max": 0,
+            "attribute": 0,
+            "reserved": 0
+          }
+        ]
+      }
+    },
+    {
+      "source": "D:\\File HMI\\Network\\F\\OT\\GROUP\\002\\TYPECONF.CNF",
+      "sha256": "2936ceff7a238bfff4b9512ca602d9cc85f132086d279674311432f424bd9f57",
+      "function": {
+        "id": 718,
+        "name_local": "BK Doldur",
+        "name": "Filling AT2 Level",
+        "ack": 6,
+        "type": 0,
+        "parameter_count": 5,
+        "parameters": [
+          {
+            "definition_id": 154,
+            "display_position": 1,
+            "minimum": 1.0,
+            "maximum": 2.0,
+            "default": 1.0,
+            "index_min": 0,
+            "index_max": 42,
+            "attribute": 0,
+            "reserved": 0
+          },
+          {
+            "definition_id": 158,
+            "display_position": 2,
+            "minimum": 0.0,
+            "maximum": 1.0,
+            "default": 1.0,
+            "index_min": 0,
+            "index_max": 0,
+            "attribute": 0,
+            "reserved": 0
+          },
+          {
+            "definition_id": 155,
+            "display_position": 4,
+            "minimum": 0.0,
+            "maximum": 0.0,
+            "default": 0.0,
+            "index_min": 0,
+            "index_max": 47,
+            "attribute": 0,
+            "reserved": 0
+          },
+          {
+            "definition_id": 156,
+            "display_position": 3,
+            "minimum": 0.0,
+            "maximum": 180.0,
+            "default": 0.0,
+            "index_min": 0,
+            "index_max": 48,
+            "attribute": 0,
+            "reserved": 0
+          },
+          {
+            "definition_id": 157,
+            "display_position": 5,
+            "minimum": 0.0,
+            "maximum": 99.0,
+            "default": 0.0,
+            "index_min": 0,
+            "index_max": 0,
+            "attribute": 0,
+            "reserved": 0
+          }
+        ]
+      }
+    },
+    {
+      "source": "D:\\File HMI\\Network\\F\\Update\\Config\\TYPECONF.CNF",
+      "sha256": "571677a9aaa131558e4f8369e54ff964ecfa1f431ee66468a375efa376a9b330",
+      "function": {
+        "id": 718,
+        "name_local": "BK Doldur",
+        "name": "Filling AT2 Level",
+        "ack": 6,
+        "type": 0,
+        "parameter_count": 5,
+        "parameters": [
+          {
+            "definition_id": 154,
+            "display_position": 1,
+            "minimum": 1.0,
+            "maximum": 2.0,
+            "default": 1.0,
+            "index_min": 0,
+            "index_max": 42,
+            "attribute": 0,
+            "reserved": 0
+          },
+          {
+            "definition_id": 158,
+            "display_position": 2,
+            "minimum": 0.0,
+            "maximum": 1.0,
+            "default": 1.0,
+            "index_min": 0,
+            "index_max": 0,
+            "attribute": 0,
+            "reserved": 0
+          },
+          {
+            "definition_id": 155,
+            "display_position": 4,
+            "minimum": 0.0,
+            "maximum": 0.0,
+            "default": 0.0,
+            "index_min": 0,
+            "index_max": 47,
+            "attribute": 0,
+            "reserved": 0
+          },
+          {
+            "definition_id": 156,
+            "display_position": 3,
+            "minimum": 0.0,
+            "maximum": 180.0,
+            "default": 0.0,
+            "index_min": 0,
+            "index_max": 48,
+            "attribute": 0,
+            "reserved": 0
+          },
+          {
+            "definition_id": 157,
+            "display_position": 5,
+            "minimum": 0.0,
+            "maximum": 99.0,
+            "default": 0.0,
+            "index_min": 0,
+            "index_max": 0,
+            "attribute": 0,
+            "reserved": 0
+          }
+        ]
+      }
+    }
+  ],
+  "legacy_parameter_candidate": {
+    "source": "D:\\File HMI\\Network\\F\\OT\\GROUP\\002\\BACKUP\\TYPECONF.CNF",
+    "definition": {
+      "id": 162,
+      "name_local": "BK Mikser Tipi",
+      "name": "Mixer Type AT2",
+      "unit_local": "",
+      "unit": "",
+      "scale": {
+        "digits_before": 1,
+        "digits_after": 0,
+        "factor": 1.0,
+        "offset": 0.0,
+        "x1": 0.0,
+        "x2": 100.0,
+        "y1": 0.0,
+        "y2": 100.0,
+        "mode": 16
+      },
+      "attribute": 0,
+      "scale2": {
+        "text_group": 32,
+        "basetype": 0,
+        "index_factor": 0,
+        "index_offset": 0,
+        "reserved1": 0,
+        "reserved2": 0
+      }
+    },
+    "choices": [
+      {
+        "value": 2.0,
+        "text": "Motor/Valve",
+        "key": [
+          51,
+          32,
+          2
+        ]
+      },
+      {
+        "value": 0.0,
+        "text": "Motor",
+        "key": [
+          51,
+          32,
+          0
+        ]
+      },
+      {
+        "value": 1.0,
+        "text": "Valve",
+        "key": [
+          51,
+          32,
+          1
+        ]
+      }
+    ],
+    "interpretation": "Backup group 002 only: P6=1 matches Mixer Type AT2 = Valve. Not defined in current local CNF."
+  }
+}

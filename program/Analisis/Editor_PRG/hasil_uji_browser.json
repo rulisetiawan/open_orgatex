@@ -1,0 +1,14 @@
+{
+  "export_download_decoded": true,
+  "invalid_value_blocked": true,
+  "undo": true,
+  "add_duplicate_delete_reorder": true,
+  "add_remove_resource": true,
+  "prg_import": true,
+  "draft_save_restore": true,
+  "catalog_search": true,
+  "template_switch": true,
+  "new_program": true,
+  "mobile_no_overflow": true,
+  "page_errors": []
+}

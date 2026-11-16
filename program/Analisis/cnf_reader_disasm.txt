@@ -1,0 +1,719 @@
+FUNCTION 0x26fba
+126fba push ebp
+126fbb mov ebp, esp
+126fbd sub esp, 0x88
+126fc3 mov dword ptr [ebp - 0x84], ecx
+126fc9 mov dword ptr [ebp - 0x18], 0
+126fd0 mov dword ptr [ebp - 0x14], 0
+126fd7 mov eax, dword ptr [ebp + 8]
+126fda push eax
+126fdb mov ecx, dword ptr [ebp - 0x84]
+126fe1 mov edx, dword ptr [ecx + 4]
+126fe4 push edx
+126fe5 call 0x11ee18
+126fea add esp, 8
+126fed test eax, eax
+126fef je 0x126ffb
+126ff1 mov eax, 0x13
+126ff6 jmp 0x127800
+126ffb mov eax, dword ptr [ebp - 0x84]
+127001 movsx ecx, word ptr [eax + 0x42]
+127005 mov dword ptr [ebp - 0xc], ecx
+127008 mov edx, dword ptr [ebp - 0x84]
+12700e movsx eax, word ptr [edx + 0x34]
+127012 push eax
+127013 lea ecx, [ebp - 0x38]
+127016 call 0x1386b0
+12701b mov ecx, dword ptr [ebp - 0x84]
+127021 cmp dword ptr [ecx + 0x144], 3
+127028 je 0x1270c2
+12702e mov edx, dword ptr [ebp - 0x84]
+127034 cmp dword ptr [edx + 0x140], 2
+12703b jne 0x1270c2
+127041 mov word ptr [ebp - 0x4c], 1
+127047 mov eax, dword ptr [ebp + 0xc]
+12704a push eax
+12704b mov ecx, dword ptr [ebp - 0x84]
+127051 movsx edx, word ptr [ecx + 0x42]
+127055 push edx
+127056 mov eax, dword ptr [ebp - 0x84]
+12705c mov ecx, dword ptr [eax + 4]
+12705f push ecx
+127060 call 0x11f198
+127065 add esp, 0xc
+127068 mov dword ptr [ebp - 0x44], 4
+12706f jmp 0x12707a
+127071 mov edx, dword ptr [ebp - 0x44]
+127074 add edx, 1
+127077 mov dword ptr [ebp - 0x44], edx
+12707a mov eax, dword ptr [ebp - 0x84]
+127080 movsx ecx, word ptr [eax + 0x42]
+127084 cmp dword ptr [ebp - 0x44], ecx
+127087 jge 0x1270a1
+127089 mov edx, dword ptr [ebp + 0xc]
+12708c add edx, dword ptr [ebp - 0x44]
+12708f xor eax, eax
+127091 mov al, byte ptr [edx]
+127093 test eax, eax
+127095 je 0x12709f
+127097 mov word ptr [ebp - 0x4c], 0
+12709d jmp 0x1270a1
+12709f jmp 0x127071
+1270a1 movsx ecx, word ptr [ebp - 0x4c]
+1270a5 test ecx, ecx
+1270a7 je 0x1270c0
+1270a9 mov dword ptr [ebp - 0x64], 0
+1270b0 lea ecx, [ebp - 0x38]
+1270b3 call 0x1386fe
+1270b8 mov eax, dword ptr [ebp - 0x64]
+1270bb jmp 0x127800
+1270c0 jmp 0x127125
+1270c2 mov word ptr [ebp - 0x50], 1
+1270c8 mov edx, dword ptr [ebp - 0x84]
+1270ce movsx eax, word ptr [edx + 0x42]
+1270d2 cmp eax, 5
+1270d5 jge 0x1270e0
+1270d7 mov dword ptr [ebp - 0x10], 5
+1270de jmp 0x1270ed
+1270e0 mov ecx, dword ptr [ebp - 0x84]
+1270e6 movsx edx, word ptr [ecx + 0x42]
+1270ea mov dword ptr [ebp - 0x10], edx
+1270ed mov eax, dword ptr [ebp + 0x10]
+1270f0 mov ecx, dword ptr [eax]
+1270f2 cmp ecx, dword ptr [ebp - 0x10]
+1270f5 jl 0x12711e
+1270f7 mov edx, dword ptr [ebp + 0xc]
+1270fa push edx
+1270fb mov eax, dword ptr [ebp - 0x10]
+1270fe push eax
+1270ff mov ecx, dword ptr [ebp - 0x84]
+127105 mov edx, dword ptr [ecx + 4]
+127108 push edx
+127109 call 0x11f198
+12710e add esp, 0xc
+127111 test eax, eax
+127113 je 0x12711c
+127115 mov dword ptr [ebp - 0x14], 2
+12711c jmp 0x127125
+12711e mov dword ptr [ebp - 0x14], 0x1c
+127125 cmp dword ptr [ebp - 0x14], 0
+127129 jne 0x1277ef
+12712f mov eax, dword ptr [ebp - 0x84]
+127135 cmp dword ptr [eax + 0x144], 0
+12713c je 0x1277db
+127142 mov ecx, dword ptr [ebp - 0x84]
+127148 mov edx, dword ptr [ecx + 0x144]
+12714e mov dword ptr [ebp - 0x88], edx
+127154 mov eax, dword ptr [ebp - 0x88]
+12715a sub eax, 1
+12715d mov dword ptr [ebp - 0x88], eax
+127163 cmp dword ptr [ebp - 0x88], 4
+12716a ja 0x1277db
+127170 mov ecx, dword ptr [ebp - 0x88]
+127176 jmp dword ptr [ecx*4 + 0x127806]
+12717d push 4
+12717f mov edx, dword ptr [ebp + 0xc]
+127182 add edx, dword ptr [ebp - 0xc]
+127185 push edx
+127186 lea eax, [ebp - 0x3c]
+127189 push eax
+12718a call 0x157efc
+12718f add esp, 0xc
+127192 push 2
+127194 mov ecx, dword ptr [ebp - 0xc]
+127197 mov edx, dword ptr [ebp + 0xc]
+12719a lea eax, [edx + ecx + 4]
+12719e push eax
+12719f lea ecx, [ebp - 0x40]
+1271a2 push ecx
+1271a3 call 0x157efc
+1271a8 add esp, 0xc
+1271ab lea edx, [ebp - 0x3c]
+1271ae push edx
+1271af lea eax, [ebp - 8]
+1271b2 push eax
+1271b3 call 0x126708
+1271b8 add esp, 8
+1271bb mov ecx, dword ptr [ebp - 6]
+1271be and ecx, 0xffff
+1271c4 cmp ecx, 0xffff
+1271ca jne 0x1271dd
+1271cc mov edx, dword ptr [ebp - 8]
+1271cf and edx, 0xffff
+1271d5 cmp edx, 0xff
+1271db je 0x1271ec
+1271dd mov eax, dword ptr [ebp - 0x39]
+1271e0 and eax, 0xff
+1271e5 cmp eax, 0xfe
+1271ea jle 0x1271f3
+1271ec mov dword ptr [ebp - 0x18], 1
+1271f3 cmp dword ptr [ebp - 0x18], 0
+1271f7 jne 0x12738d
+1271fd lea ecx, [ebp - 0x38]
+127200 push ecx
+127201 mov edx, dword ptr [ebp - 8]
+127204 push edx
+127205 mov ecx, dword ptr [ebp - 0x84]
+12720b call 0x126c42
+127210 mov eax, dword ptr [ebp - 0x84]
+127216 movsx ecx, word ptr [eax + 0x34]
+12721a sub ecx, 1
+12721d sar ecx, 1
+12721f mov edx, dword ptr [ebp - 0x39]
+127222 and edx, 0xff
+127228 sub ecx, edx
+12722a mov word ptr [ebp - 0x20], cx
+12722e mov eax, dword ptr [ebp - 0x39]
+127231 and eax, 0xff
+127236 push eax
+127237 lea ecx, [ebp - 0x38]
+12723a call 0x13871a
+12723f mov word ptr [ebp - 0x48], ax
+127243 mov word ptr [ebp - 0x54], 1
+127249 jmp 0x127257
+12724b mov cx, word ptr [ebp - 0x54]
+12724f add cx, 1
+127253 mov word ptr [ebp - 0x54], cx
+127257 movsx edx, word ptr [ebp - 0x20]
+12725b movsx eax, word ptr [ebp - 0x54]
+12725f sub edx, eax
+127261 mov ecx, dword ptr [ebp - 0x24]
+127264 xor eax, eax
+127266 mov ax, word ptr [ecx + edx*2]
+12726a cmp eax, -1
+12726d jne 0x127271
+12726f jmp 0x12724b
+127271 movsx ecx, word ptr [ebp - 0x20]
+127275 movsx edx, word ptr [ebp - 0x54]
+127279 sub ecx, edx
+12727b mov eax, dword ptr [ebp - 0x24]
+12727e xor edx, edx
+127280 mov dx, word ptr [eax + ecx*2]
+127284 and edx, 0x7fff
+12728a mov eax, dword ptr [ebp - 0x48]
+12728d and eax, 0xffff
+127292 sub edx, eax
+127294 mov word ptr [ebp - 4], dx
+127298 mov ecx, dword ptr [ebp - 0x84]
+12729e cmp dword ptr [ecx + 0x140], 2
+1272a5 je 0x1272be
+1272a7 movsx edx, word ptr [ebp - 0x20]
+1272ab mov eax, dword ptr [ebp - 0x24]
+1272ae xor ecx, ecx
+1272b0 mov cx, word ptr [eax + edx*2]
+1272b4 and ecx, 0x8000
+1272ba test ecx, ecx
+1272bc je 0x1272ea
+1272be mov edx, dword ptr [ebp - 0x48]
+1272c1 and edx, 0xffff
+1272c7 mov eax, dword ptr [ebp - 0x34]
+1272ca mov ecx, dword ptr [eax + edx]
+1272cd mov dword ptr [ebp - 0x3c], ecx
+1272d0 mov dx, word ptr [ebp - 0x48]
+1272d4 add dx, 4
+1272d8 mov word ptr [ebp - 0x48], dx
+1272dc mov ax, word ptr [ebp - 4]
+1272e0 sub ax, 4
+1272e4 mov word ptr [ebp - 4], ax
+1272e8 jmp 0x127300
+1272ea mov byte ptr [ebp - 0x39], 0xff
+1272ee mov cl, byte ptr [ebp - 0x39]
+1272f1 mov byte ptr [ebp - 0x3c], cl
+1272f4 mov dl, byte ptr [ebp - 0x3c]
+1272f7 mov byte ptr [ebp - 0x3a], dl
+1272fa mov al, byte ptr [ebp - 0x3a]
+1272fd mov byte ptr [ebp - 0x3b], al
+127300 mov ecx, dword ptr [ebp - 4]
+127303 and ecx, 0xffff
+127309 mov edx, dword ptr [ebp - 0xc]
+12730c add edx, ecx
+12730e mov eax, dword ptr [ebp + 0x10]
+127311 cmp edx, dword ptr [eax]
+127313 jg 0x12733f
+127315 mov ecx, dword ptr [ebp - 4]
+127318 and ecx, 0xffff
+12731e push ecx
+12731f mov edx, dword ptr [ebp - 0x48]
+127322 and edx, 0xffff
+127328 mov eax, dword ptr [ebp - 0x34]
+12732b add eax, edx
+12732d push eax
+12732e mov ecx, dword ptr [ebp + 0xc]
+127331 add ecx, dword ptr [ebp - 0xc]
+127334 push ecx
+127335 call 0x157efc
+12733a add esp, 0xc
+12733d jmp 0x12737d
+12733f mov edx, dword ptr [ebp + 0x10]
+127342 mov eax, dword ptr [ebp - 0xc]
+127345 cmp eax, dword ptr [edx]
+127347 jge 0x12736f
+127349 mov ecx, dword ptr [ebp + 0x10]
+12734c mov edx, dword ptr [ecx]
+12734e sub edx, dword ptr [ebp - 0xc]
+127351 push edx
+127352 mov eax, dword ptr [ebp - 0x48]
+127355 and eax, 0xffff
+12735a mov ecx, dword ptr [ebp - 0x34]
+12735d add ecx, eax
+12735f push ecx
+127360 mov edx, dword ptr [ebp + 0xc]
+127363 add edx, dword ptr [ebp - 0xc]
+127366 push edx
+127367 call 0x157efc
+12736c add esp, 0xc
+12736f mov dword ptr [ebp - 0x14], 0x16
+127376 mov dword ptr [ebp - 0x18], 1
+12737d mov eax, dword ptr [ebp - 4]
+127380 and eax, 0xffff
+127385 mov ecx, dword ptr [ebp - 0xc]
+127388 add ecx, eax
+12738a mov dword ptr [ebp - 0xc], ecx
+12738d cmp dword ptr [ebp - 0x18], 0
+127391 je 0x1271ab
+127397 mov edx, dword ptr [ebp - 0x84]
+12739d cmp dword ptr [edx + 0x144], 2
+1273a4 jne 0x1273dc
+1273a6 mov eax, dword ptr [ebp - 0x40]
+1273a9 and eax, 0xffff
+1273ae mov cx, word ptr [ebp - 0x40]
+1273b2 sub cx, 1
+1273b6 mov word ptr [ebp - 0x40], cx
+1273ba test eax, eax
+1273bc je 0x1273dc
+1273be mov edx, dword ptr [ebp + 0x10]
+1273c1 mov eax, dword ptr [ebp - 0xc]
+1273c4 cmp eax, dword ptr [edx]
+1273c6 jge 0x1273dc
+1273c8 mov ecx, dword ptr [ebp + 0xc]
+1273cb add ecx, dword ptr [ebp - 0xc]
+1273ce mov byte ptr [ecx], 0x20
+1273d1 mov edx, dword ptr [ebp - 0xc]
+1273d4 add edx, 1
+1273d7 mov dword ptr [ebp - 0xc], edx
+1273da jmp 0x1273a6
+1273dc jmp 0x1277db
+1273e1 push 4
+1273e3 mov eax, dword ptr [ebp + 0xc]
+1273e6 add eax, dword ptr [ebp - 0xc]
+1273e9 push eax
+1273ea lea ecx, [ebp - 0x3c]
+1273ed push ecx
+1273ee call 0x157efc
+1273f3 add esp, 0xc
+1273f6 mov edx, dword ptr [ebp + 0xc]
+1273f9 mov al, byte ptr [edx + 4]
+1273fc mov byte ptr [ebp - 0x60], al
+1273ff mov ecx, dword ptr [ebp - 0x60]
+127402 and ecx, 0xff
+127408 test ecx, ecx
+12740a jne 0x127423
+12740c mov dword ptr [ebp - 0x68], 0x13
+127413 lea ecx, [ebp - 0x38]
+127416 call 0x1386fe
+12741b mov eax, dword ptr [ebp - 0x68]
+12741e jmp 0x127800
+127423 mov word ptr [ebp - 0x40], 0
+127429 mov byte ptr [ebp - 0x5c], 0
+12742d mov byte ptr [ebp - 0x58], 0
+127431 mov dword ptr [ebp - 0xc], 0
+127438 mov byte ptr [ebp - 0x1c], 1
+12743c lea edx, [ebp - 0x3c]
+12743f push edx
+127440 lea eax, [ebp - 8]
+127443 push eax
+127444 call 0x126708
+127449 add esp, 8
+12744c mov ecx, dword ptr [ebp - 6]
+12744f and ecx, 0xffff
+127455 cmp ecx, 0xffff
+12745b jne 0x12746e
+12745d mov edx, dword ptr [ebp - 8]
+127460 and edx, 0xffff
+127466 cmp edx, 0xff
+12746c je 0x12747d
+12746e mov eax, dword ptr [ebp - 0x39]
+127471 and eax, 0xff
+127476 cmp eax, 0xfe
+12747b jle 0x127498
+12747d mov dword ptr [ebp - 0x18], 1
+127484 mov ecx, dword ptr [ebp - 0x40]
+127487 and ecx, 0xffff
+12748d test ecx, ecx
+12748f je 0x127498
+127491 mov dword ptr [ebp - 0x14], 0x13
+127498 cmp dword ptr [ebp - 0x18], 0
+12749c jne 0x1277cb
+1274a2 lea edx, [ebp - 0x38]
+1274a5 push edx
+1274a6 mov eax, dword ptr [ebp - 8]
+1274a9 push eax
+1274aa mov ecx, dword ptr [ebp - 0x84]
+1274b0 call 0x126c42
+1274b5 mov dword ptr [ebp - 0x14], eax
+1274b8 cmp dword ptr [ebp - 0x14], 0
+1274bc jne 0x1277cb
+1274c2 mov ecx, dword ptr [ebp - 0x39]
+1274c5 and ecx, 0xff
+1274cb push ecx
+1274cc lea ecx, [ebp - 0x38]
+1274cf call 0x13871a
+1274d4 mov word ptr [ebp - 0x48], ax
+1274d8 mov edx, dword ptr [ebp - 0x48]
+1274db and edx, 0xffff
+1274e1 cmp edx, dword ptr [ebp - 0x30]
+1274e4 jl 0x1274fd
+1274e6 mov dword ptr [ebp - 0x6c], 0x13
+1274ed lea ecx, [ebp - 0x38]
+1274f0 call 0x1386fe
+1274f5 mov eax, dword ptr [ebp - 0x6c]
+1274f8 jmp 0x127800
+1274fd mov eax, dword ptr [ebp - 0x39]
+127500 and eax, 0xff
+127505 push eax
+127506 lea ecx, [ebp - 0x38]
+127509 call 0x138790
+12750e mov word ptr [ebp - 4], ax
+127512 mov ecx, dword ptr [ebp - 4]
+127515 and ecx, 0xffff
+12751b test ecx, ecx
+12751d jne 0x127536
+12751f mov dword ptr [ebp - 0x70], 0x13
+127526 lea ecx, [ebp - 0x38]
+127529 call 0x1386fe
+12752e mov eax, dword ptr [ebp - 0x70]
+127531 jmp 0x127800
+127536 mov edx, dword ptr [ebp - 0x84]
+12753c cmp dword ptr [edx + 0x140], 2
+127543 je 0x12755a
+127545 mov eax, dword ptr [ebp - 0x39]
+127548 and eax, 0xff
+12754d push eax
+12754e lea ecx, [ebp - 0x38]
+127551 call 0x138767
+127556 test eax, eax
+127558 je 0x127591
+12755a push 4
+12755c mov ecx, dword ptr [ebp - 0x48]
+12755f and ecx, 0xffff
+127565 mov edx, dword ptr [ebp - 0x34]
+127568 add edx, ecx
+12756a push edx
+12756b lea eax, [ebp - 0x3c]
+12756e push eax
+12756f call 0x157efc
+127574 add esp, 0xc
+127577 mov cx, word ptr [ebp - 0x48]
+12757b add cx, 4
+12757f mov word ptr [ebp - 0x48], cx
+127583 mov dx, word ptr [ebp - 4]
+127587 sub dx, 4
+12758b mov word ptr [ebp - 4], dx
+12758f jmp 0x1275a7
+127591 mov byte ptr [ebp - 0x39], 0xff
+127595 mov al, byte ptr [ebp - 0x39]
+127598 mov byte ptr [ebp - 0x3c], al
+12759b mov cl, byte ptr [ebp - 0x3c]
+12759e mov byte ptr [ebp - 0x3a], cl
+1275a1 mov dl, byte ptr [ebp - 0x3a]
+1275a4 mov byte ptr [ebp - 0x3b], dl
+1275a7 mov eax, dword ptr [ebp - 0x58]
+1275aa and eax, 0xff
+1275af test eax, eax
+1275b1 je 0x1275ea
+1275b3 mov cx, word ptr [ebp - 0x48]
+1275b7 sub cx, 1
+1275bb mov word ptr [ebp - 0x48], cx
+1275bf mov dx, word ptr [ebp - 4]
+1275c3 add dx, 1
+1275c7 mov word ptr [ebp - 4], dx
+1275cb mov eax, dword ptr [ebp - 0x48]
+1275ce and eax, 0xffff
+1275d3 mov ecx, dword ptr [ebp - 0x34]
+1275d6 mov dl, byte ptr [ebp - 0x5c]
+1275d9 mov byte ptr [ecx + eax], dl
+1275dc mov word ptr [ebp - 0x40], 0
+1275e2 mov byte ptr [ebp - 0x5c], 0
+1275e6 mov byte ptr [ebp - 0x58], 0
+1275ea mov eax, dword ptr [ebp - 4]
+1275ed and eax, 0xffff
+1275f2 cmp eax, 0x1002
+1275f7 jl 0x127610
+1275f9 mov dword ptr [ebp - 0x74], 0x13
+127600 lea ecx, [ebp - 0x38]
+127603 call 0x1386fe
+127608 mov eax, dword ptr [ebp - 0x74]
+12760b jmp 0x127800
+127610 mov dword ptr [ebp - 0x44], 0
+127617 mov ecx, dword ptr [ebp - 4]
+12761a and ecx, 0xffff
+127620 cmp dword ptr [ebp - 0x44], ecx
+127623 jge 0x1277cb
+127629 mov edx, dword ptr [ebp - 4]
+12762c and edx, 0xffff
+127632 sub edx, 1
+127635 cmp dword ptr [ebp - 0x44], edx
+127638 jne 0x127660
+12763a mov eax, dword ptr [ebp - 0x48]
+12763d and eax, 0xffff
+127642 add eax, dword ptr [ebp - 0x44]
+127645 mov ecx, dword ptr [ebp - 0x34]
+127648 mov dl, byte ptr [ecx + eax]
+12764b mov byte ptr [ebp - 0x5c], dl
+12764e mov eax, dword ptr [ebp - 0x44]
+127651 add eax, 1
+127654 mov dword ptr [ebp - 0x44], eax
+127657 mov byte ptr [ebp - 0x58], 1
+12765b jmp 0x1277cb
+127660 mov ecx, dword ptr [ebp - 0x40]
+127663 and ecx, 0xffff
+127669 cmp ecx, 1
+12766c jge 0x127690
+12766e mov edx, dword ptr [ebp - 0x48]
+127671 and edx, 0xffff
+127677 mov eax, dword ptr [ebp - 0x34]
+12767a add eax, edx
+12767c mov ecx, dword ptr [ebp - 0x44]
+12767f mov dx, word ptr [eax + ecx]
+127683 mov word ptr [ebp - 0x40], dx
+127687 mov eax, dword ptr [ebp - 0x44]
+12768a add eax, 2
+12768d mov dword ptr [ebp - 0x44], eax
+127690 mov ecx, dword ptr [ebp - 4]
+127693 and ecx, 0xffff
+127699 cmp dword ptr [ebp - 0x44], ecx
+12769c jge 0x1277a1
+1276a2 mov edx, dword ptr [ebp - 0x1c]
+1276a5 and edx, 0xff
+1276ab test edx, edx
+1276ad je 0x12773b
+1276b3 mov eax, dword ptr [ebp - 0x40]
+1276b6 and eax, 0xffff
+1276bb test eax, eax
+1276bd je 0x127739
+1276bf mov ecx, dword ptr [ebp + 0x10]
+1276c2 mov edx, dword ptr [ebp - 0xc]
+1276c5 cmp edx, dword ptr [ecx]
+1276c7 jl 0x1276e0
+1276c9 mov dword ptr [ebp - 0x78], 0x16
+1276d0 lea ecx, [ebp - 0x38]
+1276d3 call 0x1386fe
+1276d8 mov eax, dword ptr [ebp - 0x78]
+1276db jmp 0x127800
+1276e0 mov eax, dword ptr [ebp - 0x48]
+1276e3 and eax, 0xffff
+1276e8 add eax, dword ptr [ebp - 0x44]
+1276eb mov ecx, dword ptr [ebp + 0xc]
+1276ee add ecx, dword ptr [ebp - 0xc]
+1276f1 mov edx, dword ptr [ebp - 0x34]
+1276f4 mov al, byte ptr [edx + eax]
+1276f7 mov byte ptr [ecx], al
+1276f9 mov ecx, dword ptr [ebp - 0xc]
+1276fc add ecx, 1
+1276ff mov dword ptr [ebp - 0xc], ecx
+127702 mov edx, dword ptr [ebp - 0x44]
+127705 add edx, 1
+127708 mov dword ptr [ebp - 0x44], edx
+12770b mov ax, word ptr [ebp - 0x40]
+12770f sub ax, 1
+127713 mov word ptr [ebp - 0x40], ax
+127717 mov ecx, dword ptr [ebp - 4]
+12771a and ecx, 0xffff
+127720 cmp dword ptr [ebp - 0x44], ecx
+127723 jne 0x127734
+127725 mov edx, dword ptr [ebp - 0x40]
+127728 and edx, 0xffff
+12772e test edx, edx
+127730 je 0x127734
+127732 jmp 0x127739
+127734 jmp 0x1276b3
+127739 jmp 0x1277a1
+12773b mov eax, dword ptr [ebp - 0x40]
+12773e and eax, 0xffff
+127743 test eax, eax
+127745 je 0x127798
+127747 mov ecx, dword ptr [ebp + 0x10]
+12774a mov edx, dword ptr [ebp - 0xc]
+12774d cmp edx, dword ptr [ecx]
+12774f jl 0x127768
+127751 mov dword ptr [ebp - 0x7c], 0x16
+127758 lea ecx, [ebp - 0x38]
+12775b call 0x1386fe
+127760 mov eax, dword ptr [ebp - 0x7c]
+127763 jmp 0x127800
+127768 mov eax, dword ptr [ebp - 0x48]
+12776b and eax, 0xffff
+127770 add eax, dword ptr [ebp - 0x44]
+127773 mov ecx, dword ptr [ebp + 0xc]
+127776 add ecx, dword ptr [ebp - 0xc]
+127779 mov edx, dword ptr [ebp - 0x34]
+12777c mov al, byte ptr [edx + eax]
+12777f mov byte ptr [ecx], al
+127781 mov ecx, dword ptr [ebp - 0xc]
+127784 add ecx, 1
+127787 mov dword ptr [ebp - 0xc], ecx
+12778a mov dx, word ptr [ebp - 0x40]
+12778e sub dx, 1
+127792 mov word ptr [ebp - 0x40], dx
+127796 jmp 0x12773b
+127798 mov eax, dword ptr [ebp - 0x44]
+12779b add eax, 1
+12779e mov dword ptr [ebp - 0x44], eax
+1277a1 mov ecx, dword ptr [ebp - 0x40]
+1277a4 and ecx, 0xffff
+1277aa cmp ecx, 1
+1277ad jge 0x1277c6
+1277af mov edx, dword ptr [ebp - 0x1c]
+1277b2 and edx, 0xff
+1277b8 test edx, edx
+1277ba je 0x1277c2
+1277bc mov byte ptr [ebp - 0x1c], 0
+1277c0 jmp 0x1277c6
+1277c2 mov byte ptr [ebp - 0x1c], 1
+1277c6 jmp 0x127617
+1277cb cmp dword ptr [ebp - 0x18], 0
+1277cf jne 0x1277db
+1277d1 cmp dword ptr [ebp - 0x14], 0
+1277d5 je 0x12743c
+1277db cmp dword ptr [ebp - 0x14], 0
+1277df jne 0x1277ef
+1277e1 cmp dword ptr [ebp + 0x10], 0
+1277e5 je 0x1277ef
+1277e7 mov eax, dword ptr [ebp + 0x10]
+1277ea mov ecx, dword ptr [ebp - 0xc]
+1277ed mov dword ptr [eax], ecx
+1277ef mov edx, dword ptr [ebp - 0x14]
+1277f2 mov dword ptr [ebp - 0x80], edx
+1277f5 lea ecx, [ebp - 0x38]
+1277f8 call 0x1386fe
+1277fd mov eax, dword ptr [ebp - 0x80]
+127800 mov esp, ebp
+127802 pop ebp
+127803 ret 0xc
+127806 jge 0x127879
+127808 adc al, byte ptr [eax]
+FUNCTION 0x26708
+126708 push ebp
+126709 mov ebp, esp
+12670b mov eax, dword ptr [ebp + 8]
+12670e mov ecx, dword ptr [ebp + 0xc]
+126711 mov dl, byte ptr [ecx]
+126713 mov byte ptr [eax], dl
+126715 mov eax, dword ptr [ebp + 8]
+126718 mov byte ptr [eax + 1], 0
+12671c mov ecx, dword ptr [ebp + 8]
+12671f mov edx, dword ptr [ebp + 0xc]
+126722 mov al, byte ptr [edx + 1]
+126725 mov byte ptr [ecx + 2], al
+126728 mov ecx, dword ptr [ebp + 8]
+12672b mov edx, dword ptr [ebp + 0xc]
+12672e mov al, byte ptr [edx + 2]
+126731 mov byte ptr [ecx + 3], al
+126734 pop ebp
+126735 ret 
+FUNCTION 0x26c42
+126c42 push ebp
+126c43 mov ebp, esp
+126c45 sub esp, 0xc
+126c48 mov dword ptr [ebp - 0xc], ecx
+126c4b mov eax, dword ptr [ebp + 8]
+126c4e push eax
+126c4f mov ecx, dword ptr [ebp - 0xc]
+126c52 call 0x1268da
+126c57 mov dword ptr [ebp - 8], eax
+126c5a mov dword ptr [ebp - 4], 0
+126c61 cmp dword ptr [ebp - 8], -1
+126c65 je 0x126cb2
+126c67 mov ecx, dword ptr [ebp - 8]
+126c6a push ecx
+126c6b mov edx, dword ptr [ebp - 0xc]
+126c6e mov eax, dword ptr [edx + 4]
+126c71 push eax
+126c72 call 0x11ee18
+126c77 add esp, 8
+126c7a test eax, eax
+126c7c jne 0x126ca9
+126c7e mov ecx, dword ptr [ebp + 0xc]
+126c81 mov edx, dword ptr [ecx + 4]
+126c84 push edx
+126c85 mov eax, dword ptr [ebp - 0xc]
+126c88 movsx ecx, word ptr [eax + 0x34]
+126c8c push ecx
+126c8d mov edx, dword ptr [ebp - 0xc]
+126c90 mov eax, dword ptr [edx + 4]
+126c93 push eax
+126c94 call 0x11f198
+126c99 add esp, 0xc
+126c9c test eax, eax
+126c9e je 0x126ca7
+126ca0 mov dword ptr [ebp - 4], 2
+126ca7 jmp 0x126cb0
+126ca9 mov dword ptr [ebp - 4], 0x13
+126cb0 jmp 0x126cb9
+126cb2 mov dword ptr [ebp - 4], 0x13
+126cb9 mov eax, dword ptr [ebp - 4]
+126cbc mov esp, ebp
+126cbe pop ebp
+126cbf ret 8
+126cc2 push ebp
+126cc3 mov ebp, esp
+126cc5 sub esp, 0x18
+126cc8 mov dword ptr [ebp - 0x18], ecx
+FUNCTION 0x3871a
+13871a push ebp
+13871b mov ebp, esp
+13871d push ecx
+13871e mov dword ptr [ebp - 4], ecx
+138721 mov eax, dword ptr [ebp - 4]
+138724 mov ecx, dword ptr [eax + 0x10]
+138727 sub ecx, dword ptr [ebp + 8]
+13872a mov edx, dword ptr [ebp - 4]
+13872d mov eax, dword ptr [edx + 0x14]
+138730 xor edx, edx
+138732 mov dx, word ptr [eax + ecx*2]
+138736 mov eax, edx
+138738 and eax, 0x7fff
+13873d mov esp, ebp
+13873f pop ebp
+138740 ret 4
+138743 push ebp
+138744 mov ebp, esp
+138746 push ecx
+138747 mov dword ptr [ebp - 4], ecx
+13874a mov eax, dword ptr [ebp - 4]
+13874d mov ecx, dword ptr [eax + 0x10]
+138750 sub ecx, dword ptr [ebp + 8]
+138753 mov edx, dword ptr [ebp - 4]
+138756 mov eax, dword ptr [edx + 0x14]
+138759 mov dx, word ptr [ebp + 0xc]
+13875d mov word ptr [eax + ecx*2], dx
+138761 mov esp, ebp
+138763 pop ebp
+138764 ret 8
+FUNCTION 0x38767
+138767 push ebp
+138768 mov ebp, esp
+13876a push ecx
+13876b mov dword ptr [ebp - 4], ecx
+13876e mov eax, dword ptr [ebp - 4]
+138771 mov ecx, dword ptr [eax + 0x10]
+138774 sub ecx, dword ptr [ebp + 8]
+138777 mov edx, dword ptr [ebp - 4]
+13877a mov eax, dword ptr [edx + 0x14]
+13877d xor edx, edx
+13877f mov dx, word ptr [eax + ecx*2]
+138783 mov eax, edx
+138785 and eax, 0x8000
+13878a mov esp, ebp
+13878c pop ebp
+13878d ret 4
+138790 push ebp
+138791 mov ebp, esp
+138793 sub esp, 0xc
+138796 mov dword ptr [ebp - 0xc], ecx
+138799 mov eax, dword ptr [ebp + 8]
+13879c add eax, 1
+13879f mov dword ptr [ebp - 8], eax
+1387a2 mov ecx, dword ptr [ebp + 8]
+1387a5 push ecx
+1387a6 mov ecx, dword ptr [ebp - 0xc]

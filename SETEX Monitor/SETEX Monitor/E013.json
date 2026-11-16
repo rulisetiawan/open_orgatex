@@ -1,0 +1,51 @@
+{
+  "read_time": "2026-11-09 09:58:37",
+  "verified_mapping": false,
+  "machine": "E013",
+  "lot": "062574",
+  "program": "",
+  "description": "PANAS",
+  "status_raw": 11,
+  "fields": [
+    {
+      "name": "Suhu utama?",
+      "offset": "0x253e",
+      "raw": 0,
+      "value": 0.0,
+      "unit": "\u00b0C",
+      "hex": "00 00"
+    },
+    {
+      "name": "Winch?",
+      "offset": "0x254a",
+      "raw": 0,
+      "value": 0,
+      "unit": "m/min",
+      "hex": "00 00"
+    },
+    {
+      "name": "Level utama?",
+      "offset": "0x255e",
+      "raw": 0,
+      "value": 0,
+      "unit": "%",
+      "hex": "00 00"
+    },
+    {
+      "name": "Suhu AT1?",
+      "offset": "0x260c",
+      "raw": 20.2067928314209,
+      "value": 20.2067928314209,
+      "unit": "\u00b0C",
+      "hex": "83 a7 a1 41"
+    },
+    {
+      "name": "Suhu AT2?",
+      "offset": "0x2614",
+      "raw": 17.25790023803711,
+      "value": 17.25790023803711,
+      "unit": "\u00b0C",
+      "hex": "2e 10 8a 41"
+    }
+  ]
+}

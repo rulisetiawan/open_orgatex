@@ -1,0 +1,23 @@
+{
+  "job": "20261107T012619Z_44bb0361",
+  "action": "send",
+  "machine": "E013",
+  "queue": "/Network/F/OT/MACHINES/E013/BATCHES/QUEUE.BTD",
+  "events": [
+    "Stage folder /Network/F/OT/BATCH/.pending_20261107T012619Z_44bb0361_009995",
+    "Publish folder /Network/F/OT/BATCH/009995",
+    "Backup queue /Network/F/OT/MACHINES/E013/BATCHES/QUEUE.BTD.backup_20261107T012619Z_44bb0361",
+    "Queue gabungan terverifikasi"
+  ],
+  "committed": true,
+  "existing": 0,
+  "added": 1,
+  "references": [
+    "009995"
+  ],
+  "validation": "OK: preserved 0, added 1; verified keys 0-4",
+  "original_sha256": "95381f4a83f6818396a85245d11ba8df3745965859f7bab54a6cdfb700b8a258",
+  "merged_sha256": "4fcacab58cc03b2b98c6963d710820228ef6c7c4a4fa5c59b216ca3895c55feb",
+  "backup": "/Network/F/OT/MACHINES/E013/BATCHES/QUEUE.BTD.backup_20261107T012619Z_44bb0361",
+  "message": "Folder batch dan queue gabungan berhasil ditulis serta diverifikasi. Ini bukan konfirmasi load/start HMI atau PLC."
+}

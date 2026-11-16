@@ -1,0 +1,10 @@
+{
+  "job": "20261106T081229Z_2b70b1db",
+  "action": "send",
+  "machine": "A001",
+  "queue": "/custom/queues/A001/QUEUE.BTD",
+  "events": [],
+  "committed": false,
+  "error": "Validasi queue gagal: Reference already in queue: 062232",
+  "backup": null
+}
