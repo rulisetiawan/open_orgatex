@@ -889,9 +889,20 @@ def get_compiled_prg_bytes(program_no: int, db: Optional[Session] = None) -> byt
     if os.path.exists(file_path):
         try:
             with open(file_path, "rb") as f:
-                data = f.read()
-                if len(data) >= 384 and data[:4] == bytes.fromhex("508fc2f5"):
-                    return data
+                raw_data = bytearray(f.read())
+                if len(raw_data) >= 384 and raw_data[:4] == bytes.fromhex("508fc2f5"):
+                    # Pastikan header version (60) dan program type (1) valid untuk SETEX SC797 PRA_ReadAndCheck_Header
+                    needs_update = False
+                    if struct.unpack_from("<I", raw_data, 4)[0] != 60:
+                        struct.pack_into("<I", raw_data, 4, 60)
+                        needs_update = True
+                    if struct.unpack_from("<H", raw_data, 35)[0] != 1:
+                        struct.pack_into("<H", raw_data, 35, 1)
+                        needs_update = True
+                    if needs_update:
+                        with open(file_path, "wb") as f_out:
+                            f_out.write(raw_data)
+                    return bytes(raw_data)
         except Exception:
             pass
 

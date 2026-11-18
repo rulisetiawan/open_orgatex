@@ -1385,7 +1385,14 @@ def sync_all_batch_folders():
     Serta dicadangkan di open_orgatex/backend/data/OT/BATCH/<batch_ref_no>/
     """
     try:
-        from sync_batches_to_ftp import sync_all_batches_to_ftp
+        try:
+            from ..services.ftp_sync_service import sync_all_batches_to_ftp
+        except ImportError:
+            try:
+                from open_orgatex.backend.services.ftp_sync_service import sync_all_batches_to_ftp
+            except ImportError:
+                from sync_batches_to_ftp import sync_all_batches_to_ftp
+
         results = sync_all_batches_to_ftp()
         synced_count = sum(1 for r in results if r.get("ftp_synced"))
         return {

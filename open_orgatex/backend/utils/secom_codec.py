@@ -242,7 +242,10 @@ def serialize_prg_binary(program_id: int, title: str, steps: List[Dict[str, Any]
     """
     Serializes structured program and steps into byte-exact SETEX SECOM 777 .PRG format.
     Ensures Program Start (F1) at step 1 and Program End (F2) at last step.
+    Fully compatible with SETEX SC797 / SecomCE PRA_ReadAndCheck_Header.
     """
+    from datetime import datetime
+
     if not steps:
         raise ValueError("Program harus memiliki minimal satu langkah.")
 
@@ -253,9 +256,20 @@ def serialize_prg_binary(program_id: int, title: str, steps: List[Dict[str, Any]
     header = bytearray(384)
     # Magic bytes: 50 8f c2 f5
     header[0:4] = bytes.fromhex("508fc2f5")
+    # Header version / structure size: 60 (0x3c 0x00 0x00 0x00) - wajib untuk SETEX SC797 PRA_ReadAndCheck_Header
+    struct.pack_into("<I", header, 4, 60)
     struct.pack_into("<H", header, 8, p_id)
     _put_cp1252_text(header, 10, 21, title[:20], "Title")
     struct.pack_into("<H", header, 33, len(steps))
+    # Program type: 1 (0x01 0x00) - wajib untuk SETEX SC797
+    struct.pack_into("<H", header, 35, 1)
+
+    # Timestamps (created & modified) at 360..365 & 368..373: [year-1900, mon, day, hour, min, sec]
+    now = datetime.now()
+    ts = [max(0, now.year - 1900), now.month, now.day, now.hour, now.minute, now.second]
+    for i, v in enumerate(ts):
+        header[360 + i] = v
+        header[368 + i] = v
 
     records = bytearray()
     for s_idx, step in enumerate(steps, start=1):
@@ -298,13 +312,48 @@ def serialize_prg_binary(program_id: int, title: str, steps: List[Dict[str, Any]
 
 
 def build_minimal_prg(program_id: int, title: str = "OpenOrgaTEX PRG") -> bytes:
-    """Builds a valid baseline M_xxxx.PRG (Program Start -> Fill -> Temp -> End)."""
+    """
+    Builds a robust, production-compliant SETEX SECOM 777/797 baseline M_xxxx.PRG.
+    Includes concurrent liquor pump (Fn 404) and reel speed (Fn 712) across steps.
+    """
     p_id = max(1, min(int(program_id or 1), 9999))
     steps = [
-        {"step_no": 1, "label": "Start Program", "functions": [{"function_id": 1, "column": 1, "params": []}]},
-        {"step_no": 2, "label": "Isi Air", "functions": [{"function_id": 713, "column": 1, "params": [1.0, 1800.0]}]},
-        {"step_no": 3, "label": "Penaikan Suhu", "functions": [{"function_id": 141, "column": 1, "params": [98.0, 2.5, 30.0]}]},
-        {"step_no": 4, "label": "Selesai", "functions": [{"function_id": 2, "column": 1, "params": []}]}
+        {
+            "step_no": 1,
+            "label": "Start Program",
+            "functions": [
+                {"function_id": 1, "column": 1, "params": []},
+                {"function_id": 404, "column": 2, "params": [30.0, 100.0], "flags": 1},
+                {"function_id": 712, "column": 3, "params": [0.0, 200.0], "flags": 1}
+            ]
+        },
+        {
+            "step_no": 2,
+            "label": "Isi Air",
+            "functions": [
+                {"function_id": 713, "column": 1, "params": [1.0, 100.0]},
+                {"function_id": 404, "column": 2, "params": [30.0, 100.0], "flags": 1},
+                {"function_id": 712, "column": 3, "params": [0.0, 200.0], "flags": 1}
+            ]
+        },
+        {
+            "step_no": 3,
+            "label": "Penaikan Suhu",
+            "functions": [
+                {"function_id": 141, "column": 1, "params": [60.0, 0.0, 10.0]},
+                {"function_id": 404, "column": 2, "params": [30.0, 100.0], "flags": 1},
+                {"function_id": 712, "column": 3, "params": [0.0, 200.0], "flags": 1}
+            ]
+        },
+        {
+            "step_no": 4,
+            "label": "Selesai",
+            "functions": [
+                {"function_id": 2, "column": 1, "params": []},
+                {"function_id": 404, "column": 2, "params": [30.0, 100.0], "flags": 1},
+                {"function_id": 712, "column": 3, "params": [0.0, 200.0], "flags": 1}
+            ]
+        }
     ]
     return serialize_prg_binary(p_id, title, steps)
 
