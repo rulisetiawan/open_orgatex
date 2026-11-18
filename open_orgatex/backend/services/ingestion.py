@@ -15,6 +15,7 @@ from sqlalchemy.dialects.postgresql import insert
 
 from .reader import SetexFolderReader
 from .event_broker import broker
+from .. import database
 from ..models.schema_pg import Machine, BatchHeader, DatalogCyclicRecord, DatalogAlarm, OperatorIntervention
 
 logger = logging.getLogger("orgatex.ingestion")
@@ -59,12 +60,36 @@ class LogIngestionService:
                 target_folder = fc
                 break
 
-        # 1. Read STATUS.ACT on-the-fly (FTP takes precedence if IP configured)
-        status_info = SetexFolderReader.read_status_act(
-            folder_path=target_folder or "",
-            ip=machine.ip_address,
-            ftp_port=machine.ftp_port or 21
-        )
+        # 1. High-speed unified FTP acquisition if machine has IP
+        ftp_bundle = None
+        if machine.ip_address:
+            try:
+                ftp_bundle = SetexFolderReader.fetch_live_controller_bundle(
+                    ip=machine.ip_address,
+                    ftp_port=machine.ftp_port or 21,
+                    is_797=is_797,
+                    batch_no_hint=machine.current_batch,
+                    timeout=3.0
+                )
+            except Exception as e_b:
+                logger.warning(f"Error executing FTP bundle fetch: {e_b}")
+
+        # 2. Decode STATUS.ACT (FTP bundle takes precedence)
+        if ftp_bundle and ftp_bundle.get("status_bytes"):
+            status_info = SetexFolderReader.read_status_act(
+                folder_path=target_folder or "",
+                ip=machine.ip_address,
+                ftp_port=machine.ftp_port or 21,
+                raw_bytes=ftp_bundle["status_bytes"]
+            )
+            status_info["is_ftp_source"] = True
+            status_info["data_source"] = ftp_bundle.get("source_url") or f"ftp://{machine.ip_address}:21"
+        else:
+            status_info = SetexFolderReader.read_status_act(
+                folder_path=target_folder or "",
+                ip=machine.ip_address,
+                ftp_port=machine.ftp_port or 21
+            )
 
         # Notify broker if status indicates operator hold/intervention
         if status_info.get("alarm_active") in (20, 256, 5899) or status_info.get("status") in ("HOLD", "PAUSE"):
@@ -76,27 +101,40 @@ class LogIngestionService:
                 "timestamp": datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")
             })
 
-        # 2. Read ALARM.ACT & ALARMS.LOG on-the-fly
-        alarm_act = SetexFolderReader.read_alarm_act(
-            folder_path=target_folder or "",
-            ip=machine.ip_address,
-            ftp_port=machine.ftp_port or 21
-        )
-        alarm_history = SetexFolderReader.read_alarms_log(
-            folder_path=target_folder or "",
-            ip=machine.ip_address,
-            ftp_port=machine.ftp_port or 21,
-            limit=50
-        )
+        # 3. Decode ALARM.ACT & ALARMS.LOG on-the-fly
+        if ftp_bundle and ftp_bundle.get("alarm_bytes"):
+            alarm_act = SetexFolderReader.read_alarm_act(raw_bytes=ftp_bundle["alarm_bytes"])
+        else:
+            alarm_act = SetexFolderReader.read_alarm_act(
+                folder_path=target_folder or "",
+                ip=machine.ip_address,
+                ftp_port=machine.ftp_port or 21
+            )
 
-        # 3. Find and parse cyclic telemetry records on-the-fly
+        if ftp_bundle and ftp_bundle.get("alarms_log_bytes"):
+            alarm_history = SetexFolderReader.read_alarms_log(raw_bytes=ftp_bundle["alarms_log_bytes"], limit=50)
+        else:
+            alarm_history = SetexFolderReader.read_alarms_log(
+                folder_path=target_folder or "",
+                ip=machine.ip_address,
+                ftp_port=machine.ftp_port or 21,
+                limit=50
+            )
+
+        # 4. Find and parse cyclic telemetry records on-the-fly
         telemetry_records = []
-        batch_no = status_info.get("current_batch") or "063127"
+        batch_no = status_info.get("current_batch") or machine.current_batch or "063127"
         if batch_no == "UNKNOWN":
-            batch_no = "063127"
+            batch_no = machine.current_batch or "063127"
 
-        # 3.1 Try FTP direct batch log acquisition if machine has IP
-        if machine.ip_address and batch_no != "UNKNOWN":
+        # 4.1 First check batch log from unified FTP bundle
+        if ftp_bundle and ftp_bundle.get("batch_log_bytes"):
+            pts = SetexFolderReader.parse_cyclic_log_bytes(ftp_bundle["batch_log_bytes"])
+            if pts:
+                telemetry_records.extend(pts)
+
+        # 4.2 If no points yet and machine has IP, try legacy fallback
+        if not telemetry_records and machine.ip_address and batch_no != "UNKNOWN":
             ftp_points = SetexFolderReader.read_cyclic_log_from_ftp(
                 machine.ip_address,
                 machine.ftp_port or 21,
@@ -105,7 +143,7 @@ class LogIngestionService:
             if ftp_points:
                 telemetry_records.extend(ftp_points)
 
-        # 3.2 If no FTP points found, scan local directory structure
+        # 4.3 If no FTP points found, scan local directory structure
         if not telemetry_records and target_folder:
             search_dirs = [target_folder, os.path.join(target_folder, "..", "plain_export"), "/app/plain_export"]
             log_files = SetexFolderReader.find_all_log_files([d for d in search_dirs if os.path.exists(d)])
@@ -279,12 +317,16 @@ class LogIngestionService:
         # 5. Extract program recipe step names (parity with SETEX Secom 777 HMI step list)
         recipe_steps = []
         try:
-            recipe_steps = SetexFolderReader.get_recipe_steps(
-                ip=machine.ip_address,
-                ftp_port=machine.ftp_port or 21,
-                batch_no=batch_no,
-                folder_path=target_folder
-            )
+            if ftp_bundle and ftp_bundle.get("prg_bytes"):
+                catalog = SetexFolderReader.get_function_catalog()
+                recipe_steps = SetexFolderReader.parse_prg_steps(ftp_bundle["prg_bytes"], catalog)
+            if not recipe_steps:
+                recipe_steps = SetexFolderReader.get_recipe_steps(
+                    ip=machine.ip_address,
+                    ftp_port=machine.ftp_port or 21,
+                    batch_no=batch_no,
+                    folder_path=target_folder
+                )
         except Exception as e:
             logger.warning(f"Gagal mengekstrak langkah resep batch {batch_no}: {e}")
 
@@ -374,6 +416,7 @@ class LogIngestionService:
             "controller_type": "SETEX 797CE (Windows CE)" if is_797 else (machine.controller_type or "SECOM 777 (Windows CE)"),
             "controller_name": "SETEX Secom 797CE" if is_797 else "SETEX Secom 777",
             "share_folder_path": "/Flashdisk/SC797CE" if is_797 else (machine.share_folder_path or "/Storage/sc777ce"),
+            "database_mode": "POSTGRES" if getattr(database, "IS_POSTGRES", False) else "SQLITE_OFFLINE",
             "is_live_hmi": status_info.get("is_ftp_source", False),
             "data_source": status_info.get("data_source", "LOCAL_STORAGE"),
             "hmi_ip": machine.ip_address,

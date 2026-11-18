@@ -1,4 +1,5 @@
 import os
+import asyncio
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -6,10 +7,11 @@ from .database import init_db
 from .routes import machines, programs, recipes, planning, logs, third_party_api, orgatex_exact_api, ftp, setpoints
 from .services.event_broker import broker
 from .services.intervention_service import InterventionService
+from .services.db_sync_service import DBSyncService
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # Startup: Initialize Database (TimescaleDB / PostgreSQL)
+    # Startup: Initialize Database (TimescaleDB / PostgreSQL / SQLite)
     try:
         init_db()
         from .database import get_db
@@ -26,6 +28,16 @@ async def lifespan(app: FastAPI):
     except Exception as e:
         print(f"Warning during DB initialization: {e}")
 
+    # Startup Database Synchronization (PostgreSQL <-> SQLite)
+    try:
+        if DBSyncService.is_pg_reachable():
+            sync_res = DBSyncService.sync_all()
+            print(f"Initial DB Sync: {sync_res.get('message', sync_res.get('status'))}")
+        else:
+            print("PostgreSQL offline during startup. Local SQLite database active.")
+    except Exception as se:
+        print(f"Warning during initial DB sync: {se}")
+
     # Startup Message Broker & Intervention Service
     try:
         await broker.start()
@@ -33,9 +45,28 @@ async def lifespan(app: FastAPI):
     except Exception as be:
         print(f"Warning starting Event Broker: {be}")
 
+    # Background Periodic Database Synchronizer (Runs every 45s)
+    sync_task = None
+    async def periodic_db_sync():
+        while True:
+            await asyncio.sleep(45)
+            try:
+                if DBSyncService.is_pg_reachable():
+                    DBSyncService.sync_all()
+            except Exception:
+                pass
+
+    try:
+        sync_task = asyncio.create_task(periodic_db_sync())
+    except Exception:
+        pass
+
     yield
 
     # Shutdown
+    if sync_task:
+        sync_task.cancel()
+
     try:
         await broker.stop()
     except Exception as e:
@@ -66,6 +97,16 @@ app.include_router(third_party_api.router)
 app.include_router(orgatex_exact_api.router)
 app.include_router(ftp.router)
 app.include_router(setpoints.router)
+
+@app.get("/api/database/sync-status")
+def get_db_sync_status():
+    """Mengembalikan status sinkronisasi antara PostgreSQL dan SQLite lokal."""
+    return DBSyncService.get_sync_status()
+
+@app.post("/api/database/sync")
+def trigger_db_sync():
+    """Memaksa proses sinkronisasi dua arah antara PostgreSQL dan SQLite lokal."""
+    return DBSyncService.sync_all()
 
 @app.get("/api/health")
 def health_check():

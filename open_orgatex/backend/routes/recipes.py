@@ -26,6 +26,7 @@ class RecipeSchema(BaseModel):
     name: str
     chemicals: List[ChemicalItem]
 
+@router.get("", include_in_schema=False)
 @router.get("/")
 def get_recipes():
     if os.path.exists(RECIPES_PATH):

@@ -11,18 +11,22 @@ import ftplib
 import socket
 import base64
 import json
+import struct
 import logging
 import posixpath
 from typing import List, Optional, Dict, Any
 from datetime import datetime
 from fastapi import APIRouter, HTTPException, Response
 from pydantic import BaseModel, Field
+from sqlalchemy import func
 
 from ..services.reader import SetexFolderReader
 from ..utils.secom_codec import (
     create_batchref_binary,
     build_minimal_prg,
-    generate_batch_zip
+    generate_batch_zip,
+    generate_queue_btd,
+    inspect_btd_refs
 )
 
 logger = logging.getLogger("orgatex.ftp")
@@ -73,6 +77,14 @@ class FTPDispatchBatchRequest(BaseModel):
     batch_id: str
     target_dir: Optional[str] = Field(None, description="Remote target directory for batch (e.g. /Flashdisk/SC797CE/BATCH or /Storage/sc777ce/BATCH)")
     controller_type: Optional[str] = None
+
+class FTPBulkReplaceQueueRequest(BaseModel):
+    machine_no: str = "DA01"
+    ip: str = "192.168.1.95"
+    port: int = 21
+    username: Optional[str] = ""
+    password: Optional[str] = ""
+    timeout: float = 12.0
 
 class FTPCopyPasteRequest(BaseModel):
     ip: str
@@ -140,15 +152,45 @@ LOCAL_HOST_ROOT = "/app/sc777ce_root" if os.path.exists("/app/sc777ce_root") els
 )
 
 
-def _get_ftp_connection(ip: str, port: int = 21, username: str = "", password: str = "", timeout: float = 5.0) -> ftplib.FTP:
+def _safe_ftp_close(ftp: Optional[ftplib.FTP]):
+    """Safely closes an FTP connection, ignoring Windows CE abrupt disconnects on QUIT."""
+    if not ftp:
+        return
+    try:
+        _safe_ftp_close(ftp)
+    except Exception:
+        try:
+            ftp.close()
+        except Exception:
+            pass
+
+
+def _get_ftp_connection(ip: str, port: int = 21, username: str = "", password: str = "", timeout: float = 4.0) -> ftplib.FTP:
     """Helper to establish an authenticated or anonymous FTP connection."""
-    ftp = ftplib.FTP(timeout=timeout)
-    ftp.connect(ip, port)
-    if username:
-        ftp.login(username, password)
-    else:
-        ftp.login()
-    return ftp
+    try:
+        ftp = ftplib.FTP(timeout=timeout)
+        ftp.connect(ip, port)
+        if username:
+            ftp.login(username, password)
+        else:
+            ftp.login()
+        return ftp
+    except (socket.timeout, TimeoutError):
+        raise HTTPException(
+            status_code=504,
+            detail=f"Koneksi ke kontroler {ip}:{port} Timeout (Waktu Habis). Kontroler tidak merespons. Pastikan kontroler menyala dan terhubung ke jaringan LAN."
+        )
+    except ConnectionRefusedError:
+        raise HTTPException(
+            status_code=502,
+            detail=f"Koneksi ke {ip}:{port} Ditolak. Port FTP 21 pada kontroler tidak aktif atau diblokir."
+        )
+    except OSError as e:
+        err = str(e).strip() or type(e).__name__
+        raise HTTPException(
+            status_code=500,
+            detail=f"Gangguan jaringan ke {ip}:{port}: {err}. Periksa alamat IP kontroler dan kabel jaringan."
+        )
 
 
 @router.post("/test")
@@ -166,7 +208,7 @@ def test_ftp_connection(req: FTPConnectRequest):
         # Test directory listing on root
         items = []
         ftp.retrlines("LIST", items.append)
-        ftp.quit()
+        _safe_ftp_close(ftp)
         
         latency_ms = round((datetime.now() - start_time).total_seconds() * 1000, 1)
         return {
@@ -204,13 +246,13 @@ def browse_ftp_directory(req: FTPBrowseRequest):
         try:
             ftp.cwd(target_path)
         except Exception as e:
-            ftp.quit()
+            _safe_ftp_close(ftp)
             raise HTTPException(status_code=404, detail=f"Direktori remote tidak ditemukan: {target_path} ({e})")
 
         current_path = ftp.pwd()
         raw_lines = []
         ftp.retrlines("LIST", raw_lines.append)
-        ftp.quit()
+        _safe_ftp_close(ftp)
 
         entries = []
         for line in raw_lines:
@@ -326,7 +368,7 @@ def read_remote_file(req: FTPReadFileRequest):
                 except Exception:
                     pass
         ftp.retrbinary(f"RETR {r_file}", bio.write)
-        ftp.quit()
+        _safe_ftp_close(ftp)
 
         raw_bytes = bio.getvalue()
         file_name = os.path.basename(req.remote_path).upper()
@@ -363,7 +405,8 @@ def read_remote_file(req: FTPReadFileRequest):
         raise HTTPException(status_code=500, detail=f"Gagal membaca file remote: {str(e)}")
 
 
-@router.post("/dispatch-batch")
+@router.post("/dispatch-batch", include_in_schema=False)
+@router.post("/dispatch-batch/")
 def dispatch_batch_via_ftp(req: FTPDispatchBatchRequest):
     """
     Dispatches a production batch directly to the controller via FTP.
@@ -371,109 +414,479 @@ def dispatch_batch_via_ftp(req: FTPDispatchBatchRequest):
     1. BATCHREF.REF (762-byte Secom binary structure)
     2. M_{program_no:04d}.PRG (SECOM 777 execution program)
     """
-    # Load batch details from planning.json
-    if not os.path.exists(PLANNING_PATH):
-        raise HTTPException(status_code=404, detail="Data planning belum ada")
+    # 1. Load batch details from planning.json or Database
+    batches = []
+    if os.path.exists(PLANNING_PATH):
+        try:
+            with open(PLANNING_PATH, "r", encoding="utf-8") as f:
+                batches = json.load(f)
+        except Exception:
+            batches = []
 
-    try:
-        with open(PLANNING_PATH, "r", encoding="utf-8") as f:
-            batches = json.load(f)
-    except Exception:
-        batches = []
+    clean_id = str(req.batch_id).strip()
+    clean_ref = clean_id.replace("b-", "")
+    target_batch = next((
+        b for b in batches 
+        if b.get("id") == clean_id 
+        or b.get("reference_no") == clean_ref
+        or b.get("batch_no") == clean_id
+        or str(b.get("db_id")) == clean_id
+    ), None)
 
-    target_batch = next((b for b in batches if b["id"] == req.batch_id or b.get("reference_no") == req.batch_id), None)
+    # Database fallback if not in planning.json
     if not target_batch:
-        raise HTTPException(status_code=404, detail=f"Batch dengan ID '{req.batch_id}' tidak ditemukan")
+        try:
+            from ..database import get_db
+            from ..models.schema_pg import BatchHeader
+            from .planning import _batch_to_dict
+            for db in get_db():
+                b_obj = db.query(BatchHeader).filter(
+                    (BatchHeader.batch_ref_no == clean_ref) |
+                    (BatchHeader.batch_no == clean_id)
+                ).first()
+                if b_obj:
+                    target_batch = _batch_to_dict(b_obj)
+                break
+        except Exception:
+            pass
 
-    ref_no = target_batch.get("reference_no", "000000")
-    prog_no = target_batch.get("program_no", 1)
-    prg_name = f"M_{int(prog_no):04d}.PRG"
+    if not target_batch:
+        raise HTTPException(status_code=404, detail=f"Batch dengan ID '{req.batch_id}' tidak ditemukan di sistem")
 
-    # Generate binary files in memory
-    batchref_bytes = create_batchref_binary(target_batch)
-    prg_bytes = build_minimal_prg(prog_no, target_batch.get("recipe_name", "Reactive Dyeing"))
-
-    try:
-        ftp = _get_ftp_connection(req.ip, req.port, req.username, req.password)
-        
-        # Determine target directory based on IP and controller type
-        # Special rule: IP 192.168.1.95 or SETEX 797CE defaults to /Flashdisk/SC797CE/BATCH
-        is_797 = (
-            req.ip.strip() == "192.168.1.95" or 
-            (req.controller_type and "797" in req.controller_type.upper()) or
-            (req.target_dir and "SC797" in req.target_dir.upper())
+    # RESTRIKSI KESELAMATAN: Hanya mesin DA01 yang diizinkan menulis ke kontroler HMI/FTP
+    mach_code = str(target_batch.get("machine_no", "DA01")).strip().upper()
+    if mach_code != "DA01":
+        raise HTTPException(
+            status_code=403,
+            detail=f"Akses Ditolak: Penulisan ke kontroler FTP untuk mesin '{mach_code}' dinonaktifkan demi keselamatan operasional. Saat ini HANYA mesin DA01 yang diizinkan menulis ke kontroler."
         )
 
-        primary_dir = req.target_dir.rstrip("/\\") if req.target_dir else ("/Flashdisk/SC797CE/BATCH" if is_797 else "/Storage/sc777ce/BATCH")
+    ref_no = str(target_batch.get("reference_no", clean_ref)).zfill(6)
+    prog_no = int(target_batch.get("program_no", 1))
+    prg_name = f"M_{prog_no:04d}.PRG"
 
-        # Prepare candidate directories with automatic fallback between 797 and 777
-        candidate_dirs = [primary_dir, primary_dir.replace("/", "\\"), primary_dir.replace("\\", "/")]
-        if is_797:
-            candidate_dirs.extend([
-                "/Flashdisk/SC797CE/BATCH",
-                "\\Flashdisk\\SC797CE\\BATCH",
-                "/flashdisk/sc797ce/batch",
-                "/Flashdisk/SC797CE/Batch",
-                "/Flashdisk/sc797ce/BATCH",
-                "/Storage/sc777ce/BATCH",
-                "\\Storage\\sc777ce\\BATCH"
-            ])
-        else:
-            candidate_dirs.extend([
-                "/Storage/sc777ce/BATCH",
-                "\\Storage\\sc777ce\\BATCH",
-                "/Storage/SC777CE/BATCH",
-                "/Flashdisk/SC797CE/BATCH",
-                "\\Flashdisk\\SC797CE\\BATCH",
-                "/flashdisk/sc797ce/batch"
-            ])
+    try:
+        # Generate binary files in memory
+        prg_bytes = None
+        try:
+            from .programs import get_compiled_prg_bytes
+            prg_bytes = get_compiled_prg_bytes(prog_no)
+        except Exception:
+            pass
+        if not prg_bytes or len(prg_bytes) < 65:
+            prg_bytes = build_minimal_prg(prog_no, target_batch.get("recipe_name", "Reactive Dyeing"))
+
+        batchref_bytes = create_batchref_binary(
+            reference_no=ref_no,
+            machine_no=target_batch.get("machine_no", "DA01"),
+            batch_no=target_batch.get("batch_no", f"LOT-{ref_no}"),
+            program_no=prog_no,
+            recipe_no=target_batch.get("recipe_name", ""),
+            customer=target_batch.get("customer", ""),
+            article=target_batch.get("article", ""),
+            color_code=target_batch.get("color_code", ""),
+            color_name=target_batch.get("color_name", ""),
+            fabric_weight=float(target_batch.get("fabric_weight_kg", 350.0)),
+            program_title=target_batch.get("recipe_name", f"Prog {prog_no}")
+        )
+
+        ftp = _get_ftp_connection(req.ip, req.port, req.username, req.password)
+        try:
+            ftp.set_pasv(True)
+        except Exception:
+            pass
+        
+        # Determine target architecture:
+        # Standard OrgaTEX Central Network Share: /Network/F/OT/BATCH/<ref_no>/ and /Network/F/OT/MACHINES/<machine>/BATCHES/
+        is_797 = "797" in (req.controller_type or "").upper() or "SC797" in (req.target_dir or "").upper() or req.ip.strip() == "192.168.1.95"
+        is_network_ot = (
+            "NETWORK" in (req.target_dir or "").upper() or
+            "NETWORK" in (req.controller_type or "").upper() or
+            req.ip.strip() == "192.168.1.95" or
+            not req.target_dir
+        )
 
         resolved_target_dir = None
-        for cand in candidate_dirs:
+        uploaded_files = []
+
+        if is_network_ot:
+            # 1. Standard OrgaTEX Share: /Network/F/OT/BATCH/<ref_no>/
+            base_batch_dir = "/Network/F/OT/BATCH"
+            target_batch_folder = f"{base_batch_dir}/{ref_no}"
+
+            # Ensure /Network/F/OT/BATCH/<ref_no> directory exists
             try:
-                ftp.cwd(cand)
-                resolved_target_dir = cand
-                break
+                ftp.cwd(base_batch_dir)
             except Exception:
-                continue
+                try:
+                    ftp.mkd("/Network")
+                    ftp.mkd("/Network/F")
+                    ftp.mkd("/Network/F/OT")
+                    ftp.mkd(base_batch_dir)
+                    ftp.cwd(base_batch_dir)
+                except Exception:
+                    pass
 
-        if not resolved_target_dir:
-            # Try to create directory if not existing
             try:
-                ftp.mkd(primary_dir)
-                ftp.cwd(primary_dir)
-                resolved_target_dir = primary_dir
+                ftp.mkd(target_batch_folder)
             except Exception:
-                resolved_target_dir = primary_dir
+                pass
 
-        # 1. Upload BATCHREF.REF
-        ftp.storbinary("STOR BATCHREF.REF", io.BytesIO(batchref_bytes))
+            ftp.cwd(target_batch_folder)
+            resolved_target_dir = target_batch_folder
 
-        # 2. Upload Program M_xxxx.PRG
-        ftp.storbinary(f"STOR {prg_name}", io.BytesIO(prg_bytes))
+            # Upload BATCHREF.REF and Program inside the batch folder
+            ftp.storbinary("STOR BATCHREF.REF", io.BytesIO(batchref_bytes))
+            uploaded_files.append(f"{target_batch_folder}/BATCHREF.REF")
+
+            ftp.storbinary(f"STOR {prg_name}", io.BytesIO(prg_bytes))
+            uploaded_files.append(f"{target_batch_folder}/{prg_name}")
+
+            # =========================================================================
+            # 2. Database Queue Storage & Dynamic QUEUE.BTD Generation (Append Antrean)
+            # =========================================================================
+            mach_code = str(target_batch.get("machine_no", "DA01")).strip().upper()
+            mach_queue_dir = f"/Network/F/OT/MACHINES/{mach_code}/BATCHES"
+            try:
+                ftp.cwd(mach_queue_dir)
+            except Exception:
+                try:
+                    ftp.mkd(f"/Network/F/OT/MACHINES/{mach_code}")
+                except Exception:
+                    pass
+                try:
+                    ftp.mkd(mach_queue_dir)
+                    ftp.cwd(mach_queue_dir)
+                except Exception:
+                    pass
+
+            # A. Update antrean di database (MachineQueue & BatchHeader)
+            queue_records_db = []
+            try:
+                from ..database import get_db
+                from ..models.schema_pg import BatchHeader, MachineQueue
+
+                for db in get_db():
+                    # Update status di BatchHeader
+                    b_rec = db.query(BatchHeader).filter(
+                        (BatchHeader.batch_ref_no == clean_ref) |
+                        (BatchHeader.batch_no == clean_id)
+                    ).first()
+                    if b_rec:
+                        b_rec.status = "WAITING_LA"
+                        b_rec.machine_no = mach_code
+
+                    # Jika kontroler remote sudah memiliki QUEUE.BTD, periksa nomor referensi remote agar antrean tidak hilang
+                    remote_existing_refs = []
+                    try:
+                        remote_btd_bio = io.BytesIO()
+                        ftp.cwd(mach_queue_dir)
+                        ftp.retrbinary("RETR QUEUE.BTD", remote_btd_bio.write)
+                        remote_existing_refs = inspect_btd_refs(remote_btd_bio.getvalue())
+                    except Exception:
+                        remote_existing_refs = []
+
+                    # Pertahankan setiap batch remote yang belum tercatat di MachineQueue
+                    for r_ref in remote_existing_refs:
+                        existing_mq = db.query(MachineQueue).filter(
+                            MachineQueue.machine_no == mach_code,
+                            MachineQueue.batch_ref_no == r_ref
+                        ).first()
+                        if not existing_mq:
+                            hb = db.query(BatchHeader).filter(BatchHeader.batch_ref_no == r_ref).first()
+                            if hb:
+                                max_p = db.query(func.max(MachineQueue.position)).filter(MachineQueue.machine_no == mach_code).scalar() or 0
+                                db.add(MachineQueue(
+                                    machine_no=mach_code,
+                                    batch_ref_no=r_ref,
+                                    batch_no=hb.batch_no or f"LOT-{r_ref}",
+                                    program_no=hb.program_no or 1,
+                                    recipe_name=hb.recipe_name,
+                                    customer=hb.customer,
+                                    article=hb.article,
+                                    color_code=hb.color_code,
+                                    color_name=hb.color_name,
+                                    fabric_weight_kg=hb.fabric_weight_kg,
+                                    liquor_ratio=hb.liquor_ratio,
+                                    total_water_l=hb.total_water_l,
+                                    position=max_p + 1,
+                                    status=hb.status or "QUEUED"
+                                ))
+
+                    # Simpan/tambahkan batch yang baru dikirim ke MachineQueue database
+                    mq_item = db.query(MachineQueue).filter(
+                        MachineQueue.machine_no == mach_code,
+                        MachineQueue.batch_ref_no == clean_ref
+                    ).first()
+
+                    if mq_item:
+                        mq_item.status = "WAITING_LA"
+                        mq_item.dispatched_at = datetime.now()
+                        mq_item.dispatched_to_ip = req.ip
+                        if b_rec:
+                            b_rec.position = mq_item.position
+                    else:
+                        # Batch baru: posisikan di akhir antrean (nambah antrean)
+                        max_pos = db.query(func.max(MachineQueue.position)).filter(
+                            MachineQueue.machine_no == mach_code
+                        ).scalar() or 0
+                        new_pos = max_pos + 1
+                        mq_item = MachineQueue(
+                            machine_no=mach_code,
+                            batch_ref_no=clean_ref,
+                            batch_no=target_batch.get("batch_no") or f"LOT-{clean_ref}",
+                            program_no=prog_no,
+                            recipe_name=target_batch.get("recipe_name"),
+                            customer=target_batch.get("customer"),
+                            article=target_batch.get("article"),
+                            color_code=target_batch.get("color_code"),
+                            color_name=target_batch.get("color_name"),
+                            fabric_weight_kg=float(target_batch.get("fabric_weight_kg") or 350.0),
+                            liquor_ratio=float(target_batch.get("liquor_ratio") or 8.0),
+                            total_water_l=float(target_batch.get("total_water_l") or 2800.0),
+                            position=new_pos,
+                            status="WAITING_LA",
+                            dispatched_at=datetime.now(),
+                            dispatched_to_ip=req.ip
+                        )
+                        db.add(mq_item)
+                        if b_rec:
+                            b_rec.position = new_pos
+
+                    db.commit()
+
+                    # Ambil seluruh antrean aktif untuk mesin ini berurutan dari database
+                    queue_records_db = db.query(MachineQueue).filter(
+                        MachineQueue.machine_no == mach_code,
+                        MachineQueue.status.in_(["QUEUED", "WAITING_LA", "RUNNING"])
+                    ).order_by(MachineQueue.position.asc(), MachineQueue.id.asc()).all()
+                    break
+            except Exception as q_err:
+                logger.warning(f"Database queue update warning: {q_err}")
+
+            # B. Bangun seluruh 759-byte record antrean untuk QUEUE.BTD
+            q_records = []
+            if queue_records_db:
+                for idx, q in enumerate(queue_records_db, start=1):
+                    q_ref = str(q.batch_ref_no).zfill(6)
+                    q_prog = int(q.program_no or 1)
+                    q_bref = create_batchref_binary(
+                        reference_no=q_ref,
+                        machine_no=mach_code,
+                        batch_no=str(q.batch_no or f"LOT-{q_ref}"),
+                        program_no=q_prog,
+                        recipe_no=q.recipe_name or "",
+                        customer=q.customer or "",
+                        article=q.article or "",
+                        color_code=q.color_code or "",
+                        color_name=q.color_name or "",
+                        fabric_weight=float(q.fabric_weight_kg or 350.0),
+                        program_title=q.recipe_name or f"Prog {q_prog}"
+                    )
+                    q_rec = bytearray(q_bref[:759])
+                    struct.pack_into("<HH", q_rec, 755, 0, idx)
+                    q_records.append(bytes(q_rec))
+
+            # C. Kompilasi Btrieve QUEUE.BTD binary
+            btd_data = None
+            if q_records:
+                try:
+                    btd_data = generate_queue_btd(q_records, mach_code)
+                except Exception as e:
+                    logger.warning(f"Gagal generate_queue_btd: {e}")
+
+            local_btd_path = os.path.abspath(f"./open_orgatex/backend/data/OT/MACHINES/{mach_code}/BATCHES/QUEUE.BTD")
+            if btd_data:
+                os.makedirs(os.path.dirname(local_btd_path), exist_ok=True)
+                with open(local_btd_path, "wb") as f_btd:
+                    f_btd.write(btd_data)
+            elif os.path.exists(local_btd_path):
+                with open(local_btd_path, "rb") as f_btd:
+                    btd_data = f_btd.read()
+
+            # D. Unggah berkas QUEUE.BTD gabungan ke FTP Controller
+            if btd_data:
+                try:
+                    ftp.cwd(mach_queue_dir)
+                    ftp.storbinary("STOR QUEUE.BTD", io.BytesIO(btd_data))
+                    uploaded_files.append(f"{mach_queue_dir}/QUEUE.BTD ({len(q_records)} batch dalam antrean)")
+                    logger.info(f"Berhasil mengunggah QUEUE.BTD ke {mach_queue_dir} dengan {len(q_records)} antrean batch.")
+                except Exception as e:
+                    logger.warning(f"Notice: Failed to upload QUEUE.BTD in {mach_queue_dir}: {e}")
+
+        else:
+            # Standalone Local Controller Fallback (e.g. /Flashdisk/SC797CE/BATCH or /Storage/sc777ce/BATCH)
+            is_797 = "797" in (req.controller_type or "").upper() or "SC797" in (req.target_dir or "").upper()
+            primary_dir = req.target_dir.rstrip("/\\") if req.target_dir else ("/Flashdisk/SC797CE/BATCH" if is_797 else "/Storage/sc777ce/BATCH")
+
+            candidate_dirs = [primary_dir, primary_dir.replace("/", "\\"), primary_dir.replace("\\", "/")]
+            for cand in candidate_dirs:
+                try:
+                    ftp.cwd(cand)
+                    resolved_target_dir = cand
+                    break
+                except Exception:
+                    continue
+
+            if not resolved_target_dir:
+                try:
+                    ftp.mkd(primary_dir)
+                    ftp.cwd(primary_dir)
+                    resolved_target_dir = primary_dir
+                except Exception:
+                    resolved_target_dir = primary_dir
+
+            # Upload BATCHREF.REF & M_xxxx.PRG
+            ftp.storbinary("STOR BATCHREF.REF", io.BytesIO(batchref_bytes))
+            uploaded_files.append("BATCHREF.REF")
+
+            ftp.storbinary(f"STOR {prg_name}", io.BytesIO(prg_bytes))
+            uploaded_files.append(prg_name)
+
+            # Update Database & Upload QUEUE.BTD ke controller lokal
+            mach_code = str(target_batch.get("machine_no", "DA01")).upper()
+            queue_records_db = []
+            try:
+                from ..database import get_db
+                from ..models.schema_pg import BatchHeader, MachineQueue
+
+                for db in get_db():
+                    b_rec = db.query(BatchHeader).filter(
+                        (BatchHeader.batch_ref_no == clean_ref) |
+                        (BatchHeader.batch_no == clean_id)
+                    ).first()
+                    if b_rec:
+                        b_rec.status = "WAITING_LA"
+                        b_rec.machine_no = mach_code
+
+                    mq_item = db.query(MachineQueue).filter(
+                        MachineQueue.machine_no == mach_code,
+                        MachineQueue.batch_ref_no == clean_ref
+                    ).first()
+
+                    if mq_item:
+                        mq_item.status = "WAITING_LA"
+                        mq_item.dispatched_at = datetime.now()
+                        mq_item.dispatched_to_ip = req.ip
+                        if b_rec:
+                            b_rec.position = mq_item.position
+                    else:
+                        max_pos = db.query(func.max(MachineQueue.position)).filter(
+                            MachineQueue.machine_no == mach_code
+                        ).scalar() or 0
+                        new_pos = max_pos + 1
+                        mq_item = MachineQueue(
+                            machine_no=mach_code,
+                            batch_ref_no=clean_ref,
+                            batch_no=target_batch.get("batch_no") or f"LOT-{clean_ref}",
+                            program_no=prog_no,
+                            recipe_name=target_batch.get("recipe_name"),
+                            customer=target_batch.get("customer"),
+                            article=target_batch.get("article"),
+                            color_code=target_batch.get("color_code"),
+                            color_name=target_batch.get("color_name"),
+                            fabric_weight_kg=float(target_batch.get("fabric_weight_kg") or 350.0),
+                            liquor_ratio=float(target_batch.get("liquor_ratio") or 8.0),
+                            total_water_l=float(target_batch.get("total_water_l") or 2800.0),
+                            position=new_pos,
+                            status="WAITING_LA",
+                            dispatched_at=datetime.now(),
+                            dispatched_to_ip=req.ip
+                        )
+                        db.add(mq_item)
+                        if b_rec:
+                            b_rec.position = new_pos
+
+                    db.commit()
+
+                    queue_records_db = db.query(MachineQueue).filter(
+                        MachineQueue.machine_no == mach_code,
+                        MachineQueue.status.in_(["QUEUED", "WAITING_LA", "RUNNING"])
+                    ).order_by(MachineQueue.position.asc(), MachineQueue.id.asc()).all()
+                    break
+            except Exception as q_err:
+                logger.warning(f"Database queue update warning (standalone): {q_err}")
+
+            q_records = []
+            if queue_records_db:
+                for idx, q in enumerate(queue_records_db, start=1):
+                    q_ref = str(q.batch_ref_no).zfill(6)
+                    q_prog = int(q.program_no or 1)
+                    q_bref = create_batchref_binary(
+                        reference_no=q_ref,
+                        machine_no=mach_code,
+                        batch_no=str(q.batch_no or f"LOT-{q_ref}"),
+                        program_no=q_prog,
+                        recipe_no=q.recipe_name or "",
+                        customer=q.customer or "",
+                        article=q.article or "",
+                        color_code=q.color_code or "",
+                        color_name=q.color_name or "",
+                        fabric_weight=float(q.fabric_weight_kg or 350.0),
+                        program_title=q.recipe_name or f"Prog {q_prog}"
+                    )
+                    q_rec = bytearray(q_bref[:759])
+                    struct.pack_into("<HH", q_rec, 755, 0, idx)
+                    q_records.append(bytes(q_rec))
+
+            btd_data = None
+            if q_records:
+                try:
+                    btd_data = generate_queue_btd(q_records, mach_code)
+                except Exception as e:
+                    logger.warning(f"Gagal generate_queue_btd: {e}")
+
+            local_btd_path = os.path.abspath(f"./open_orgatex/backend/data/OT/MACHINES/{mach_code}/BATCHES/QUEUE.BTD")
+            if btd_data:
+                os.makedirs(os.path.dirname(local_btd_path), exist_ok=True)
+                with open(local_btd_path, "wb") as f_btd:
+                    f_btd.write(btd_data)
+            elif os.path.exists(local_btd_path):
+                with open(local_btd_path, "rb") as f_btd:
+                    btd_data = f_btd.read()
+
+            if btd_data:
+                try:
+                    ftp.storbinary("STOR QUEUE.BTD", io.BytesIO(btd_data))
+                    uploaded_files.append(f"QUEUE.BTD ({len(q_records)} batch dalam antrean)")
+                except Exception as e:
+                    logger.warning(f"Notice: Upload QUEUE.BTD skipped: {e}")
         
-        ftp.quit()
+        _safe_ftp_close(ftp)
 
-        # Update batch status in planning.json
+        # Update batch status in planning.json & sync local queue files
         target_batch["status"] = "WAITING_LA"
         target_batch["dispatched_at"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         target_batch["dispatched_to_ip"] = req.ip
-        with open(PLANNING_PATH, "w", encoding="utf-8") as f:
-            json.dump(batches, f, indent=2)
+
+        try:
+            from .planning import _sync_planning_json, _batch_to_dict
+            from ..database import get_db
+            from ..models.schema_pg import BatchHeader
+            for db in get_db():
+                all_batches = [_batch_to_dict(b) for b in db.query(BatchHeader).all()]
+                _sync_planning_json(all_batches)
+                break
+        except Exception:
+            with open(PLANNING_PATH, "w", encoding="utf-8") as f:
+                json.dump(batches, f, indent=2)
 
         return {
             "status": "success",
-            "message": f"Batch {target_batch.get('batch_no')} (Ref: {ref_no}) berhasil dikirim ke Controller {req.ip} ({resolved_target_dir}) via FTP!",
-            "uploaded_files": ["BATCHREF.REF", prg_name],
+            "message": f"Batch {target_batch.get('batch_no')} (Ref: {ref_no}) berhasil dikirim ke {resolved_target_dir} ({req.ip}) via FTP!",
+            "uploaded_files": uploaded_files,
             "destination_dir": resolved_target_dir,
             "ip": req.ip,
-            "controller_type": "SETEX 797CE" if is_797 else "SETEX 777",
+            "controller_type": "OrgaTEX Network Share" if is_network_ot else ("SETEX 797CE" if is_797 else "SETEX 777"),
             "batch": target_batch
         }
 
+    except HTTPException:
+        raise
     except Exception as e:
-        logger.error(f"FTP dispatch failed: {e}")
-        raise HTTPException(status_code=500, detail=f"Pengiriman batch via FTP gagal: {str(e)}")
+        err_msg = str(e).strip() or f"{type(e).__name__} (Koneksi ke {req.ip}:{req.port} terputus atau kontroler tidak merespons)"
+        logger.error(f"FTP dispatch failed: {err_msg}")
+        raise HTTPException(status_code=500, detail=f"Pengiriman batch via FTP gagal: {err_msg}")
 
 
 @router.post("/upload")
@@ -501,7 +914,7 @@ def upload_file_to_ftp(req: FTPUploadRequest):
 
         file_name = req.file_name
         ftp.storbinary(f"STOR {file_name}", io.BytesIO(content))
-        ftp.quit()
+        _safe_ftp_close(ftp)
 
         return {
             "status": "success",
@@ -532,7 +945,7 @@ def download_file_from_ftp(ip: str, remote_path: str, port: int = 21, username: 
                 except Exception:
                     pass
         ftp.retrbinary(f"RETR {r_file}", bio.write)
-        ftp.quit()
+        _safe_ftp_close(ftp)
 
         file_bytes = bio.getvalue()
         file_name = r_file
@@ -614,7 +1027,7 @@ def copy_paste_ftp(req: FTPCopyPasteRequest):
             # Cut/Move: Rename is instant on FTP
             try:
                 ftp.rename(src_path, target_path)
-                ftp.quit()
+                _safe_ftp_close(ftp)
                 return {
                     "status": "success",
                     "action": "cut",
@@ -627,7 +1040,7 @@ def copy_paste_ftp(req: FTPCopyPasteRequest):
                 if not req.is_dir:
                     _copy_ftp_single_file(ftp, src_path, target_path)
                     ftp.delete(src_path)
-                    ftp.quit()
+                    _safe_ftp_close(ftp)
                     return {
                         "status": "success",
                         "action": "cut",
@@ -635,7 +1048,7 @@ def copy_paste_ftp(req: FTPCopyPasteRequest):
                         "source": src_path,
                         "destination": target_path
                     }
-                ftp.quit()
+                _safe_ftp_close(ftp)
                 raise rename_err
         else:
             # Copy file
@@ -644,7 +1057,7 @@ def copy_paste_ftp(req: FTPCopyPasteRequest):
                     ftp.mkd(target_path)
                 except Exception:
                     pass
-                ftp.quit()
+                _safe_ftp_close(ftp)
                 return {
                     "status": "success",
                     "action": "copy",
@@ -654,7 +1067,7 @@ def copy_paste_ftp(req: FTPCopyPasteRequest):
                 }
             else:
                 _copy_ftp_single_file(ftp, src_path, target_path)
-                ftp.quit()
+                _safe_ftp_close(ftp)
                 return {
                     "status": "success",
                     "action": "copy",
@@ -676,11 +1089,11 @@ def delete_ftp_item(req: FTPDeleteRequest):
             try:
                 ftp.rmd(req.remote_path)
             except Exception as e:
-                ftp.quit()
+                _safe_ftp_close(ftp)
                 raise HTTPException(status_code=400, detail=f"Gagal menghapus direktori (pastikan direktori kosong): {str(e)}")
         else:
             ftp.delete(req.remote_path)
-        ftp.quit()
+        _safe_ftp_close(ftp)
         return {
             "status": "success",
             "message": f"'{os.path.basename(req.remote_path)}' berhasil dihapus.",
@@ -697,7 +1110,7 @@ def create_ftp_folder(req: FTPMkdirRequest):
         ftp = _get_ftp_connection(req.ip, req.port, req.username, req.password, req.timeout)
         target_path = posixpath.join(req.parent_dir.rstrip("/"), req.folder_name.strip())
         ftp.mkd(target_path)
-        ftp.quit()
+        _safe_ftp_close(ftp)
         return {
             "status": "success",
             "message": f"Direktori '{req.folder_name}' berhasil dibuat.",
@@ -715,7 +1128,7 @@ def rename_ftp_item(req: FTPRenameRequest):
         parent_dir = os.path.dirname(req.old_path)
         new_path = posixpath.join(parent_dir, req.new_name.strip())
         ftp.rename(req.old_path, new_path)
-        ftp.quit()
+        _safe_ftp_close(ftp)
         return {
             "status": "success",
             "message": f"Berhasil diubah nama menjadi '{req.new_name}'.",
@@ -856,7 +1269,7 @@ def transfer_ftp_file(req: FTPTransferRequest):
             # Upload from local host to remote FTP controller
             local_src = resolve_target_local_path(req.local_path)
             if not os.path.isfile(local_src):
-                ftp.quit()
+                _safe_ftp_close(ftp)
                 raise HTTPException(status_code=404, detail=f"Berkas lokal '{req.local_path}' tidak ditemukan.")
 
             file_name = os.path.basename(local_src)
@@ -875,7 +1288,7 @@ def transfer_ftp_file(req: FTPTransferRequest):
             with open(local_src, "rb") as f:
                 ftp.storbinary(f"STOR {file_name}", f)
 
-            ftp.quit()
+            _safe_ftp_close(ftp)
             return {
                 "status": "success",
                 "direction": "local_to_remote",
@@ -910,7 +1323,7 @@ def transfer_ftp_file(req: FTPTransferRequest):
             with open(local_target_file, "wb") as f:
                 ftp.retrbinary(f"RETR {file_name}", f.write)
 
-            ftp.quit()
+            _safe_ftp_close(ftp)
             return {
                 "status": "success",
                 "direction": "remote_to_local",
@@ -919,7 +1332,7 @@ def transfer_ftp_file(req: FTPTransferRequest):
                 "destination": local_target_file.replace("\\", "/")
             }
         else:
-            ftp.quit()
+            _safe_ftp_close(ftp)
             raise HTTPException(status_code=400, detail=f"Arah transfer tidak valid: {req.direction}")
 
     except Exception as e:
@@ -959,3 +1372,207 @@ def delete_local_item(req: LocalDeleteRequest):
         }
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Gagal menghapus file lokal: {str(e)}")
+
+
+@router.post("/sync-all-batch-folders")
+def sync_all_batch_folders():
+    """
+    Sinkronisasi seluruh batch_ref_no dari database menjadi folder baru di:
+    ftp://192.168.1.95/Network/F/OT/BATCH/<batch_ref_no>/
+    dengan isi:
+      - BATCHREF.REF (762-byte Secom biner)
+      - M_<program_no:04d>.PRG (program celup biner)
+    Serta dicadangkan di open_orgatex/backend/data/OT/BATCH/<batch_ref_no>/
+    """
+    try:
+        from sync_batches_to_ftp import sync_all_batches_to_ftp
+        results = sync_all_batches_to_ftp()
+        synced_count = sum(1 for r in results if r.get("ftp_synced"))
+        return {
+            "status": "success",
+            "total_batches": len(results),
+            "ftp_synced_count": synced_count,
+            "batches": results,
+            "message": f"Berhasil memproses {len(results)} folder batch. {synced_count} folder berhasil disinkronkan ke FTP 192.168.1.95!"
+        }
+    except Exception as e:
+        logger.error(f"Gagal sinkronisasi batch folder: {e}")
+        raise HTTPException(status_code=500, detail=f"Gagal sinkronisasi batch folder: {str(e)}")
+
+
+@router.post("/bulk-replace-queue")
+def bulk_replace_machine_queue(req: FTPBulkReplaceQueueRequest):
+    """
+    Mengirim seluruh antrean aktif (QUEUED, WAITING_LA, RUNNING) untuk mesin ke HMI secara bulk.
+    Mengunggah folder batch (BATCHREF.REF & M_xxxx.PRG) dan mereplace berkas QUEUE.BTD di kontroler.
+    PERINGATAN KESELAMATAN: Hanya diizinkan untuk mesin DA01!
+    """
+    clean_mach = req.machine_no.strip().upper()
+    if clean_mach != "DA01":
+        raise HTTPException(
+            status_code=403,
+            detail=f"Akses Ditolak: Penulisan antrean ke HMI untuk mesin '{clean_mach}' dinonaktifkan demi keselamatan operasional. Saat ini HANYA mesin DA01 yang diizinkan menulis ke kontroler."
+        )
+
+    from ..database import get_db
+    from ..models.schema_pg import BatchHeader, MachineQueue
+    from ..utils.secom_codec import create_batchref_binary, build_minimal_prg, generate_queue_btd
+    from .programs import get_compiled_prg_bytes
+
+    batches = []
+    for db in get_db():
+        # Ambil antrean aktif dari MachineQueue
+        mq_items = db.query(MachineQueue).filter(
+            MachineQueue.machine_no == clean_mach,
+            MachineQueue.status.in_(["QUEUED", "WAITING_LA", "RUNNING"])
+        ).order_by(MachineQueue.position.asc(), MachineQueue.id.asc()).all()
+
+        if not mq_items:
+            # Fallback ke BatchHeader jika MachineQueue belum terisi
+            bh_items = db.query(BatchHeader).filter(
+                BatchHeader.machine_no == clean_mach,
+                BatchHeader.status.in_(["QUEUED", "WAITING_LA", "RUNNING"])
+            ).order_by(BatchHeader.position.asc(), BatchHeader.id.asc()).all()
+            batches = bh_items
+        else:
+            batches = mq_items
+        break
+
+    if not batches:
+        raise HTTPException(
+            status_code=400, 
+            detail=f"Tidak ada batch antrean aktif (QUEUED / WAITING_LA / RUNNING) untuk mesin {clean_mach} di database."
+        )
+
+    # Buka koneksi FTP ke kontroler
+    ftp = _get_ftp_connection(req.ip, req.port, req.username, req.password, timeout=req.timeout)
+    try:
+        ftp.set_pasv(True)
+    except Exception:
+        pass
+
+    uploaded_folders = []
+    q_records = []
+    base_batch_dir = "/Network/F/OT/BATCH"
+
+    try:
+        try:
+            ftp.cwd(base_batch_dir)
+        except Exception:
+            for part in ["/Network", "/Network/F", "/Network/F/OT", base_batch_dir]:
+                try: ftp.mkd(part)
+                except Exception: pass
+            ftp.cwd(base_batch_dir)
+
+        # 1. Unggah folder batch (BATCHREF.REF & M_xxxx.PRG) untuk setiap antrean
+        for idx, b in enumerate(batches, start=1):
+            ref_no = str(b.batch_ref_no).strip().zfill(6)
+            prog_no = int(b.program_no or 1)
+            prg_name = f"M_{prog_no:04d}.PRG"
+            recipe_title = b.recipe_name or f"Prog {prog_no}"
+            batch_no = b.batch_no or f"LOT-{ref_no}"
+
+            batchref_bytes = create_batchref_binary(
+                reference_no=ref_no,
+                machine_no=clean_mach,
+                batch_no=batch_no,
+                program_no=prog_no,
+                recipe_no=b.recipe_name or "",
+                customer=b.customer or "",
+                article=b.article or "",
+                color_code=b.color_code or "",
+                color_name=b.color_name or "",
+                fabric_weight=float(b.fabric_weight_kg or 350.0),
+                program_title=recipe_title
+            )
+
+            prg_bytes = None
+            if get_compiled_prg_bytes:
+                try:
+                    prg_bytes = get_compiled_prg_bytes(prog_no)
+                except Exception:
+                    pass
+            if not prg_bytes or len(prg_bytes) < 65:
+                prg_bytes = build_minimal_prg(prog_no, recipe_title)
+
+            # Simpan mirror lokal
+            local_target_folder = os.path.abspath(f"./open_orgatex/backend/data/OT/BATCH/{ref_no}")
+            os.makedirs(local_target_folder, exist_ok=True)
+            with open(os.path.join(local_target_folder, "BATCHREF.REF"), "wb") as f_ref:
+                f_ref.write(batchref_bytes)
+            with open(os.path.join(local_target_folder, prg_name), "wb") as f_prg:
+                f_prg.write(prg_bytes)
+
+            # Upload ke FTP /Network/F/OT/BATCH/<ref_no>/
+            target_ftp_dir = f"{base_batch_dir}/{ref_no}"
+            try:
+                ftp.mkd(target_ftp_dir)
+            except Exception:
+                pass
+            ftp.cwd(target_ftp_dir)
+            ftp.storbinary("STOR BATCHREF.REF", io.BytesIO(batchref_bytes))
+            ftp.storbinary(f"STOR {prg_name}", io.BytesIO(prg_bytes))
+            uploaded_folders.append(f"{ref_no} ({batch_no})")
+
+            # Susun 759-byte record berurutan
+            q_rec = bytearray(batchref_bytes[:759])
+            struct.pack_into("<HH", q_rec, 755, 0, idx)
+            q_records.append(bytes(q_rec))
+
+        # 2. Kompilasi Btrieve QUEUE.BTD untuk DA01
+        q_bytes = generate_queue_btd(q_records, clean_mach)
+        if not q_bytes:
+            _safe_ftp_close(ftp)
+            raise HTTPException(status_code=500, detail="Gagal mengompilasi berkas biner QUEUE.BTD dengan QueueTool.")
+
+        # Simpan mirror lokal
+        local_mach_btd = os.path.abspath(f"./open_orgatex/backend/data/OT/MACHINES/{clean_mach}/BATCHES/QUEUE.BTD")
+        os.makedirs(os.path.dirname(local_mach_btd), exist_ok=True)
+        with open(local_mach_btd, "wb") as f_btd:
+            f_btd.write(q_bytes)
+
+        # 3. Upload QUEUE.BTD ke /Network/F/OT/MACHINES/DA01/BATCHES/QUEUE.BTD
+        mach_queue_dir = f"/Network/F/OT/MACHINES/{clean_mach}/BATCHES"
+        try:
+            ftp.cwd(mach_queue_dir)
+        except Exception:
+            for part in ["/Network", "/Network/F", "/Network/F/OT", "/Network/F/OT/MACHINES", f"/Network/F/OT/MACHINES/{clean_mach}", mach_queue_dir]:
+                try: ftp.mkd(part)
+                except Exception: pass
+            ftp.cwd(mach_queue_dir)
+
+        ftp.storbinary("STOR QUEUE.BTD", io.BytesIO(q_bytes))
+        _safe_ftp_close(ftp)
+
+    except Exception as e:
+        _safe_ftp_close(ftp)
+        logger.error(f"Bulk replace queue gagal: {e}")
+        raise HTTPException(status_code=500, detail=f"Gagal mengirim bulk antrean ke HMI {clean_mach}: {str(e)}")
+
+    # 4. Update status batch di database & sync planning backup
+    for db in get_db():
+        for b_item in batches:
+            r_no = b_item.batch_ref_no
+            db.query(MachineQueue).filter(MachineQueue.machine_no == clean_mach, MachineQueue.batch_ref_no == r_no).update({
+                "status": "WAITING_LA",
+                "dispatched_at": datetime.now(),
+                "dispatched_to_ip": req.ip
+            })
+            db.query(BatchHeader).filter(BatchHeader.batch_ref_no == r_no).update({
+                "status": "WAITING_LA"
+            })
+        db.commit()
+        from .planning import _sync_planning_json, _batch_to_dict
+        all_b = [_batch_to_dict(x) for x in db.query(BatchHeader).all()]
+        _sync_planning_json(all_b)
+        break
+
+    return {
+        "status": "success",
+        "message": f"Berhasil mereplace dan mengirim {len(q_records)} batch antrean ke HMI mesin {clean_mach} secara bulk!",
+        "machine_no": clean_mach,
+        "total_batches": len(q_records),
+        "batches": uploaded_folders,
+        "destination_file": f"{mach_queue_dir}/QUEUE.BTD"
+    }
+

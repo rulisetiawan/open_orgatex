@@ -16,24 +16,26 @@ import {
   X, 
   Cpu, 
   Tag, 
-  Sparkles 
+  Sparkles,
+  Lock
 } from 'lucide-react';
 import axios from 'axios';
 
 const API_BASE = '/api/planning';
 
 const COLUMN_DEFS = {
+  PLANNING: { name: 'Perencanaan (Planning)', color: 'border-purple-500/50 bg-purple-50/10 dark:bg-purple-950/20 text-purple-400' },
   QUEUED: { name: 'Antrean Produksi (Queued)', color: 'border-amber-500/50 bg-amber-50/10 dark:bg-amber-950/20 text-amber-500' },
   WAITING_LA: { name: 'Menunggu Dosing LA', color: 'border-blue-500/50 bg-blue-50/10 dark:bg-blue-950/20 text-blue-500' },
   RUNNING: { name: 'Sedang Proses Celup (Running)', color: 'border-emerald-500/50 bg-emerald-50/10 dark:bg-emerald-950/20 text-emerald-500' },
   COMPLETED: { name: 'Selesai (Completed)', color: 'border-slate-500/50 bg-slate-50/10 dark:bg-slate-900/30 text-slate-400' },
 };
 
-const MACHINE_OPTIONS = ['SEMUA', 'DA01', '10B', 'TD12', 'TD13', 'B012', 'E013', 'M01'];
-
 const KanbanView = () => {
   const [batches, setBatches] = useState([]);
+  const [machineList, setMachineList] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [syncing, setSyncing] = useState(false);
   const [selectedMachine, setSelectedMachine] = useState('SEMUA');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [availablePrograms, setAvailablePrograms] = useState([
@@ -43,32 +45,71 @@ const KanbanView = () => {
     { no: 1, name: 'M_0001.PRG - Quick Rinsing & Neutral' },
   ]);
 
-  // Form State
+  // Form State - Defaults to M_95 and PT. SMM JETFLOW
   const [form, setForm] = useState({
     batch_no: '',
     reference_no: '',
-    machine_no: 'TD12',
-    program_no: 401,
-    recipe_name: 'Reactive Blue Standard Formula',
-    customer: 'PT. ARTA PERMAI',
+    machine_no: 'M_95',
+    program_no: 1,
+    recipe_name: 'Reactive Dyeing Standard Formula',
+    customer: 'PT. SMM JETFLOW',
     article: 'CM 30S RIB 100% Cotton',
     color_code: '1650159',
     color_name: 'UNGU TUA',
-    fabric_weight_kg: 325.85,
+    fabric_weight_kg: 350.0,
     liquor_ratio: 8.0,
+    status: 'PLANNING'
   });
 
   // FTP Dispatch Batch Modal State
   const [ftpDispatchModalOpen, setFtpDispatchModalOpen] = useState(false);
   const [batchToDispatch, setBatchToDispatch] = useState(null);
   const [dispatchIp, setDispatchIp] = useState('192.168.1.95');
-  const [dispatchModel, setDispatchModel] = useState('797');
+  const [dispatchModel, setDispatchModel] = useState('network_ot');
   const [isDispatching, setIsDispatching] = useState(false);
+  const [isBulkSending, setIsBulkSending] = useState(false);
+
+  // Bulk Send Antrean to HMI Controller (Khusus Mesin DA01)
+  const handleBulkSendToHmi = async () => {
+    if (selectedMachine !== 'DA01') {
+      alert('Peringatan Keamanan: Pengiriman massal (bulk) ke HMI hanya diizinkan untuk Mesin DA01. Mesin lain dalam mode read-only dan tidak diizinkan menulis.');
+      return;
+    }
+
+    const queuedBatches = columnsData.QUEUED || [];
+    if (queuedBatches.length === 0) {
+      alert('Tidak ada batch di kolom Antrean Produksi (QUEUED) untuk mesin DA01.');
+      return;
+    }
+
+    const confirmMsg = `Konfirmasi Kirim Bulk ke HMI DA01 (192.168.1.95):\n\n` +
+      `Sistem akan mengompilasi ${queuedBatches.length} batch antrean ke berkas QUEUE.BTD dan mengunggahnya ke kontroler HMI mesin DA01.\n` +
+      `Seluruh berkas biner PRG dan BATCHREF.REF juga akan disinkronkan.\n\n` +
+      `Apakah Anda yakin ingin mereplace antrean di HMI DA01 sekarang?`;
+
+    if (!window.confirm(confirmMsg)) return;
+
+    setIsBulkSending(true);
+    try {
+      const res = await axios.post('/api/ftp/bulk-replace-queue', {
+        machine_no: 'DA01',
+        ip: '192.168.1.95',
+        port: 21
+      });
+      alert(res.data.message || `Berhasil mengirim ${queuedBatches.length} batch antrean ke HMI DA01!`);
+      fetchBatches();
+    } catch (err) {
+      const msg = err.response?.data?.detail || (typeof err.response?.data === 'string' ? err.response.data : err.message);
+      alert('Gagal mengirim antrean ke HMI DA01: ' + msg);
+    } finally {
+      setIsBulkSending(false);
+    }
+  };
 
   const fetchBatches = async () => {
     setLoading(true);
     try {
-      const res = await axios.get(API_BASE);
+      const res = await axios.get(`${API_BASE}/`);
       setBatches(res.data);
     } catch (err) {
       console.error('Gagal mengambil data batch:', err);
@@ -81,20 +122,63 @@ const KanbanView = () => {
     try {
       const res = await axios.get('/api/programs/');
       if (res.data && res.data.length > 0) {
-        setAvailablePrograms(res.data.map(p => ({
-          no: p.program_no,
-          name: `M_${String(p.program_no).padStart(4, '0')}.PRG - ${p.name || 'Program'}`
-        })));
+        setAvailablePrograms(res.data.map(p => {
+          const pNo = p.program_number || p.program_no;
+          const pName = p.program_name || p.name || 'Program';
+          return {
+            no: pNo,
+            name: `M_${String(pNo).padStart(4, '0')}.PRG - ${pName} (${p.machine_code || 'SETEX'} · ${p.total_steps || 0} Step)`,
+            rawName: pName,
+            mach: p.machine_code
+          };
+        }));
       }
     } catch (err) {
       // Keep defaults
     }
   };
 
+  const fetchMachines = async () => {
+    try {
+      const res = await axios.get('/api/machines');
+      if (res.data && Array.isArray(res.data)) {
+        setMachineList(res.data);
+      }
+    } catch (err) {
+      console.error('Gagal mengambil data mesin:', err);
+    }
+  };
+
   useEffect(() => {
     fetchBatches();
     fetchPrograms();
+    fetchMachines();
   }, []);
+
+  const machineOptions = React.useMemo(() => {
+    const list = ['SEMUA', 'M_95', 'DA01'];
+    machineList.forEach(m => {
+      if (!list.includes(m.machine_no)) {
+        list.push(m.machine_no);
+      }
+    });
+    return list;
+  }, [machineList]);
+
+  // Sync PostgreSQL & SQLite
+  const handleSyncDB = async () => {
+    setSyncing(true);
+    try {
+      const res = await axios.post('/api/database/sync');
+      alert(res.data.message || 'Sinkronisasi PostgreSQL & SQLite selesai!');
+      fetchBatches();
+    } catch (err) {
+      const msg = err.response?.data?.detail || (typeof err.response?.data === 'string' ? err.response.data : err.message);
+      alert('Gagal sinkronisasi DB: ' + msg);
+    } finally {
+      setSyncing(false);
+    }
+  };
 
   // Filter batches by machine
   const filteredBatches = selectedMachine === 'SEMUA' 
@@ -103,10 +187,11 @@ const KanbanView = () => {
 
   // Group by Column Status
   const columnsData = {
-    QUEUED: filteredBatches.filter(b => b.status === 'QUEUED').sort((a,b) => (a.position || 0) - (b.position || 0)),
-    WAITING_LA: filteredBatches.filter(b => b.status === 'WAITING_LA').sort((a,b) => (a.position || 0) - (b.position || 0)),
-    RUNNING: filteredBatches.filter(b => b.status === 'RUNNING').sort((a,b) => (a.position || 0) - (b.position || 0)),
-    COMPLETED: filteredBatches.filter(b => b.status === 'COMPLETED').sort((a,b) => (a.position || 0) - (b.position || 0)),
+    PLANNING: filteredBatches.filter(b => (b.status || '').toUpperCase() === 'PLANNING').sort((a,b) => (a.position || 0) - (b.position || 0)),
+    QUEUED: filteredBatches.filter(b => (b.status || '').toUpperCase() === 'QUEUED').sort((a,b) => (a.position || 0) - (b.position || 0)),
+    WAITING_LA: filteredBatches.filter(b => (b.status || '').toUpperCase() === 'WAITING_LA').sort((a,b) => (a.position || 0) - (b.position || 0)),
+    RUNNING: filteredBatches.filter(b => (b.status || '').toUpperCase() === 'RUNNING').sort((a,b) => (a.position || 0) - (b.position || 0)),
+    COMPLETED: filteredBatches.filter(b => (b.status || '').toUpperCase() === 'COMPLETED').sort((a,b) => (a.position || 0) - (b.position || 0)),
   };
 
   const onDragEnd = async (result) => {
@@ -137,7 +222,7 @@ const KanbanView = () => {
     }
 
     try {
-      await axios.post(API_BASE, form);
+      await axios.post(`${API_BASE}/`, form);
       setIsModalOpen(false);
       // Reset form defaults
       setForm({
@@ -152,6 +237,7 @@ const KanbanView = () => {
         color_name: 'UNGU TUA',
         fabric_weight_kg: 325.85,
         liquor_ratio: 8.0,
+        status: 'PLANNING'
       });
       fetchBatches();
     } catch (err) {
@@ -177,22 +263,31 @@ const KanbanView = () => {
   // Dispatch Batch Directly to Controller via FTP
   const handleExecuteDispatch = async () => {
     if (!batchToDispatch) return;
+    if (batchToDispatch.machine_no !== 'DA01') {
+      alert(`Peringatan Keamanan: Pengiriman FTP dibatasi HANYA untuk Mesin DA01. Mesin ${batchToDispatch.machine_no} dalam mode Read-Only.`);
+      return;
+    }
     setIsDispatching(true);
     try {
-      const is797 = dispatchModel === '797' || dispatchIp.trim() === '192.168.1.95';
-      const targetDir = is797 ? '/Flashdisk/SC797CE/BATCH' : '/Storage/sc777ce/BATCH';
+      let targetDir = '/Network/F/OT/BATCH';
+      if (dispatchModel === '797') {
+        targetDir = '/Flashdisk/SC797CE/BATCH';
+      } else if (dispatchModel === '777') {
+        targetDir = '/Storage/sc777ce/BATCH';
+      }
       const res = await axios.post('/api/ftp/dispatch-batch', {
         ip: dispatchIp.trim(),
         port: 21,
         batch_id: batchToDispatch.id,
-        controller_type: is797 ? '797' : '777',
+        controller_type: dispatchModel,
         target_dir: targetDir
       });
       alert(res.data.message || `Batch ${batchToDispatch.batch_no} berhasil dikirim ke Kontroler FTP!`);
       setFtpDispatchModalOpen(false);
       fetchBatches();
     } catch (err) {
-      alert('Gagal mengirim batch via FTP: ' + (err.response?.data?.detail || err.message));
+      const msg = err.response?.data?.detail || (typeof err.response?.data === 'string' ? err.response.data : err.message);
+      alert('Gagal mengirim batch via FTP: ' + msg);
     } finally {
       setIsDispatching(false);
     }
@@ -219,6 +314,16 @@ const KanbanView = () => {
         </div>
 
         <div className="flex items-center gap-2.5">
+          <button
+            onClick={handleSyncDB}
+            disabled={syncing}
+            className="flex items-center gap-1.5 px-3 py-2 rounded border border-blue-500/50 bg-blue-50/20 dark:bg-blue-950/30 text-blue-400 text-xs font-semibold hover:bg-blue-100 dark:hover:bg-blue-900/40 transition"
+            title="Sinkronkan data antara PostgreSQL pt_smm_jetflow dan SQLite lokal"
+          >
+            <RefreshCw className={`h-3.5 w-3.5 ${syncing ? 'animate-spin text-blue-400' : 'text-blue-400'}`} />
+            <span>{syncing ? 'Syncing...' : 'Sync DB'}</span>
+          </button>
+
           <button
             onClick={fetchBatches}
             className="flex items-center gap-1.5 px-3 py-2 rounded border border-stroke bg-white dark:border-strokedark dark:bg-boxdark text-xs font-semibold hover:bg-gray-100 dark:hover:bg-meta-4 transition"
@@ -254,7 +359,7 @@ const KanbanView = () => {
       <div className="flex items-center justify-between bg-white dark:bg-boxdark p-3 rounded-lg border border-stroke dark:border-strokedark">
         <div className="flex items-center gap-2 overflow-x-auto">
           <span className="text-xs font-bold text-gray-500 uppercase tracking-wider pl-1">Pilih Mesin:</span>
-          {MACHINE_OPTIONS.map(m => (
+          {machineOptions.map(m => (
             <button
               key={m}
               onClick={() => setSelectedMachine(m)}
@@ -275,7 +380,7 @@ const KanbanView = () => {
 
       {/* KANBAN BOARD */}
       <DragDropContext onDragEnd={onDragEnd}>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
           {Object.entries(COLUMN_DEFS).map(([colKey, colMeta]) => {
             const items = columnsData[colKey] || [];
             return (
@@ -284,7 +389,7 @@ const KanbanView = () => {
                 className="flex flex-col rounded-xl border border-stroke dark:border-strokedark bg-gray-50 dark:bg-[#182234] p-3 min-h-[500px]"
               >
                 {/* Column Header */}
-                <div className={`flex items-center justify-between pb-2.5 mb-3 border-b border-stroke dark:border-strokedark`}>
+                <div className={`flex items-center justify-between pb-2.5 mb-2.5 border-b border-stroke dark:border-strokedark`}>
                   <div className="flex items-center gap-2">
                     <span className={`w-2.5 h-2.5 rounded-full bg-current ${colMeta.color}`} />
                     <h3 className="font-bold text-xs uppercase tracking-wider text-black dark:text-white">
@@ -295,6 +400,32 @@ const KanbanView = () => {
                     {items.length}
                   </span>
                 </div>
+
+                {/* Bulk Send to HMI Button for QUEUED column */}
+                {colKey === 'QUEUED' && (
+                  <div className="mb-3">
+                    {selectedMachine === 'DA01' ? (
+                      <button
+                        type="button"
+                        onClick={handleBulkSendToHmi}
+                        disabled={isBulkSending || items.length === 0}
+                        className="w-full flex items-center justify-center gap-1.5 py-1.5 px-3 rounded-lg bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 text-white text-xs font-bold shadow transition"
+                        title="Tulis ulang QUEUE.BTD dan berkas biner di HMI Mesin DA01 (192.168.1.95) secara bulk"
+                      >
+                        <Send className={`h-3.5 w-3.5 ${isBulkSending ? 'animate-spin' : ''}`} />
+                        <span>{isBulkSending ? 'Mengirim ke HMI...' : 'Kirim ke HMI DA01 (Bulk)'}</span>
+                      </button>
+                    ) : (
+                      <div className="flex items-center justify-between px-2.5 py-1.5 rounded-lg bg-amber-500/10 border border-amber-500/20 text-amber-600 dark:text-amber-400 text-[10px] font-medium">
+                        <span className="flex items-center gap-1">
+                          <Lock className="h-3 w-3 shrink-0" />
+                          Kirim HMI (Hanya DA01)
+                        </span>
+                        <span className="text-[9px] uppercase font-bold px-1 rounded bg-amber-500/20">Read-Only</span>
+                      </div>
+                    )}
+                  </div>
+                )}
 
                 {/* Droppable Area */}
                 <Droppable droppableId={colKey}>
@@ -374,29 +505,30 @@ const KanbanView = () => {
 
                               {/* Bottom Action Buttons */}
                               <div className="flex items-center justify-between gap-1.5 pt-1">
-                                <button
-                                  type="button"
-                                  onClick={() => {
-                                    setBatchToDispatch(item);
-                                    const is797Target = item.machine_no === '797' || item.machine_no?.includes('797');
-                                    if (is797Target) {
+                                {item.machine_no === 'DA01' ? (
+                                  <button
+                                    type="button"
+                                    onClick={() => {
+                                      setBatchToDispatch(item);
                                       setDispatchIp('192.168.1.95');
-                                      setDispatchModel('797');
-                                    } else if (item.machine_no === '10B') {
-                                      setDispatchIp('172.16.110.160');
-                                      setDispatchModel('777');
-                                    } else {
-                                      setDispatchIp('192.168.1.95');
-                                      setDispatchModel('797');
-                                    }
-                                    setFtpDispatchModalOpen(true);
-                                  }}
-                                  className="flex-1 flex items-center justify-center gap-1 py-1 px-1.5 rounded bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-[10px] font-bold border border-emerald-500/20 transition"
-                                  title="Kirim Batch langsung ke Kontroler FTP (192.168.1.95 / SETEX 797CE)"
-                                >
-                                  <Send className="h-3 w-3" />
-                                  <span>Kirim FTP</span>
-                                </button>
+                                      setDispatchModel('network_ot');
+                                      setFtpDispatchModalOpen(true);
+                                    }}
+                                    className="flex-1 flex items-center justify-center gap-1 py-1 px-1.5 rounded bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-[10px] font-bold border border-emerald-500/20 transition"
+                                    title="Kirim Batch ke Folder /Network/F/OT HMI DA01 (192.168.1.95)"
+                                  >
+                                    <Send className="h-3 w-3" />
+                                    <span>Kirim FTP</span>
+                                  </button>
+                                ) : (
+                                  <div 
+                                    className="flex-1 flex items-center justify-center gap-1 py-1 px-1.5 rounded bg-gray-100 dark:bg-meta-4 text-gray-400 text-[10px] font-medium cursor-not-allowed border border-dashed border-gray-300 dark:border-gray-700"
+                                    title={`Mesin ${item.machine_no} dalam mode Read-Only. Hanya DA01 yang diizinkan menulis ke kontroler.`}
+                                  >
+                                    <Lock className="h-3 w-3" />
+                                    <span>Terkunci</span>
+                                  </div>
+                                )}
 
                                 <button
                                   type="button"
@@ -483,9 +615,21 @@ const KanbanView = () => {
                     onChange={(e) => setForm({ ...form, machine_no: e.target.value })}
                     className="w-full rounded border border-stroke px-3 py-2 text-xs font-bold dark:border-strokedark dark:bg-boxdark-2 focus:border-primary focus:outline-none"
                   >
-                    {MACHINE_OPTIONS.filter(m => m !== 'SEMUA').map(m => (
-                      <option key={m} value={m}>{m} (SECOM 777)</option>
-                    ))}
+                    <optgroup label="⭐ SETEX 797CE">
+                      <option value="M_95">M_95 - SETEX 797CE Mesin DA01 (192.168.1.95)</option>
+                      <option value="DA01">DA01 - SETEX 797CE Mesin DA01 (192.168.1.95)</option>
+                    </optgroup>
+                    {machineList.filter(m => m.machine_no !== 'M_95' && m.machine_no !== 'DA01').length > 0 && (
+                      <optgroup label="Mesin Produksi Lainnya">
+                        {machineList
+                          .filter(m => m.machine_no !== 'M_95' && m.machine_no !== 'DA01')
+                          .map(m => (
+                            <option key={m.machine_no} value={m.machine_no}>
+                              {m.machine_no} - {m.display_name} ({m.ip_address})
+                            </option>
+                          ))}
+                      </optgroup>
+                    )}
                   </select>
                 </div>
               </div>
@@ -497,7 +641,15 @@ const KanbanView = () => {
                   </label>
                   <select
                     value={form.program_no}
-                    onChange={(e) => setForm({ ...form, program_no: Number(e.target.value) })}
+                    onChange={(e) => {
+                      const val = Number(e.target.value);
+                      const match = availablePrograms.find(p => p.no === val);
+                      setForm({
+                        ...form,
+                        program_no: val,
+                        ...(match && match.rawName ? { recipe_name: match.rawName } : {})
+                      });
+                    }}
                     className="w-full rounded border border-stroke px-3 py-2 text-xs font-mono dark:border-strokedark dark:bg-boxdark-2 focus:border-primary focus:outline-none"
                   >
                     {availablePrograms.map(p => (
@@ -615,6 +767,23 @@ const KanbanView = () => {
                 </div>
               </div>
 
+              <div>
+                <label className="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-1">
+                  Tahap Masuk Awal (Status) *
+                </label>
+                <select
+                  value={form.status || 'PLANNING'}
+                  onChange={(e) => setForm({ ...form, status: e.target.value })}
+                  className="w-full rounded border border-stroke px-3 py-2 text-xs font-bold dark:border-strokedark dark:bg-boxdark-2 focus:border-primary focus:outline-none"
+                >
+                  <option value="PLANNING">Perencanaan (PLANNING) - Masuk ke kolom Perencanaan (Tidak dikirim ke HMI)</option>
+                  <option value="QUEUED">Antrean Produksi (QUEUED) - Masuk antrean siap jalan</option>
+                </select>
+                <span className="text-[10px] text-gray-400 block mt-1">
+                  Batch berstatus "Perencanaan" disimpan di database dan belum dimasukkan ke antrean mesin / HMI.
+                </span>
+              </div>
+
               {/* Action Buttons */}
               <div className="flex items-center justify-end gap-3 pt-3 border-t border-stroke dark:border-strokedark">
                 <button
@@ -643,7 +812,7 @@ const KanbanView = () => {
             <div className="flex items-center justify-between border-b border-gray-700 pb-3">
               <h3 className="text-base font-bold text-white flex items-center gap-2">
                 <Send className="h-5 w-5 text-emerald-400" />
-                Kirim Batch ke Kontroler FTP (SETEX 797CE / 777)
+                Kirim Batch ke Folder OrgaTEX (/Network/F/OT) - Kontroler DA01
               </h3>
               <button
                 onClick={() => setFtpDispatchModalOpen(false)}
@@ -679,13 +848,13 @@ const KanbanView = () => {
                       const val = e.target.value;
                       setDispatchIp(val);
                       if (val.trim() === '192.168.1.95') {
-                        setDispatchModel('797');
+                        setDispatchModel('network_ot');
                       }
                     }}
                     placeholder="192.168.1.95"
                     className="w-full bg-[#1c2434] border border-gray-600 text-emerald-400 font-mono font-bold rounded px-2.5 py-1.5 outline-none"
                   />
-                  <span className="text-[10px] text-gray-400 block mt-1">Default 797CE: 192.168.1.95</span>
+                  <span className="text-[10px] text-gray-400 block mt-1">Default DA01: 192.168.1.95</span>
                 </div>
 
                 <div>
@@ -693,23 +862,38 @@ const KanbanView = () => {
                   <select
                     value={dispatchModel}
                     onChange={(e) => setDispatchModel(e.target.value)}
-                    className="w-full bg-[#1c2434] border border-gray-600 text-amber-300 font-bold rounded px-2.5 py-1.5 outline-none"
+                    className="w-full bg-[#1c2434] border border-gray-600 text-emerald-400 font-bold rounded px-2.5 py-1.5 outline-none"
                   >
-                    <option value="797">SETEX 797CE (/Flashdisk/SC797CE/BATCH)</option>
-                    <option value="777">SETEX 777 (/Storage/sc777ce/BATCH)</option>
+                    <option value="network_ot">OrgaTEX Share (/Network/F/OT/BATCH/ + QUEUE.BTD)</option>
+                    <option value="797">SETEX 797CE Lokal (/Flashdisk/SC797CE/BATCH)</option>
+                    <option value="777">SETEX 777 Lokal (/Storage/sc777ce/BATCH)</option>
                   </select>
-                  <span className="text-[10px] text-gray-400 block mt-1">Auto-fallback aktif jika folder belum ada</span>
+                  <span className="text-[10px] text-gray-400 block mt-1">Standar OrgaTEX: /Network/F/OT</span>
                 </div>
               </div>
 
-              <div className="text-[11px] text-gray-400 bg-black/20 p-2.5 rounded border border-gray-800 space-y-1">
+              <div className="text-[11px] text-gray-400 bg-black/20 p-2.5 rounded border border-gray-800 space-y-1.5">
                 <span className="font-bold text-gray-300">File biner yang langsung diunggah:</span>
-                <ul className="list-disc list-inside text-slate-300">
-                  <li><code className="text-emerald-400">BATCHREF.REF</code> (762-byte Secom binary structure)</li>
-                  <li><code className="text-emerald-400">M_{String(batchToDispatch.program_no || 1).padStart(4, '0')}.PRG</code> (Biner program eksekusi mikro)</li>
+                <ul className="list-disc list-inside text-slate-300 space-y-0.5">
+                  <li>Folder Batch: <code className="text-emerald-400 font-mono">
+                    {dispatchModel === 'network_ot'
+                      ? `/Network/F/OT/BATCH/${batchToDispatch.reference_no}/`
+                      : (dispatchModel === '797' ? '/Flashdisk/SC797CE/BATCH/' : '/Storage/sc777ce/BATCH/')}
+                  </code></li>
+                  <li className="pl-4 text-gray-400">- <code className="text-emerald-300">BATCHREF.REF</code> (762-byte Secom binary structure)</li>
+                  <li className="pl-4 text-gray-400">- <code className="text-emerald-300">M_{String(batchToDispatch.program_no || 1).padStart(4, '0')}.PRG</code> (Biner program mikro)</li>
+                  {dispatchModel === 'network_ot' && (
+                    <li>Append Antrean: <code className="text-cyan-400 font-mono">
+                      /Network/F/OT/MACHINES/{batchToDispatch.machine_no || 'DA01'}/BATCHES/QUEUE.BTD
+                    </code></li>
+                  )}
                 </ul>
                 <div className="text-gray-400 pt-1 border-t border-gray-800">
-                  Path remote: <strong className="text-amber-300 font-mono">{dispatchModel === '797' ? '/Flashdisk/SC797CE/BATCH' : '/Storage/sc777ce/BATCH'}</strong>
+                  Path remote: <strong className="text-emerald-400 font-mono">
+                    {dispatchModel === 'network_ot' 
+                      ? `/Network/F/OT/BATCH/${batchToDispatch.reference_no} & QUEUE.BTD` 
+                      : (dispatchModel === '797' ? '/Flashdisk/SC797CE/BATCH' : '/Storage/sc777ce/BATCH')}
+                  </strong>
                 </div>
               </div>
 

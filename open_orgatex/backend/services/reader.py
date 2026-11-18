@@ -13,10 +13,23 @@ import json
 import ftplib
 import struct
 import logging
+import threading
+import time
 from datetime import datetime
 from typing import Dict, List, Any, Optional
 
 logger = logging.getLogger("orgatex.reader")
+
+# Concurrency locks and high-speed cache for SETEX Windows CE embedded FTP server
+_FTP_HOST_LOCKS = {}
+_FTP_LOCKS_MUTEX = threading.Lock()
+_FTP_BUNDLE_CACHE = {}
+
+def _get_host_lock(ip: str) -> threading.Lock:
+    with _FTP_LOCKS_MUTEX:
+        if ip not in _FTP_HOST_LOCKS:
+            _FTP_HOST_LOCKS[ip] = threading.Lock()
+        return _FTP_HOST_LOCKS[ip]
 
 ALARM_DEFINITIONS = {
     0: "Alarm Normal / Cleared",
@@ -79,7 +92,13 @@ class SetexFolderReader:
                         ftp.retrbinary(f"RETR {pv}", bio.write)
                         data = bio.getvalue()
                         if data and len(data) > 0:
-                            ftp.quit()
+                            try:
+                                ftp.quit()
+                            except Exception:
+                                try:
+                                    ftp.close()
+                                except Exception:
+                                    pass
                             return data
                     except Exception:
                         pass
@@ -103,15 +122,229 @@ class SetexFolderReader:
                             ftp.retrbinary(f"RETR {fname}", bio.write)
                             data = bio.getvalue()
                             if data and len(data) > 0:
-                                ftp.quit()
+                                try:
+                                    ftp.quit()
+                                except Exception:
+                                    try:
+                                        ftp.close()
+                                    except Exception:
+                                        pass
                                 return data
                         except Exception:
                             pass
 
-                ftp.quit()
+                try:
+                    ftp.quit()
+                except Exception:
+                    try:
+                        ftp.close()
+                    except Exception:
+                        pass
             except Exception:
                 pass
         return None
+
+    @staticmethod
+    def fetch_live_controller_bundle(ip: str, ftp_port: int = 21, is_797: bool = True, batch_no_hint: Optional[str] = None, timeout: float = 4.0) -> Dict[str, Any]:
+        """
+        Connects to SETEX 797CE / 777 controller via FTP in a SINGLE connection session,
+        robustly retrieves STATUS.ACT, ALARM.ACT, ALARMS.LOG, batch cyclic log, and PRG recipe bytes.
+        Includes per-IP lock and short-lived caching to prevent Windows CE socket congestion.
+        """
+        result = {
+            "status_bytes": None,
+            "alarm_bytes": None,
+            "alarms_log_bytes": None,
+            "batch_log_bytes": None,
+            "prg_bytes": None,
+            "source_url": "",
+            "is_ftp_success": False,
+            "error": None
+        }
+        if not ip:
+            return result
+
+        cache_key = f"{ip}_{ftp_port or 21}"
+        now = time.time()
+        cached = _FTP_BUNDLE_CACHE.get(cache_key)
+        if cached and (now - cached["ts"]) < 1.5:
+            return cached["data"]
+
+        lock = _get_host_lock(ip)
+        if not lock.acquire(timeout=4.0):
+            if cached:
+                return cached["data"]
+            result["error"] = "FTP connection busy (locked by another thread)"
+            return result
+
+        try:
+            # Recheck cache after acquiring lock
+            cached = _FTP_BUNDLE_CACHE.get(cache_key)
+            if cached and (time.time() - cached["ts"]) < 1.0:
+                return cached["data"]
+
+            ftp = ftplib.FTP(timeout=timeout)
+            ftp.connect(ip, ftp_port or 21)
+            ftp.login("", "")
+            ftp.set_pasv(True)
+
+            in_status_dir = False
+            status_path_str = ""
+
+            # Try direct known path first
+            direct_status_dir = "/Flashdisk/SC797CE/STATUS" if is_797 else "/Storage/sc777ce/STATUS"
+            try:
+                ftp.cwd(direct_status_dir)
+                in_status_dir = True
+                status_path_str = direct_status_dir
+            except Exception:
+                in_status_dir = False
+
+            if not in_status_dir:
+                status_dir_candidates = [
+                    ["Flashdisk", "SC797CE", "STATUS"],
+                    ["Flashdisk", "sc797ce", "STATUS"],
+                    ["Flashdisk", "STATUS"],
+                    ["Storage", "sc777ce", "STATUS"],
+                    ["Storage", "SC777CE", "STATUS"],
+                    ["STATUS"],
+                ] if is_797 else [
+                    ["Storage", "sc777ce", "STATUS"],
+                    ["Storage", "SC777CE", "STATUS"],
+                    ["STATUS"],
+                    ["Flashdisk", "SC797CE", "STATUS"],
+                ]
+                for dir_chain in status_dir_candidates:
+                    try:
+                        ftp.cwd("/")
+                        for segment in dir_chain:
+                            ftp.cwd(segment)
+                        in_status_dir = True
+                        status_path_str = "/" + "/".join(dir_chain)
+                        break
+                    except Exception:
+                        continue
+
+            # RETR STATUS.ACT
+            bio_status = io.BytesIO()
+            try:
+                ftp.retrbinary("RETR STATUS.ACT", bio_status.write)
+                st_data = bio_status.getvalue()
+                if st_data and len(st_data) > 0:
+                    result["status_bytes"] = st_data
+                    result["is_ftp_success"] = True
+                    result["source_url"] = f"ftp://{ip}:{ftp_port}{status_path_str}/STATUS.ACT"
+            except Exception as e_st:
+                logger.warning(f"FTP RETR STATUS.ACT warning: {e_st}")
+
+            # RETR ALARM.ACT
+            bio_alarm = io.BytesIO()
+            try:
+                ftp.retrbinary("RETR ALARM.ACT", bio_alarm.write)
+                al_data = bio_alarm.getvalue()
+                if al_data:
+                    result["alarm_bytes"] = al_data
+            except Exception:
+                pass
+
+            # RETR ALARMS.LOG
+            bio_log = io.BytesIO()
+            try:
+                ftp.retrbinary("RETR ALARMS.LOG", bio_log.write)
+                lg_data = bio_log.getvalue()
+                if lg_data:
+                    result["alarms_log_bytes"] = lg_data
+            except Exception:
+                pass
+
+            # Detect batch number from status bytes
+            batch_no = batch_no_hint
+            if not batch_no and result["status_bytes"]:
+                sb = result["status_bytes"]
+                if len(sb) >= 48:
+                    raw_b = sb[36:48].split(b'\0')[0].decode('latin1', errors='ignore').strip()
+                    if raw_b and re.match(r'^[A-Za-z0-9_-]+$', raw_b):
+                        batch_no = raw_b
+                if not batch_no:
+                    batches = sorted(list(set(m.group(0).decode('latin1') for m in re.finditer(rb'\b\d{6}\b', sb))))
+                    if batches:
+                        batch_no = batches[-1]
+
+            # In the SAME session, retrieve active batch PR*.LOG
+            candidate_pr_paths = []
+            if is_797:
+                if batch_no:
+                    candidate_pr_paths.append(f"/Flashdisk/SC797CE/BATCH/{batch_no}/PR{batch_no}.LOG")
+                    candidate_pr_paths.append(f"/Flashdisk/SC797CE/BATCH/PR{batch_no}.LOG")
+                candidate_pr_paths.append("/Flashdisk/SC797CE/BATCH/000001/PR000001.LOG")
+                candidate_pr_paths.append("/Flashdisk/SC797CE/BATCH/000006/PR000006.LOG")
+            else:
+                if batch_no:
+                    candidate_pr_paths.append(f"/Storage/sc777ce/BATCH/{batch_no}/PR{batch_no}.LOG")
+                    candidate_pr_paths.append(f"/Storage/sc777ce/BATCH/PR{batch_no}.LOG")
+
+            for pr_path in candidate_pr_paths:
+                try:
+                    dir_part, file_part = pr_path.rsplit("/", 1)
+                    ftp.cwd(dir_part)
+                    bio_pr = io.BytesIO()
+                    ftp.retrbinary(f"RETR {file_part}", bio_pr.write)
+                    pr_bytes = bio_pr.getvalue()
+                    if pr_bytes and len(pr_bytes) > 0:
+                        result["batch_log_bytes"] = pr_bytes
+                        logger.info(f"Berhasil membaca batch telemetry {pr_path} ({len(pr_bytes)} bytes) via FTP!")
+                        break
+                except Exception:
+                    continue
+
+            # Also retrieve active recipe PRG in same session if available
+            candidate_prg_paths = []
+            if is_797:
+                candidate_prg_paths.append("/Flashdisk/SC797CE/BATCH/000001/M_0004.PRG")
+                candidate_prg_paths.append("/Flashdisk/SC797CE/BATCH/M_0001.PRG")
+                candidate_prg_paths.append("/Flashdisk/SC797CE/BATCH/M_0006.PRG")
+            else:
+                if batch_no:
+                    candidate_prg_paths.append(f"/Storage/sc777ce/BATCH/{batch_no}/M_0342.PRG")
+
+            for prg_path in candidate_prg_paths:
+                try:
+                    dir_part, file_part = prg_path.rsplit("/", 1)
+                    ftp.cwd(dir_part)
+                    bio_prg = io.BytesIO()
+                    ftp.retrbinary(f"RETR {file_part}", bio_prg.write)
+                    prg_b = bio_prg.getvalue()
+                    if prg_b and len(prg_b) > 0:
+                        result["prg_bytes"] = prg_b
+                        break
+                except Exception:
+                    continue
+
+            try:
+                ftp.quit()
+            except Exception:
+                try:
+                    ftp.close()
+                except Exception:
+                    pass
+
+        except Exception as e:
+            if not result.get("status_bytes"):
+                logger.warning(f"FTP bundle acquisition failed for {ip}: {e}")
+                result["error"] = str(e)
+            else:
+                result["is_ftp_success"] = True
+
+        finally:
+            try:
+                lock.release()
+            except RuntimeError:
+                pass
+
+        if result.get("is_ftp_success"):
+            _FTP_BUNDLE_CACHE[cache_key] = {"ts": time.time(), "data": result}
+
+        return result
 
     @staticmethod
     def read_status_act(folder_path: str = "", ip: Optional[str] = None, ftp_port: int = 21, raw_bytes: Optional[bytes] = None) -> Dict[str, Any]:
@@ -279,10 +512,10 @@ class SetexFolderReader:
             return {"status": "ERROR", "error": str(e), "is_ftp_source": False, "data_source": "ERROR"}
 
     @staticmethod
-    def read_alarm_act(folder_path: str = "", ip: Optional[str] = None, ftp_port: int = 21) -> Dict[str, Any]:
-        """Reads ALARM.ACT for active alarms from FTP (supporting Flashdisk/SC797CE) or local folder."""
-        data = None
-        if ip:
+    def read_alarm_act(folder_path: str = "", ip: Optional[str] = None, ftp_port: int = 21, raw_bytes: Optional[bytes] = None) -> Dict[str, Any]:
+        """Reads ALARM.ACT for active alarms from raw bytes, FTP (supporting Flashdisk/SC797CE), or local folder."""
+        data = raw_bytes
+        if not data and ip:
             is_797 = (ip.strip() == "192.168.1.95")
             flashdisk_alarms = [
                 "/Flashdisk/SC797CE/STATUS/ALARM.ACT",
@@ -342,10 +575,10 @@ class SetexFolderReader:
             return {"is_alarm_active": False, "active_alarms": []}
 
     @staticmethod
-    def read_alarms_log(folder_path: str = "", ip: Optional[str] = None, ftp_port: int = 21, limit: int = 50) -> List[Dict[str, Any]]:
-        """Parses ALARMS.LOG from FTP (supporting Flashdisk/SC797CE) or local folder."""
-        data = None
-        if ip:
+    def read_alarms_log(folder_path: str = "", ip: Optional[str] = None, ftp_port: int = 21, limit: int = 50, raw_bytes: Optional[bytes] = None) -> List[Dict[str, Any]]:
+        """Parses ALARMS.LOG from raw bytes, FTP (supporting Flashdisk/SC797CE), or local folder."""
+        data = raw_bytes
+        if not data and ip:
             is_797 = (ip.strip() == "192.168.1.95")
             flashdisk_logs = [
                 "/Flashdisk/SC797CE/STATUS/ALARMS.LOG",
@@ -890,27 +1123,55 @@ class SetexFolderReader:
         catalog = cls.get_function_catalog()
         prg_bytes = None
 
-        # 1. Try reading from FTP if IP & batch_no available
-        if ip and batch_no and batch_no != "UNKNOWN":
-            try:
-                ftp = ftplib.FTP(timeout=3.0)
-                ftp.connect(ip, ftp_port or 21)
-                ftp.login()
-                ftp.set_pasv(True)
-                batch_dir = f"/Storage/sc777ce/BATCH/{batch_no}"
+        # 1. Try reading from FTP if IP available
+        if ip:
+            is_797 = (ip.strip() == "192.168.1.95")
+            candidate_dirs = [
+                "/Flashdisk/SC797CE/BATCH/000001",
+                f"/Flashdisk/SC797CE/BATCH/{batch_no}" if batch_no else None,
+                "/Flashdisk/SC797CE/BATCH",
+                f"/Storage/sc777ce/BATCH/{batch_no}" if batch_no else None,
+                "/Storage/sc777ce/BATCH"
+            ] if is_797 else [
+                f"/Storage/sc777ce/BATCH/{batch_no}" if batch_no else None,
+                "/Storage/sc777ce/BATCH",
+                "/Flashdisk/SC797CE/BATCH/000001"
+            ]
+
+            lock = _get_host_lock(ip)
+            if lock.acquire(timeout=2.0):
                 try:
-                    ftp.cwd(batch_dir)
-                    files = ftp.nlst()
-                    prg_candidates = [f for f in files if f.upper().endswith(".PRG")]
-                    if prg_candidates:
-                        bio = io.BytesIO()
-                        ftp.retrbinary(f"RETR {prg_candidates[0]}", bio.write)
-                        prg_bytes = bio.getvalue()
+                    ftp = ftplib.FTP(timeout=2.5)
+                    ftp.connect(ip, ftp_port or 21)
+                    ftp.login("", "")
+                    ftp.set_pasv(True)
+                    for b_dir in [d for d in candidate_dirs if d]:
+                        try:
+                            ftp.cwd(b_dir)
+                            files = ftp.nlst()
+                            prg_candidates = [f for f in files if f.upper().endswith(".PRG")]
+                            if prg_candidates:
+                                bio = io.BytesIO()
+                                ftp.retrbinary(f"RETR {prg_candidates[0]}", bio.write)
+                                prg_bytes = bio.getvalue()
+                                if prg_bytes:
+                                    break
+                        except Exception:
+                            continue
+                    try:
+                        ftp.quit()
+                    except Exception:
+                        try:
+                            ftp.close()
+                        except Exception:
+                            pass
                 except Exception:
                     pass
-                ftp.quit()
-            except Exception:
-                pass
+                finally:
+                    try:
+                        lock.release()
+                    except RuntimeError:
+                        pass
 
         # 2. Try fallback to local files if FTP didn't get PRG
         if not prg_bytes:

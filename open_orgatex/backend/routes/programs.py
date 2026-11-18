@@ -5,7 +5,7 @@ Persists in PostgreSQL / TimescaleDB using OrgaTEX schema (program_components, p
 """
 
 from fastapi import APIRouter, HTTPException, Depends, Response, Request
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from typing import List, Optional, Any, Dict
 from sqlalchemy.orm import Session
 import os
@@ -83,7 +83,7 @@ class SubProgramItemIn(BaseModel):
     steps: List[StepIn] = []
 
 class ProcedureIn(BaseModel):
-    program_no: int
+    program_no: int = Field(..., ge=1, le=9999, description="Nomor Program SETEX (1 - 9999)")
     program_name: str
     machine_code: Optional[str] = "C012"
     sub_programs: Optional[List[SubProgramItemIn]] = []
@@ -405,6 +405,7 @@ def delete_treatment(treatment_id: str):
 # API ROUTES: MASTER PROGRAMS (PROCEDURES - LEVEL 1)
 # =============================================================================
 
+@router.get("", include_in_schema=False)
 @router.get("/")
 def list_programs(db: Session = Depends(get_db)):
     """
@@ -705,12 +706,19 @@ def get_program(program_no: int, db: Session = Depends(get_db)):
 
     raise HTTPException(status_code=404, detail=f"Program #{program_no} tidak ditemukan")
 
+@router.post("", include_in_schema=False)
 @router.post("/")
 def save_program(p: ProcedureIn, db: Session = Depends(get_db)):
     """
     Saves or updates Procedure into PostgreSQL program_components table
     and synchronizes JSON storage and auto-compiles binary M_xxxx.PRG.
     """
+    if p.program_no < 1 or p.program_no > 9999:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Nomor program SETEX harus antara 1 sampai 9999 (format M_xxxx.PRG). Diterima: {p.program_no}"
+        )
+
     # 0. Flatten sub_programs into steps if sub_programs are provided
     if p.sub_programs and (not p.steps or len(p.steps) == 0):
         lib = _load_json_file(TREATMENTS_META_PATH, DEFAULT_TREATMENTS)
@@ -838,6 +846,13 @@ def save_program(p: ProcedureIn, db: Session = Depends(get_db)):
     except Exception as e:
         db.rollback()
 
+    # Mirror to local SQLite in real time
+    try:
+        from ..services.db_sync_service import DBSyncService
+        DBSyncService.mirror_program_to_sqlite(p)
+    except Exception:
+        pass
+
     # 2. Keep local JSON fallback synced
     custom = _load_json_file(META_PATH, {})
     custom[str(p.program_no)] = p.dict()
@@ -866,7 +881,11 @@ def save_program(p: ProcedureIn, db: Session = Depends(get_db)):
 
 def get_compiled_prg_bytes(program_no: int, db: Optional[Session] = None) -> bytes:
     """Retrieves or builds byte-exact SETEX SECOM 777 .PRG binary."""
-    file_path = os.path.join(COMPILED_DIR, f"M_{str(program_no).zfill(4)}.PRG")
+    p_no = int(program_no)
+    if p_no < 1 or p_no > 9999:
+        raise ValueError(f"Nomor program SETEX harus antara 1 sampai 9999 (4 digit). Diterima: {program_no}")
+
+    file_path = os.path.join(COMPILED_DIR, f"M_{str(p_no).zfill(4)}.PRG")
     if os.path.exists(file_path):
         try:
             with open(file_path, "rb") as f:
@@ -878,11 +897,11 @@ def get_compiled_prg_bytes(program_no: int, db: Optional[Session] = None) -> byt
 
     # Try to load program and compile
     try:
-        prg_data = get_program(program_no, db)
+        prg_data = get_program(p_no, db)
         steps = prg_data.get("steps", [])
         if steps:
-            title = prg_data.get("program_name", f"PRG {program_no}")
-            compiled = serialize_prg_binary(program_no, title, steps)
+            title = prg_data.get("program_name", f"PRG {p_no}")
+            compiled = serialize_prg_binary(p_no, title, steps)
             with open(file_path, "wb") as f:
                 f.write(compiled)
             return compiled
@@ -895,7 +914,7 @@ def get_compiled_prg_bytes(program_no: int, db: Optional[Session] = None) -> byt
             with open(CATALOG_PATH, "r", encoding="utf-8") as f:
                 cat = json.load(f)
                 for t in cat.get("templates", []):
-                    if t.get("id") == program_no and "base64" in t:
+                    if t.get("id") == p_no and "base64" in t:
                         raw = base64.b64decode(t["base64"])
                         with open(file_path, "wb") as f:
                             f.write(raw)
@@ -904,7 +923,7 @@ def get_compiled_prg_bytes(program_no: int, db: Optional[Session] = None) -> byt
             pass
 
     # Fallback to minimal valid PRG
-    fallback = build_minimal_prg(program_no, f"PRG {program_no}")
+    fallback = build_minimal_prg(p_no, f"PRG {p_no}")
     try:
         with open(file_path, "wb") as f:
             f.write(fallback)
@@ -919,14 +938,43 @@ def compile_program_binary(program_no: int, db: Session = Depends(get_db)):
     Compiles Procedure into standard 65-byte SETEX Secom 777CE binary record format.
     Saves to compiled cache and returns hash and size.
     """
-    prg = get_program(program_no, db)
+    if program_no < 1 or program_no > 9999:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Nomor program SETEX harus antara 1 sampai 9999 (format M_xxxx.PRG). Nomor {program_no} tidak valid."
+        )
+
+    try:
+        prg = get_program(program_no, db)
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(
+            status_code=404,
+            detail=f"Program #{program_no} tidak ditemukan: {str(e)}"
+        )
+
     steps = prg.get("steps", [])
+    if not steps:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Program #{program_no} belum memiliki langkah proses (steps). Tambahkan minimal satu langkah."
+        )
+
     title = prg.get("program_name", f"PRG {program_no}")
-    compiled_bytes = serialize_prg_binary(program_no, title, steps)
+    try:
+        compiled_bytes = serialize_prg_binary(program_no, title, steps)
+    except ValueError as ve:
+        raise HTTPException(status_code=400, detail=str(ve))
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=f"Gagal mengompilasi biner program: {str(e)}")
 
     out_file = os.path.join(COMPILED_DIR, f"M_{str(program_no).zfill(4)}.PRG")
-    with open(out_file, "wb") as f:
-        f.write(compiled_bytes)
+    try:
+        with open(out_file, "wb") as f:
+            f.write(compiled_bytes)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Gagal menyimpan file biner {out_file}: {str(e)}")
 
     sha256 = hashlib.sha256(compiled_bytes).hexdigest()
     steps_count = len(steps)
@@ -1203,6 +1251,12 @@ def transfer_program_to_ftp(program_no: int, req: ProgramFTPTransferIn, db: Sess
     """
     Transfers/writes the compiled M_xxxx.PRG binary directly to the target machine's SETEX 777/797 FTP controller.
     """
+    if program_no < 1 or program_no > 9999:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Nomor program SETEX harus antara 1 sampai 9999 (format M_xxxx.PRG). Nomor {program_no} tidak valid."
+        )
+
     import io
     import ftplib
     from ..models.schema_pg import Machine
@@ -1243,8 +1297,14 @@ def transfer_program_to_ftp(program_no: int, req: ProgramFTPTransferIn, db: Sess
         (req.target_dir and "SC797" in req.target_dir.upper())
     )
 
-    prg_bytes = get_compiled_prg_bytes(program_no, db)
     filename = f"M_{str(program_no).zfill(4)}.PRG"
+    try:
+        prg_bytes = get_compiled_prg_bytes(program_no, db)
+    except Exception as e:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Gagal mengompilasi program #{program_no} untuk FTP: {str(e)}"
+        )
 
     # Default to /Flashdisk/SC797CE/Programs if 797, else /Storage/sc777ce/Programs
     default_dir = "/Flashdisk/SC797CE/Programs" if is_797 else "/Storage/sc777ce/Programs"
@@ -1281,9 +1341,10 @@ def transfer_program_to_ftp(program_no: int, req: ProgramFTPTransferIn, db: Sess
     ])
 
     resolved_target_dir = None
+    timeout_sec = max(float(req.timeout or 10.0), 10.0)
 
     try:
-        ftp = ftplib.FTP(timeout=req.timeout)
+        ftp = ftplib.FTP(timeout=timeout_sec)
         ftp.connect(ip, port)
         ftp.login()
         
@@ -1306,7 +1367,13 @@ def transfer_program_to_ftp(program_no: int, req: ProgramFTPTransferIn, db: Sess
                 resolved_target_dir = requested_dir
 
         ftp.storbinary(f"STOR {filename}", io.BytesIO(prg_bytes))
-        ftp.quit()
+        try:
+            ftp.quit()
+        except Exception:
+            try:
+                ftp.close()
+            except Exception:
+                pass
 
         return {
             "status": "success",

@@ -10,11 +10,7 @@ services:
     environment:
       - PORT=8788
       - HOST=0.0.0.0
-      - DB_HOST=192.168.100.30
-      - DB_PORT=5433
-      - DB_NAME=pt_smm_jetflow
-      - DB_USER=postgres
-      - DB_PASSWORD=sensorSMM!
+      - OFFLINE_MODE=false
       - DATABASE_URL=postgresql+psycopg2://postgres:sensorSMM!@192.168.100.30:5433/pt_smm_jetflow
       - WRITE_MODE_ENABLED=false
     volumes:

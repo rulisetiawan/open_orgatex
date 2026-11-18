@@ -281,15 +281,50 @@ class BatchHeader(Base):
 
     id = Column(BigInteger().with_variant(Integer, "sqlite"), primary_key=True, autoincrement=True)
     batch_ref_no = Column(String(50), unique=True, nullable=False)
+    batch_no = Column(String(100), nullable=True)
     machine_no = Column(String(50), ForeignKey('machines.machine_no'), nullable=False)
-    program_no = Column(Integer)
-    recipe_id = Column(BigInteger)
-    status = Column(String(30), default='QUEUED')
+    program_no = Column(Integer, default=1)
+    recipe_id = Column(BigInteger, nullable=True)
+    recipe_name = Column(String(255), nullable=True)
+    customer = Column(String(150), nullable=True)
+    article = Column(String(255), nullable=True)
+    color_code = Column(String(100), nullable=True)
+    color_name = Column(String(100), nullable=True)
     fabric_weight_kg = Column(Numeric(8, 2), default=350.0)
     liquor_ratio = Column(Numeric(5, 2), default=8.0)
-    customer = Column(String(150))
-    planned_start_time = Column(DateTime(timezone=True))
+    total_water_l = Column(Numeric(10, 2), nullable=True)
+    status = Column(String(30), default='QUEUED')
+    position = Column(Integer, default=1)
+    planned_start_time = Column(DateTime(timezone=True), nullable=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
+
+
+class MachineQueue(Base):
+    __tablename__ = 'machine_queues'
+
+    id = Column(BigInteger().with_variant(Integer, "sqlite"), primary_key=True, autoincrement=True)
+    machine_no = Column(String(50), ForeignKey('machines.machine_no'), nullable=False, index=True)
+    batch_ref_no = Column(String(50), nullable=False, index=True)
+    batch_no = Column(String(100), nullable=True)
+    program_no = Column(Integer, default=1)
+    recipe_name = Column(String(255), nullable=True)
+    customer = Column(String(150), nullable=True)
+    article = Column(String(255), nullable=True)
+    color_code = Column(String(100), nullable=True)
+    color_name = Column(String(100), nullable=True)
+    fabric_weight_kg = Column(Numeric(8, 2), default=350.0)
+    liquor_ratio = Column(Numeric(5, 2), default=8.0)
+    total_water_l = Column(Numeric(10, 2), nullable=True)
+    position = Column(Integer, default=1, nullable=False)
+    status = Column(String(30), default='QUEUED')
+    dispatched_at = Column(DateTime(timezone=True), nullable=True)
+    dispatched_to_ip = Column(String(50), nullable=True)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
+
+    __table_args__ = (
+        UniqueConstraint('machine_no', 'batch_ref_no', name='uq_machine_batch_queue'),
+    )
 
 class DatalogCyclicRecord(Base):
     __tablename__ = 'datalog_cyclic_records'

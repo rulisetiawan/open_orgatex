@@ -197,6 +197,7 @@ def scan_network_controllers(scan_req: ScanRequestSchema):
         "controllers": discovered
     }
 
+@router.get("", include_in_schema=False)
 @router.get("/")
 def get_all_machines(db: Session = Depends(get_db)):
     """Lists all configured machines from PostgreSQL along with HMI config readiness."""
@@ -356,6 +357,7 @@ def get_machine(machine_no: str, db: Session = Depends(get_db)):
         "workspace_exists": cfg.get("workspace_exists", False)
     }
 
+@router.post("", include_in_schema=False)
 @router.post("/")
 def create_machine(m: MachineCreateSchema, db: Session = Depends(get_db)):
     """
@@ -531,18 +533,34 @@ def test_connection(machine_no: str, db: Session = Depends(get_db)):
     controller_info = {}
     if ftp_ok:
         try:
-            ftp = ftplib.FTP(timeout=2.0)
+            ftp = ftplib.FTP(timeout=2.5)
             ftp.connect(ip, m.ftp_port or 21)
-            ftp.login()
+            ftp.login("", "")
             bio = io.BytesIO()
-            ftp.retrbinary("RETR /Storage/sc777ce/STATUS/STATUS.ACT", bio.write)
+            is_797 = (ip == "192.168.1.95" or "797" in (m.controller_type or "") or m.machine_no == "DA01")
+            act_path = "/Flashdisk/SC797CE/STATUS/STATUS.ACT" if is_797 else "/Storage/sc777ce/STATUS/STATUS.ACT"
+            try:
+                ftp.retrbinary(f"RETR {act_path}", bio.write)
+            except Exception:
+                status_dir = "/Flashdisk/SC797CE/STATUS" if is_797 else "/Storage/sc777ce/STATUS"
+                try:
+                    ftp.cwd(status_dir)
+                    ftp.retrbinary("RETR STATUS.ACT", bio.write)
+                except Exception:
+                    pass
             data = bio.getvalue()
             if len(data) >= 16:
                 status_act_found = True
                 controller_info["machine_id"] = data[11:19].split(b'\0')[0].decode('latin1', errors='ignore').strip()
             if len(data) >= 48:
                 controller_info["batch"] = data[36:48].split(b'\0')[0].decode('latin1', errors='ignore').strip()
-            ftp.quit()
+            try:
+                ftp.quit()
+            except Exception:
+                try:
+                    ftp.close()
+                except Exception:
+                    pass
         except Exception:
             pass
 

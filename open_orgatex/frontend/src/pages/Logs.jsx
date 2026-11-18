@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import TempCurveChart from '../components/Charts/TempCurveChart';
 import {
@@ -35,11 +35,12 @@ const Logs = () => {
   const navigate = useNavigate();
   const searchParams = new URLSearchParams(location.search);
   const initialMachineFromUrl = searchParams.get('machine');
+  const isInitial797 = initialMachineFromUrl === 'DA01' || initialMachineFromUrl === 'M_95' || initialMachineFromUrl?.toUpperCase().includes('797');
 
   const [selectedMachine, setSelectedMachine] = useState(initialMachineFromUrl || '1A');
   const [machines, setMachines] = useState(['1A']);
   const [rawMachines, setRawMachines] = useState([]);
-  const [hmiIp, setHmiIp] = useState('172.16.110.101');
+  const [hmiIp, setHmiIp] = useState(isInitial797 ? '192.168.1.95' : '172.16.110.101');
   const [refreshInterval, setRefreshInterval] = useState(3000); // 3 detik default realtime
   const [activeTab, setActiveTab] = useState('active'); // 'active' or 'archive'
   const [loading, setLoading] = useState(false);
@@ -50,6 +51,8 @@ const Logs = () => {
   const [alarms, setAlarms] = useState([]);
   const [lastUpdated, setLastUpdated] = useState('');
   const [selectedStepDetail, setSelectedStepDetail] = useState(null);
+
+  const isFetchingRef = useRef(false);
 
   // Filter Alarms & Intervensi HMI berdasarkan tanggal & Order By Date Time
   const [selectedAlarmDate, setSelectedAlarmDate] = useState('');
@@ -93,6 +96,8 @@ const Logs = () => {
   // Fetch Live Data on-the-fly from the controller & Postgres
   const fetchLiveLog = async (isManual = false) => {
     if (!selectedMachine) return;
+    if (isFetchingRef.current && !isManual) return;
+    isFetchingRef.current = true;
     if (isManual || !liveData) {
       setLoading(true);
     }
@@ -138,6 +143,7 @@ const Logs = () => {
       console.error('Gagal mengambil data live:', err);
     } finally {
       setLoading(false);
+      isFetchingRef.current = false;
     }
   };
 
@@ -272,7 +278,7 @@ const Logs = () => {
               FEN240 Parity
             </span>
             <span className="text-xs bg-success/10 text-success font-bold px-2 py-0.5 rounded border border-success/20">
-              Live TimescaleDB
+              {liveData?.database_mode === 'POSTGRES' ? 'Live TimescaleDB' : 'Database Lokal (SQLite Offline)'}
             </span>
             <span className="text-xs bg-blue-500/10 text-blue-600 dark:text-blue-400 font-bold px-2 py-0.5 rounded border border-blue-500/30">
               {controllerName}
@@ -373,7 +379,7 @@ const Logs = () => {
             className="flex items-center gap-1.5 px-3.5 py-2 text-xs font-bold text-white bg-primary hover:bg-primary/90 rounded shadow-sm transition-colors"
           >
             <Database className={`h-3.5 w-3.5 ${syncing ? 'animate-spin' : ''}`} />
-            {syncing ? 'Menyimpan ke DB...' : 'Sinkron ke Postgres'}
+            {syncing ? 'Menyimpan ke DB...' : (liveData?.database_mode === 'POSTGRES' ? 'Sinkron ke Postgres' : 'Sinkron ke DB Lokal')}
           </button>
         </div>
       </div>
@@ -454,7 +460,7 @@ const Logs = () => {
 
         <div className="rounded border border-stroke bg-white p-3.5 shadow-sm dark:border-strokedark dark:bg-boxdark col-span-2 md:col-span-1">
           <div className="flex items-center justify-between text-gray-500 text-[11px]">
-            <span>TimescaleDB Points</span>
+            <span>{liveData?.database_mode === 'POSTGRES' ? 'TimescaleDB Points' : 'Poin Database Lokal'}</span>
             <Database className="h-4 w-4 text-meta-5" />
           </div>
           <h3 className="mt-1.5 text-xl font-bold text-black dark:text-white font-mono">

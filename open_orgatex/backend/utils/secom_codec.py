@@ -55,10 +55,10 @@ def get_template_batchref() -> bytearray:
 
 
 def create_batchref_binary(
-    reference_no: str,
-    machine_no: str,
-    batch_no: str,
-    program_no: int,
+    reference_no: Any,
+    machine_no: Optional[str] = None,
+    batch_no: Optional[str] = None,
+    program_no: Optional[int] = None,
     recipe_no: str = "",
     customer: str = "",
     article: str = "",
@@ -72,6 +72,8 @@ def create_batchref_binary(
 ) -> bytes:
     """
     Constructs exact 762-byte BATCHREF.REF structure.
+    Accepts either individual parameters or a single dictionary (target_batch).
+
     Offset map according to OrgaTEX T_BATCH_HEADER_ELEMENT:
       0: pstat_key (0 = CREATED)
       1..7: batch_ref_no (6 digits + null)
@@ -88,6 +90,26 @@ def create_batchref_binary(
       757..758: position uint16 = 0
       759..761: program_list: uint16 program_no + uint8 program_type (0)
     """
+    if isinstance(reference_no, dict):
+        d = reference_no
+        reference_no = str(d.get("reference_no", "000000"))
+        machine_no = str(d.get("machine_no", machine_no or "TD12"))
+        batch_no = str(d.get("batch_no", batch_no or f"LOT-{reference_no}"))
+        program_no = int(d.get("program_no", program_no or 1))
+        recipe_no = str(d.get("recipe_name", d.get("recipe_no", recipe_no or "")))
+        customer = str(d.get("customer", customer or ""))
+        article = str(d.get("article", article or ""))
+        color_code = str(d.get("color_code", color_code or ""))
+        color_name = str(d.get("color_name", color_name or ""))
+        fabric_weight = float(d.get("fabric_weight_kg", d.get("fabric_weight", fabric_weight or 350.0)))
+        program_title = str(d.get("program_title", program_title or f"Program {program_no}"))
+
+    if machine_no is None:
+        machine_no = "TD12"
+    if batch_no is None:
+        batch_no = f"LOT-{reference_no}"
+    if program_no is None:
+        program_no = 1
     buf = get_template_batchref()
     buf[0] = 0  # Status CREATED
     buf[8:26] = bytes(18)    # Reset timestamps
@@ -224,10 +246,14 @@ def serialize_prg_binary(program_id: int, title: str, steps: List[Dict[str, Any]
     if not steps:
         raise ValueError("Program harus memiliki minimal satu langkah.")
 
+    p_id = int(program_id)
+    if p_id < 1 or p_id > 9999:
+        raise ValueError(f"Nomor program SETEX harus antara 1 sampai 9999 (format M_xxxx.PRG). Diterima: {program_id}")
+
     header = bytearray(384)
     # Magic bytes: 50 8f c2 f5
     header[0:4] = bytes.fromhex("508fc2f5")
-    struct.pack_into("<H", header, 8, int(program_id))
+    struct.pack_into("<H", header, 8, p_id)
     _put_cp1252_text(header, 10, 21, title[:20], "Title")
     struct.pack_into("<H", header, 33, len(steps))
 
@@ -273,13 +299,14 @@ def serialize_prg_binary(program_id: int, title: str, steps: List[Dict[str, Any]
 
 def build_minimal_prg(program_id: int, title: str = "OpenOrgaTEX PRG") -> bytes:
     """Builds a valid baseline M_xxxx.PRG (Program Start -> Fill -> Temp -> End)."""
+    p_id = max(1, min(int(program_id or 1), 9999))
     steps = [
         {"step_no": 1, "label": "Start Program", "functions": [{"function_id": 1, "column": 1, "params": []}]},
         {"step_no": 2, "label": "Isi Air", "functions": [{"function_id": 713, "column": 1, "params": [1.0, 1800.0]}]},
         {"step_no": 3, "label": "Penaikan Suhu", "functions": [{"function_id": 141, "column": 1, "params": [98.0, 2.5, 30.0]}]},
         {"step_no": 4, "label": "Selesai", "functions": [{"function_id": 2, "column": 1, "params": []}]}
     ]
-    return serialize_prg_binary(program_id, title, steps)
+    return serialize_prg_binary(p_id, title, steps)
 
 
 def generate_queue_btd(records_759: List[bytes], machine_no: str) -> Optional[bytes]:
@@ -290,8 +317,10 @@ def generate_queue_btd(records_759: List[bytes], machine_no: str) -> Optional[by
     if not os.path.exists(QUEUE_TOOL_PATH) or not os.path.exists(QUEUE_TEMPLATE_PATH):
         return None
 
+    tool_dir = os.path.dirname(QUEUE_TOOL_PATH)
     try:
-        with tempfile.TemporaryDirectory(prefix="btr_queue_") as tmpdir:
+        # Note: QueueTool requires all paths to be located within tool_dir
+        with tempfile.TemporaryDirectory(prefix="btr_q_", dir=tool_dir) as tmpdir:
             payload_bin = os.path.join(tmpdir, "payload.bin")
             out_btd = os.path.join(tmpdir, "output.BTD")
 
@@ -299,7 +328,6 @@ def generate_queue_btd(records_759: List[bytes], machine_no: str) -> Optional[by
                 for rec in records_759:
                     f.write(rec[:759])
 
-            tool_dir = os.path.dirname(QUEUE_TOOL_PATH)
             # Run QueueTool with cwd set to tool_dir so it finds BtrieveInterface.dll
             res = subprocess.run(
                 [QUEUE_TOOL_PATH, QUEUE_TEMPLATE_PATH, payload_bin, out_btd],
@@ -313,10 +341,51 @@ def generate_queue_btd(records_759: List[bytes], machine_no: str) -> Optional[by
             if res.returncode == 0 and os.path.exists(out_btd):
                 with open(out_btd, "rb") as f:
                     return f.read()
+            else:
+                print(f"QueueTool error (code {res.returncode}): {res.stderr.strip() or res.stdout.strip()}")
     except Exception as e:
         print(f"Warning: QueueTool.exe failed ({e}); falling back without QUEUE.BTD")
 
     return None
+
+
+def inspect_btd_refs(btd_bytes: bytes) -> List[str]:
+    """
+    Inspects a Btrieve QUEUE.BTD binary buffer using QueueTool.exe and returns
+    the ordered list of 6-digit reference numbers present in the file.
+    """
+    if not btd_bytes or len(btd_bytes) < 1024 or not os.path.exists(QUEUE_TOOL_PATH):
+        return []
+
+    tool_dir = os.path.dirname(QUEUE_TOOL_PATH)
+    try:
+        with tempfile.NamedTemporaryFile(suffix=".BTD", dir=tool_dir, delete=False) as tf:
+            tf.write(btd_bytes)
+            tf_name = tf.name
+
+        try:
+            res = subprocess.run(
+                [QUEUE_TOOL_PATH, "inspect", tf_name],
+                capture_output=True,
+                text=True,
+                timeout=15,
+                cwd=tool_dir,
+                creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0)
+            )
+            for line in res.stdout.splitlines():
+                if line.startswith("key=0 refs="):
+                    raw_refs = line.split("key=0 refs=")[1].strip()
+                    if raw_refs:
+                        return [r.strip() for r in raw_refs.split(",") if r.strip()]
+            return []
+        finally:
+            try:
+                os.unlink(tf_name)
+            except Exception:
+                pass
+    except Exception as e:
+        print(f"Warning: inspect_btd_refs error: {e}")
+        return []
 
 
 def generate_batch_zip(

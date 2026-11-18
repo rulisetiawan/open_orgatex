@@ -145,6 +145,7 @@ export default function Programs() {
   // Template Modal State
   const [showTemplateModal, setShowTemplateModal] = useState(false);
   const [catalogTemplates, setCatalogTemplates] = useState([]);
+  const [syncingDB, setSyncingDB] = useState(false);
 
   // Notifications
   const [notification, setNotification] = useState(null);
@@ -181,6 +182,21 @@ export default function Programs() {
       }
     } catch (err) {
       console.error('Gagal mengambil daftar mesin:', err);
+    }
+  };
+
+  // 4. Sync PostgreSQL & SQLite Database
+  const handleSyncDB = async () => {
+    setSyncingDB(true);
+    try {
+      const res = await axios.post('/api/database/sync');
+      alert(res.data.message || 'Sinkronisasi program PostgreSQL & SQLite selesai!');
+      fetchProgramList();
+    } catch (err) {
+      const msg = err.response?.data?.detail || (typeof err.response?.data === 'string' ? err.response.data : err.message);
+      alert('Gagal sinkronisasi program: ' + msg);
+    } finally {
+      setSyncingDB(false);
     }
   };
 
@@ -331,6 +347,15 @@ export default function Programs() {
 
   // Transfer Program to FTP Controller Handler
   const handleTransferToFtp = async (pNo, mCode, customDir) => {
+    const num = parseInt(pNo, 10);
+    if (isNaN(num) || num < 1 || num > 9999) {
+      setNotification({
+        type: 'error',
+        title: 'Nomor Program Tidak Valid',
+        message: `Nomor program (${pNo}) tidak valid. Harus antara 1 sampai 9999 (format M_xxxx.PRG).`
+      });
+      return;
+    }
     const targetM = (mCode || activeMachine).trim().toUpperCase();
     const targetObj = availableMachines.find(m => m.machine_no.toUpperCase() === targetM) || selectedMachineObj;
     setIsTransferringFtp(true);
@@ -486,8 +511,10 @@ export default function Programs() {
 
   // Open Modal for New Program
   const handleOpenCreateModal = () => {
-    const existingNos = programList.map(p => p.program_number).filter(n => Number.isInteger(n));
-    const nextNo = existingNos.length > 0 ? Math.max(...existingNos) + 1 : 1;
+    const existingNos = programList
+      .map(p => p.program_number)
+      .filter(n => Number.isInteger(n) && n >= 1 && n <= 9999);
+    const nextNo = existingNos.length > 0 ? Math.min(Math.max(...existingNos) + 1, 9999) : 1;
     setCreateProgramNo(nextNo);
     setCreateProgramName(`RESEP MESIN ${activeMachine}`);
     setCreateMachineCode(activeMachine);
@@ -497,8 +524,13 @@ export default function Programs() {
 
   // Confirm and Create New Program
   const handleConfirmCreateProgram = () => {
-    setProgramNo(createProgramNo);
-    setProgramName(createProgramName.trim().toUpperCase() || `PROGRAM #${createProgramNo}`);
+    const pNo = parseInt(createProgramNo, 10);
+    if (isNaN(pNo) || pNo < 1 || pNo > 9999) {
+      alert("Nomor program harus antara 1 sampai 9999 (format SETEX M_xxxx.PRG).");
+      return;
+    }
+    setProgramNo(pNo);
+    setProgramName(createProgramName.trim().toUpperCase() || `PROGRAM #${pNo}`);
     setMachineCode(createMachineCode);
 
     if (createTemplateType === 'STANDARD') {
@@ -521,10 +553,19 @@ export default function Programs() {
 
   // Save Program
   const handleSaveProgram = async () => {
+    const pNo = parseInt(programNo, 10);
+    if (isNaN(pNo) || pNo < 1 || pNo > 9999) {
+      setNotification({
+        type: 'error',
+        title: 'Nomor Program Tidak Valid',
+        message: 'Nomor program SETEX harus antara 1 sampai 9999 (format 4 digit M_xxxx.PRG).'
+      });
+      return;
+    }
     setIsSaving(true);
     try {
       const payload = {
-        program_no: parseInt(programNo),
+        program_no: pNo,
         program_name: programName.trim().toUpperCase(),
         machine_code: machineCode,
         steps: steps
@@ -550,8 +591,17 @@ export default function Programs() {
 
   // Compile Binary
   const handleCompileBinary = async () => {
+    const pNo = parseInt(programNo, 10);
+    if (isNaN(pNo) || pNo < 1 || pNo > 9999) {
+      setNotification({
+        type: 'error',
+        title: 'Nomor Program Tidak Valid',
+        message: 'Nomor program SETEX harus antara 1 sampai 9999 (format 4 digit M_xxxx.PRG).'
+      });
+      return;
+    }
     try {
-      const res = await axios.post(`/api/programs/compile/${programNo}`);
+      const res = await axios.post(`/api/programs/compile/${pNo}`);
       setNotification({
         type: 'success',
         title: 'Kompilasi Biner Berhasil (Paritas SETEX 777)!',
@@ -943,6 +993,15 @@ export default function Programs() {
                 <Upload className="w-3.5 h-3.5 text-indigo-300" />
                 <span>Impor .PRG</span>
               </button>
+              <button
+                onClick={handleSyncDB}
+                disabled={syncingDB}
+                className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-blue-900/40 hover:bg-blue-800/60 border border-blue-500/50 text-blue-300 text-xs font-semibold shadow-md transition disabled:opacity-50"
+                title="Sinkronkan seluruh database program antara PostgreSQL pt_smm_jetflow dan SQLite lokal"
+              >
+                <RefreshCw className={`w-3.5 h-3.5 ${syncingDB ? 'animate-spin text-blue-400' : 'text-blue-400'}`} />
+                <span>{syncingDB ? 'Syncing...' : 'Sync DB'}</span>
+              </button>
               <input
                 type="file"
                 ref={fileInputRef}
@@ -1189,7 +1248,11 @@ export default function Programs() {
                       min="1"
                       max="9999"
                       value={createProgramNo}
-                      onChange={(e) => setCreateProgramNo(parseInt(e.target.value) || 1)}
+                      onChange={(e) => {
+                        const val = parseInt(e.target.value, 10);
+                        if (isNaN(val)) setCreateProgramNo(1);
+                        else setCreateProgramNo(Math.min(Math.max(val, 1), 9999));
+                      }}
                       className="w-full text-xs font-mono font-bold rounded-lg border border-stroke dark:border-strokedark bg-gray-50 dark:bg-meta-4 py-2.5 px-3 text-black dark:text-white outline-none focus:border-primary focus:bg-white dark:focus:bg-boxdark transition"
                     />
                   </div>
@@ -1395,9 +1458,22 @@ export default function Programs() {
           <div className="flex flex-wrap items-center gap-3">
             <div className="flex flex-col">
               <div className="flex items-center gap-2">
-                <span className="text-xs font-bold font-mono px-2 py-0.5 bg-primary/10 text-primary border border-primary/20 rounded">
-                  ID: {programNo}
-                </span>
+                <div className="flex items-center gap-1 bg-primary/10 border border-primary/20 rounded px-2 py-0.5" title="Nomor Program SETEX (1 - 9999)">
+                  <span className="text-xs font-bold font-mono text-primary">ID:</span>
+                  <input
+                    type="number"
+                    min="1"
+                    max="9999"
+                    value={programNo}
+                    onChange={(e) => {
+                      const v = parseInt(e.target.value, 10);
+                      if (!isNaN(v)) setProgramNo(v);
+                    }}
+                    className={`w-14 text-xs font-bold font-mono bg-transparent outline-none ${
+                      programNo > 9999 || programNo < 1 ? 'text-red-500 underline font-black' : 'text-primary'
+                    }`}
+                  />
+                </div>
                 <input
                   type="text"
                   value={programName}
@@ -1407,9 +1483,16 @@ export default function Programs() {
                   maxLength={20}
                 />
               </div>
-              <span className="text-[11px] text-gray-400 font-mono mt-0.5">
-                Target: M_{String(programNo).padStart(4, '0')}.PRG · {steps.length} Langkah
-              </span>
+              <div className="flex items-center gap-2 mt-0.5">
+                <span className="text-[11px] text-gray-400 font-mono">
+                  Target: M_{String(programNo > 9999 ? 9999 : programNo).padStart(4, '0')}.PRG · {steps.length} Langkah
+                </span>
+                {(programNo > 9999 || programNo < 1) && (
+                  <span className="text-[10px] font-bold text-red-600 bg-red-100 dark:bg-red-950/60 px-1.5 py-0.2 rounded border border-red-300">
+                    Maks. 9999 (SETEX 4 Digit)!
+                  </span>
+                )}
+              </div>
             </div>
 
             {/* Pilihan Mesin pada Editor */}
