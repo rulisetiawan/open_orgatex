@@ -12,6 +12,17 @@ async def lifespan(app: FastAPI):
     # Startup: Initialize Database (TimescaleDB / PostgreSQL)
     try:
         init_db()
+        from .database import get_db
+        from .models.schema_pg import Machine
+        from .data.populate_pg import run as seed_machines
+
+        for db in get_db():
+            count = db.query(Machine).count()
+            if count == 0:
+                print("Database machines table empty. Auto-populating factory machines...")
+                seed_machines(db)
+                print(f"Seeding completed. Total machines: {db.query(Machine).count()}")
+            break
     except Exception as e:
         print(f"Warning during DB initialization: {e}")
 

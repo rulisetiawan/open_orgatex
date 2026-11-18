@@ -64,13 +64,24 @@ const Logs = () => {
       .then((res) => res.json())
       .then((data) => {
         if (Array.isArray(data) && data.length > 0) {
-          setRawMachines(data);
-          const list = data.map((m) => m.machine_no);
+          let fullList = [...data];
+          if (!fullList.some(m => m.machine_no === 'DA01' || m.ip_address === '192.168.1.95')) {
+            fullList.unshift({
+              machine_no: 'DA01',
+              display_name: 'SETEX 797CE Mesin DA01',
+              group_name: 'Dyeing Sample / DA',
+              controller_type: 'SETEX 797CE (Windows CE)',
+              ip_address: '192.168.1.95',
+              share_folder_path: '/Flashdisk/SC797CE',
+            });
+          }
+          setRawMachines(fullList);
+          const list = fullList.map((m) => m.machine_no);
           setMachines(list);
           const currentUrlParam = new URLSearchParams(window.location.search).get('machine');
           const targetMach = currentUrlParam && list.includes(currentUrlParam) ? currentUrlParam : (list.includes(selectedMachine) ? selectedMachine : list[0]);
           setSelectedMachine(targetMach);
-          const matched = data.find((m) => m.machine_no === targetMach);
+          const matched = fullList.find((m) => m.machine_no === targetMach);
           if (matched && matched.ip_address) {
             setHmiIp(matched.ip_address);
           }
@@ -235,6 +246,19 @@ const Logs = () => {
     return { no: sNo, name: `Langkah #${sNo}`, type: 'PROCESS', icon: '121' };
   });
 
+  const is797 =
+    hmiIp?.trim() === '192.168.1.95' ||
+    selectedMachine === 'DA01' ||
+    selectedMachine === 'M_95' ||
+    selectedMachine?.toUpperCase().includes('797') ||
+    liveData?.controller_type?.includes('797') ||
+    rawMachines.find((m) => m.machine_no === selectedMachine)?.controller_type?.includes('797');
+
+  const controllerName = is797 ? 'SETEX Secom 797CE' : 'SETEX Secom 777';
+  const controllerFolder = is797
+    ? '/Flashdisk/SC797CE/STATUS/STATUS.ACT'
+    : '/Storage/sc777ce/STATUS/STATUS.ACT';
+
   return (
     <div className="space-y-6">
       {/* HEADER & ORGATEX TOOLBAR */}
@@ -250,6 +274,9 @@ const Logs = () => {
             <span className="text-xs bg-success/10 text-success font-bold px-2 py-0.5 rounded border border-success/20">
               Live TimescaleDB
             </span>
+            <span className="text-xs bg-blue-500/10 text-blue-600 dark:text-blue-400 font-bold px-2 py-0.5 rounded border border-blue-500/30">
+              {controllerName}
+            </span>
             {liveData?.is_live_hmi ? (
               <span className="text-xs bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-bold px-2 py-0.5 rounded border border-emerald-500/30 flex items-center gap-1.5" title={`Terhubung ke ${liveData.data_source}`}>
                 <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
@@ -258,12 +285,12 @@ const Logs = () => {
             ) : (
               <span className="text-xs bg-amber-500/10 text-amber-600 dark:text-amber-400 font-bold px-2 py-0.5 rounded border border-amber-500/30 flex items-center gap-1.5" title={`Mode: ${liveData?.data_source || 'Storage Lokal'}`}>
                 <span className="w-2 h-2 rounded-full bg-amber-500"></span>
-                Target: {hmiIp || '172.16.110.101'} (Offline/Fallback)
+                Target: {hmiIp || (is797 ? '192.168.1.95' : '172.16.110.101')} (Offline/Fallback)
               </span>
             )}
           </div>
           <p className="text-xs text-body dark:text-gray-400 mt-1">
-            Visualisasi kurva telemetri langsung dari HMI SETEX Secom 777 (<code className="text-primary font-mono font-bold">ftp://{hmiIp || '172.16.110.101'}/Storage/sc777ce/STATUS/STATUS.ACT</code>)
+            Visualisasi kurva telemetri langsung dari HMI {controllerName} (<code className="text-primary font-mono font-bold">ftp://{hmiIp || (is797 ? '192.168.1.95' : '172.16.110.101')}{controllerFolder}</code>)
           </p>
         </div>
 
@@ -277,9 +304,9 @@ const Logs = () => {
               type="text"
               value={hmiIp}
               onChange={(e) => setHmiIp(e.target.value)}
-              placeholder="172.16.110.101"
+              placeholder={is797 ? '192.168.1.95' : '172.16.110.101'}
               className="text-xs font-mono font-bold text-black dark:text-white bg-transparent outline-none w-28"
-              title="IP Address Controller SETEX 777CE (Port FTP 21)"
+              title={`IP Address Controller ${controllerName} (Port FTP 21)`}
             />
           </div>
 
@@ -313,15 +340,21 @@ const Logs = () => {
                 const matched = rawMachines.find((m) => m.machine_no === val);
                 if (matched && matched.ip_address) {
                   setHmiIp(matched.ip_address);
+                } else if (val === 'DA01' || val === 'M_95') {
+                  setHmiIp('192.168.1.95');
                 }
               }}
-              className="text-xs font-bold text-black dark:text-white bg-transparent outline-none cursor-pointer"
+              className="text-xs font-bold text-black dark:text-white bg-transparent outline-none cursor-pointer max-w-[240px]"
             >
-              {machines.map((m) => (
-                <option key={m} value={m} className="dark:bg-boxdark">
-                  Mesin {m}
-                </option>
-              ))}
+              {rawMachines.map((m) => {
+                const isItem797 = m.machine_no === 'DA01' || m.machine_no === 'M_95' || m.ip_address === '192.168.1.95' || m.controller_type?.includes('797');
+                const badge = isItem797 ? 'SETEX 797CE' : (m.controller_type?.includes('777') ? 'SETEX 777' : (m.controller_type || 'SETEX'));
+                return (
+                  <option key={m.machine_no} value={m.machine_no} className="dark:bg-boxdark">
+                    {m.machine_no} - {m.display_name || `Mesin ${m.machine_no}`} ({badge})
+                  </option>
+                );
+              })}
             </select>
           </div>
 
@@ -502,7 +535,7 @@ const Logs = () => {
         <div className="flex items-center justify-between mb-4">
           <div>
             <h4 className="text-sm font-bold text-black dark:text-white uppercase tracking-wider">
-              Profil Kurva Proses: Mesin {selectedMachine} (Batch #{liveData?.batch_no || '-'})
+              Profil Kurva Proses: Mesin {selectedMachine} {is797 ? '(SETEX 797CE)' : '(SETEX 777)'} (Batch #{liveData?.batch_no || '-'})
             </h4>
             <span className="text-xs text-gray-500">
               Sinkronisasi waktu nyata: Suhu PV, Setpoint SP, dan Sensor T2 (°C)
@@ -517,7 +550,7 @@ const Logs = () => {
           <TempCurveChart
             series={chartSeries}
             categories={chartCategories}
-            title={`Kurva Telemetri Kontroler SETEX Secom 777 - Batch #${liveData?.batch_no || ''}`}
+            title={`Kurva Telemetri Kontroler ${controllerName} - Batch #${liveData?.batch_no || ''}`}
           />
         ) : (
           <div className="flex flex-col items-center justify-center h-64 text-gray-400">

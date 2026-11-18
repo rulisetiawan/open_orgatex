@@ -93,19 +93,28 @@ MACHINES_DATA = [
     {"no": "16D", "ip": "172.16.130.166", "name": "Novatech", "type": "Novatech Digital", "group": "Prod 3 Area D"},
     {"no": "18D", "ip": "172.16.130.168", "name": "Setex", "type": "SECOM 777 (Windows CE)", "group": "Prod 3 Area D"},
     {"no": "19D", "ip": "172.16.130.169", "name": "Setex", "type": "SECOM 777 (Windows CE)", "group": "Prod 3 Area D"},
+
+    # ==========================================
+    # Dyeing Sample / DA Area (Controller SETEX 797CE)
+    # ==========================================
+    {"no": "DA01", "ip": "192.168.1.95", "name": "SETEX 797CE", "type": "SETEX 797CE (Windows CE)", "group": "Dyeing Sample / DA", "share_folder_path": "/Flashdisk/SC797CE"},
 ]
 
-def run():
-    database.init_db()
-    db = database.SessionLocal()
-    print("Database connection:", database.DATABASE_URL)
-    print("IS_POSTGRES:", database.IS_POSTGRES)
+def run(db=None):
+    should_close = False
+    if db is None:
+        database.init_db()
+        db = database.SessionLocal()
+        should_close = True
+    print("Database connection:", getattr(database, "DATABASE_URL", "unknown"))
+    print("IS_POSTGRES:", getattr(database, "IS_POSTGRES", False))
 
-    # 1. Insert or update the 68 machines first
+    # 1. Insert or update the machines first
     for m in MACHINES_DATA:
         no = m["no"]
-        is_setex = "setex" in m["name"].lower()
-        disp_name = f"Mesin {no} ({m['name']})"
+        is_setex = "setex" in m["name"].lower() or "797" in m.get("type", "").lower() or "777" in m.get("type", "").lower()
+        disp_name = f"Mesin {no} ({m['name']})" if not m["name"].startswith("SETEX") else f"{m['name']} Mesin {no}"
+        share_path = m.get("share_folder_path", f"/Network/F/OT/{no}/")
 
         existing = db.query(Machine).filter(Machine.machine_no == no).first()
         if existing:
@@ -119,7 +128,7 @@ def run():
             existing.capacity_kg = 350.0
             existing.default_liquor_ratio = 8.0
             existing.tanks_count = 2
-            existing.share_folder_path = f"/Network/F/OT/{no}/"
+            existing.share_folder_path = share_path
             existing.status = "ONLINE"
         else:
             new_m = Machine(
@@ -134,7 +143,7 @@ def run():
                 capacity_kg=350.0,
                 default_liquor_ratio=8.0,
                 tanks_count=2,
-                share_folder_path=f"/Network/F/OT/{no}/",
+                share_folder_path=share_path,
                 polling_interval_sec=5,
                 is_active=True,
                 status="ONLINE"
@@ -143,6 +152,18 @@ def run():
 
     db.commit()
     print(f"Upserted all {len(MACHINES_DATA)} machines into database.")
+
+    # 1.1 Ensure any 192.168.1.95 or M_95 record is strictly SETEX 797CE
+    try:
+        for m95 in db.query(Machine).filter((Machine.machine_no == 'M_95') | (Machine.ip_address == '192.168.1.95')):
+            m95.controller_type = "SETEX 797CE (Windows CE)"
+            m95.share_folder_path = "/Flashdisk/SC797CE"
+            if m95.machine_no == 'M_95':
+                m95.display_name = "SETEX 797CE Mesin DA01 (M_95)"
+        db.commit()
+    except Exception as e:
+        db.rollback()
+        print("Note updating M_95/192.168.1.95:", e)
 
     # 2. Re-point any batches or foreign keys away from deprecated machines
     deprecated_codes = ['TD12', 'TD13', 'TD14', 'A002', 'A003', 'M01', 'TEST_M1', 'TEST_AUTO']
@@ -180,7 +201,8 @@ def run():
     print(f"==================================================")
     print(f"Total machines currently in PostgreSQL: {total}")
     print(f"==================================================")
-    db.close()
+    if should_close:
+        db.close()
 
 if __name__ == "__main__":
     run()

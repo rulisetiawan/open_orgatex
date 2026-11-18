@@ -27,30 +27,49 @@ def get_live_machine_telemetry(
     Reads machine shared folder / HMI FTP directly, persists new telemetry permanently to PostgreSQL,
     and returns real-time curve, current temperature, and active alarm states.
     """
-    m = db.query(Machine).filter(Machine.machine_no == machine_no.upper()).first()
+    mach_clean = machine_no.upper()
+    is_797 = mach_clean in ("DA01", "M_95") or "797" in mach_clean or ip == "192.168.1.95"
+
+    m = db.query(Machine).filter(Machine.machine_no == mach_clean).first()
     if not m:
         # Auto-create if not yet existing
         m = Machine(
-            machine_no=machine_no.upper(),
-            display_name=f"SETEX Controller {machine_no.upper()}",
-            ip_address=ip or "172.16.110.101",
+            machine_no=mach_clean,
+            display_name=f"SETEX 797CE Mesin {mach_clean}" if is_797 else f"SETEX Controller {mach_clean}",
+            group_name="Dyeing Sample / DA" if is_797 else "Dyeing Section A",
+            controller_type="SETEX 797CE (Windows CE)" if is_797 else "SECOM 777 (Windows CE)",
+            ip_address=ip or ("192.168.1.95" if is_797 else "172.16.110.101"),
             ftp_port=21,
-            share_folder_path="/Storage/sc777ce",
+            share_folder_path="/Flashdisk/SC797CE" if is_797 else "/Storage/sc777ce",
             status="ONLINE"
         )
         db.add(m)
         db.commit()
         db.refresh(m)
     else:
-        # Update IP if override supplied or if using old placeholder 192.168.1.102
+        # Update IP and enforce 797CE if IP is 192.168.1.95 or machine is DA01/M_95
         needs_commit = False
-        if ip and m.ip_address != ip:
-            m.ip_address = ip
-            needs_commit = True
-        elif m.ip_address in ("192.168.1.102", "127.0.0.1", "", None):
-            m.ip_address = "172.16.110.101"
-            m.ftp_port = 21
-            needs_commit = True
+        if is_797 or m.ip_address == "192.168.1.95":
+            if m.controller_type != "SETEX 797CE (Windows CE)":
+                m.controller_type = "SETEX 797CE (Windows CE)"
+                needs_commit = True
+            if not m.share_folder_path or "/Storage" in m.share_folder_path or "/app/STATUS" in m.share_folder_path:
+                m.share_folder_path = "/Flashdisk/SC797CE"
+                needs_commit = True
+            if not m.display_name or "777" in m.display_name or m.display_name.startswith("SETEX Controller"):
+                m.display_name = f"SETEX 797CE Mesin {mach_clean}"
+                needs_commit = True
+            if ip and m.ip_address != ip:
+                m.ip_address = ip
+                needs_commit = True
+        else:
+            if ip and m.ip_address != ip:
+                m.ip_address = ip
+                needs_commit = True
+            elif m.ip_address in ("192.168.1.102", "127.0.0.1", "", None):
+                m.ip_address = "172.16.110.101"
+                m.ftp_port = 21
+                needs_commit = True
 
         if needs_commit:
             db.commit()

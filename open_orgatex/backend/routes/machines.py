@@ -117,7 +117,17 @@ def _probe_single_controller(ip: str, timeout: float = 1.0) -> Optional[Dict[str
             ftp.connect(ip, 21)
             ftp.login()
             bio = io.BytesIO()
-            ftp.retrbinary("RETR /Storage/sc777ce/STATUS/STATUS.ACT", bio.write)
+            target_status = "/Flashdisk/SC797CE/STATUS/STATUS.ACT" if ip == "192.168.1.95" else "/Storage/sc777ce/STATUS/STATUS.ACT"
+            try:
+                ftp.retrbinary(f"RETR {target_status}", bio.write)
+            except Exception:
+                try:
+                    ftp.retrbinary("RETR /Flashdisk/SC797CE/STATUS/STATUS.ACT", bio.write)
+                except Exception:
+                    try:
+                        ftp.retrbinary("RETR /Storage/sc777ce/STATUS/STATUS.ACT", bio.write)
+                    except Exception:
+                        pass
             data = bio.getvalue()
             if len(data) >= 16:
                 m_raw = data[11:19].split(b'\0')[0].decode('latin1', errors='ignore').strip()
@@ -135,12 +145,16 @@ def _probe_single_controller(ip: str, timeout: float = 1.0) -> Optional[Dict[str
         except Exception:
             pass
 
-    display_name = f"SETEX Controller {machine_id}" if machine_id else f"SETEX Controller ({ip})"
+    is_797 = ip.strip() == "192.168.1.95" or (machine_id and "797" in machine_id.upper()) or (machine_id and machine_id.upper().startswith("DA"))
+    controller_type = "SETEX 797CE (Windows CE)" if is_797 else "SECOM 777 (Windows CE)"
+    share_folder_path = "/Flashdisk/SC797CE" if is_797 else "/Storage/SC777CE"
+
+    display_name = f"SETEX 797CE Mesin {machine_id or 'DA01'}" if is_797 else (f"SETEX Controller {machine_id}" if machine_id else f"SETEX Controller ({ip})")
     return {
         "ip_address": ip,
-        "machine_no": machine_id or f"M_{ip.split('.')[-1]}",
+        "machine_no": "DA01" if ip.strip() == "192.168.1.95" else (machine_id or f"M_{ip.split('.')[-1]}"),
         "display_name": display_name,
-        "controller_type": "SECOM 777 (Windows CE)",
+        "controller_type": controller_type,
         "kind_of_machine": "High Temp Jet Dyeing",
         "has_ftp": has_ftp,
         "has_tcp_50100": has_tcp,
@@ -187,21 +201,90 @@ def scan_network_controllers(scan_req: ScanRequestSchema):
 def get_all_machines(db: Session = Depends(get_db)):
     """Lists all configured machines from PostgreSQL along with HMI config readiness."""
     machines = db.query(Machine).all()
+    if not machines:
+        logger.info("Database machines table is empty! Auto-seeding factory machines...")
+        try:
+            from ..data.populate_pg import run as seed_machines
+            seed_machines(db)
+            machines = db.query(Machine).all()
+            logger.info(f"Auto-seeded {len(machines)} machines successfully.")
+        except Exception as e:
+            logger.error(f"Auto-seeding machines failed: {e}")
+
+    # Fallback to static MACHINES_DATA so frontend never renders an empty screen
+    if not machines:
+        logger.warning("Returning static in-memory fallback machines.")
+        from ..data.populate_pg import MACHINES_DATA
+        results = []
+        for m_data in MACHINES_DATA:
+            no = m_data["no"]
+            is_setex = "setex" in m_data["name"].lower() or "797" in m_data.get("type", "").lower() or "777" in m_data.get("type", "").lower()
+            disp_name = f"Mesin {no} ({m_data['name']})" if not m_data["name"].startswith("SETEX") else f"{m_data['name']} Mesin {no}"
+            cfg = get_machine_config_summary(no)
+            results.append({
+                "machine_no": no,
+                "display_name": disp_name,
+                "group_name": m_data.get("group", "Dyeing Section A"),
+                "controller_type": m_data.get("type", "SECOM 777 (Windows CE)"),
+                "ip_address": m_data["ip"],
+                "tcp_port": 50100 if is_setex else 50000,
+                "ftp_port": 21,
+                "capacity_kg": 350.0,
+                "default_liquor_ratio": 8.0,
+                "tanks_count": 2,
+                "share_folder_path": m_data.get("share_folder_path") or f"/Network/F/OT/{no}/",
+                "status": "ONLINE",
+                "current_batch": "-",
+                "current_step": 1,
+                "current_temp": None,
+                "is_active": True,
+                "write_mode": "DISABLED (Strict Read-Only Active)",
+                "config_status": cfg.get("config_status", "NOT_CONFIGURED"),
+                "has_custom_hmi_config": cfg.get("has_custom_hmi_config", False),
+                "has_typeconf": cfg.get("has_typeconf", False),
+                "has_conftext": cfg.get("has_conftext", False),
+                "has_machconf": cfg.get("has_machconf", False),
+                "workspace_exists": cfg.get("workspace_exists", False)
+            })
+        return results
+
+    # Auto-sanitize any machine with IP 192.168.1.95, DA01, or M_95 to SETEX 797CE
+    modified = False
+    for m in machines:
+        is_797 = (
+            m.ip_address == "192.168.1.95" or 
+            m.machine_no in ("DA01", "M_95") or 
+            "797" in (m.controller_type or "")
+        )
+        if is_797:
+            if m.controller_type != "SETEX 797CE (Windows CE)":
+                m.controller_type = "SETEX 797CE (Windows CE)"
+                modified = True
+            if not m.share_folder_path or "/Storage" in m.share_folder_path or "/Network" in m.share_folder_path:
+                m.share_folder_path = "/Flashdisk/SC797CE"
+                modified = True
+    if modified:
+        try:
+            db.commit()
+        except Exception:
+            db.rollback()
+
     results = []
     for m in machines:
         cfg = get_machine_config_summary(m.machine_no)
+        is_797 = m.ip_address == "192.168.1.95" or m.machine_no in ("DA01", "M_95") or "797" in (m.controller_type or "")
         results.append({
             "machine_no": m.machine_no,
             "display_name": m.display_name,
-            "group_name": m.group_name or "Dyeing Section A",
-            "controller_type": m.controller_type or "SECOM 777 (Windows CE)",
+            "group_name": m.group_name or ("Dyeing Sample / DA" if is_797 else "Dyeing Section A"),
+            "controller_type": "SETEX 797CE (Windows CE)" if is_797 else (m.controller_type or "SECOM 777 (Windows CE)"),
             "ip_address": m.ip_address,
             "tcp_port": m.tcp_port or 50100,
             "ftp_port": m.ftp_port or 21,
             "capacity_kg": float(m.capacity_kg) if m.capacity_kg else 350.0,
             "default_liquor_ratio": float(m.default_liquor_ratio) if m.default_liquor_ratio else 8.0,
             "tanks_count": m.tanks_count or 2,
-            "share_folder_path": m.share_folder_path or "/Network/F/OT/",
+            "share_folder_path": "/Flashdisk/SC797CE" if is_797 else (m.share_folder_path or "/Network/F/OT/"),
             "status": m.status or "ONLINE",
             "current_batch": m.current_batch or "-",
             "current_step": m.current_step or 1,
@@ -219,22 +302,47 @@ def get_all_machines(db: Session = Depends(get_db)):
 
 @router.get("/{machine_no}")
 def get_machine(machine_no: str, db: Session = Depends(get_db)):
-    m = db.query(Machine).filter(Machine.machine_no == machine_no.upper()).first()
+    mach_clean = machine_no.upper()
+    m = db.query(Machine).filter(Machine.machine_no == mach_clean).first()
     if not m:
-        raise HTTPException(status_code=404, detail="Mesin tidak ditemukan")
+        if mach_clean in ("DA01", "M_95") or "797" in mach_clean:
+            m = Machine(
+                machine_no=mach_clean,
+                display_name=f"SETEX 797CE Mesin {mach_clean}",
+                group_name="Dyeing Sample / DA",
+                ip_address="192.168.1.95",
+                tcp_port=50100,
+                ftp_port=21,
+                controller_type="SETEX 797CE (Windows CE)",
+                share_folder_path="/Flashdisk/SC797CE",
+                status="ONLINE"
+            )
+            db.add(m)
+            db.commit()
+            db.refresh(m)
+        else:
+            raise HTTPException(status_code=404, detail="Mesin tidak ditemukan")
+    elif m.ip_address == "192.168.1.95" or mach_clean in ("DA01", "M_95") or "797" in (m.controller_type or ""):
+        if m.controller_type != "SETEX 797CE (Windows CE)" or m.share_folder_path != "/Flashdisk/SC797CE":
+            m.controller_type = "SETEX 797CE (Windows CE)"
+            m.share_folder_path = "/Flashdisk/SC797CE"
+            db.commit()
+            db.refresh(m)
+
     cfg = get_machine_config_summary(m.machine_no)
+    is_797 = m.ip_address == "192.168.1.95" or mach_clean in ("DA01", "M_95") or "797" in (m.controller_type or "")
     return {
         "machine_no": m.machine_no,
         "display_name": m.display_name,
-        "group_name": m.group_name,
-        "controller_type": m.controller_type,
+        "group_name": m.group_name or ("Dyeing Sample / DA" if is_797 else "Dyeing Section A"),
+        "controller_type": "SETEX 797CE (Windows CE)" if is_797 else (m.controller_type or "SECOM 777 (Windows CE)"),
         "ip_address": m.ip_address,
         "tcp_port": m.tcp_port,
         "ftp_port": m.ftp_port,
         "capacity_kg": float(m.capacity_kg) if m.capacity_kg else 350.0,
         "default_liquor_ratio": float(m.default_liquor_ratio) if m.default_liquor_ratio else 8.0,
         "tanks_count": m.tanks_count,
-        "share_folder_path": m.share_folder_path,
+        "share_folder_path": "/Flashdisk/SC797CE" if is_797 else (m.share_folder_path or "/Network/F/OT/"),
         "status": m.status,
         "current_batch": m.current_batch,
         "current_step": m.current_step,

@@ -120,15 +120,16 @@ const Machines = () => {
 
   // Import detected controller from sniffer
   const handleImportController = (ctrl) => {
+    const is797 = ctrl.ip_address === '192.168.1.95' || ctrl.machine_no === 'DA01' || (ctrl.controller_type && ctrl.controller_type.includes('797'));
     setForm({
       ...defaultForm,
       machine_no: ctrl.machine_no,
       display_name: ctrl.display_name,
       ip_address: ctrl.ip_address,
-      controller_type: ctrl.controller_type,
+      controller_type: is797 ? 'SETEX 797CE (Windows CE)' : ctrl.controller_type,
       kind_of_machine: ctrl.kind_of_machine,
       ftp_port: 21,
-      share_folder_path: '/Network/F/OT/',
+      share_folder_path: is797 ? '/Flashdisk/SC797CE' : '/Network/F/OT/',
     });
     setSnifferModalOpen(false);
     setIsEditing(false);
@@ -138,17 +139,18 @@ const Machines = () => {
 
   // Open Edit Modal for existing machine
   const handleOpenEdit = (m) => {
+    const is797 = m.ip_address === '192.168.1.95' || m.machine_no === 'DA01' || m.machine_no === 'M_95' || (m.controller_type && m.controller_type.includes('797'));
     setForm({
       machine_no: m.machine_no,
       internal_no: m.internal_no || '',
       display_name: m.display_name || m.machine_no,
-      group_name: m.group_name || 'Dyeing Section A',
-      controller_type: m.controller_type || 'SECOM 777 (Windows CE)',
+      group_name: m.group_name || (is797 ? 'Dyeing Sample / DA' : 'Dyeing Section A'),
+      controller_type: is797 ? 'SETEX 797CE (Windows CE)' : (m.controller_type || 'SECOM 777 (Windows CE)'),
       kind_of_machine: m.kind_of_machine || 'High Temp Jet Dyeing',
       ip_address: m.ip_address,
       tcp_port: m.tcp_port || 50100,
       ftp_port: m.ftp_port || 21,
-      share_folder_path: m.share_folder_path || '/Network/F/OT/',
+      share_folder_path: is797 ? '/Flashdisk/SC797CE' : (m.share_folder_path || '/Network/F/OT/'),
       capacity_kg: m.capacity_kg || 350.0,
       default_liquor_ratio: m.default_liquor_ratio || 8.0,
       tanks_count: m.tanks_count || 2,
@@ -733,10 +735,20 @@ const Machines = () => {
                     </label>
                     <select
                       value={form.controller_type}
-                      onChange={(e) => setForm({ ...form, controller_type: e.target.value })}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        const is797 = val.includes('797');
+                        setForm({
+                          ...form,
+                          controller_type: val,
+                          share_folder_path: is797 ? '/Flashdisk/SC797CE' : (form.share_folder_path === '/Flashdisk/SC797CE' ? '/Storage/SC777CE' : form.share_folder_path)
+                        });
+                      }}
                       className="w-full text-xs font-semibold p-2.5 rounded border border-stroke dark:border-strokedark bg-white dark:bg-boxdark text-black dark:text-white outline-none"
                     >
-                      <option value="SECOM 777 (Windows CE)">SECOM 777 (Windows CE)</option>
+                      <option value="SETEX 797CE (Windows CE)">SETEX 797CE (Windows CE) - /Flashdisk/SC797CE</option>
+                      <option value="SECOM 777 (Windows CE)">SECOM 777 (Windows CE) - /Storage/SC777CE</option>
+                      <option value="Novatech Digital">Novatech Digital</option>
                       <option value="SECOM 737">SECOM 737</option>
                       <option value="SECOM 505">SECOM 505</option>
                       <option value="SECOM 838">SECOM 838</option>

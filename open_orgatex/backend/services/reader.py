@@ -613,18 +613,30 @@ class SetexFolderReader:
         if not ip or not batch_no:
             return []
 
-        paths = [
+        is_797 = (ip.strip() == "192.168.1.95")
+
+        flashdisk_batch_logs = [
+            f"/Flashdisk/SC797CE/BATCH/{batch_no}/PR{batch_no}.LOG",
+            f"/Flashdisk/sc797ce/BATCH/{batch_no}/pr{batch_no}.log",
+            f"\\Flashdisk\\SC797CE\\BATCH\\{batch_no}\\PR{batch_no}.LOG",
+            f"/Flashdisk/SC797CE/BATCH/PR{batch_no}.LOG",
+            f"/Flashdisk/BATCH/{batch_no}/PR{batch_no}.LOG",
+            f"/Flashdisk/SC797CE/STATUS/PR{batch_no}.LOG",
+            f"PR{batch_no}.LOG"
+        ]
+
+        storage_batch_logs = [
             f"/Storage/sc777ce/BATCH/{batch_no}/PR{batch_no}.LOG",
             f"/Storage/sc777ce/BATCH/{batch_no}/pr{batch_no}.log",
-            f"/Storage/sc777ce/BATCH/{batch_no}/PR{batch_no}.LOG",
-            f"/Storage/sc777ce/BATCH/{batch_no}/pr{batch_no}.log",
+            f"\\Storage\\SC777CE\\BATCH\\{batch_no}\\PR{batch_no}.LOG",
             f"Storage/sc777ce/BATCH/{batch_no}/PR{batch_no}.LOG",
-            f"/Storage/sc777ce/BATCH/PR{batch_no}.LOG",
             f"/Storage/sc777ce/BATCH/PR{batch_no}.LOG",
             f"/BATCH/{batch_no}/PR{batch_no}.LOG",
             f"/Network/F/OT/MACHINES/A001/BATCHES/PR{batch_no}.LOG",
             f"PR{batch_no}.LOG"
         ]
+
+        paths = (flashdisk_batch_logs + storage_batch_logs) if is_797 else (storage_batch_logs + flashdisk_batch_logs)
 
         data = None
         for p in paths:

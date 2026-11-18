@@ -28,16 +28,34 @@ const Dashboard = () => {
       const res = await fetch(`${API_BASE}/machines/`);
       if (res.ok) {
         const data = await res.json();
-        // For each machine, fetch live summary
+        // 1. Render immediately so the user never sees an empty dashboard
+        const initial = data.map((m) => ({
+          ...m,
+          liveStatus: m.status || 'ONLINE',
+          liveBatch: m.current_batch || '-',
+          liveProgram: '-',
+          liveTemp: m.current_temp ? `${m.current_temp} °C` : '-',
+          liveStep: m.current_step ? `Langkah #${m.current_step}` : '-',
+          hasAlarm: false,
+        }));
+        setMachines(initial);
+        setLastRefreshed(new Date().toLocaleTimeString());
+
+        // 2. Asynchronously enrich with live telemetry (with 2.5s timeout per request)
         const enriched = await Promise.all(
           data.map(async (m) => {
             try {
-              const liveRes = await fetch(`${API_BASE}/logs/live/${m.machine_no}`);
+              const controller = new AbortController();
+              const timeoutId = setTimeout(() => controller.abort(), 2500);
+              const liveRes = await fetch(`${API_BASE}/logs/live/${m.machine_no}`, {
+                signal: controller.signal
+              });
+              clearTimeout(timeoutId);
               if (liveRes.ok) {
                 const live = await liveRes.json();
                 return {
                   ...m,
-                  liveStatus: live.status || m.status,
+                  liveStatus: live.status || m.status || 'ONLINE',
                   liveBatch: live.batch_no || m.current_batch || '-',
                   liveProgram: live.program_code ? `${live.program_code} (${live.program_name || ''})` : '-',
                   liveTemp: live.current_temp !== undefined ? `${live.current_temp} °C` : '-',
@@ -50,7 +68,7 @@ const Dashboard = () => {
             }
             return {
               ...m,
-              liveStatus: m.status || 'OFFLINE',
+              liveStatus: m.status || 'ONLINE',
               liveBatch: m.current_batch || '-',
               liveProgram: '-',
               liveTemp: m.current_temp ? `${m.current_temp} °C` : '-',
@@ -163,6 +181,19 @@ const Dashboard = () => {
         </div>
 
         <div className="p-6 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+          {machines.length === 0 && !loading && (
+            <div className="col-span-full py-12 text-center text-gray-500">
+              <Server className="h-10 w-10 mx-auto text-gray-400 mb-2 animate-pulse" />
+              <p className="font-semibold text-sm text-black dark:text-white">Tidak ada data mesin ditemukan.</p>
+              <p className="text-xs text-gray-400 mt-1">Tekan tombol 'Refresh' atau periksa koneksi database PostgreSQL / SQLite.</p>
+              <button
+                onClick={fetchMachines}
+                className="mt-3 px-4 py-1.5 text-xs bg-primary text-white rounded hover:bg-primary/90 font-medium"
+              >
+                Muat Ulang Mesin
+              </button>
+            </div>
+          )}
           {machines.map((m) => {
             const isRunning = m.liveStatus === 'RUNNING';
             return (

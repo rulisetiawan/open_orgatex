@@ -31,11 +31,22 @@ class LogIngestionService:
         Reads the shared directory / FTP of the machine on-the-fly,
         ingests new data into PostgreSQL/TimescaleDB, and returns live status & curve.
         """
+        is_797 = (
+            (machine.ip_address and machine.ip_address.strip() == "192.168.1.95") or
+            (machine.controller_type and "797" in machine.controller_type.upper()) or
+            "797" in (machine.machine_no or "").upper() or
+            (machine.machine_no or "").upper().startswith("DA")
+        )
+
         folder_candidates = [
             machine.share_folder_path,
+            "/app/sc797ce_root/STATUS" if is_797 else None,
+            "/app/sc797ce_root" if is_797 else None,
             "/app/STATUS",
             "/app/sc777ce_root/STATUS",
             "/app/sc777ce_root",
+            os.path.abspath("./sc797ce_root/STATUS") if is_797 else None,
+            os.path.abspath("./sc797ce_root") if is_797 else None,
             os.path.abspath("./STATUS"),
             os.path.abspath("./plain_export/BATCH_BARU_061119"),
             os.path.abspath(".")
@@ -360,6 +371,9 @@ class LogIngestionService:
         return {
             "machine_no": machine.machine_no,
             "status": machine.status,
+            "controller_type": "SETEX 797CE (Windows CE)" if is_797 else (machine.controller_type or "SECOM 777 (Windows CE)"),
+            "controller_name": "SETEX Secom 797CE" if is_797 else "SETEX Secom 777",
+            "share_folder_path": "/Flashdisk/SC797CE" if is_797 else (machine.share_folder_path or "/Storage/sc777ce"),
             "is_live_hmi": status_info.get("is_ftp_source", False),
             "data_source": status_info.get("data_source", "LOCAL_STORAGE"),
             "hmi_ip": machine.ip_address,
