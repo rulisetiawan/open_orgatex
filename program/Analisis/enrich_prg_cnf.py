@@ -36,7 +36,7 @@ for key,item in allrecords.items():
     assert group==key[1]
     texts.setdefault(group,[]).append({'text':txt(raw[27:48]),'value':value,'key':key})
 
-source=ROOT/'Storage/SC777CE/Programs/M_0182.PRG'
+source=ROOT/'Storage/sc777ce/Programs/M_0182.PRG'
 original=source.read_bytes();sha=hashlib.sha256(original).hexdigest()
 old=json.loads((OUT/'M_0182_decoded.json').read_text(encoding='utf-8'))
 assert old['sha256']==sha
@@ -176,7 +176,7 @@ report+=['','## Contoh yang terverifikasi','',
     '', '## Mengapa sebelumnya belum terbaca','',
     'Record CNF tidak selalu berurutan secara fisik. File memiliki halaman 512 byte, direktori slot di akhir halaman, flag 0x8000 untuk fragment link, serta pointer page/slot. Sebuah record dapat tersebar di beberapa halaman/slot. Setelah fragmen disambung, data masih dikompresi dengan run literal dan run pengulangan. Pencarian string saja tidak menyelesaikan hubungan ini.',
     '', '## Bukti implementasi','',
-    '- DLL sumber: Storage/SC777CE/SecomCE_BGUtils_2d.dll. ImageBase 0x100000.',
+    '- DLL sumber: Storage/sc777ce/SecomCE_BGUtils_2d.dll. ImageBase 0x100000.',
     '- Api_Btrieve_Decompress RVA 0x2c19 → CBtrieveInterface::Decompress RVA 0x5a9f → routine RVA 0x19aa6. Routine bergantian membaca jumlah literal uint16 + data dan jumlah repeat uint16 + byte berulang.',
     '- Routine pembaca record RVA 0x26fba: flag slot 0x8000 menandakan empat byte pointer lanjutan, directory offset dimask 0x7fff. Helper pointer RVA 0x26708; helper offset slot RVA 0x3871a.',
     '- Sumber struktur: referensi dekompilasi lokal SecomCEDefines/OtxCSLib.Secom.Configuration/T_CFG_FUNCT.cs, T_CFG_FUNCT_PARA.cs, T_CFG_FUNCP.cs, T_CFG_SCALE.cs, T_CFG_SCALE2.cs, T_CFG_TEXTP.cs. Ukuran union lokal cocok dengan 290 byte hasil decode.',
@@ -205,7 +205,7 @@ s=older.read_text(encoding='utf-8')
 note='> Pembaruan 29 Oktober 2026: hubungan fungsi dan parameter yang disebut belum terurai pada laporan awal ini kini sudah selesai untuk seluruh M_0182.PRG. Lihat [hasil terbaru](PEMETAAN_PARAMETER_TUNTAS.md).\n\n'
 if not s.startswith('> Pembaruan 29 Oktober 2026:'):older.write_text(note+s,encoding='utf-8')
 inventory=json.loads((OUT/'inventaris_file.json').read_text(encoding='utf-8'))
-for path in ['Storage/SC777CE/Config/TYPECONF.CNF','Storage/SC777CE/Programs/M_0182.PRG']:
+for path in ['Storage/sc777ce/Config/TYPECONF.CNF','Storage/sc777ce/Programs/M_0182.PRG']:
     entry=next(x for x in inventory if x['path']==path)
     assert hashlib.sha256((ROOT/path).read_bytes()).hexdigest()==entry['sha256']
 print(json.dumps(old['cnf_decode'] | {'functions':'omitted','parameter_definitions':'omitted'},indent=2))

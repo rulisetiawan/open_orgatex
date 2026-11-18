@@ -1,0 +1,13 @@
+{
+  "machine_no": "8E",
+  "folder_name": "MESIN_8E",
+  "controller_type": "SETEX SECOM 777 (Windows CE)",
+  "max_temp_c": 140.0,
+  "has_custom_hmi_config": false,
+  "status": "baseline_ready",
+  "ip_address": "172.16.120.108",
+  "last_synced_at": "2026-11-17T08:58:21.460068",
+  "files_in_hmi_dir": [
+    "PETUNJUK_DOWNLOAD_DARI_HMI.txt"
+  ]
+}

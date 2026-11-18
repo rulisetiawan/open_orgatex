@@ -37,7 +37,7 @@
     ]
   },
   {
-    "path": "Storage/SC777CE/Loader/mfcce400d.dll",
+    "path": "Storage/sc777ce/Loader/mfcce400d.dll",
     "machine": "0x14c",
     "subsystem": 9,
     "imports": [
@@ -4354,7 +4354,7 @@
     ]
   },
   {
-    "path": "Storage/SC777CE/Loader/SecomCE_Loader_2d.exe",
+    "path": "Storage/sc777ce/Loader/SecomCE_Loader_2d.exe",
     "machine": "0x14c",
     "subsystem": 9,
     "imports": [
@@ -4366,7 +4366,7 @@
     "exports": []
   },
   {
-    "path": "Storage/SC777CE/LX800ControllCenter.exe",
+    "path": "Storage/sc777ce/LX800ControllCenter.exe",
     "machine": "0x14c",
     "subsystem": 9,
     "imports": [
@@ -4502,7 +4502,7 @@
     ]
   },
   {
-    "path": "Storage/SC777CE/LX800TouchCalibrate.exe",
+    "path": "Storage/sc777ce/LX800TouchCalibrate.exe",
     "machine": "0x14c",
     "subsystem": 9,
     "imports": [
@@ -4514,7 +4514,7 @@
     "exports": []
   },
   {
-    "path": "Storage/SC777CE/mfcce400d.dll",
+    "path": "Storage/sc777ce/mfcce400d.dll",
     "machine": "0x14c",
     "subsystem": 9,
     "imports": [
@@ -8831,7 +8831,7 @@
     ]
   },
   {
-    "path": "Storage/SC777CE/MsgDiagnosticCE_2d.exe",
+    "path": "Storage/sc777ce/MsgDiagnosticCE_2d.exe",
     "machine": "0x14c",
     "subsystem": 9,
     "imports": [
@@ -8843,7 +8843,7 @@
     "exports": []
   },
   {
-    "path": "Storage/SC777CE/olece400d.dll",
+    "path": "Storage/sc777ce/olece400d.dll",
     "machine": "0x14c",
     "subsystem": 9,
     "imports": [
@@ -10786,7 +10786,7 @@
     ]
   },
   {
-    "path": "Storage/SC777CE/PlcUpdate.exe",
+    "path": "Storage/sc777ce/PlcUpdate.exe",
     "machine": "0x14c",
     "subsystem": 9,
     "imports": [
@@ -10806,7 +10806,7 @@
     ]
   },
   {
-    "path": "Storage/SC777CE/SC777CE.EXE",
+    "path": "Storage/sc777ce/sc777ce.EXE",
     "machine": "0x14c",
     "subsystem": 9,
     "imports": [
@@ -10828,7 +10828,7 @@
     ]
   },
   {
-    "path": "Storage/SC777CE/SecomCE_Arcnet_2d.dll",
+    "path": "Storage/sc777ce/SecomCE_Arcnet_2d.dll",
     "machine": "0x14c",
     "subsystem": 9,
     "imports": [
@@ -10846,7 +10846,7 @@
     ]
   },
   {
-    "path": "Storage/SC777CE/SecomCE_BGUtils_2d.dll",
+    "path": "Storage/sc777ce/SecomCE_BGUtils_2d.dll",
     "machine": "0x14c",
     "subsystem": 9,
     "imports": [
@@ -11708,7 +11708,7 @@
     ]
   },
   {
-    "path": "Storage/SC777CE/SecomCE_BtrieveAPI_2d.dll",
+    "path": "Storage/sc777ce/SecomCE_BtrieveAPI_2d.dll",
     "machine": "0x14c",
     "subsystem": 9,
     "imports": [
@@ -11939,7 +11939,7 @@
     ]
   },
   {
-    "path": "Storage/SC777CE/SecomCE_D_BackGround_2d.dll",
+    "path": "Storage/sc777ce/SecomCE_D_BackGround_2d.dll",
     "machine": "0x14c",
     "subsystem": 9,
     "imports": [
@@ -13874,7 +13874,7 @@
     ]
   },
   {
-    "path": "Storage/SC777CE/SecomCE_Hardware_2d.dll",
+    "path": "Storage/sc777ce/SecomCE_Hardware_2d.dll",
     "machine": "0x14c",
     "subsystem": 9,
     "imports": [
@@ -13977,7 +13977,7 @@
     ]
   },
   {
-    "path": "Storage/SC777CE/SecomCE_History_2d.dll",
+    "path": "Storage/sc777ce/SecomCE_History_2d.dll",
     "machine": "0x14c",
     "subsystem": 9,
     "imports": [
@@ -14032,7 +14032,7 @@
     ]
   },
   {
-    "path": "Storage/SC777CE/SecomCE_MessageService_2d.dll",
+    "path": "Storage/sc777ce/SecomCE_MessageService_2d.dll",
     "machine": "0x14c",
     "subsystem": 9,
     "imports": [
@@ -14076,7 +14076,7 @@
     ]
   },
   {
-    "path": "Storage/SC777CE/SecomCE_ProcessInfo_2d.dll",
+    "path": "Storage/sc777ce/SecomCE_ProcessInfo_2d.dll",
     "machine": "0x14c",
     "subsystem": 9,
     "imports": [
@@ -14140,7 +14140,7 @@
     ]
   },
   {
-    "path": "Storage/SC777CE/SecomCE_RCClient_2d.dll",
+    "path": "Storage/sc777ce/SecomCE_RCClient_2d.dll",
     "machine": "0x14c",
     "subsystem": 9,
     "imports": [
@@ -14210,7 +14210,7 @@
     ]
   },
   {
-    "path": "Storage/SC777CE/SecomCE_RemoteServer_2d.exe",
+    "path": "Storage/sc777ce/SecomCE_RemoteServer_2d.exe",
     "machine": "0x14c",
     "subsystem": 9,
     "imports": [
@@ -14225,7 +14225,7 @@
     ]
   },
   {
-    "path": "Storage/SC777CE/SecomCE_Service_2d.dll",
+    "path": "Storage/sc777ce/SecomCE_Service_2d.dll",
     "machine": "0x14c",
     "subsystem": 9,
     "imports": [
@@ -14481,7 +14481,7 @@
     ]
   },
   {
-    "path": "Storage/SC777CE/SecomCE_ServiceTool_2d.dll",
+    "path": "Storage/sc777ce/SecomCE_ServiceTool_2d.dll",
     "machine": "0x14c",
     "subsystem": 9,
     "imports": [
@@ -14820,7 +14820,7 @@
     ]
   },
   {
-    "path": "Storage/SC777CE/SecomCE_TCP_2d.dll",
+    "path": "Storage/sc777ce/SecomCE_TCP_2d.dll",
     "machine": "0x14c",
     "subsystem": 9,
     "imports": [

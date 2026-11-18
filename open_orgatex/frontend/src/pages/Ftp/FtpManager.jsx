@@ -1,22 +1,22 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { 
-  Server, 
-  Folder, 
-  FileText, 
-  FileCode, 
-  Upload, 
-  Download, 
-  RefreshCw, 
-  Play, 
-  CheckCircle2, 
-  AlertTriangle, 
-  HardDrive, 
-  ArrowLeft, 
-  Eye, 
-  Activity, 
-  Clock, 
-  Cpu, 
+import {
+  Server,
+  Folder,
+  FileText,
+  FileCode,
+  Upload,
+  Download,
+  RefreshCw,
+  Play,
+  CheckCircle2,
+  AlertTriangle,
+  HardDrive,
+  ArrowLeft,
+  Eye,
+  Activity,
+  Clock,
+  Cpu,
   Send,
   CornerDownRight,
   Database,
@@ -34,7 +34,9 @@ import {
   Laptop,
   ArrowRight,
   ArrowLeftRight,
-  FileCheck2
+  FileCheck2,
+  Disc,
+  FolderSearch
 } from 'lucide-react';
 
 const FtpManager = () => {
@@ -44,7 +46,7 @@ const FtpManager = () => {
   const [ftpPort, setFtpPort] = useState(21);
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  
+
   // Status State
   const [connStatus, setConnStatus] = useState(null);
   const [isTesting, setIsTesting] = useState(false);
@@ -54,13 +56,27 @@ const FtpManager = () => {
 
   // Local Host Explorer State
   const [localPath, setLocalPath] = useState('');
+  const [localInputPath, setLocalInputPath] = useState('');
+  const [localParentPath, setLocalParentPath] = useState('');
   const [localRoot, setLocalRoot] = useState('');
   const [localEntries, setLocalEntries] = useState([]);
   const [loadingLocal, setLoadingLocal] = useState(false);
   const [selectedLocalEntry, setSelectedLocalEntry] = useState(null);
+  const [availableLocations, setAvailableLocations] = useState([
+    { name: '📂 Proyek DA-TEX (Root)', path: '/app/sc777ce_root' },
+    { name: '📂 Programs (PRG Resep)', path: '/app/sc777ce_root/Programs' },
+    { name: '📂 OrgaTex_Share', path: '/app/sc777ce_root/OrgaTex_Share' },
+    { name: '📂 STATUS Telemetri', path: '/app/sc777ce_root/STATUS' },
+    { name: '📂 plain_export', path: '/app/sc777ce_root/plain_export' },
+    { name: '💻 Drive C:\\ (Seluruh Host PC)', path: '/host_c' },
+    { name: '💻 Drive D:\\ (Host Drive)', path: '/host_d' },
+    { name: '📁 Folder Aplikasi (/app)', path: '/app' },
+    { name: '📁 Root Sistem (/)', path: '/' },
+  ]);
 
   // Remote FTP Explorer State
-  const [remotePath, setRemotePath] = useState('/storage/SC777CE');
+  const [remotePath, setRemotePath] = useState('/Storage/sc777ce');
+  const [remoteInputPath, setRemoteInputPath] = useState('/Storage/sc777ce');
   const [remoteEntries, setRemoteEntries] = useState([]);
   const [loadingRemote, setLoadingRemote] = useState(false);
   const [selectedRemoteEntry, setSelectedRemoteEntry] = useState(null);
@@ -78,6 +94,8 @@ const FtpManager = () => {
   const [dispatchModalOpen, setDispatchModalOpen] = useState(false);
   const [availableBatches, setAvailableBatches] = useState([]);
   const [selectedBatchId, setSelectedBatchId] = useState('');
+  const [dispatchTargetIp, setDispatchTargetIp] = useState('192.168.1.95');
+  const [dispatchControllerModel, setDispatchControllerModel] = useState('797');
   const [dispatching, setDispatching] = useState(false);
 
   const [mkdirModalOpen, setMkdirModalOpen] = useState(false);
@@ -87,22 +105,22 @@ const FtpManager = () => {
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [itemToDelete, setItemToDelete] = useState(null); // { pane: 'local'|'remote', entry: {...} }
 
-  // Quick Bookmarks for Local Host
-  const localBookmarks = [
-    { name: 'Root DA-TEX', path: '' },
-    { name: 'Programs (PRG)', path: 'Programs' },
-    { name: 'OrgaTex_Share', path: 'OrgaTex_Share' },
-    { name: 'STATUS', path: 'STATUS' },
-    { name: 'plain_export', path: 'plain_export' },
-  ];
-
-  // Quick Bookmarks for Remote SETEX Controller
-  const remoteBookmarks = [
-    { name: 'Root Controller', path: '/storage/SC777CE' },
-    { name: 'STATUS (Live)', path: '/storage/SC777CE/STATUS' },
-    { name: 'BATCH (Antrean)', path: '/storage/SC777CE/BATCH' },
-    { name: 'Programs (Resep)', path: '/storage/SC777CE/Programs' },
-    { name: 'ERRORLOG', path: '/storage/SC777CE/ERRORLOG' },
+  // Quick Presets for Remote SETEX Controller (777 & 797)
+  const remotePresets = [
+    // SECOM 777
+    { name: '🌐 SC777CE Root', path: '/Storage/sc777ce' },
+    { name: '📂 SC777CE Programs (PRG)', path: '/Storage/sc777ce/Programs' },
+    { name: '📂 SC777CE Config', path: '/Storage/sc777ce/Config' },
+    { name: '📂 SC777CE BATCH', path: '/Storage/sc777ce/BATCH' },
+    { name: '📂 SC777CE STATUS', path: '/Storage/sc777ce/STATUS' },
+    // SECOM 797
+    { name: '🌐 SC797CE Root', path: '/Flashdisk/SC797CE' },
+    { name: '📂 SC797CE Programs (PRG)', path: '/Flashdisk/SC797CE/Programs' },
+    { name: '📂 SC797CE Config', path: '/Flashdisk/SC797CE/Config' },
+    { name: '📂 SC797CE BATCH', path: '/Flashdisk/SC797CE/BATCH' },
+    { name: '📂 SC797CE STATUS', path: '/Flashdisk/SC797CE/STATUS' },
+    { name: '📁 Flashdisk/ Root', path: '/Flashdisk' },
+    { name: '📁 Root Disk (/)', path: '/' },
   ];
 
   // Toast Helper
@@ -118,7 +136,7 @@ const FtpManager = () => {
     fetchMachines();
     fetchBatches();
     browseLocalDirectory('');
-    browseRemoteDirectory('/storage/SC777CE', '172.16.110.101');
+    browseRemoteDirectory('/Storage/sc777ce', '172.16.110.101');
   }, []);
 
   // Keyboard Shortcuts (Ctrl+C, Ctrl+X, Ctrl+V, Delete, Esc)
@@ -220,8 +238,14 @@ const FtpManager = () => {
     try {
       const res = await axios.post('/api/ftp/local/browse', { path });
       setLocalEntries(res.data.entries || []);
-      setLocalPath(res.data.current_path || path);
+      const newPath = res.data.current_path || path;
+      setLocalPath(newPath);
+      setLocalInputPath(newPath);
+      setLocalParentPath(res.data.parent_path ?? '');
       if (res.data.root_path) setLocalRoot(res.data.root_path);
+      if (res.data.available_locations && res.data.available_locations.length > 0) {
+        setAvailableLocations(res.data.available_locations);
+      }
     } catch (err) {
       console.error('Error browse Local:', err);
       setLocalEntries([]);
@@ -244,7 +268,9 @@ const FtpManager = () => {
         remote_path: path
       });
       setRemoteEntries(res.data.entries || []);
-      setRemotePath(res.data.current_path || path);
+      const newPath = res.data.current_path || path;
+      setRemotePath(newPath);
+      setRemoteInputPath(newPath);
     } catch (err) {
       console.error('Error browse FTP:', err);
       setRemoteEntries([]);
@@ -255,11 +281,15 @@ const FtpManager = () => {
   };
 
   const handleNavigateUpLocal = () => {
-    if (!localPath || localPath === localRoot) return;
-    const parts = localPath.split('/').filter(Boolean);
+    if (localParentPath !== undefined && localParentPath !== '') {
+      browseLocalDirectory(localParentPath);
+      return;
+    }
+    if (!localPath || localPath === '/' || localPath === '') return;
+    const parts = localPath.replace(/\\/g, '/').split('/').filter(Boolean);
     parts.pop();
-    const parentPath = parts.join('/');
-    browseLocalDirectory(parentPath || localRoot);
+    const parentPath = '/' + parts.join('/');
+    browseLocalDirectory(parentPath || '/');
   };
 
   const handleNavigateUpRemote = () => {
@@ -268,6 +298,20 @@ const FtpManager = () => {
     parts.pop();
     const parentPath = '/' + parts.join('/');
     browseRemoteDirectory(parentPath || '/');
+  };
+
+  const handleLocalInputSubmit = (e) => {
+    e.preventDefault();
+    if (localInputPath.trim()) {
+      browseLocalDirectory(localInputPath.trim());
+    }
+  };
+
+  const handleRemoteInputSubmit = (e) => {
+    e.preventDefault();
+    if (remoteInputPath.trim()) {
+      browseRemoteDirectory(remoteInputPath.trim());
+    }
   };
 
   // Copy & Cut Handlers
@@ -302,7 +346,6 @@ const FtpManager = () => {
         });
         showToast(res.data.message || 'File berhasil diunggah ke remote controller!', 'success');
         if (clipboard.mode === 'cut') {
-          // If cut, delete from local
           await axios.post('/api/ftp/local/delete', { path: clipboard.entry.full_path, is_dir: clipboard.entry.is_dir });
           browseLocalDirectory(localPath);
           setClipboard(null);
@@ -322,7 +365,6 @@ const FtpManager = () => {
         });
         showToast(res.data.message || 'File berhasil diunduh ke komputer lokal!', 'success');
         if (clipboard.mode === 'cut') {
-          // If cut, delete from remote
           await axios.post('/api/ftp/delete', {
             ip: selectedMachineIp.trim(),
             port: parseInt(ftpPort, 10),
@@ -354,7 +396,7 @@ const FtpManager = () => {
       }
       // CASE 4: Local Internal Copy/Paste
       else if (clipboard.pane === 'local' && targetPane === 'local') {
-        showToast('Fitur salin lokal ke folder lokal yang sama berhasil.', 'info');
+        showToast('Fitur salin lokal berhasil diperbarui.', 'info');
         browseLocalDirectory(localPath);
       }
     } catch (err) {
@@ -498,7 +540,6 @@ const FtpManager = () => {
         });
         setPreviewData({ ...res.data, pane: 'remote' });
       } else {
-        // Read local file preview via download/blob
         setPreviewData({
           file_name: entry.name,
           remote_path: entry.full_path,
@@ -521,18 +562,21 @@ const FtpManager = () => {
     if (!selectedBatchId) return;
     setDispatching(true);
     try {
+      const is797 = dispatchControllerModel === '797' || dispatchTargetIp.trim() === '192.168.1.95';
+      const targetDir = is797 ? '/Flashdisk/SC797CE/BATCH' : '/Storage/sc777ce/BATCH';
       const res = await axios.post('/api/ftp/dispatch-batch', {
-        ip: selectedMachineIp,
+        ip: dispatchTargetIp.trim() || selectedMachineIp,
         port: parseInt(ftpPort, 10),
         username,
         password,
         batch_id: selectedBatchId,
-        target_dir: '/storage/SC777CE/BATCH'
+        controller_type: is797 ? '797' : '777',
+        target_dir: targetDir
       });
       showToast(res.data.message || 'Batch berhasil dikirim ke Controller via FTP!', 'success');
       setDispatchModalOpen(false);
       fetchBatches();
-      browseRemoteDirectory(remotePath);
+      browseRemoteDirectory(remotePath, dispatchTargetIp.trim() || selectedMachineIp);
     } catch (err) {
       showToast('Gagal mengirim batch: ' + (err.response?.data?.detail || err.message), 'error');
     } finally {
@@ -564,13 +608,12 @@ const FtpManager = () => {
       {/* TOAST NOTIFICATION */}
       {toastMessage && (
         <div
-          className={`fixed top-4 right-4 z-[9999] px-4 py-3 rounded-lg shadow-2xl border flex items-center gap-3 text-xs font-medium animate-in fade-in slide-in-from-top-2 duration-200 ${
-            toastMessage.type === 'success'
-              ? 'bg-emerald-950/95 border-emerald-500 text-emerald-300'
-              : toastMessage.type === 'error'
+          className={`fixed top-4 right-4 z-[9999] px-4 py-3 rounded-lg shadow-2xl border flex items-center gap-3 text-xs font-medium animate-in fade-in slide-in-from-top-2 duration-200 ${toastMessage.type === 'success'
+            ? 'bg-emerald-950/95 border-emerald-500 text-emerald-300'
+            : toastMessage.type === 'error'
               ? 'bg-rose-950/95 border-rose-500 text-rose-300'
               : 'bg-[#1c2434]/95 border-primary/70 text-gray-200'
-          }`}
+            }`}
         >
           {toastMessage.type === 'success' && <CheckCircle2 className="h-4 w-4 text-emerald-400" />}
           {toastMessage.type === 'error' && <AlertTriangle className="h-4 w-4 text-rose-400" />}
@@ -642,6 +685,12 @@ const FtpManager = () => {
                   {m.machine_no} - {m.display_name} ({m.ip_address})
                 </option>
               ))}
+              {!machines.some(m => m.ip_address === '192.168.1.95') && (
+                <option value="192.168.1.95">797 - SETEX 797CE Controller (192.168.1.95)</option>
+              )}
+              {!machines.some(m => m.ip_address === '172.16.110.160') && (
+                <option value="172.16.110.160">10B - Mesin 10B Novatech/SETEX (172.16.110.160)</option>
+              )}
               {!machines.some(m => m.ip_address === '172.16.110.101') && (
                 <option value="172.16.110.101">TD12 - Setex 777CE (172.16.110.101)</option>
               )}
@@ -686,17 +735,15 @@ const FtpManager = () => {
           <div className="md:col-span-3 flex items-center">
             {connStatus ? (
               <div
-                className={`w-full flex items-center justify-between px-3 py-1.5 rounded border text-xs font-mono ${
-                  connStatus.status === 'ONLINE'
-                    ? 'bg-emerald-950/30 border-emerald-500/50 text-emerald-400'
-                    : 'bg-rose-950/30 border-rose-500/50 text-rose-400'
-                }`}
+                className={`w-full flex items-center justify-between px-3 py-1.5 rounded border text-xs font-mono ${connStatus.status === 'ONLINE'
+                  ? 'bg-emerald-950/30 border-emerald-500/50 text-emerald-400'
+                  : 'bg-rose-950/30 border-rose-500/50 text-rose-400'
+                  }`}
               >
                 <div className="flex items-center gap-1.5">
                   <span
-                    className={`h-2.5 w-2.5 rounded-full ${
-                      connStatus.status === 'ONLINE' ? 'bg-emerald-500 animate-pulse' : 'bg-rose-500'
-                    }`}
+                    className={`h-2.5 w-2.5 rounded-full ${connStatus.status === 'ONLINE' ? 'bg-emerald-500 animate-pulse' : 'bg-rose-500'
+                      }`}
                   />
                   <span>{connStatus.status === 'ONLINE' ? 'ONLINE (Port 21)' : 'OFFLINE'}</span>
                 </div>
@@ -785,11 +832,10 @@ const FtpManager = () => {
           <button
             onClick={() => handlePaste(activePane)}
             disabled={!clipboard || actionLoading}
-            className={`flex items-center gap-1 text-xs px-3 py-1.5 rounded font-semibold border transition ${
-              clipboard
-                ? 'bg-emerald-600 hover:bg-emerald-500 text-white border-emerald-500 animate-pulse'
-                : 'bg-[#24303f] text-gray-500 border-gray-700 opacity-40 cursor-not-allowed'
-            }`}
+            className={`flex items-center gap-1 text-xs px-3 py-1.5 rounded font-semibold border transition ${clipboard
+              ? 'bg-emerald-600 hover:bg-emerald-500 text-white border-emerald-500 animate-pulse'
+              : 'bg-[#24303f] text-gray-500 border-gray-700 opacity-40 cursor-not-allowed'
+              }`}
             title="Tempel Item dari Clipboard (Ctrl+V)"
           >
             <ClipboardPaste className="h-3.5 w-3.5" />
@@ -817,9 +863,8 @@ const FtpManager = () => {
         {/* Active Pane Indicator */}
         <div className="text-[11px] text-gray-400 font-mono flex items-center gap-2">
           <span>Panel Aktif:</span>
-          <span className={`px-2 py-0.5 rounded font-bold ${
-            activePane === 'local' ? 'bg-amber-950/50 text-amber-300 border border-amber-600/50' : 'bg-primary/20 text-primary border border-primary/50'
-          }`}>
+          <span className={`px-2 py-0.5 rounded font-bold ${activePane === 'local' ? 'bg-amber-950/50 text-amber-300 border border-amber-600/50' : 'bg-primary/20 text-primary border border-primary/50'
+            }`}>
             {activePane === 'local' ? '💻 HOST LOKAL' : '🌐 REMOTE CONTROLLER'}
           </span>
         </div>
@@ -862,18 +907,17 @@ const FtpManager = () => {
 
       {/* DUAL PANE CONTAINER: LEFT (LOCAL HOST) & RIGHT (REMOTE CONTROLLER) */}
       <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
-        
+
         {/* ========================================================= */}
         {/* LEFT PANE: SITUS LOKAL (HOST / PC SERVER) */}
         {/* ========================================================= */}
-        <div 
+        <div
           onClick={() => setActivePane('local')}
-          className={`bg-[#1c2434] border rounded-lg overflow-hidden shadow-sm flex flex-col h-[600px] transition ${
-            activePane === 'local' ? 'border-amber-500/80 ring-1 ring-amber-500/30' : 'border-gray-700/60'
-          }`}
+          className={`bg-[#1c2434] border rounded-lg overflow-hidden shadow-sm flex flex-col h-[620px] transition ${activePane === 'local' ? 'border-amber-500/80 ring-1 ring-amber-500/30' : 'border-gray-700/60'
+            }`}
         >
           {/* Header Situs Lokal */}
-          <div className="bg-[#24303f] p-2.5 border-b border-gray-700 space-y-2">
+          <div className="bg-[#24303f] p-3 border-b border-gray-700 space-y-2.5">
             <div className="flex items-center justify-between">
               <span className="text-xs font-bold text-amber-300 flex items-center gap-1.5 uppercase tracking-wide">
                 <Laptop className="h-4 w-4" /> Situs Lokal (Host PC / Server)
@@ -883,43 +927,65 @@ const FtpManager = () => {
               </span>
             </div>
 
-            {/* Path & Navigation Bar */}
-            <div className="flex items-center gap-1.5">
+            {/* Dropdown Preset Lokasi Host / Drive */}
+            <div className="flex items-center gap-2">
+              <label className="text-[11px] text-gray-400 font-medium whitespace-nowrap flex items-center gap-1">
+                <FolderSearch className="h-3.5 w-3.5 text-amber-400" /> Lokasi Host:
+              </label>
+              <select
+                value={availableLocations.some(l => l.path === localPath) ? localPath : ''}
+                onChange={(e) => {
+                  if (e.target.value) browseLocalDirectory(e.target.value);
+                }}
+                className="w-full bg-[#1c2434] border border-gray-700 hover:border-amber-500 text-amber-300 text-xs rounded px-2.5 py-1.5 outline-none font-mono transition"
+              >
+                <option value="" disabled>-- Pilih Folder / Drive Host Lainnya --</option>
+                {availableLocations.map((loc, idx) => (
+                  <option key={idx} value={loc.path}>
+                    {loc.name} ({loc.path})
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* Editable Path & Navigation Bar */}
+            <form onSubmit={handleLocalInputSubmit} className="flex items-center gap-1.5">
               <button
+                type="button"
                 onClick={handleNavigateUpLocal}
-                disabled={!localPath || localPath === localRoot}
-                className="p-1 bg-[#1c2434] hover:bg-[#2d3a4d] disabled:opacity-40 border border-gray-700 text-gray-300 rounded"
+                disabled={!localParentPath && (localPath === '/' || !localPath)}
+                className="p-1.5 bg-[#1c2434] hover:bg-[#2d3a4d] disabled:opacity-40 border border-gray-700 text-gray-300 rounded transition"
                 title="Ke Folder Induk (Up)"
               >
                 <ArrowLeft className="h-3.5 w-3.5" />
               </button>
-              <div className="flex items-center gap-1 text-xs text-gray-300 font-mono overflow-x-auto whitespace-nowrap px-2 py-1 bg-[#1c2434] border border-gray-700 rounded flex-1">
-                <span className="text-amber-400 font-bold">host:</span>
-                <span className="text-white truncate">{localPath || localRoot || '/'}</span>
+              <div className="flex items-center gap-1.5 px-2.5 py-1 bg-[#1c2434] border border-gray-700 rounded flex-1 focus-within:border-amber-500 transition">
+                <span className="text-amber-400 font-bold text-xs font-mono">host:</span>
+                <input
+                  type="text"
+                  value={localInputPath}
+                  onChange={(e) => setLocalInputPath(e.target.value)}
+                  placeholder="Ketik path host, misal: /host_c, C:/Users, /app, dsb..."
+                  className="w-full bg-transparent text-white text-xs font-mono outline-none"
+                />
               </div>
               <button
+                type="submit"
+                className="px-3 py-1 bg-amber-600 hover:bg-amber-500 text-white text-xs font-semibold rounded shadow transition whitespace-nowrap"
+                title="Buka Path Ini (Enter)"
+              >
+                Buka
+              </button>
+              <button
+                type="button"
                 onClick={() => browseLocalDirectory(localPath)}
                 disabled={loadingLocal}
-                className="p-1 bg-[#1c2434] hover:bg-[#2d3a4d] border border-gray-700 text-gray-300 rounded"
+                className="p-1.5 bg-[#1c2434] hover:bg-[#2d3a4d] border border-gray-700 text-gray-300 rounded transition"
                 title="Muat Ulang Folder Lokal"
               >
                 <RefreshCw className={`h-3.5 w-3.5 ${loadingLocal ? 'animate-spin text-amber-400' : ''}`} />
               </button>
-            </div>
-
-            {/* Quick Shortcuts */}
-            <div className="flex flex-wrap items-center gap-1 pt-1 border-t border-gray-750">
-              <span className="text-[10px] text-gray-400 mr-0.5">Shortcut:</span>
-              {localBookmarks.map((bm, idx) => (
-                <button
-                  key={idx}
-                  onClick={() => browseLocalDirectory(bm.path)}
-                  className="text-[10px] px-2 py-0.5 rounded font-mono bg-[#1c2434] hover:bg-[#2d3a4d] text-gray-300 border border-gray-700 hover:border-gray-500 transition"
-                >
-                  {bm.name}
-                </button>
-              ))}
-            </div>
+            </form>
           </div>
 
           {/* Local File Explorer Table */}
@@ -929,10 +995,10 @@ const FtpManager = () => {
                 <tr>
                   <th className="py-2 px-2.5 w-8">#</th>
                   <th className="py-2 px-2.5 w-8">Tipe</th>
-                  <th className="py-2 px-3">Nama Berkas</th>
+                  <th className="py-2 px-3">Nama Berkas / Direktori</th>
                   <th className="py-2 px-3 w-24 text-right">Ukuran</th>
                   <th className="py-2 px-3 w-24">Kategori</th>
-                  <th className="py-2 px-3 w-28 text-center">Aksi</th>
+                  <th className="py-2 px-3 w-28 text-center">Aksi Cepat</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-800 text-xs">
@@ -962,13 +1028,12 @@ const FtpManager = () => {
                           setActivePane('local');
                         }}
                         onDoubleClick={() => handleOpenFile('local', entry)}
-                        className={`transition cursor-pointer ${
-                          isSelected
-                            ? 'bg-amber-950/40 border-l-4 border-amber-500 text-white'
-                            : isCut
+                        className={`transition cursor-pointer ${isSelected
+                          ? 'bg-amber-950/40 border-l-4 border-amber-500 text-white'
+                          : isCut
                             ? 'opacity-40 italic'
                             : 'hover:bg-[#24303f]/50'
-                        }`}
+                          }`}
                       >
                         <td className="py-2 px-2.5 text-[10px] text-gray-500 font-mono">{idx + 1}</td>
                         <td className="py-2 px-2.5">{renderIcon(entry.category, entry.is_dir)}</td>
@@ -981,9 +1046,8 @@ const FtpManager = () => {
                           {entry.is_dir ? '-' : `${entry.size.toLocaleString()} B`}
                         </td>
                         <td className="py-2 px-3">
-                          <span className={`text-[9px] px-1.5 py-0.2 rounded font-mono ${
-                            entry.is_dir ? 'bg-amber-950/40 text-amber-300 border border-amber-600/40' : 'bg-gray-800 text-gray-300'
-                          }`}>
+                          <span className={`text-[9px] px-1.5 py-0.2 rounded font-mono ${entry.is_dir ? 'bg-amber-950/40 text-amber-300 border border-amber-600/40' : 'bg-gray-800 text-gray-300'
+                            }`}>
                             {entry.category}
                           </span>
                         </td>
@@ -1054,14 +1118,13 @@ const FtpManager = () => {
         {/* ========================================================= */}
         {/* RIGHT PANE: SITUS REMOTE (SETEX CONTROLLER FTP) */}
         {/* ========================================================= */}
-        <div 
+        <div
           onClick={() => setActivePane('remote')}
-          className={`bg-[#1c2434] border rounded-lg overflow-hidden shadow-sm flex flex-col h-[600px] transition ${
-            activePane === 'remote' ? 'border-primary ring-1 ring-primary/30' : 'border-gray-700/60'
-          }`}
+          className={`bg-[#1c2434] border rounded-lg overflow-hidden shadow-sm flex flex-col h-[620px] transition ${activePane === 'remote' ? 'border-primary ring-1 ring-primary/30' : 'border-gray-700/60'
+            }`}
         >
           {/* Header Situs Remote */}
-          <div className="bg-[#24303f] p-2.5 border-b border-gray-700 space-y-2">
+          <div className="bg-[#24303f] p-3 border-b border-gray-700 space-y-2.5">
             <div className="flex items-center justify-between">
               <span className="text-xs font-bold text-primary flex items-center gap-1.5 uppercase tracking-wide">
                 <Server className="h-4 w-4" /> Situs Remote ({selectedMachineIp}:{ftpPort})
@@ -1071,47 +1134,65 @@ const FtpManager = () => {
               </span>
             </div>
 
-            {/* Path & Navigation Bar */}
-            <div className="flex items-center gap-1.5">
+            {/* Dropdown Preset Lokasi Remote */}
+            <div className="flex items-center gap-2">
+              <label className="text-[11px] text-gray-400 font-medium whitespace-nowrap flex items-center gap-1">
+                <FolderSearch className="h-3.5 w-3.5 text-primary" /> Lokasi Remote:
+              </label>
+              <select
+                value={remotePresets.some(r => r.path === remotePath) ? remotePath : ''}
+                onChange={(e) => {
+                  if (e.target.value) browseRemoteDirectory(e.target.value);
+                }}
+                className="w-full bg-[#1c2434] border border-gray-700 hover:border-primary text-primary text-xs rounded px-2.5 py-1.5 outline-none font-mono transition"
+              >
+                <option value="" disabled>-- Pilih Direktori Controller --</option>
+                {remotePresets.map((r, idx) => (
+                  <option key={idx} value={r.path}>
+                    {r.name} ({r.path})
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* Editable Path & Navigation Bar */}
+            <form onSubmit={handleRemoteInputSubmit} className="flex items-center gap-1.5">
               <button
+                type="button"
                 onClick={handleNavigateUpRemote}
                 disabled={remotePath === '/' || !remotePath}
-                className="p-1 bg-[#1c2434] hover:bg-[#2d3a4d] disabled:opacity-40 border border-gray-700 text-gray-300 rounded"
+                className="p-1.5 bg-[#1c2434] hover:bg-[#2d3a4d] disabled:opacity-40 border border-gray-700 text-gray-300 rounded transition"
                 title="Ke Folder Induk (Up)"
               >
                 <ArrowLeft className="h-3.5 w-3.5" />
               </button>
-              <div className="flex items-center gap-1 text-xs text-gray-300 font-mono overflow-x-auto whitespace-nowrap px-2 py-1 bg-[#1c2434] border border-gray-700 rounded flex-1">
-                <span className="text-primary font-bold">ftp://{selectedMachineIp}:</span>
-                <span className="text-white truncate">{remotePath}</span>
+              <div className="flex items-center gap-1.5 px-2.5 py-1 bg-[#1c2434] border border-gray-700 rounded flex-1 focus-within:border-primary transition">
+                <span className="text-primary font-bold text-xs font-mono">ftp://{selectedMachineIp}:</span>
+                <input
+                  type="text"
+                  value={remoteInputPath}
+                  onChange={(e) => setRemoteInputPath(e.target.value)}
+                  placeholder="Ketik path controller, misal: /Storage/sc777ce/BATCH..."
+                  className="w-full bg-transparent text-white text-xs font-mono outline-none"
+                />
               </div>
               <button
+                type="submit"
+                className="px-3 py-1 bg-primary hover:bg-opacity-90 text-white text-xs font-semibold rounded shadow transition whitespace-nowrap"
+                title="Buka Path Ini (Enter)"
+              >
+                Buka
+              </button>
+              <button
+                type="button"
                 onClick={() => browseRemoteDirectory(remotePath)}
                 disabled={loadingRemote}
-                className="p-1 bg-[#1c2434] hover:bg-[#2d3a4d] border border-gray-700 text-gray-300 rounded"
+                className="p-1.5 bg-[#1c2434] hover:bg-[#2d3a4d] border border-gray-700 text-gray-300 rounded transition"
                 title="Muat Ulang Folder Remote"
               >
                 <RefreshCw className={`h-3.5 w-3.5 ${loadingRemote ? 'animate-spin text-primary' : ''}`} />
               </button>
-            </div>
-
-            {/* Quick Shortcuts */}
-            <div className="flex flex-wrap items-center gap-1 pt-1 border-t border-gray-750">
-              <span className="text-[10px] text-gray-400 mr-0.5">Shortcut:</span>
-              {remoteBookmarks.map((bm, idx) => (
-                <button
-                  key={idx}
-                  onClick={() => browseRemoteDirectory(bm.path)}
-                  className={`text-[10px] px-2 py-0.5 rounded font-mono border transition ${
-                    remotePath === bm.path
-                      ? 'bg-primary text-white border-primary'
-                      : 'bg-[#1c2434] text-gray-300 border-gray-700 hover:border-gray-500'
-                  }`}
-                >
-                  {bm.name}
-                </button>
-              ))}
-            </div>
+            </form>
           </div>
 
           {/* Remote File Explorer Table */}
@@ -1121,10 +1202,10 @@ const FtpManager = () => {
                 <tr>
                   <th className="py-2 px-2.5 w-8">#</th>
                   <th className="py-2 px-2.5 w-8">Tipe</th>
-                  <th className="py-2 px-3">Nama Berkas</th>
+                  <th className="py-2 px-3">Nama Berkas / Direktori</th>
                   <th className="py-2 px-3 w-24 text-right">Ukuran</th>
                   <th className="py-2 px-3 w-24">Kategori</th>
-                  <th className="py-2 px-3 w-28 text-center">Aksi</th>
+                  <th className="py-2 px-3 w-28 text-center">Aksi Cepat</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-800 text-xs">
@@ -1154,13 +1235,12 @@ const FtpManager = () => {
                           setActivePane('remote');
                         }}
                         onDoubleClick={() => handleOpenFile('remote', entry)}
-                        className={`transition cursor-pointer ${
-                          isSelected
-                            ? 'bg-primary/20 border-l-4 border-primary text-white'
-                            : isCut
+                        className={`transition cursor-pointer ${isSelected
+                          ? 'bg-primary/20 border-l-4 border-primary text-white'
+                          : isCut
                             ? 'opacity-40 italic'
                             : 'hover:bg-[#24303f]/50'
-                        }`}
+                          }`}
                       >
                         <td className="py-2 px-2.5 text-[10px] text-gray-500 font-mono">{idx + 1}</td>
                         <td className="py-2 px-2.5">{renderIcon(entry.category, entry.is_dir)}</td>
@@ -1173,9 +1253,8 @@ const FtpManager = () => {
                           {entry.is_dir ? '-' : `${entry.size.toLocaleString()} B`}
                         </td>
                         <td className="py-2 px-3">
-                          <span className={`text-[9px] px-1.5 py-0.2 rounded font-mono ${
-                            entry.is_dir ? 'bg-amber-950/40 text-amber-300 border border-amber-600/40' : 'bg-gray-800 text-gray-300'
-                          }`}>
+                          <span className={`text-[9px] px-1.5 py-0.2 rounded font-mono ${entry.is_dir ? 'bg-amber-950/40 text-amber-300 border border-amber-600/40' : 'bg-gray-800 text-gray-300'
+                            }`}>
                             {entry.category}
                           </span>
                         </td>
@@ -1346,6 +1425,48 @@ const FtpManager = () => {
                   </option>
                 ))}
               </select>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3 bg-[#24303f] p-3 rounded border border-gray-700">
+              <div>
+                <label className="block text-gray-300 font-medium mb-1">IP Controller Target:</label>
+                <input
+                  type="text"
+                  value={dispatchTargetIp}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    setDispatchTargetIp(val);
+                    if (val.trim() === '192.168.1.95') {
+                      setDispatchControllerModel('797');
+                    }
+                  }}
+                  placeholder="192.168.1.95"
+                  className="w-full bg-[#1c2434] border border-gray-600 text-emerald-400 font-mono font-bold rounded px-2.5 py-1.5 outline-none"
+                />
+              </div>
+
+              <div>
+                <label className="block text-gray-300 font-medium mb-1">Tipe Kontroler / Folder:</label>
+                <select
+                  value={dispatchControllerModel}
+                  onChange={(e) => setDispatchControllerModel(e.target.value)}
+                  className="w-full bg-[#1c2434] border border-gray-600 text-amber-300 font-bold rounded px-2.5 py-1.5 outline-none"
+                >
+                  <option value="797">SETEX 797CE (/Flashdisk/SC797CE/BATCH)</option>
+                  <option value="777">SETEX 777 (/Storage/sc777ce/BATCH)</option>
+                </select>
+              </div>
+            </div>
+
+            <div className="text-[11px] text-gray-400 bg-black/20 p-2.5 rounded border border-gray-800">
+              <span className="font-bold text-gray-300">File yang akan ditulis ke FTP:</span>
+              <ul className="list-disc list-inside mt-1 text-slate-300">
+                <li><code className="text-emerald-400">BATCHREF.REF</code> (Struktur biner Secom 762 byte)</li>
+                <li><code className="text-emerald-400">M_xxxx.PRG</code> (Biner program resep celup terkait)</li>
+              </ul>
+              <div className="mt-1 text-gray-400">
+                Target direktori: <strong className="text-amber-300 font-mono">{dispatchControllerModel === '797' ? '/Flashdisk/SC797CE/BATCH' : '/Storage/sc777ce/BATCH'}</strong>
+              </div>
             </div>
 
             <div className="flex justify-end gap-2 pt-3 border-t border-gray-700">

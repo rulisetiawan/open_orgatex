@@ -16,7 +16,7 @@ Pada SecomPC_BGUtils_1.dll:
   ke TCPMessage+4. Ini bukan fungsi yang menyisipkan header 74 byte.
 - BGU_TranslateMessageTCPtoSC737 pada RVA 0x5dc0 melakukan salinan balik
   502 byte dan menulis nol pada empat byte pertama struktur internal.
-- Implementasi CE di 6A/SC777CE/SecomCE_BGUtils_2d.dll memiliki operasi
+- Implementasi CE di 6A/sc777ce/SecomCE_BGUtils_2d.dll memiliki operasi
   yang sama pada RVA 0x333c dan 0x33a6.
 - CComServiceClient::SendMessageA pada RVA 0xb2a0 memakai jalur lain:
   menyalin header 74 byte, menulis panjang data uint32 pada offset header
@@ -28,7 +28,7 @@ Pada SecomPC_BGUtils_1.dll:
   (2 untuk data, 3 untuk error), panjang pada offset 0x10, dan kode error
   pada offset 0x14. Ini hanya berlaku untuk jalur fungsi tersebut.
 
-Pada 6A/SC777CE/SecomCE_TCP_2d.dll:
+Pada 6A/sc777ce/SecomCE_TCP_2d.dll:
 
 - TCP_StartServer pada RVA 0x33ff menerima nomor port dari pemanggil lalu
   meneruskannya ke fungsi internal pada RVA 0x23d9. Belum membuktikan bentuk

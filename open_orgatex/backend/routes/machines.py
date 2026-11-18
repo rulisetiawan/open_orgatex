@@ -20,6 +20,11 @@ from sqlalchemy.orm import Session
 
 from ..database import get_db
 from ..models.schema_pg import Machine
+from ..services.machine_config_service import (
+    fetch_machine_config_from_hmi,
+    get_machine_config_summary,
+    sync_machine_ready_config
+)
 
 logger = logging.getLogger("orgatex.machines")
 router = APIRouter(prefix="/api/machines", tags=["Machines"])
@@ -48,6 +53,7 @@ class MachineCreateSchema(BaseModel):
     allow_proc_pic_edit: bool = True
     polling_interval_sec: int = 5
     is_active: bool = True
+    auto_fetch_config: bool = True
 
 class MachineUpdateSchema(BaseModel):
     internal_no: Optional[str] = None
@@ -111,7 +117,7 @@ def _probe_single_controller(ip: str, timeout: float = 1.0) -> Optional[Dict[str
             ftp.connect(ip, 21)
             ftp.login()
             bio = io.BytesIO()
-            ftp.retrbinary("RETR /storage/SC777CE/STATUS/STATUS.ACT", bio.write)
+            ftp.retrbinary("RETR /Storage/sc777ce/STATUS/STATUS.ACT", bio.write)
             data = bio.getvalue()
             if len(data) >= 16:
                 m_raw = data[11:19].split(b'\0')[0].decode('latin1', errors='ignore').strip()
@@ -179,10 +185,12 @@ def scan_network_controllers(scan_req: ScanRequestSchema):
 
 @router.get("/")
 def get_all_machines(db: Session = Depends(get_db)):
-    """Lists all configured machines from PostgreSQL."""
+    """Lists all configured machines from PostgreSQL along with HMI config readiness."""
     machines = db.query(Machine).all()
-    return [
-        {
+    results = []
+    for m in machines:
+        cfg = get_machine_config_summary(m.machine_no)
+        results.append({
             "machine_no": m.machine_no,
             "display_name": m.display_name,
             "group_name": m.group_name or "Dyeing Section A",
@@ -199,16 +207,22 @@ def get_all_machines(db: Session = Depends(get_db)):
             "current_step": m.current_step or 1,
             "current_temp": float(m.current_temp) if m.current_temp else None,
             "is_active": m.is_active,
-            "write_mode": "DISABLED (Strict Read-Only Active)"
-        }
-        for m in machines
-    ]
+            "write_mode": "DISABLED (Strict Read-Only Active)",
+            "config_status": cfg.get("config_status", "NOT_CONFIGURED"),
+            "has_custom_hmi_config": cfg.get("has_custom_hmi_config", False),
+            "has_typeconf": cfg.get("has_typeconf", False),
+            "has_conftext": cfg.get("has_conftext", False),
+            "has_machconf": cfg.get("has_machconf", False),
+            "workspace_exists": cfg.get("workspace_exists", False)
+        })
+    return results
 
 @router.get("/{machine_no}")
 def get_machine(machine_no: str, db: Session = Depends(get_db)):
     m = db.query(Machine).filter(Machine.machine_no == machine_no.upper()).first()
     if not m:
         raise HTTPException(status_code=404, detail="Mesin tidak ditemukan")
+    cfg = get_machine_config_summary(m.machine_no)
     return {
         "machine_no": m.machine_no,
         "display_name": m.display_name,
@@ -225,14 +239,20 @@ def get_machine(machine_no: str, db: Session = Depends(get_db)):
         "current_batch": m.current_batch,
         "current_step": m.current_step,
         "current_temp": float(m.current_temp) if m.current_temp else None,
-        "is_active": m.is_active
+        "is_active": m.is_active,
+        "config_status": cfg.get("config_status", "NOT_CONFIGURED"),
+        "has_custom_hmi_config": cfg.get("has_custom_hmi_config", False),
+        "has_typeconf": cfg.get("has_typeconf", False),
+        "has_conftext": cfg.get("has_conftext", False),
+        "has_machconf": cfg.get("has_machconf", False),
+        "workspace_exists": cfg.get("workspace_exists", False)
     }
 
 @router.post("/")
 def create_machine(m: MachineCreateSchema, db: Session = Depends(get_db)):
     """
     Creates or updates a machine configuration in PostgreSQL.
-    READ-ONLY: Writing to shared folder is strictly disabled.
+    Optionally auto-fetches HMI config files (.CNF) via FTP.
     """
     m_no = m.machine_no.strip().upper()
     existing = db.query(Machine).filter(Machine.machine_no == m_no).first()
@@ -251,6 +271,20 @@ def create_machine(m: MachineCreateSchema, db: Session = Depends(get_db)):
         existing.is_active = m.is_active
         db.commit()
         db.refresh(existing)
+
+        fetch_result = None
+        if m.auto_fetch_config and existing.ip_address:
+            try:
+                fetch_result = fetch_machine_config_from_hmi(
+                    ip=existing.ip_address,
+                    machine_no=existing.machine_no,
+                    ftp_port=existing.ftp_port or 21,
+                    timeout=4.0
+                )
+            except Exception as e:
+                logger.warning(f"Auto-fetch config failed for {existing.machine_no}: {e}")
+                fetch_result = {"success": False, "message": str(e), "status": "baseline_active"}
+
         return {
             "status": "updated",
             "write_mode": "DISABLED (Read-Only Mode)",
@@ -259,7 +293,8 @@ def create_machine(m: MachineCreateSchema, db: Session = Depends(get_db)):
                 "machine_no": existing.machine_no,
                 "display_name": existing.display_name,
                 "ip_address": existing.ip_address
-            }
+            },
+            "config_fetch": fetch_result
         }
 
     new_m = Machine(
@@ -284,16 +319,37 @@ def create_machine(m: MachineCreateSchema, db: Session = Depends(get_db)):
     db.commit()
     db.refresh(new_m)
 
-    logger.info(f"[READ-ONLY] Mesin {m_no} disimpan di PostgreSQL tanpa operasi tulis ke controller.")
+    # Auto-fetch config from HMI via FTP if requested
+    fetch_result = None
+    if m.auto_fetch_config and new_m.ip_address:
+        try:
+            fetch_result = fetch_machine_config_from_hmi(
+                ip=new_m.ip_address,
+                machine_no=new_m.machine_no,
+                ftp_port=new_m.ftp_port or 21,
+                timeout=4.0
+            )
+        except Exception as e:
+            logger.warning(f"Auto-fetch config failed for {new_m.machine_no}: {e}")
+            fetch_result = {"success": False, "message": str(e), "status": "baseline_active"}
+
+    msg = f"Mesin {m_no} berhasil didaftarkan di database PostgreSQL."
+    if fetch_result and fetch_result.get("success"):
+        msg += f" File konfigurasi HMI ({fetch_result.get('downloaded_count', 0)} file) berhasil diunduh via FTP!"
+    elif fetch_result and not fetch_result.get("success"):
+        msg += f" (Peringatan: {fetch_result.get('message', 'Gagal unduh config via FTP. Baseline aktif.')})"
+
+    logger.info(f"[READ-ONLY] Mesin {m_no} disimpan di PostgreSQL. Config fetch: {fetch_result.get('status') if fetch_result else 'skipped'}")
     return {
         "status": "created",
         "write_mode": "DISABLED (Read-Only Mode)",
-        "message": f"Mesin {m_no} berhasil didaftarkan di database PostgreSQL.",
+        "message": msg,
         "data": {
             "machine_no": new_m.machine_no,
             "display_name": new_m.display_name,
             "ip_address": new_m.ip_address
-        }
+        },
+        "config_fetch": fetch_result
     }
 
 @router.put("/{machine_no}")
@@ -371,7 +427,7 @@ def test_connection(machine_no: str, db: Session = Depends(get_db)):
             ftp.connect(ip, m.ftp_port or 21)
             ftp.login()
             bio = io.BytesIO()
-            ftp.retrbinary("RETR /storage/SC777CE/STATUS/STATUS.ACT", bio.write)
+            ftp.retrbinary("RETR /Storage/sc777ce/STATUS/STATUS.ACT", bio.write)
             data = bio.getvalue()
             if len(data) >= 16:
                 status_act_found = True
@@ -397,3 +453,30 @@ def test_connection(machine_no: str, db: Session = Depends(get_db)):
         "overall_status": overall_status,
         "write_mode": "DISABLED (Read-Only Mode Enforced)"
     }
+
+@router.post("/{machine_no}/fetch-config")
+def fetch_config_for_machine(machine_no: str, db: Session = Depends(get_db)):
+    """
+    Triggers FTP auto-download of HMI config files (.CNF) from the machine controller.
+    Downloads files to WORKSPACE_PROGRAM_MESIN/<NAMA_MESIN>/01_CONFIG_DARI_HMI/
+    and triggers automatic decoding to JSON.
+    """
+    m = db.query(Machine).filter(Machine.machine_no == machine_no.upper()).first()
+    if not m:
+        raise HTTPException(status_code=404, detail="Mesin tidak ditemukan.")
+    
+    result = fetch_machine_config_from_hmi(
+        ip=m.ip_address,
+        machine_no=m.machine_no,
+        ftp_port=m.ftp_port or 21,
+        timeout=5.0
+    )
+    return result
+
+@router.get("/{machine_no}/config-status")
+def get_config_status(machine_no: str):
+    """
+    Returns HMI configuration readiness and available .CNF / .JSON files for this machine.
+    """
+    return get_machine_config_summary(machine_no)
+

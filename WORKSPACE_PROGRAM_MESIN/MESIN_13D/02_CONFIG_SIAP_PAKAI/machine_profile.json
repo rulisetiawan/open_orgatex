@@ -1,0 +1,18 @@
+{
+  "machine_no": "13D",
+  "folder_name": "MESIN_13D",
+  "controller_type": "SETEX SECOM 777 (Windows CE)",
+  "max_temp_c": 140.0,
+  "has_custom_hmi_config": true,
+  "status": "ready",
+  "ip_address": "172.16.130.163",
+  "last_synced_at": "2026-11-17T08:58:25.227790",
+  "files_in_hmi_dir": [
+    "CONFTEXT.CNF",
+    "FNLEGEND.CNF",
+    "MACHCONF.CNF",
+    "PETUNJUK_DOWNLOAD_DARI_HMI.txt",
+    "TYPECONF.CNF",
+    "TYPECONT.CNF"
+  ]
+}

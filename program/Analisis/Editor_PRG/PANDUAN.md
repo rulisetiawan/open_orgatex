@@ -17,7 +17,7 @@ Buka `D:\File HMI\Analisis\Editor_PRG.html` di Edge atau Chrome. File ini mandir
 
 ## Batas validasi
 
-- Struktur didasarkan pada PRG dan TYPECONF.CNF dari salinan SC777CE yang dianalisis; konfigurasi perangkat lain dapat berbeda.
+- Struktur didasarkan pada PRG dan TYPECONF.CNF dari salinan sc777ce yang dianalisis; konfigurasi perangkat lain dapat berbeda.
 - Nilai asli pada field yang belum didefinisikan tetap dipertahankan. Contohnya P6 fungsi 718.
 - Perubahan parameter angka diperiksa terhadap batas statis CNF. Batas dinamis ditandai; nilainya belum diambil dari perangkat.
 - Field parameter yang memakai referensi/formula tidak diedit melalui kolom angka biasa.

@@ -21,8 +21,10 @@ from ..models.schema_pg import (
     ProgramComponentParameter,
     Step,
     StepFunction,
-    StepFunctionParameter
+    StepFunctionParameter,
+    Machine
 )
+from ..services.machine_config_service import fetch_machine_programs_from_hmi
 from ..utils.secom_codec import (
     parse_prg_binary,
     serialize_prg_binary,
@@ -425,6 +427,7 @@ def list_programs(db: Session = Depends(get_db)):
                 "filename": f"M_{str(pno).zfill(4)}.PRG",
                 "program_number": pno,
                 "program_name": p.name,
+                "machine_code": p.machine_code or "TD12",
                 "total_steps": len(p.steps) or sum(len(sub.treatment.steps) for sub in p.sub_program_items if sub.treatment),
                 "is_custom": True,
                 "file_size": 1024 * (len(p.steps) or 1)
@@ -440,15 +443,52 @@ def list_programs(db: Session = Depends(get_db)):
             if pid not in seen_ids:
                 seen_ids.add(pid)
                 results.append({
-                    "filename": f"M_{str(pid).zfill(4)}.PRG",
+                    "filename": prg.get("filename") or f"M_{str(pid).zfill(4)}.PRG",
                     "program_number": pid,
                     "program_name": prg.get("program_name", f"PROGRAM #{pid}"),
+                    "machine_code": prg.get("machine_code") or "TD12",
                     "total_steps": len(prg.get("steps", [])),
                     "is_custom": True,
                     "file_size": 1024 * (len(prg.get("steps", [])) or 1)
                 })
         except Exception:
             pass
+
+    # 2.5 Scan WORKSPACE_PROGRAM_MESIN for local machine programs
+    try:
+        if os.path.isdir(MACHINE_WORKSPACE_BASE):
+            for m_dir in sorted(os.listdir(MACHINE_WORKSPACE_BASE)):
+                if not m_dir.startswith("MESIN_"):
+                    continue
+                clean_m = m_dir.replace("MESIN_", "")
+                full_m = os.path.join(MACHINE_WORKSPACE_BASE, m_dir)
+                for sub in ["03_CONTOH_PRG_DARI_HMI", "04_HASIL_PROGRAM_CELUP"]:
+                    sub_p = os.path.join(full_m, sub)
+                    if not os.path.isdir(sub_p):
+                        continue
+                    for fname in sorted(os.listdir(sub_p)):
+                        if fname.upper().endswith(".PRG"):
+                            prg_path = os.path.join(sub_p, fname)
+                            try:
+                                with open(prg_path, "rb") as pf:
+                                    raw_b = pf.read()
+                                parsed = parse_prg_binary(raw_b)
+                                pno = parsed.get("program_no")
+                                if pno and pno not in seen_ids:
+                                    seen_ids.add(pno)
+                                    results.append({
+                                        "filename": fname,
+                                        "program_number": pno,
+                                        "program_name": parsed.get("program_name") or fname,
+                                        "machine_code": clean_m,
+                                        "total_steps": len(parsed.get("steps", [])),
+                                        "is_custom": True,
+                                        "file_size": len(raw_b)
+                                    })
+                            except Exception:
+                                pass
+    except Exception:
+        pass
 
     # 3. Existing OrgaTEX / Setex Plain Export
     summary_path = _get_summary_file()
@@ -464,6 +504,7 @@ def list_programs(db: Session = Depends(get_db)):
                             "filename": item.get("filename"),
                             "program_number": pno,
                             "program_name": item.get("program_name"),
+                            "machine_code": item.get("machine_code") or "TD12",
                             "total_steps": item.get("total_steps", 0),
                             "is_custom": False,
                             "file_size": item.get("file_size", 0)
@@ -485,6 +526,7 @@ def list_programs(db: Session = Depends(get_db)):
                             "filename": t.get("filename", f"M_{str(tid).zfill(4)}.PRG"),
                             "program_number": tid,
                             "program_name": t.get("title", f"Template #{tid}"),
+                            "machine_code": t.get("machine_code") or "TD12",
                             "total_steps": t.get("steps", 0),
                             "is_custom": False,
                             "file_size": raw_len
@@ -554,7 +596,7 @@ def get_program(program_no: int, db: Session = Depends(get_db)):
             return {
                 "program_no": program_no,
                 "program_name": p.name,
-                "machine_code": p.machine_code or "C012",
+                "machine_code": p.machine_code or "TD12",
                 "sub_programs": sub_progs,
                 "steps": flattened if flattened else [
                     {
@@ -613,7 +655,7 @@ def get_program(program_no: int, db: Session = Depends(get_db)):
                     return {
                         "program_no": data.get("program_number", program_no),
                         "program_name": data.get("program_name", f"PROGRAM #{program_no}"),
-                        "machine_code": "C012",
+                        "machine_code": data.get("machine_code") or "TD12",
                         "total_steps": len(normalized_steps),
                         "steps": normalized_steps
                     }
@@ -632,6 +674,34 @@ def get_program(program_no: int, db: Session = Depends(get_db)):
                             return parsed
         except Exception:
             pass
+
+    # 5. Check WORKSPACE_PROGRAM_MESIN (03_CONTOH_PRG_DARI_HMI and 04_HASIL_PROGRAM_CELUP)
+    try:
+        if os.path.isdir(MACHINE_WORKSPACE_BASE):
+            for m_dir in sorted(os.listdir(MACHINE_WORKSPACE_BASE)):
+                if not m_dir.startswith("MESIN_"):
+                    continue
+                clean_m = m_dir.replace("MESIN_", "")
+                full_m = os.path.join(MACHINE_WORKSPACE_BASE, m_dir)
+                for sub in ["03_CONTOH_PRG_DARI_HMI", "04_HASIL_PROGRAM_CELUP"]:
+                    sub_p = os.path.join(full_m, sub)
+                    if not os.path.isdir(sub_p):
+                        continue
+                    for fname in sorted(os.listdir(sub_p)):
+                        if fname.upper().endswith(".PRG"):
+                            prg_path = os.path.join(sub_p, fname)
+                            try:
+                                with open(prg_path, "rb") as pf:
+                                    raw_b = pf.read()
+                                parsed = parse_prg_binary(raw_b)
+                                if parsed.get("program_no") == program_no:
+                                    parsed["machine_code"] = clean_m
+                                    parsed["filename"] = fname
+                                    return parsed
+                            except Exception:
+                                pass
+    except Exception:
+        pass
 
     raise HTTPException(status_code=404, detail=f"Program #{program_no} tidak ditemukan")
 
@@ -722,13 +792,13 @@ def save_program(p: ProcedureIn, db: Session = Depends(get_db)):
                 type=1,
                 number=str(p.program_no),
                 name=p.program_name.strip().upper(),
-                machine_code=p.machine_code or "C012"
+                machine_code=p.machine_code or "TD12"
             )
             db.add(proc)
             db.flush()
         else:
             proc.name = p.program_name.strip().upper()
-            proc.machine_code = p.machine_code or "C012"
+            proc.machine_code = p.machine_code or "TD12"
             proc.modification_time = datetime.utcnow()
 
         # Update steps directly if provided
@@ -891,16 +961,19 @@ def download_program_binary(program_no: int, db: Session = Depends(get_db)):
 
 
 @router.post("/upload-prg")
-async def upload_prg_file(request: Request, db: Session = Depends(get_db)):
+async def upload_prg_file(request: Request, machine_code: Optional[str] = "TD12", db: Session = Depends(get_db)):
     """Uploads and parses a binary SETEX SECOM 777 .PRG file (raw bytes or JSON base64)."""
     try:
         content_type = request.headers.get("content-type", "")
         filename = "uploaded.PRG"
+        target_machine = machine_code or "TD12"
         if "application/json" in content_type:
             payload = await request.json()
             if "base64" in payload:
                 content = base64.b64decode(payload["base64"])
                 filename = payload.get("filename", filename)
+                if "machine_code" in payload:
+                    target_machine = payload["machine_code"]
             else:
                 raise ValueError("JSON payload harus memiliki field 'base64'")
         else:
@@ -908,6 +981,10 @@ async def upload_prg_file(request: Request, db: Session = Depends(get_db)):
 
         parsed = parse_prg_binary(content)
         p_no = parsed["program_no"]
+        clean_mach = target_machine.strip().upper().replace("MESIN_", "")
+        parsed["machine_code"] = clean_mach
+        parsed["filename"] = filename
+
         custom = _load_json_file(META_PATH, {})
         custom[str(p_no)] = parsed
         _save_json_file(META_PATH, custom)
@@ -917,13 +994,96 @@ async def upload_prg_file(request: Request, db: Session = Depends(get_db)):
         with open(out_path, "wb") as f:
             f.write(content)
 
+        # Also save to machine workspace
+        m_folder = f"MESIN_{clean_mach}"
+        m_save_dir = os.path.join(MACHINE_WORKSPACE_BASE, m_folder, "03_CONTOH_PRG_DARI_HMI")
+        os.makedirs(m_save_dir, exist_ok=True)
+        save_name = filename if filename.upper().endswith(".PRG") else f"M_{str(p_no).zfill(4)}.PRG"
+        with open(os.path.join(m_save_dir, save_name), "wb") as f:
+            f.write(content)
+
         return {
             "status": "success",
-            "message": f"Berkas {filename} berhasil diimpor sebagai Program #{p_no} ({len(parsed['steps'])} langkah).",
+            "message": f"Berkas {filename} berhasil diimpor sebagai Program #{p_no} ({len(parsed['steps'])} langkah) untuk Mesin {clean_mach}.",
             "program": parsed
         }
     except Exception as e:
         raise HTTPException(status_code=400, detail=f"Gagal mem-parsing berkas .PRG: {str(e)}")
+
+
+class FetchFromMachineIn(BaseModel):
+    ip_address: Optional[str] = None
+    ftp_port: Optional[int] = 21
+    timeout: Optional[float] = 10.0
+    remote_dir: Optional[str] = None
+    controller_type: Optional[str] = None
+
+@router.post("/fetch-from-machine/{machine_no}")
+def fetch_programs_from_machine(machine_no: str, req: Optional[FetchFromMachineIn] = None, db: Session = Depends(get_db)):
+    """
+    Downloads all .PRG binary files from the machine's SETEX HMI controller via FTP (Port 21).
+    Saves them to WORKSPACE_PROGRAM_MESIN/MESIN_<ID>/03_CONTOH_PRG_DARI_HMI/,
+    parses each program, and registers it so it appears in the program list and can be opened in EDX300/SECOM Studio.
+    """
+    clean_code = machine_no.strip().upper().replace("MESIN_", "")
+    
+    # 1. Determine machine IP and port
+    ip = None
+    port = 21
+    if req and req.ip_address:
+        ip = req.ip_address.strip()
+        port = req.ftp_port or 21
+    
+    if not ip and db:
+        try:
+            m = db.query(Machine).filter(Machine.machine_no == clean_code).first()
+            if m and m.ip_address:
+                ip = m.ip_address
+                port = m.ftp_port or 21
+        except Exception:
+            pass
+
+    if not ip:
+        known_ips = {
+            "DA01": "192.168.1.95",
+            "DA1": "192.168.1.95",
+            "DA-01": "192.168.1.95",
+            "797": "192.168.1.95",
+            "797CE": "192.168.1.95",
+            "SC797": "192.168.1.95",
+            "SC797CE": "192.168.1.95",
+            "MESIN_797": "192.168.1.95",
+            "10B": "172.16.110.160",
+            "TD12": "172.16.110.101",
+            "A002": "172.16.110.102",
+            "A003": "172.16.110.103",
+            "1A": "172.16.110.104"
+        }
+        ip = known_ips.get(clean_code, "172.16.110.160")
+
+    is_797 = (
+        ip == "192.168.1.95" or 
+        (req and req.controller_type and "797" in req.controller_type.upper()) or
+        "797" in clean_code or
+        clean_code in ["DA01", "DA1", "DA-01"] or
+        (req and req.remote_dir and "SC797" in req.remote_dir.upper())
+    )
+
+    timeout_val = req.timeout if req and req.timeout else 10.0
+    remote_path = (
+        req.remote_dir 
+        if req and req.remote_dir 
+        else ("/Flashdisk/SC797CE/Programs" if is_797 else "/Storage/sc777ce/Programs")
+    )
+
+    result = fetch_machine_programs_from_hmi(
+        machine_no=clean_code,
+        ip=ip,
+        ftp_port=port,
+        timeout=timeout_val,
+        remote_dir=remote_path
+    )
+    return result
 
 
 @router.get("/catalog-templates")
@@ -1005,7 +1165,7 @@ def get_machine_workspace_config(machine_no: str):
 def export_program_for_machine(machine_no: str, program_no: int, db: Session = Depends(get_db)):
     """
     Compiles dyeing program and outputs M_xxxx.PRG directly into that machine's
-    04_HASIL_PROGRAM_CELUP folder ready for USB flashdisk transfer or FTP.
+    04_HASIL_PROGRAM_CELUP folder ready for USB Storage transfer or FTP.
     """
     clean_no = machine_no.upper().replace("MESIN_", "")
     m_folder = f"MESIN_{clean_no}"
@@ -1029,4 +1189,138 @@ def export_program_for_machine(machine_no: str, program_no: int, db: Session = D
         "size_bytes": len(prg_bytes),
         "ready_for_transfer": True
     }
+
+class ProgramFTPTransferIn(BaseModel):
+    machine_code: str
+    target_dir: Optional[str] = None
+    timeout: Optional[float] = 6.0
+    ip_address: Optional[str] = None
+    ftp_port: Optional[int] = 21
+    controller_type: Optional[str] = None
+
+@router.post("/transfer-ftp/{program_no}")
+def transfer_program_to_ftp(program_no: int, req: ProgramFTPTransferIn, db: Session = Depends(get_db)):
+    """
+    Transfers/writes the compiled M_xxxx.PRG binary directly to the target machine's SETEX 777/797 FTP controller.
+    """
+    import io
+    import ftplib
+    from ..models.schema_pg import Machine
+
+    clean_code = req.machine_code.strip().upper()
+    ip = req.ip_address.strip() if req.ip_address else None
+    port = req.ftp_port or 21
+
+    if not ip:
+        m = db.query(Machine).filter(Machine.machine_no == clean_code).first()
+        ip = m.ip_address if m and m.ip_address else None
+        if m and m.ftp_port:
+            port = m.ftp_port
+
+    if not ip:
+        known_ips = {
+            "DA01": "192.168.1.95",
+            "DA1": "192.168.1.95",
+            "DA-01": "192.168.1.95",
+            "797": "192.168.1.95",
+            "797CE": "192.168.1.95",
+            "SC797": "192.168.1.95",
+            "SC797CE": "192.168.1.95",
+            "MESIN_797": "192.168.1.95",
+            "10B": "172.16.110.160",
+            "TD12": "172.16.110.101",
+            "A002": "172.16.110.102",
+            "A003": "172.16.110.103",
+            "1A": "172.16.110.104"
+        }
+        ip = known_ips.get(clean_code, "172.16.110.160")
+
+    is_797 = (
+        ip == "192.168.1.95" or 
+        (req.controller_type and "797" in req.controller_type.upper()) or
+        "797" in clean_code or
+        clean_code in ["DA01", "DA1", "DA-01"] or
+        (req.target_dir and "SC797" in req.target_dir.upper())
+    )
+
+    prg_bytes = get_compiled_prg_bytes(program_no, db)
+    filename = f"M_{str(program_no).zfill(4)}.PRG"
+
+    # Default to /Flashdisk/SC797CE/Programs if 797, else /Storage/sc777ce/Programs
+    default_dir = "/Flashdisk/SC797CE/Programs" if is_797 else "/Storage/sc777ce/Programs"
+    requested_dir = (req.target_dir or default_dir).rstrip("/\\")
+
+    # Priority target dirs with automatic fallback between SECOM 797 and 777
+    target_dirs_to_try = [
+        requested_dir,
+        requested_dir.replace("/", "\\"),
+        requested_dir.replace("\\", "/")
+    ]
+    if is_797:
+        target_dirs_to_try.extend([
+            "/Flashdisk/SC797CE/Programs",
+            "/flashdisk/sc797ce/programs",
+            "\\Flashdisk\\SC797CE\\Programs",
+            "/Flashdisk/SC797CE/PROGRAMS",
+            "/Storage/SC777CE/Programs",
+            "/Storage/sc777ce/Programs"
+        ])
+    else:
+        target_dirs_to_try.extend([
+            "/Storage/SC777CE/Programs",
+            "/Storage/sc777ce/Programs",
+            "/storage/sc777ce/programs",
+            "\\Storage\\SC777CE\\Programs",
+            "/Flashdisk/SC797CE/Programs",
+            "/flashdisk/sc797ce/programs"
+        ])
+
+    target_dirs_to_try.extend([
+        "/Programs",
+        "/PROGRAMS"
+    ])
+
+    resolved_target_dir = None
+
+    try:
+        ftp = ftplib.FTP(timeout=req.timeout)
+        ftp.connect(ip, port)
+        ftp.login()
+        
+        # Try cwd to preferred directory or fallbacks
+        for td in target_dirs_to_try:
+            try:
+                ftp.cwd(td)
+                resolved_target_dir = td
+                break
+            except Exception:
+                continue
+
+        if not resolved_target_dir:
+            # Fallback to creating the requested directory
+            try:
+                ftp.mkd(requested_dir)
+                ftp.cwd(requested_dir)
+                resolved_target_dir = requested_dir
+            except Exception:
+                resolved_target_dir = requested_dir
+
+        ftp.storbinary(f"STOR {filename}", io.BytesIO(prg_bytes))
+        ftp.quit()
+
+        return {
+            "status": "success",
+            "message": f"Program {filename} ({len(prg_bytes)} bytes) BERHASIL ditulis ke FTP Kontroler {clean_code} ({ip}:{port}{resolved_target_dir})!",
+            "machine_code": clean_code,
+            "ip": ip,
+            "port": port,
+            "filename": filename,
+            "target_dir": resolved_target_dir,
+            "size_bytes": len(prg_bytes)
+        }
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Gagal menulis {filename} ke FTP Mesin {clean_code} ({ip}:{port}): {str(e)}"
+        )
 

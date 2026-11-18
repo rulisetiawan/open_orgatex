@@ -31,7 +31,7 @@ const STATUS_CONFIG = {
   HOLD: { label: 'Ditahan (Hold)', badge: 'bg-rose-950/40 text-rose-300 border-rose-600/40' }
 };
 
-const MACHINE_OPTIONS = ['SEMUA', 'TD12', 'TD13', 'B012', 'E013', 'M01'];
+const MACHINE_OPTIONS = ['SEMUA', 'DA01', '10B', 'TD12', 'TD13', 'B012', 'E013', 'M01'];
 
 const BatchListView = () => {
   const navigate = useNavigate();
@@ -61,6 +61,13 @@ const BatchListView = () => {
   const [transferModalOpen, setTransferModalOpen] = useState(false);
   const [transferBatch, setTransferBatch] = useState(null);
   const [targetMachine, setTargetMachine] = useState('TD13');
+
+  // FTP Dispatch Batch Modal State
+  const [ftpDispatchModalOpen, setFtpDispatchModalOpen] = useState(false);
+  const [batchToDispatch, setBatchToDispatch] = useState(null);
+  const [dispatchIp, setDispatchIp] = useState('192.168.1.95');
+  const [dispatchModel, setDispatchModel] = useState('797');
+  const [isDispatching, setIsDispatching] = useState(false);
 
   // Fetch batches
   const fetchBatches = async () => {
@@ -149,6 +156,30 @@ const BatchListView = () => {
   // Download Offline Batch ZIP
   const handleDownloadZip = (batchId, refNo, lotNo) => {
     window.open(`${API_BASE}/export-zip/${batchId}`, '_blank');
+  };
+
+  // Dispatch Batch Directly to Controller via FTP
+  const handleExecuteDispatch = async () => {
+    if (!batchToDispatch) return;
+    setIsDispatching(true);
+    try {
+      const is797 = dispatchModel === '797' || dispatchIp.trim() === '192.168.1.95';
+      const targetDir = is797 ? '/Flashdisk/SC797CE/BATCH' : '/Storage/sc777ce/BATCH';
+      const res = await axios.post('/api/ftp/dispatch-batch', {
+        ip: dispatchIp.trim(),
+        port: 21,
+        batch_id: batchToDispatch.id,
+        controller_type: is797 ? '797' : '777',
+        target_dir: targetDir
+      });
+      alert(res.data.message || `Batch ${batchToDispatch.batch_no} berhasil dikirim ke Kontroler FTP!`);
+      setFtpDispatchModalOpen(false);
+      fetchBatches();
+    } catch (err) {
+      alert('Gagal mengirim batch via FTP: ' + (err.response?.data?.detail || err.message));
+    } finally {
+      setIsDispatching(false);
+    }
   };
 
   return (
@@ -356,10 +387,22 @@ const BatchListView = () => {
                           {/* Send via FTP */}
                           <button
                             onClick={() => {
-                              navigate('/ftp');
+                              setBatchToDispatch(b);
+                              const is797Target = b.machine_no === '797' || b.machine_no?.includes('797');
+                              if (is797Target) {
+                                setDispatchIp('192.168.1.95');
+                                setDispatchModel('797');
+                              } else if (b.machine_no === '10B') {
+                                setDispatchIp('172.16.110.160');
+                                setDispatchModel('777');
+                              } else {
+                                setDispatchIp('192.168.1.95');
+                                setDispatchModel('797');
+                              }
+                              setFtpDispatchModalOpen(true);
                             }}
                             className="p-1.5 text-gray-300 hover:text-emerald-400 hover:bg-[#24303f] rounded transition"
-                            title="Kirim ke Controller via FTP"
+                            title="Kirim ke Controller via FTP (Port 21)"
                           >
                             <Send className="h-4 w-4" />
                           </button>
@@ -601,6 +644,105 @@ const BatchListView = () => {
                   className="bg-amber-600 hover:bg-amber-500 text-white font-semibold px-4 py-1.5 rounded"
                 >
                   Pindahkan Sekarang
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+      {/* MODAL: FTP DISPATCH BATCH DIRECT TO CONTROLLER */}
+      {ftpDispatchModalOpen && batchToDispatch && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 p-4 backdrop-blur-sm animate-in fade-in">
+          <div className="bg-[#1c2434] border border-gray-700 rounded-lg w-full max-w-lg p-6 shadow-2xl space-y-4 text-xs">
+            <div className="flex items-center justify-between border-b border-gray-700 pb-3">
+              <h3 className="text-base font-bold text-white flex items-center gap-2">
+                <Send className="h-5 w-5 text-emerald-400" />
+                Kirim Batch ke Kontroler FTP (SETEX 797CE / 777)
+              </h3>
+              <button
+                onClick={() => setFtpDispatchModalOpen(false)}
+                className="text-gray-400 hover:text-white"
+              >
+                ✕
+              </button>
+            </div>
+
+            <div className="space-y-3">
+              <div className="bg-[#24303f] p-3 rounded border border-gray-700 space-y-1.5 font-mono">
+                <div className="flex justify-between">
+                  <span className="text-gray-400">Batch Target:</span>
+                  <strong className="text-white">#{batchToDispatch.batch_no} (Ref: {batchToDispatch.reference_no})</strong>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-400">Resep / Formula:</span>
+                  <span className="text-emerald-400">{batchToDispatch.recipe_name || 'Standard'}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-400">Nomor Program:</span>
+                  <span className="text-amber-400">M_{String(batchToDispatch.program_no || 1).padStart(4, '0')}.PRG</span>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3 bg-[#24303f] p-3 rounded border border-gray-700">
+                <div>
+                  <label className="block text-gray-300 font-medium mb-1">IP Kontroler Target:</label>
+                  <input
+                    type="text"
+                    value={dispatchIp}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      setDispatchIp(val);
+                      if (val.trim() === '192.168.1.95') {
+                        setDispatchModel('797');
+                      }
+                    }}
+                    placeholder="192.168.1.95"
+                    className="w-full bg-[#1c2434] border border-gray-600 text-emerald-400 font-mono font-bold rounded px-2.5 py-1.5 outline-none"
+                  />
+                  <span className="text-[10px] text-gray-400 block mt-1">Default 797CE: 192.168.1.95</span>
+                </div>
+
+                <div>
+                  <label className="block text-gray-300 font-medium mb-1">Tipe Kontroler / Folder:</label>
+                  <select
+                    value={dispatchModel}
+                    onChange={(e) => setDispatchModel(e.target.value)}
+                    className="w-full bg-[#1c2434] border border-gray-600 text-amber-300 font-bold rounded px-2.5 py-1.5 outline-none"
+                  >
+                    <option value="797">SETEX 797CE (/Flashdisk/SC797CE/BATCH)</option>
+                    <option value="777">SETEX 777 (/Storage/sc777ce/BATCH)</option>
+                  </select>
+                  <span className="text-[10px] text-gray-400 block mt-1">Auto-fallback aktif jika folder belum ada</span>
+                </div>
+              </div>
+
+              <div className="text-[11px] text-gray-400 bg-black/20 p-2.5 rounded border border-gray-800 space-y-1">
+                <span className="font-bold text-gray-300">File biner yang langsung diunggah:</span>
+                <ul className="list-disc list-inside text-slate-300">
+                  <li><code className="text-emerald-400">BATCHREF.REF</code> (762-byte Secom binary structure)</li>
+                  <li><code className="text-emerald-400">M_{String(batchToDispatch.program_no || 1).padStart(4, '0')}.PRG</code> (Biner program eksekusi mikro)</li>
+                </ul>
+                <div className="text-gray-400 pt-1 border-t border-gray-800">
+                  Path remote: <strong className="text-amber-300 font-mono">{dispatchModel === '797' ? '/Flashdisk/SC797CE/BATCH' : '/Storage/sc777ce/BATCH'}</strong>
+                </div>
+              </div>
+
+              <div className="flex justify-end gap-2 pt-3 border-t border-gray-700">
+                <button
+                  type="button"
+                  onClick={() => setFtpDispatchModalOpen(false)}
+                  className="bg-gray-700 text-white px-3 py-1.5 rounded"
+                >
+                  Batal
+                </button>
+                <button
+                  type="button"
+                  onClick={handleExecuteDispatch}
+                  disabled={isDispatching}
+                  className="bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 text-white font-semibold px-4 py-1.5 rounded flex items-center gap-1.5 shadow"
+                >
+                  <Send className={`h-3.5 w-3.5 ${isDispatching ? 'animate-spin' : ''}`} />
+                  <span>{isDispatching ? 'Mengirim ke FTP...' : `Kirim Batch ke ${dispatchIp}`}</span>
                 </button>
               </div>
             </div>

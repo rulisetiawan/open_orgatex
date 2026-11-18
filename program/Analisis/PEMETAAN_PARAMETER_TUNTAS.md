@@ -43,7 +43,7 @@ Record CNF tidak selalu berurutan secara fisik. File memiliki halaman 512 byte, 
 
 ## Bukti implementasi
 
-- DLL sumber: Storage/SC777CE/SecomCE_BGUtils_2d.dll. ImageBase 0x100000.
+- DLL sumber: Storage/sc777ce/SecomCE_BGUtils_2d.dll. ImageBase 0x100000.
 - Api_Btrieve_Decompress RVA 0x2c19 → CBtrieveInterface::Decompress RVA 0x5a9f → routine RVA 0x19aa6. Routine bergantian membaca jumlah literal uint16 + data dan jumlah repeat uint16 + byte berulang.
 - Routine pembaca record RVA 0x26fba: flag slot 0x8000 menandakan empat byte pointer lanjutan, directory offset dimask 0x7fff. Helper pointer RVA 0x26708; helper offset slot RVA 0x3871a.
 - Sumber struktur: referensi dekompilasi lokal SecomCEDefines/OtxCSLib.Secom.Configuration/T_CFG_FUNCT.cs, T_CFG_FUNCT_PARA.cs, T_CFG_FUNCP.cs, T_CFG_SCALE.cs, T_CFG_SCALE2.cs, T_CFG_TEXTP.cs. Ukuran union lokal cocok dengan 290 byte hasil decode.

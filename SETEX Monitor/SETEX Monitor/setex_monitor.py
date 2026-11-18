@@ -222,12 +222,12 @@ class App:
         except (OSError,ValueError): pass
         frame=ttk.Frame(root,padding=15);frame.pack(fill='both',expand=True)
         self.ip=tk.StringVar(value=self.settings.get('ip',''))
-        self.folder=tk.StringVar(value=self.settings.get('folder',r'SC777CE'))
+        self.folder=tk.StringVar(value=self.settings.get('folder',r'sc777ce'))
         self.interval=tk.StringVar(value=str(self.settings.get('interval',30)))
         self.timeout=tk.StringVar(value='60')
         for label,var in [('IP / hostname HMI',self.ip),('URL FTP / folder share / path lokal / path STATUS.ACT',self.folder)]:
             ttk.Label(frame,text=label).pack(anchor='w');ttk.Entry(frame,textvariable=var).pack(fill='x',pady=(2,8))
-        ttk.Label(frame,text=r'Contoh: IP 192.168.1.20 + folder SC777CE → \\192.168.1.20\SC777CE\STATUS\STATUS.ACT').pack(anchor='w')
+        ttk.Label(frame,text=r'Contoh: IP 192.168.1.20 + folder sc777ce → \\192.168.1.20\sc777ce\STATUS\STATUS.ACT').pack(anchor='w')
         ttk.Label(frame,text='Bisa juga isi folder dengan UNC lengkap atau folder salinan lokal; IP boleh kosong.').pack(anchor='w')
         self.username=tk.StringVar();self.password=tk.StringVar()
         login=ttk.Frame(frame);login.pack(fill='x',pady=5)

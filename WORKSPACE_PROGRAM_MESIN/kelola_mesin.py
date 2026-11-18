@@ -136,23 +136,30 @@ def sync_machine(machine_name: str):
 
     print(f"[SELESAI] Mesin {folder_name} siap digunakan di OpenOrgaTEX!\n")
 
-def create_machine(machine_name: str):
-    """Creates a new machine directory from template."""
+def create_machine(machine_name: str, ip_address: Optional[str] = None, auto_fetch: bool = False):
+    """Creates a new machine directory from template, optionally fetching HMI config via FTP."""
     folder_name = machine_name if machine_name.startswith("MESIN_") else f"MESIN_{machine_name}"
     target = os.path.join(BASE_DIR, folder_name)
 
     if os.path.exists(target):
         print(f"[PERINGATAN] Folder mesin {folder_name} sudah ada!")
-        return
+    else:
+        if os.path.exists(TEMPLATE_DIR):
+            shutil.copytree(TEMPLATE_DIR, target)
+        else:
+            os.makedirs(target, exist_ok=True)
 
-    shutil.copytree(TEMPLATE_DIR, target)
-
-    # Initialize baseline
+    # Initialize subfolders
+    raw_dir = os.path.join(target, "01_CONFIG_DARI_HMI")
     dec_dir = os.path.join(target, "02_CONFIG_SIAP_PAKAI")
+    os.makedirs(raw_dir, exist_ok=True)
     os.makedirs(dec_dir, exist_ok=True)
-    if os.path.exists(BASELINE_FUNCTIONS):
+    os.makedirs(os.path.join(target, "03_CONTOH_PRG_DARI_HMI"), exist_ok=True)
+    os.makedirs(os.path.join(target, "04_HASIL_PROGRAM_CELUP"), exist_ok=True)
+
+    if os.path.exists(BASELINE_FUNCTIONS) and not os.path.exists(os.path.join(dec_dir, "typeconf_functions.json")):
         shutil.copy2(BASELINE_FUNCTIONS, os.path.join(dec_dir, "typeconf_functions.json"))
-    if os.path.exists(BASELINE_CONFTEXT):
+    if os.path.exists(BASELINE_CONFTEXT) and not os.path.exists(os.path.join(dec_dir, "conftext_aligned.json")):
         shutil.copy2(BASELINE_CONFTEXT, os.path.join(dec_dir, "conftext_aligned.json"))
 
     # Update profile
@@ -161,6 +168,7 @@ def create_machine(machine_name: str):
     prof_data = {
         "machine_no": m_code,
         "folder_name": folder_name,
+        "ip_address": ip_address or "",
         "controller_type": "SETEX SECOM 777 (Windows CE)",
         "max_temp_c": 140.0,
         "has_custom_hmi_config": False,
@@ -169,10 +177,76 @@ def create_machine(machine_name: str):
     with open(prof_file, "w", encoding="utf-8") as f:
         json.dump(prof_data, f, indent=2)
 
-    print(f"\n[SUKSES] Berhasil membuat folder workspace untuk {folder_name}!")
+    print(f"\n[SUKSES] Berhasil menyiapkan workspace untuk {folder_name}!")
     print(f"Path: {target}")
-    print("Silakan taruh file TYPECONF.CNF dan CONFTEXT.CNF ke:")
-    print(f"  --> {os.path.join(target, '01_CONFIG_DARI_HMI')}\n")
+
+    # Auto-fetch config from HMI via FTP if requested
+    if auto_fetch:
+        if not ip_address:
+            print("[PERINGATAN] Flag --auto-fetch memerlukan parameter --ip <IP_ADDRESS>!")
+            print(f"Contoh: python kelola_mesin.py --tambah-mesin {m_code} --ip 172.16.110.115 --auto-fetch")
+        else:
+            print(f"\n[*] Menghubungi kontroler HMI di {ip_address}:21 via FTP untuk mengunduh config...")
+            try:
+                backend_dir = os.path.abspath(os.path.join(BASE_DIR, ".."))
+                if backend_dir not in sys.path:
+                    sys.path.append(backend_dir)
+                from open_orgatex.backend.services.machine_config_service import fetch_machine_config_from_hmi
+                res = fetch_machine_config_from_hmi(ip=ip_address, machine_no=m_code)
+                if res.get("success"):
+                    print(f"[SUKSES] Berhasil mengunduh {res.get('downloaded_count', 0)} file konfigurasi HMI:")
+                    for item in res.get("downloaded", []):
+                        print(f"  + {item['filename']} ({item['size_bytes']} bytes)")
+                    print("[SUKSES] Konfigurasi HMI telah otomatis disinkronisasi & didecode ke 02_CONFIG_SIAP_PAKAI!")
+                else:
+                    print(f"[PERINGATAN] {res.get('message', 'Gagal unduh config via FTP.')}")
+                    print("  -> Baseline config tetap aktif. Anda dapat menarik ulang nanti setelah mesin online.")
+            except Exception as e:
+                print(f"[ERROR] Gagal menjalankan auto-fetch: {e}")
+
+    if not auto_fetch:
+        print("Silakan taruh file TYPECONF.CNF dan CONFTEXT.CNF ke:")
+        print(f"  --> {raw_dir}")
+        print(f"Atau unduh otomatis nanti dengan: python kelola_mesin.py --fetch-config {m_code} --ip <IP_ADDRESS>\n")
+
+def fetch_existing_machine(machine_name: str, ip_address: Optional[str] = None):
+    """Fetches HMI config via FTP for an existing machine workspace."""
+    folder_name = machine_name if machine_name.startswith("MESIN_") else f"MESIN_{machine_name}"
+    target = os.path.join(BASE_DIR, folder_name)
+    if not os.path.isdir(target):
+        print(f"[ERROR] Mesin {folder_name} belum terdaftar! Tambahkan dulu dengan --tambah-mesin")
+        return
+
+    m_code = folder_name.replace("MESIN_", "")
+    dec_dir = os.path.join(target, "02_CONFIG_SIAP_PAKAI")
+    prof_file = os.path.join(dec_dir, "machine_profile.json")
+
+    resolved_ip = ip_address
+    if not resolved_ip and os.path.exists(prof_file):
+        try:
+            with open(prof_file, "r", encoding="utf-8") as f:
+                p = json.load(f)
+                resolved_ip = p.get("ip_address")
+        except Exception:
+            pass
+
+    if not resolved_ip:
+        print(f"[ERROR] IP kontroler untuk {m_code} tidak ditemukan. Harap masukkan --ip <IP_ADDRESS>!")
+        return
+
+    print(f"\n[*] Menghubungi HMI {m_code} di {resolved_ip}:21 via FTP...")
+    backend_dir = os.path.abspath(os.path.join(BASE_DIR, ".."))
+    if backend_dir not in sys.path:
+        sys.path.append(backend_dir)
+    from open_orgatex.backend.services.machine_config_service import fetch_machine_config_from_hmi
+    res = fetch_machine_config_from_hmi(ip=resolved_ip, machine_no=m_code)
+    if res.get("success"):
+        print(f"[SUKSES] Berhasil mengunduh {res.get('downloaded_count', 0)} file konfigurasi HMI:")
+        for item in res.get("downloaded", []):
+            print(f"  + {item['filename']} ({item['size_bytes']} bytes)")
+        print("[SUKSES] File siap pakai di 02_CONFIG_SIAP_PAKAI telah diperbarui!\n")
+    else:
+        print(f"[PERINGATAN] {res.get('message')}\n")
 
 def main():
     parser = argparse.ArgumentParser(description="Tool Manajemen Workspace Mesin Celup OpenOrgaTEX")
@@ -180,6 +254,9 @@ def main():
     parser.add_argument("--sync", type=str, help="Sinkronisasi file konfigurasi untuk 1 mesin (cth: TD12)")
     parser.add_argument("--sync-all", action="store_true", help="Sinkronisasi seluruh mesin")
     parser.add_argument("--tambah-mesin", type=str, help="Tambah folder workspace untuk mesin baru (cth: TD15)")
+    parser.add_argument("--ip", type=str, help="Alamat IP kontroler HMI mesin (opsional, cth: 172.16.110.115)")
+    parser.add_argument("--auto-fetch", action="store_true", help="Otomatis unduh file config (.CNF) via FTP saat menambah mesin")
+    parser.add_argument("--fetch-config", type=str, help="Tarik file config HMI via FTP untuk mesin yang ada (cth: TD12)")
 
     args = parser.parse_args()
 
@@ -191,7 +268,9 @@ def main():
         for m in get_machine_folders():
             sync_machine(m)
     elif args.tambah_mesin:
-        create_machine(args.tambah_mesin)
+        create_machine(args.tambah_mesin, ip_address=args.ip, auto_fetch=args.auto_fetch)
+    elif args.fetch_config:
+        fetch_existing_machine(args.fetch_config, ip_address=args.ip)
     else:
         check_status()
 

@@ -11,7 +11,7 @@ Konfigurasi ini memastikan bahwa saat OpenOrgaTEX membuat dan mengompilasi progr
 machine_configs/
 ├── groups/                                 <-- Konfigurasi per kelompok/tipe mesin
 │   ├── GROUP_001_HIGH_TEMP_JET/            <-- Grup Mesin Jet Suhu Tinggi (HT Jet)
-│   │   ├── raw/                            <-- File asli dari HMI (\Storage\SC777CE\Config\)
+│   │   ├── raw/                            <-- File asli dari HMI (\Storage\sc777ce\Config\)
 │   │   │   ├── TYPECONF.CNF                <-- [KRUSIAL] Kamus fungsi & parameter PLC
 │   │   │   ├── CONFTEXT.CNF                <-- [KRUSIAL] Label teks bahasa & alarm
 │   │   │   ├── FNLEGEND.CNF                <-- Penjelasan handshake langkah PLC
@@ -50,15 +50,15 @@ machine_configs/
 
 ## 2. Cara Mengambil File dari HMI Mesin
 
-1. **Via Flashdisk di HMI**:
-   * Tancapkan flashdisk USB ke HMI kontroler SETEX/SECOM.
+1. **Via Storage di HMI**:
+   * Tancapkan Storage USB ke HMI kontroler SETEX/SECOM.
    * Masuk ke Windows CE Explorer / file manager di kontroler.
-   * Buka folder: `\Storage\SC777CE\Config\` (atau `C:\SC777CE\Config\`).
-   * Salin (Copy) file `TYPECONF.CNF`, `CONFTEXT.CNF`, dan `MACHCONF.CNF` ke flashdisk.
+   * Buka folder: `\Storage\sc777ce\Config\` (atau `C:\sc777ce\Config\`).
+   * Salin (Copy) file `TYPECONF.CNF`, `CONFTEXT.CNF`, dan `MACHCONF.CNF` ke Storage.
 
 2. **Via FTP (Jaringan LAN Mesin)**:
    * Hubungkan laptop / server ke IP mesin celup (port 21).
-   * Download folder `/Storage/SC777CE/Config/`.
+   * Download folder `/Storage/sc777ce/Config/`.
 
 ---
 

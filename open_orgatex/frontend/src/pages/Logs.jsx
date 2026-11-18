@@ -1,16 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import TempCurveChart from '../components/Charts/TempCurveChart';
-import { 
-  LineChart, 
-  AlertTriangle, 
-  CheckCircle2, 
-  RefreshCw, 
-  Database, 
-  Flame, 
-  Play, 
-  Clock, 
-  ShieldAlert, 
+import {
+  LineChart,
+  AlertTriangle,
+  CheckCircle2,
+  RefreshCw,
+  Database,
+  Flame,
+  Play,
+  Clock,
+  ShieldAlert,
   Server,
   Layers,
   ChevronRight,
@@ -49,6 +49,7 @@ const Logs = () => {
   const [chartCategories, setChartCategories] = useState([]);
   const [alarms, setAlarms] = useState([]);
   const [lastUpdated, setLastUpdated] = useState('');
+  const [selectedStepDetail, setSelectedStepDetail] = useState(null);
 
   // Filter Alarms & Intervensi HMI berdasarkan tanggal & Order By Date Time
   const [selectedAlarmDate, setSelectedAlarmDate] = useState('');
@@ -131,9 +132,9 @@ const Logs = () => {
 
   // Fetch Alarms & Intervensi HMI berdasarkan tanggal & Order By Date Time
   const fetchAlarms = async (
-    mach = selectedMachine, 
-    dateFilter = selectedAlarmDate, 
-    cat = alarmFilterCategory, 
+    mach = selectedMachine,
+    dateFilter = selectedAlarmDate,
+    cat = alarmFilterCategory,
     sortOrd = alarmSortOrder
   ) => {
     if (!mach) return;
@@ -222,8 +223,9 @@ const Logs = () => {
   ];
 
   const currentStepNo = liveData?.current_step || 1;
-  const totalDisplaySteps = Math.max(7, currentStepNo);
-  const stepsList = Array.from({ length: totalDisplaySteps }, (_, i) => {
+  const rawSteps = liveData?.steps && liveData.steps.length > 0 ? liveData.steps : null;
+
+  const stepsList = rawSteps || Array.from({ length: Math.max(7, currentStepNo) }, (_, i) => {
     const sNo = i + 1;
     if (sNo === currentStepNo && liveData?.function_code && FUNCTION_MAP[liveData.function_code]) {
       return { no: sNo, ...FUNCTION_MAP[liveData.function_code] };
@@ -261,7 +263,7 @@ const Logs = () => {
             )}
           </div>
           <p className="text-xs text-body dark:text-gray-400 mt-1">
-            Visualisasi kurva telemetri langsung dari HMI SETEX Secom 777 (<code className="text-primary font-mono font-bold">ftp://{hmiIp || '172.16.110.101'}/Storage/SC777CE/STATUS/STATUS.ACT</code>)
+            Visualisasi kurva telemetri langsung dari HMI SETEX Secom 777 (<code className="text-primary font-mono font-bold">ftp://{hmiIp || '172.16.110.101'}/Storage/sc777ce/STATUS/STATUS.ACT</code>)
           </p>
         </div>
 
@@ -347,22 +349,20 @@ const Logs = () => {
       <div className="flex border-b border-stroke dark:border-strokedark">
         <button
           onClick={() => setActiveTab('active')}
-          className={`flex items-center gap-2 py-2 px-5 text-xs font-bold border-b-2 transition-colors ${
-            activeTab === 'active'
-              ? 'border-primary text-primary'
-              : 'border-transparent text-gray-500 hover:text-black dark:hover:text-white'
-          }`}
+          className={`flex items-center gap-2 py-2 px-5 text-xs font-bold border-b-2 transition-colors ${activeTab === 'active'
+            ? 'border-primary text-primary'
+            : 'border-transparent text-gray-500 hover:text-black dark:hover:text-white'
+            }`}
         >
           <Activity className="h-4 w-4" />
           Active Batch (Live Kurva Mesin {selectedMachine})
         </button>
         <button
           onClick={() => setActiveTab('archive')}
-          className={`flex items-center gap-2 py-2 px-5 text-xs font-bold border-b-2 transition-colors ${
-            activeTab === 'archive'
-              ? 'border-primary text-primary'
-              : 'border-transparent text-gray-500 hover:text-black dark:hover:text-white'
-          }`}
+          className={`flex items-center gap-2 py-2 px-5 text-xs font-bold border-b-2 transition-colors ${activeTab === 'archive'
+            ? 'border-primary text-primary'
+            : 'border-transparent text-gray-500 hover:text-black dark:hover:text-white'
+            }`}
         >
           <Clock className="h-4 w-4" />
           Archive (Riwayat Batch Sebelumnya)
@@ -433,38 +433,63 @@ const Logs = () => {
 
       {/* TRACK 1: STEP TIMELINE BAR (UCStepState SETEX PARITY) */}
       <div className="rounded border border-stroke bg-white p-4 shadow-sm dark:border-strokedark dark:bg-boxdark space-y-2">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-wrap items-center justify-between gap-2">
           <div className="flex items-center gap-2">
             <Sliders className="h-4 w-4 text-primary" />
             <h4 className="text-xs font-bold text-black dark:text-white uppercase tracking-wider">
-              Timeline Langkah Program Celup (SETEX Step State Synchronizer)
+              Timeline Resep Program ({stepsList.length} Langkah Terdefinisi)
             </h4>
           </div>
-          <span className="text-xs font-bold text-primary font-mono">
-            Langkah Aktif: #{currentStepNo} ({stepsList.find(s => s.no === currentStepNo)?.name || 'Proses'})
-          </span>
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="text-xs font-bold text-primary font-mono bg-primary/10 px-2 py-0.5 rounded border border-primary/20">
+              Langkah Aktif: #{currentStepNo} ({stepsList.find(s => s.no === currentStepNo)?.name || 'Proses'})
+            </span>
+            <button
+              onClick={() => {
+                const active = stepsList.find(s => s.no === currentStepNo) || stepsList[0];
+                if (active) setSelectedStepDetail(active);
+              }}
+              className="inline-flex items-center gap-1 text-[11px] font-bold bg-primary text-white hover:bg-primary/90 px-2.5 py-1 rounded shadow-xs transition-all active:scale-95 cursor-pointer"
+              title="Klik untuk membuka tabel sub-step dan parameter langkah aktif"
+            >
+              Lihat Sub-Step #{currentStepNo}
+            </button>
+          </div>
         </div>
 
         {/* Step Blocks */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-7 lg:grid-cols-8 gap-2 pt-1">
+        <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-7 lg:grid-cols-8 gap-2 pt-1 max-h-56 overflow-y-auto pr-1">
           {stepsList.map((st) => {
             const isActive = st.no === currentStepNo;
             const isCompleted = st.no < currentStepNo;
             return (
               <div
                 key={st.no}
-                className={`p-2.5 rounded border text-center transition-all ${
-                  isActive
-                    ? 'border-primary bg-primary/10 text-primary shadow-sm font-bold ring-2 ring-primary/20'
-                    : isCompleted
+                id={`step-card-${st.no}`}
+                onClick={() => setSelectedStepDetail(st)}
+                className={`p-2.5 rounded border text-center transition-all cursor-pointer hover:shadow-md hover:border-primary/80 group ${isActive
+                  ? 'border-primary bg-primary/15 text-primary shadow-md font-bold ring-2 ring-primary/40 scale-[1.02]'
+                  : isCompleted
                     ? 'border-success/40 bg-success/5 text-success font-medium'
-                    : 'border-stroke dark:border-strokedark bg-gray-50 dark:bg-meta-4/30 text-gray-500'
-                }`}
+                    : 'border-stroke dark:border-strokedark bg-gray-50 dark:bg-meta-4/30 text-gray-500 hover:text-black dark:hover:text-white'
+                  }`}
+                title={`Klik untuk melihat detail sub-step & parameter langkah #${st.no}`}
               >
                 <div className="text-[10px] font-mono uppercase">Step #{st.no} [F{st.icon}]</div>
-                <div className="text-xs font-semibold truncate mt-0.5">{st.name}</div>
-                <div className="mt-1 text-[9px] font-bold">
-                  {isActive ? '● SEDANG JALAN' : isCompleted ? '✓ SELESAI' : 'MENUNGGU'}
+                <div className="text-xs font-semibold truncate mt-0.5" title={st.name}>{st.name}</div>
+                {st.p1 && (
+                  <div className="text-[10px] font-mono text-primary/80 truncate mt-0.5">
+                    {st.p1} {st.p3 ? `• ${st.p3}` : ''}
+                  </div>
+                )}
+                {st.has_intervention && (
+                  <div className="text-[9px] font-bold text-amber-700 dark:text-amber-300 bg-amber-500/15 px-1 py-0.5 rounded border border-amber-500/30 mt-0.5 truncate" title={st.intervention_notes}>
+                    ⚠️ Δ {st.delta_p1}
+                  </div>
+                )}
+                <div className="mt-1 text-[9px] font-bold flex items-center justify-center gap-1">
+                  <span>{isActive ? '● SEDANG JALAN' : isCompleted ? '✓ SELESAI' : 'MENUNGGU'}</span>
+                  <span className="opacity-0 group-hover:opacity-100 text-[10px] transition-opacity">🔍</span>
                 </div>
               </div>
             );
@@ -556,22 +581,20 @@ const Logs = () => {
                 const today = new Date().toISOString().split('T')[0];
                 setSelectedAlarmDate(today);
               }}
-              className={`px-2.5 py-1.5 text-xs font-semibold rounded border transition-colors ${
-                selectedAlarmDate === new Date().toISOString().split('T')[0]
-                  ? 'bg-primary text-white border-primary shadow-xs'
-                  : 'bg-white dark:bg-boxdark text-gray-700 dark:text-gray-300 border-stroke dark:border-strokedark hover:bg-gray-100 dark:hover:bg-meta-4'
-              }`}
+              className={`px-2.5 py-1.5 text-xs font-semibold rounded border transition-colors ${selectedAlarmDate === new Date().toISOString().split('T')[0]
+                ? 'bg-primary text-white border-primary shadow-xs'
+                : 'bg-white dark:bg-boxdark text-gray-700 dark:text-gray-300 border-stroke dark:border-strokedark hover:bg-gray-100 dark:hover:bg-meta-4'
+                }`}
             >
               Hari Ini
             </button>
 
             <button
               onClick={() => setSelectedAlarmDate('')}
-              className={`px-2.5 py-1.5 text-xs font-semibold rounded border transition-colors ${
-                !selectedAlarmDate
-                  ? 'bg-primary text-white border-primary shadow-xs'
-                  : 'bg-white dark:bg-boxdark text-gray-700 dark:text-gray-300 border-stroke dark:border-strokedark hover:bg-gray-100 dark:hover:bg-meta-4'
-              }`}
+              className={`px-2.5 py-1.5 text-xs font-semibold rounded border transition-colors ${!selectedAlarmDate
+                ? 'bg-primary text-white border-primary shadow-xs'
+                : 'bg-white dark:bg-boxdark text-gray-700 dark:text-gray-300 border-stroke dark:border-strokedark hover:bg-gray-100 dark:hover:bg-meta-4'
+                }`}
             >
               Semua Tanggal
             </button>
@@ -609,31 +632,28 @@ const Logs = () => {
             </span>
             <button
               onClick={() => setAlarmFilterCategory('ALL')}
-              className={`px-2 py-0.5 rounded text-[11px] font-bold transition-colors ${
-                alarmFilterCategory === 'ALL'
-                  ? 'bg-primary text-white'
-                  : 'bg-white dark:bg-boxdark border border-stroke dark:border-strokedark text-gray-600 dark:text-gray-400 hover:text-black dark:hover:text-white'
-              }`}
+              className={`px-2 py-0.5 rounded text-[11px] font-bold transition-colors ${alarmFilterCategory === 'ALL'
+                ? 'bg-primary text-white'
+                : 'bg-white dark:bg-boxdark border border-stroke dark:border-strokedark text-gray-600 dark:text-gray-400 hover:text-black dark:hover:text-white'
+                }`}
             >
               Semua ({alarms.length})
             </button>
             <button
               onClick={() => setAlarmFilterCategory('ALARM')}
-              className={`px-2 py-0.5 rounded text-[11px] font-bold transition-colors ${
-                alarmFilterCategory === 'ALARM'
-                  ? 'bg-amber-500 text-white'
-                  : 'bg-white dark:bg-boxdark border border-stroke dark:border-strokedark text-gray-600 dark:text-gray-400 hover:text-black dark:hover:text-white'
-              }`}
+              className={`px-2 py-0.5 rounded text-[11px] font-bold transition-colors ${alarmFilterCategory === 'ALARM'
+                ? 'bg-amber-500 text-white'
+                : 'bg-white dark:bg-boxdark border border-stroke dark:border-strokedark text-gray-600 dark:text-gray-400 hover:text-black dark:hover:text-white'
+                }`}
             >
               Alarm Sistem ({alarms.filter(a => !(a.is_intervention || ['0', '20', '256', '5899'].includes(String(a.alarm_code)))).length})
             </button>
             <button
               onClick={() => setAlarmFilterCategory('INTERVENTION')}
-              className={`px-2 py-0.5 rounded text-[11px] font-bold transition-colors ${
-                alarmFilterCategory === 'INTERVENTION'
-                  ? 'bg-blue-600 text-white'
-                  : 'bg-white dark:bg-boxdark border border-stroke dark:border-strokedark text-gray-600 dark:text-gray-400 hover:text-black dark:hover:text-white'
-              }`}
+              className={`px-2 py-0.5 rounded text-[11px] font-bold transition-colors ${alarmFilterCategory === 'INTERVENTION'
+                ? 'bg-blue-600 text-white'
+                : 'bg-white dark:bg-boxdark border border-stroke dark:border-strokedark text-gray-600 dark:text-gray-400 hover:text-black dark:hover:text-white'
+                }`}
             >
               Intervensi Operator ({alarms.filter(a => a.is_intervention || ['0', '20', '256', '5899'].includes(String(a.alarm_code))).length})
             </button>
@@ -649,11 +669,10 @@ const Logs = () => {
                 <button
                   key={dt}
                   onClick={() => setSelectedAlarmDate(dt)}
-                  className={`px-2 py-0.5 rounded font-mono text-[10px] font-bold border transition-colors ${
-                    selectedAlarmDate === dt
-                      ? 'bg-primary text-white border-primary shadow-xs'
-                      : 'bg-white dark:bg-boxdark border-stroke dark:border-strokedark text-gray-600 dark:text-gray-400 hover:border-primary'
-                  }`}
+                  className={`px-2 py-0.5 rounded font-mono text-[10px] font-bold border transition-colors ${selectedAlarmDate === dt
+                    ? 'bg-primary text-white border-primary shadow-xs'
+                    : 'bg-white dark:bg-boxdark border-stroke dark:border-strokedark text-gray-600 dark:text-gray-400 hover:border-primary'
+                    }`}
                   title={`Tampilkan riwayat tanggal ${dt}`}
                 >
                   {dt}
@@ -665,10 +684,31 @@ const Logs = () => {
 
         {/* TABEL DATA (STRICT ORDER BY DATE TIME) */}
         <div className="p-4 overflow-x-auto">
-          {alarms.length > 0 ? (
+          {alarms.length > 0 || (liveData?.interventions && liveData.interventions.length > 0) ? (
             (() => {
-              // Pastikan data alarms terurut strictly berdasarkan Date Time sesuai alarmSortOrder
-              const sortedAlarms = [...alarms].sort((a, b) => {
+              // Merge alarms with recorded operator parameter interventions
+              const rawEvents = [
+                ...alarms,
+                ...(liveData?.interventions || []).map(inv => ({
+                  id: `inv-${inv.id}`,
+                  timestamp: inv.timestamp,
+                  alarm_code: 'SET-MOD',
+                  alarm_text: inv.notes,
+                  step_no: inv.step_no,
+                  is_intervention: true,
+                  category: 'INTERVENTION',
+                  severity: 'WARNING'
+                }))
+              ];
+
+              const filteredEvents = rawEvents.filter(ev => {
+                if (alarmFilterCategory === 'ALARM') return !ev.is_intervention;
+                if (alarmFilterCategory === 'INTERVENTION') return ev.is_intervention;
+                return true;
+              });
+
+              // Pastikan data terurut strictly berdasarkan Date Time sesuai alarmSortOrder
+              const sortedAlarms = filteredEvents.sort((a, b) => {
                 const rawA = a.timestamp || a.alarm_timestamp || '';
                 const rawB = b.timestamp || b.alarm_timestamp || '';
                 const tA = rawA ? new Date(rawA.replace(' ', 'T')).getTime() : 0;
@@ -681,7 +721,7 @@ const Logs = () => {
                   <table className="w-full text-left text-xs">
                     <thead>
                       <tr className="border-b border-stroke dark:border-strokedark text-gray-500">
-                        <th 
+                        <th
                           onClick={() => setAlarmSortOrder(prev => prev === 'desc' ? 'asc' : 'desc')}
                           className="py-2.5 px-4 font-bold cursor-pointer hover:bg-gray-100 dark:hover:bg-meta-4/40 select-none group transition-colors"
                           title="Klik untuk membalik urutan kronologis Tanggal & Waktu (Order By Date Time)"
@@ -756,13 +796,12 @@ const Logs = () => {
                               </div>
                             </td>
                             <td className="py-2.5 px-4">
-                              <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${
-                                al.severity === 'CRITICAL' 
-                                  ? 'bg-danger/10 text-danger border border-danger/20' 
-                                  : al.severity === 'INFO'
+                              <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${al.severity === 'CRITICAL'
+                                ? 'bg-danger/10 text-danger border border-danger/20'
+                                : al.severity === 'INFO'
                                   ? 'bg-success/10 text-success border border-success/20'
                                   : 'bg-warning/10 text-warning border border-warning/20'
-                              }`}>
+                                }`}>
                                 {al.severity || 'WARNING'}
                               </span>
                             </td>
@@ -815,6 +854,163 @@ const Logs = () => {
           )}
         </div>
       </div>
+
+      {/* MODAL POPUP: SETEX SECOM PROGRAM LIST & SUB-STEP DETAIL (PARITY WITH HMI POPUP) */}
+      {selectedStepDetail && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4 animate-in fade-in duration-200">
+          <div className="bg-[#e4e7eb] dark:bg-boxdark border-2 border-[#b0b8c1] dark:border-strokedark rounded-lg shadow-2xl w-full max-w-2xl overflow-hidden font-sans">
+
+            {/* HMI Classic Window Header */}
+            <div className="bg-gradient-to-r from-[#d2d8e0] via-[#e5e9f0] to-[#c8d0dc] dark:from-meta-4 dark:to-boxdark border-b border-[#a0a8b4] px-4 py-2.5 flex items-center justify-between shadow-inner">
+              <div className="flex items-center gap-2">
+                <span className="text-sm font-bold font-mono text-[#2c3e50] dark:text-white tracking-wide">
+                  Program List {liveData?.program_code || '0342'} {liveData?.program_name || 'PROGRAM 30 MCT F'}
+                </span>
+                <span className="text-xs bg-primary/20 text-primary border border-primary/30 font-bold px-2 py-0.5 rounded font-mono">
+                  Step #{String(selectedStepDetail.no).padStart(3, '0')}
+                </span>
+              </div>
+              <button
+                onClick={() => setSelectedStepDetail(null)}
+                className="w-7 h-7 bg-red-600 hover:bg-red-700 active:scale-95 text-white font-bold rounded flex items-center justify-center shadow-md transition-all cursor-pointer"
+                title="Tutup Popup"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            {/* Table Content (SETEX HMI Parity) */}
+            <div className="p-4 bg-white dark:bg-boxdark">
+              {selectedStepDetail.has_intervention && (
+                <div className="mb-3 p-3 rounded bg-amber-50 dark:bg-amber-950/40 border border-amber-300 dark:border-amber-700/60 flex items-center justify-between text-xs text-amber-900 dark:text-amber-200 shadow-xs animate-in fade-in">
+                  <div className="flex items-center gap-2">
+                    <span className="text-base">⚠️</span>
+                    <div>
+                      <div className="font-bold">Intervensi Operator Terdeteksi:</div>
+                      <div>{selectedStepDetail.intervention_notes}</div>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <div className="text-[10px] uppercase font-bold text-amber-700 dark:text-amber-400">Penyimpangan (Δ)</div>
+                    <div className="font-mono font-extrabold text-sm text-amber-700 dark:text-amber-300">{selectedStepDetail.delta_p1}</div>
+                  </div>
+                </div>
+              )}
+
+              <div className="border border-[#b8c2cc] dark:border-strokedark rounded overflow-hidden shadow-inner">
+                <table className="w-full text-xs text-left">
+                  <thead className="bg-[#e9ecef] dark:bg-meta-4 text-[#334155] dark:text-gray-200 uppercase font-bold border-b border-[#b8c2cc] dark:border-strokedark font-mono">
+                    <tr>
+                      <th className="py-2.5 px-3 w-16 text-center border-r border-[#b8c2cc] dark:border-strokedark">Step No</th>
+                      <th className="py-2.5 px-3 border-r border-[#b8c2cc] dark:border-strokedark">Description</th>
+                      <th className="py-2.5 px-3 w-24 text-center border-r border-[#b8c2cc] dark:border-strokedark">P1 Resep</th>
+                      <th className="py-2.5 px-3 w-24 text-center border-r border-[#b8c2cc] dark:border-strokedark">P2</th>
+                      <th className="py-2.5 px-3 w-20 text-center border-r border-[#b8c2cc] dark:border-strokedark">P3</th>
+                      <th className="py-2.5 px-3 w-32 text-center">Aktual / Δ</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-[#d0d7de] dark:divide-strokedark font-sans">
+                    {(selectedStepDetail.sub_steps && selectedStepDetail.sub_steps.length > 0
+                      ? selectedStepDetail.sub_steps
+                      : [{ line: 1, name: selectedStepDetail.name, p1: selectedStepDetail.p1, p2: selectedStepDetail.p2, p3: selectedStepDetail.p3, is_sub: false }]
+                    ).map((line, idx) => {
+                      const isMain = !line.is_sub && line.line === 1;
+                      return (
+                        <tr
+                          key={idx}
+                          className={`${isMain
+                            ? 'bg-[#0052cc] text-white font-bold'
+                            : idx % 2 === 0
+                              ? 'bg-white dark:bg-boxdark text-black dark:text-white'
+                              : 'bg-[#f8f9fa] dark:bg-meta-4/30 text-black dark:text-white'
+                            } transition-colors`}
+                        >
+                          <td className={`py-2 px-3 text-center font-mono border-r ${isMain ? 'border-blue-400 font-extrabold text-sm' : 'border-[#d0d7de] dark:border-strokedark text-gray-400'}`}>
+                            {isMain ? String(selectedStepDetail.no).padStart(3, '0') : ''}
+                          </td>
+                          <td className={`py-2 px-3 border-r ${isMain ? 'border-blue-400' : 'border-[#d0d7de] dark:border-strokedark'} ${line.is_sub ? 'pl-6 font-medium text-gray-700 dark:text-gray-300' : 'font-bold'}`}>
+                            {line.name}
+                          </td>
+                          <td className={`py-2 px-3 text-center font-mono border-r ${isMain ? 'border-blue-400' : 'border-[#d0d7de] dark:border-strokedark'}`}>
+                            {line.p1 || '-'}
+                          </td>
+                          <td className={`py-2 px-3 text-center font-mono border-r ${isMain ? 'border-blue-400' : 'border-[#d0d7de] dark:border-strokedark'}`}>
+                            {line.p2 || '-'}
+                          </td>
+                          <td className={`py-2 px-3 text-center font-mono border-r ${isMain ? 'border-blue-400' : 'border-[#d0d7de] dark:border-strokedark'}`}>
+                            {line.p3 || '-'}
+                          </td>
+                          <td className="py-2 px-3 text-center font-mono">
+                            {line.has_delta ? (
+                              <span className="inline-block px-1.5 py-0.5 rounded bg-amber-100 dark:bg-amber-900/60 text-amber-800 dark:text-amber-200 font-bold font-mono text-[11px] border border-amber-300 dark:border-amber-700">
+                                {line.actual_p1} (Δ {line.delta_p1})
+                              </span>
+                            ) : isMain ? (
+                              <span className="text-blue-100 text-[11px]">Sesuai Resep</span>
+                            ) : (
+                              <span className="text-gray-400 text-[11px]">-</span>
+                            )}
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+
+              {/* Status info bar */}
+              <div className="mt-3 flex items-center justify-between text-xs text-gray-500 dark:text-gray-400">
+                <div>
+                  Kategori: <span className="font-bold uppercase text-primary font-mono">{selectedStepDetail.type || 'PROCESS'}</span> (Kode: F{selectedStepDetail.icon})
+                </div>
+                <div>
+                  Status Langkah: <span className={`font-bold font-mono px-2 py-0.5 rounded text-[11px] ${selectedStepDetail.no === currentStepNo
+                    ? 'bg-primary/10 text-primary border border-primary/20'
+                    : selectedStepDetail.no < currentStepNo
+                      ? 'bg-success/10 text-success border border-success/20'
+                      : 'bg-gray-100 text-gray-500'
+                    }`}>
+                    {selectedStepDetail.no === currentStepNo ? 'SEDANG JALAN' : selectedStepDetail.no < currentStepNo ? 'SELESAI' : 'MENUNGGU'}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* Modal Footer with Step Navigator */}
+            <div className="bg-[#f1f3f5] dark:bg-meta-4 px-4 py-3 border-t border-[#b8c2cc] dark:border-strokedark flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <button
+                  disabled={selectedStepDetail.no <= 1}
+                  onClick={() => {
+                    const prev = stepsList.find(s => s.no === selectedStepDetail.no - 1);
+                    if (prev) setSelectedStepDetail(prev);
+                  }}
+                  className="px-3 py-1.5 text-xs font-bold rounded border border-stroke bg-white hover:bg-gray-100 disabled:opacity-40 disabled:cursor-not-allowed dark:bg-boxdark dark:border-strokedark text-black dark:text-white transition-all cursor-pointer"
+                >
+                  ← Step Sebelumnya
+                </button>
+                <button
+                  disabled={selectedStepDetail.no >= stepsList.length}
+                  onClick={() => {
+                    const next = stepsList.find(s => s.no === selectedStepDetail.no + 1);
+                    if (next) setSelectedStepDetail(next);
+                  }}
+                  className="px-3 py-1.5 text-xs font-bold rounded border border-stroke bg-white hover:bg-gray-100 disabled:opacity-40 disabled:cursor-not-allowed dark:bg-boxdark dark:border-strokedark text-black dark:text-white transition-all cursor-pointer"
+                >
+                  Step Berikutnya →
+                </button>
+              </div>
+
+              <button
+                onClick={() => setSelectedStepDetail(null)}
+                className="px-4 py-1.5 text-xs font-bold rounded bg-gray-600 hover:bg-gray-700 text-white transition-all cursor-pointer"
+              >
+                Tutup
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

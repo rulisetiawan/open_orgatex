@@ -11,7 +11,7 @@ REFERENCE = Path(r'C:\Users\surface\Documents\ORGATEX_SETEX\PRG_Studio')
 sys.path.insert(0, str(REFERENCE))
 from cnf_decode import CNFReader, function, parameter
 
-SOURCE = Path(r'C:\Users\surface\Documents\ORGATEX_SETEX\13E\SC777CE\Config')
+SOURCE = Path(r'C:\Users\surface\Documents\ORGATEX_SETEX\13E\sc777ce\Config')
 OUTPUT = Path(__file__).resolve().parent / 'decoded_13E'
 
 
@@ -54,7 +54,7 @@ def main():
                            status='Binary inspected, not a verified instruction/operand disassembly.'))
     (OUTPUT / 'catalog.json').write_text(json.dumps(report, indent=2, ensure_ascii=False), encoding='utf-8')
     lines = ['# Parameter dan fungsi mesin 13E', '',
-             'Sumber: `13E/SC777CE/Config/TYPECONF.CNF`, rekonstruksi fragment dan RLE.',
+             'Sumber: `13E/sc777ce/Config/TYPECONF.CNF`, rekonstruksi fragment dan RLE.',
              'Ini ID definisi parameter/fungsi; belum otomatis merupakan alamat SV_CHANGE.', '',
              f'Ditemukan {len(params)} definisi parameter dan {len(functions)} fungsi unik.', '',
              '## Temperature Control', '']

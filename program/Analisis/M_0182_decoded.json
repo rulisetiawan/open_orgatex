@@ -1,5 +1,5 @@
 {
-  "source": "D:\\File HMI\\Storage\\SC777CE\\Programs\\M_0182.PRG",
+  "source": "D:\\File HMI\\Storage\\sc777ce\\Programs\\M_0182.PRG",
   "sha256": "5dfc4765f3d73d83ba24ff38011709b4c9b57997cca4ba98dc7bde0b053dc4d8",
   "program_id": 182,
   "title": "PRG 47 DYLON ",
@@ -46956,7 +46956,7 @@
   ],
   "cnf_decode": {
     "date": "2026-10-29",
-    "source": "D:\\File HMI\\Storage\\SC777CE\\Config\\TYPECONF.CNF",
+    "source": "D:\\File HMI\\Storage\\sc777ce\\Config\\TYPECONF.CNF",
     "sha256": "2936ceff7a238bfff4b9512ca602d9cc85f132086d279674311432f424bd9f57",
     "decoded_record_count": 3519,
     "fragment_count": 4463,

@@ -5,15 +5,17 @@ Uses PostgreSQL native ON CONFLICT DO NOTHING for idempotent high-speed telemetr
 """
 
 import os
+import re
 import logging
 from datetime import datetime
 from typing import Dict, Any, List, Optional
+from sqlalchemy import desc
 from sqlalchemy.orm import Session
 from sqlalchemy.dialects.postgresql import insert
 
 from .reader import SetexFolderReader
 from .event_broker import broker
-from ..models.schema_pg import Machine, BatchHeader, DatalogCyclicRecord, DatalogAlarm
+from ..models.schema_pg import Machine, BatchHeader, DatalogCyclicRecord, DatalogAlarm, OperatorIntervention
 
 logger = logging.getLogger("orgatex.ingestion")
 
@@ -263,6 +265,98 @@ class LogIngestionService:
             except Exception:
                 pass
 
+        # 5. Extract program recipe step names (parity with SETEX Secom 777 HMI step list)
+        recipe_steps = []
+        try:
+            recipe_steps = SetexFolderReader.get_recipe_steps(
+                ip=machine.ip_address,
+                ftp_port=machine.ftp_port or 21,
+                batch_no=batch_no,
+                folder_path=target_folder
+            )
+        except Exception as e:
+            logger.warning(f"Gagal mengekstrak langkah resep batch {batch_no}: {e}")
+
+        # 6. Evaluate baseline vs active operator setpoint deviation (Intervention Tracking)
+        active_interventions = []
+        try:
+            curr_step_no = machine.current_step or status_info.get("current_step") or 1
+            live_sp = status_info.get("temp_sp")
+            if live_sp is not None and recipe_steps:
+                target_step = next((s for s in recipe_steps if s.get("no") == curr_step_no), None)
+                if target_step:
+                    planned_sp_str = target_step.get("p1", "")
+                    m_val = re.search(r'[-+]?\d*\.?\d+', planned_sp_str)
+                    if m_val:
+                        planned_sp = float(m_val.group(0))
+                        delta_sp = round(live_sp - planned_sp, 1)
+                        if abs(delta_sp) >= 1.0:  # Deviation detected!
+                            existing = db.query(OperatorIntervention).filter(
+                                OperatorIntervention.machine_no == machine.machine_no,
+                                OperatorIntervention.batch_no == batch_no,
+                                OperatorIntervention.step_no == curr_step_no,
+                                OperatorIntervention.parameter_name == "Target Temperature"
+                            ).order_by(desc(OperatorIntervention.timestamp)).first()
+
+                            if not existing or abs(float(existing.value_after) - live_sp) >= 0.5:
+                                new_inv = OperatorIntervention(
+                                    machine_no=machine.machine_no,
+                                    batch_no=batch_no,
+                                    step_no=curr_step_no,
+                                    trigger_source="SETPOINT_OVERRIDE",
+                                    function_id=target_step.get("func_id", 141),
+                                    parameter_name="Target Temperature",
+                                    unit="°C",
+                                    value_before=planned_sp,
+                                    value_after=live_sp,
+                                    delta=delta_sp,
+                                    notes=f"Intervensi Operator: Target Suhu diubah dari {planned_sp:.1f} °C ke {live_sp:.1f} °C (Δ {delta_sp:+} °C)"
+                                )
+                                db.add(new_inv)
+                                db.commit()
+                                logger.warning(f"Recorded operator intervention: {new_inv.notes}")
+
+            # Query all interventions for current batch
+            if db:
+                db_invs = db.query(OperatorIntervention).filter(
+                    OperatorIntervention.machine_no == machine.machine_no,
+                    OperatorIntervention.batch_no == batch_no
+                ).order_by(desc(OperatorIntervention.timestamp)).all()
+
+                step_inv_map = {}
+                for inv in db_invs:
+                    if inv.step_no not in step_inv_map:
+                        step_inv_map[inv.step_no] = inv
+                    active_interventions.append({
+                        "id": inv.id,
+                        "timestamp": inv.timestamp.strftime("%Y-%m-%d %H:%M:%S") if inv.timestamp else "",
+                        "step_no": inv.step_no,
+                        "parameter_name": inv.parameter_name,
+                        "unit": inv.unit,
+                        "value_before": float(inv.value_before) if inv.value_before else 0.0,
+                        "value_after": float(inv.value_after) if inv.value_after else 0.0,
+                        "delta": float(inv.delta) if inv.delta else 0.0,
+                        "notes": inv.notes
+                    })
+
+                # Attach intervention markers to steps
+                for st in recipe_steps:
+                    s_no = st.get("no")
+                    if s_no in step_inv_map:
+                        inv = step_inv_map[s_no]
+                        st["has_intervention"] = True
+                        st["actual_p1"] = f"{float(inv.value_after):.1f} {inv.unit}"
+                        st["delta_p1"] = f"{float(inv.delta):+} {inv.unit}"
+                        st["intervention_notes"] = inv.notes
+
+                        for line in st.get("sub_steps", []):
+                            if not line.get("is_sub"):
+                                line["actual_p1"] = f"{float(inv.value_after):.1f} {inv.unit}"
+                                line["delta_p1"] = f"{float(inv.delta):+} {inv.unit}"
+                                line["has_delta"] = True
+        except Exception as e:
+            logger.warning(f"Gagal memproses evaluasi intervensi: {e}")
+
         return {
             "machine_no": machine.machine_no,
             "status": machine.status,
@@ -281,5 +375,7 @@ class LogIngestionService:
             "points_saved": points_inserted,
             "alarms_saved": alarms_inserted,
             "curve": unique_telemetry[-500:],  # Return up to 500 recent points for real-time chart
-            "alarms": final_alarms
+            "alarms": final_alarms,
+            "steps": recipe_steps,
+            "interventions": active_interventions
         }

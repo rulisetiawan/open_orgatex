@@ -27800,7 +27800,7 @@
     "sha256": "e5431bc678698b91cf4551af8638cb3a95e0db337bceb9fa6714ee635191a329"
   },
   {
-    "path": "Storage/SC777CE/ARCNET.CFG",
+    "path": "Storage/sc777ce/ARCNET.CFG",
     "bytes": 1237,
     "role": "Parameter ARCNET: alamat sendiri 1, PLC 2, timeout 5 detik, timeout alternatif 200 ms.",
     "basis": "Isi teks",
@@ -27808,7 +27808,7 @@
     "sha256": "e3049eaa26d0cd6eb049d0c1dcc6ffaf2a3aa58a2deee74fc810d90068f39617"
   },
   {
-    "path": "Storage/SC777CE/BATCH/012282/BATCHREF.REF",
+    "path": "Storage/sc777ce/BATCH/012282/BATCHREF.REF",
     "bytes": 762,
     "role": "Referensi/index yang menyertai program/batch; format relasi belum didekode.",
     "basis": "Pola keberadaan bersama PRG",
@@ -27816,7 +27816,7 @@
     "sha256": "787514d41367955ab3693ac5262e6fdb74d39ed7b15b7ee156eccdc0b45be4ed"
   },
   {
-    "path": "Storage/SC777CE/BATCH/012282/M_0140.PEX",
+    "path": "Storage/sc777ce/BATCH/012282/M_0140.PEX",
     "bytes": 63910,
     "role": "Berkas pendamping program pada batch; mungkin data ekstensi, semantik belum terkonfirmasi.",
     "basis": "Nama/lokasi saja",
@@ -27824,7 +27824,7 @@
     "sha256": "19366113110ba9e925de206eab041095cd911d7dcb443f8368221b03c640986b"
   },
   {
-    "path": "Storage/SC777CE/BATCH/012282/M_0140.PRG",
+    "path": "Storage/sc777ce/BATCH/012282/M_0140.PRG",
     "bytes": 16374,
     "role": "Program langkah proses dyeing untuk batch 012282; format parameter lengkap belum didekode.",
     "basis": "Pola direktori dan sampel string PRG",
@@ -27832,7 +27832,7 @@
     "sha256": "ba65255461a39c21ab45e8c7f19b71b8a51ee004c0480914d1bc423bdb6e6530"
   },
   {
-    "path": "Storage/SC777CE/BATCH/012282/PR012282.LOG",
+    "path": "Storage/sc777ce/BATCH/012282/PR012282.LOG",
     "bytes": 590336,
     "role": "Rekaman proses batch; format biner belum didekode.",
     "basis": "Pola nama PR dan lokasi",
@@ -27840,7 +27840,7 @@
     "sha256": "a4a9a1a3865d02d12ca9c3a7cda04d146ec2e33a8ec00a30e92e95dbd1d3c1da"
   },
   {
-    "path": "Storage/SC777CE/BATCH/060066/BATCHREF.REF",
+    "path": "Storage/sc777ce/BATCH/060066/BATCHREF.REF",
     "bytes": 762,
     "role": "Referensi/index yang menyertai program/batch; format relasi belum didekode.",
     "basis": "Pola keberadaan bersama PRG",
@@ -27848,7 +27848,7 @@
     "sha256": "9425cbf9825b6a5fd3f597550fe2f078365005356e1675d85e1d7671a4a5c169"
   },
   {
-    "path": "Storage/SC777CE/BATCH/060066/M_0502.PRG",
+    "path": "Storage/sc777ce/BATCH/060066/M_0502.PRG",
     "bytes": 28659,
     "role": "Program langkah proses dyeing untuk batch 060066; format parameter lengkap belum didekode.",
     "basis": "Pola direktori dan sampel string PRG",
@@ -27856,7 +27856,7 @@
     "sha256": "3d12f2b61d99168dd6158f9f89c4adef86a2e8fa9e740c40f85eaba91d9c5a9d"
   },
   {
-    "path": "Storage/SC777CE/BATCH/060066/PR060066.LOG",
+    "path": "Storage/sc777ce/BATCH/060066/PR060066.LOG",
     "bytes": 328704,
     "role": "Rekaman proses batch; format biner belum didekode.",
     "basis": "Pola nama PR dan lokasi",
@@ -27864,7 +27864,7 @@
     "sha256": "0d8363679d41731109b2a69811d3363d0f946b2ad2b97b366fb649cc90542800"
   },
   {
-    "path": "Storage/SC777CE/BATCH/060218/BATCHREF.REF",
+    "path": "Storage/sc777ce/BATCH/060218/BATCHREF.REF",
     "bytes": 762,
     "role": "Referensi/index yang menyertai program/batch; format relasi belum didekode.",
     "basis": "Pola keberadaan bersama PRG",
@@ -27872,7 +27872,7 @@
     "sha256": "5e68db0182f4a686321fdb2a8b6900fa6d0aeba738697c38a28124846e8bf68a"
   },
   {
-    "path": "Storage/SC777CE/BATCH/060218/M_0515.PRG",
+    "path": "Storage/sc777ce/BATCH/060218/M_0515.PRG",
     "bytes": 31584,
     "role": "Program langkah proses dyeing untuk batch 060218; format parameter lengkap belum didekode.",
     "basis": "Pola direktori dan sampel string PRG",
@@ -27880,7 +27880,7 @@
     "sha256": "62f3e39942549516b3f4b4b3b51a52b03b8e08c8fe79a869d938f8f3c7d1335c"
   },
   {
-    "path": "Storage/SC777CE/BATCH/060218/PR060218.LOG",
+    "path": "Storage/sc777ce/BATCH/060218/PR060218.LOG",
     "bytes": 310784,
     "role": "Rekaman proses batch; format biner belum didekode.",
     "basis": "Pola nama PR dan lokasi",
@@ -27888,7 +27888,7 @@
     "sha256": "9d770d97e5e711eb73c461510bc966733f7fecfc143f04d71e4ed9363c298324"
   },
   {
-    "path": "Storage/SC777CE/BATCH/060267/BATCHREF.REF",
+    "path": "Storage/sc777ce/BATCH/060267/BATCHREF.REF",
     "bytes": 762,
     "role": "Referensi/index yang menyertai program/batch; format relasi belum didekode.",
     "basis": "Pola keberadaan bersama PRG",
@@ -27896,7 +27896,7 @@
     "sha256": "68a70d43629f572045346018009bbcadf58359381edb8a25b889f39e1e931e5e"
   },
   {
-    "path": "Storage/SC777CE/BATCH/060267/M_0512.PRG",
+    "path": "Storage/sc777ce/BATCH/060267/M_0512.PRG",
     "bytes": 31454,
     "role": "Program langkah proses dyeing untuk batch 060267; format parameter lengkap belum didekode.",
     "basis": "Pola direktori dan sampel string PRG",
@@ -27904,7 +27904,7 @@
     "sha256": "5212290dbe4288098206f28eab0ea9e12936298c7c90053f8667bb82eac6f05b"
   },
   {
-    "path": "Storage/SC777CE/BATCH/060267/PR060267.LOG",
+    "path": "Storage/sc777ce/BATCH/060267/PR060267.LOG",
     "bytes": 319488,
     "role": "Rekaman proses batch; format biner belum didekode.",
     "basis": "Pola nama PR dan lokasi",
@@ -27912,7 +27912,7 @@
     "sha256": "35460474640c2160028d1d020b3666fa59a40c42e806ca4fbc9b5ab4438e3e35"
   },
   {
-    "path": "Storage/SC777CE/BATCH/060348/BATCHREF.REF",
+    "path": "Storage/sc777ce/BATCH/060348/BATCHREF.REF",
     "bytes": 762,
     "role": "Referensi/index yang menyertai program/batch; format relasi belum didekode.",
     "basis": "Pola keberadaan bersama PRG",
@@ -27920,7 +27920,7 @@
     "sha256": "115c8a1cdb3d941c37bd5a3e6c7c10f0d4121afeb3a6a3b7c9c748ea676e9f61"
   },
   {
-    "path": "Storage/SC777CE/BATCH/060348/M_0501.PRG",
+    "path": "Storage/sc777ce/BATCH/060348/M_0501.PRG",
     "bytes": 28009,
     "role": "Program langkah proses dyeing untuk batch 060348; format parameter lengkap belum didekode.",
     "basis": "Pola direktori dan sampel string PRG",
@@ -27928,7 +27928,7 @@
     "sha256": "7fc2e6fb3ff4afcf96d7e26c39c2dbbb545deb5fc4912c6885a77b8174d84e6b"
   },
   {
-    "path": "Storage/SC777CE/BATCH/060348/PR060348.LOG",
+    "path": "Storage/sc777ce/BATCH/060348/PR060348.LOG",
     "bytes": 353792,
     "role": "Rekaman proses batch; format biner belum didekode.",
     "basis": "Pola nama PR dan lokasi",
@@ -27936,7 +27936,7 @@
     "sha256": "9344f09f113c8f6c63749df9fb5669b3b954a0b599f252ebb2f4f9a11165afad"
   },
   {
-    "path": "Storage/SC777CE/BATCH/060406/BATCHREF.REF",
+    "path": "Storage/sc777ce/BATCH/060406/BATCHREF.REF",
     "bytes": 762,
     "role": "Referensi/index yang menyertai program/batch; format relasi belum didekode.",
     "basis": "Pola keberadaan bersama PRG",
@@ -27944,7 +27944,7 @@
     "sha256": "5b6e44763370bf51f4e70bfb402e3c3045cce36b551bd6b066a14d6bca4d7e3c"
   },
   {
-    "path": "Storage/SC777CE/BATCH/060406/M_0502.PRG",
+    "path": "Storage/sc777ce/BATCH/060406/M_0502.PRG",
     "bytes": 28659,
     "role": "Program langkah proses dyeing untuk batch 060406; format parameter lengkap belum didekode.",
     "basis": "Pola direktori dan sampel string PRG",
@@ -27952,7 +27952,7 @@
     "sha256": "1b02226f2125d4f4afb714ed378a4fe22281043e0ac594b939abda3999bf619a"
   },
   {
-    "path": "Storage/SC777CE/BATCH/060406/PR060406.LOG",
+    "path": "Storage/sc777ce/BATCH/060406/PR060406.LOG",
     "bytes": 329216,
     "role": "Rekaman proses batch; format biner belum didekode.",
     "basis": "Pola nama PR dan lokasi",
@@ -27960,7 +27960,7 @@
     "sha256": "4a85c32b2453d068d027602366f192ad826f1630614491dc40e9446efcbfdb85"
   },
   {
-    "path": "Storage/SC777CE/BATCH/060455/BATCHREF.REF",
+    "path": "Storage/sc777ce/BATCH/060455/BATCHREF.REF",
     "bytes": 762,
     "role": "Referensi/index yang menyertai program/batch; format relasi belum didekode.",
     "basis": "Pola keberadaan bersama PRG",
@@ -27968,7 +27968,7 @@
     "sha256": "1badebf7306715ff38cbd58b6223e49c9eae0bfd640aae10d14732d97a18ba04"
   },
   {
-    "path": "Storage/SC777CE/BATCH/060455/M_0174.PRG",
+    "path": "Storage/sc777ce/BATCH/060455/M_0174.PRG",
     "bytes": 5584,
     "role": "Program langkah proses dyeing untuk batch 060455; format parameter lengkap belum didekode.",
     "basis": "Pola direktori dan sampel string PRG",
@@ -27976,7 +27976,7 @@
     "sha256": "d546b97e11c73a00a96899c061f3ac78075a8f438e1541b7380908d5fd405a18"
   },
   {
-    "path": "Storage/SC777CE/BATCH/060455/PR060455.LOG",
+    "path": "Storage/sc777ce/BATCH/060455/PR060455.LOG",
     "bytes": 3072,
     "role": "Rekaman proses batch; format biner belum didekode.",
     "basis": "Pola nama PR dan lokasi",
@@ -27984,7 +27984,7 @@
     "sha256": "dae5107af831273c16b614dead76fc6ab1828e50282c246832c5e3bda2318a38"
   },
   {
-    "path": "Storage/SC777CE/BATCH/060735/BATCHREF.REF",
+    "path": "Storage/sc777ce/BATCH/060735/BATCHREF.REF",
     "bytes": 762,
     "role": "Referensi/index yang menyertai program/batch; format relasi belum didekode.",
     "basis": "Pola keberadaan bersama PRG",
@@ -27992,7 +27992,7 @@
     "sha256": "f327b2a01efd531dc8faeaf23da4019519a7e38a45e9208b04e1f91fb0b4056f"
   },
   {
-    "path": "Storage/SC777CE/BATCH/060735/M_0600.PRG",
+    "path": "Storage/sc777ce/BATCH/060735/M_0600.PRG",
     "bytes": 20664,
     "role": "Program langkah proses dyeing untuk batch 060735; format parameter lengkap belum didekode.",
     "basis": "Pola direktori dan sampel string PRG",
@@ -28000,7 +28000,7 @@
     "sha256": "e9cf2ced4e42e4dd89dc3dfa66ccf26a280ae459f5706161290bc377c7a7ab0d"
   },
   {
-    "path": "Storage/SC777CE/BATCH/060735/PR060735.LOG",
+    "path": "Storage/sc777ce/BATCH/060735/PR060735.LOG",
     "bytes": 379904,
     "role": "Rekaman proses batch; format biner belum didekode.",
     "basis": "Pola nama PR dan lokasi",
@@ -28008,7 +28008,7 @@
     "sha256": "52b0d606dea04a5912019fdf33e45e1cf10a991812a6ae3ae9f03e03e1f741bd"
   },
   {
-    "path": "Storage/SC777CE/BATCH/060766/BATCHREF.REF",
+    "path": "Storage/sc777ce/BATCH/060766/BATCHREF.REF",
     "bytes": 762,
     "role": "Referensi/index yang menyertai program/batch; format relasi belum didekode.",
     "basis": "Pola keberadaan bersama PRG",
@@ -28016,7 +28016,7 @@
     "sha256": "774d3824ae3b5b5f2c090d8435597b0596f0408c176fa9086635b800c3fc95b0"
   },
   {
-    "path": "Storage/SC777CE/BATCH/060766/M_0536.PEX",
+    "path": "Storage/sc777ce/BATCH/060766/M_0536.PEX",
     "bytes": 101343,
     "role": "Berkas pendamping program pada batch; mungkin data ekstensi, semantik belum terkonfirmasi.",
     "basis": "Nama/lokasi saja",
@@ -28024,7 +28024,7 @@
     "sha256": "42b576f578b7e9e859f2658b6aa5587e47943d76c37c4e4749a58a6d54c2e21f"
   },
   {
-    "path": "Storage/SC777CE/BATCH/060766/M_0536.PRG",
+    "path": "Storage/sc777ce/BATCH/060766/M_0536.PRG",
     "bytes": 29894,
     "role": "Program langkah proses dyeing untuk batch 060766; format parameter lengkap belum didekode.",
     "basis": "Pola direktori dan sampel string PRG",
@@ -28032,7 +28032,7 @@
     "sha256": "4e366aae77df3fb2dd0498b1f3c830515485f4f7c371795d97d54a6d808d648b"
   },
   {
-    "path": "Storage/SC777CE/BATCH/060766/PR060766.LOG",
+    "path": "Storage/sc777ce/BATCH/060766/PR060766.LOG",
     "bytes": 355328,
     "role": "Rekaman proses batch; format biner belum didekode.",
     "basis": "Pola nama PR dan lokasi",
@@ -28040,7 +28040,7 @@
     "sha256": "7aba41965e4e161feaa1543247f0d943e9bac248ea61365742a6687980d5fc55"
   },
   {
-    "path": "Storage/SC777CE/BATCH/060892/BATCHREF.REF",
+    "path": "Storage/sc777ce/BATCH/060892/BATCHREF.REF",
     "bytes": 762,
     "role": "Referensi/index yang menyertai program/batch; format relasi belum didekode.",
     "basis": "Pola keberadaan bersama PRG",
@@ -28048,7 +28048,7 @@
     "sha256": "0e4f397d58ff7808999cbaef497b173056cebbf9d80f23d7c21cc25d6964c36a"
   },
   {
-    "path": "Storage/SC777CE/BATCH/060892/M_0401.PRG",
+    "path": "Storage/sc777ce/BATCH/060892/M_0401.PRG",
     "bytes": 26059,
     "role": "Program langkah proses dyeing untuk batch 060892; format parameter lengkap belum didekode.",
     "basis": "Pola direktori dan sampel string PRG",
@@ -28056,7 +28056,7 @@
     "sha256": "c25bebb884c1621924f03486c551f697c6abff8db2dc4b82be45ce8ede867d34"
   },
   {
-    "path": "Storage/SC777CE/BATCH/060892/PR060892.LOG",
+    "path": "Storage/sc777ce/BATCH/060892/PR060892.LOG",
     "bytes": 3072,
     "role": "Rekaman proses batch; format biner belum didekode.",
     "basis": "Pola nama PR dan lokasi",
@@ -28064,7 +28064,7 @@
     "sha256": "986148dd022da49924bb8aee58347d308cb7ac639a8d2a94cbd0e07c8af0572e"
   },
   {
-    "path": "Storage/SC777CE/BATCH/BATCHES.BTD",
+    "path": "Storage/sc777ce/BATCH/BATCHES.BTD",
     "bytes": 6656,
     "role": "Data daftar/manajemen batch lokal; struktur internal belum didekode.",
     "basis": "Nama/lokasi",
@@ -28072,7 +28072,7 @@
     "sha256": "7c20e614fa1defa79874b45bb9b2fabde0296ccda3043e471eebb519e9fee062"
   },
   {
-    "path": "Storage/SC777CE/BATCH/BATCHREF.REF",
+    "path": "Storage/sc777ce/BATCH/BATCHREF.REF",
     "bytes": 762,
     "role": "Referensi/index yang menyertai program/batch; format relasi belum didekode.",
     "basis": "Pola keberadaan bersama PRG",
@@ -28080,7 +28080,7 @@
     "sha256": "1923ce87eda9de3b421262d64af1925cbe2f1ed164dd9a5aff47aec4679e758f"
   },
   {
-    "path": "Storage/SC777CE/Config/ALRIC_CE.TBM",
+    "path": "Storage/sc777ce/Config/ALRIC_CE.TBM",
     "bytes": 963072,
     "role": "Pustaka aset ikon alarm; keterkaitan record belum didekode.",
     "basis": "Nama dan daftar SECOM.CFG",
@@ -28088,7 +28088,7 @@
     "sha256": "3b41d42ecf07d6ba3168a2559e68f22002592130a7aa3e0707d5a1873f5aa6ce"
   },
   {
-    "path": "Storage/SC777CE/Config/CONFTEXT.CNF",
+    "path": "Storage/sc777ce/Config/CONFTEXT.CNF",
     "bytes": 446976,
     "role": "Teks konfigurasi multibahasa dan label fungsi.",
     "basis": "String biner",
@@ -28096,7 +28096,7 @@
     "sha256": "73bc7a037deb74192bbf22a79f0a6a94fe62c58243cc1b7d566aeb31e996f17c"
   },
   {
-    "path": "Storage/SC777CE/Config/CP14.AWL",
+    "path": "Storage/sc777ce/Config/CP14.AWL",
     "bytes": 369698,
     "role": "Artefak PLC biner terkait CP14; bukan listing teks. Logika dan alamat I/O belum didekode.",
     "basis": "Header dan string biner",
@@ -28104,7 +28104,7 @@
     "sha256": "a086a4d3db9a1015bd8bd1408bf785e9acc03c5ae91c82dc9ea0ab5bd8adadd3"
   },
   {
-    "path": "Storage/SC777CE/Config/FCTIC757.TBM",
+    "path": "Storage/sc777ce/Config/FCTIC757.TBM",
     "bytes": 365568,
     "role": "Diduga pustaka ikon fungsi.",
     "basis": "Nama dan daftar SECOM.CFG",
@@ -28112,7 +28112,7 @@
     "sha256": "645d701e9417245bd93ee93684a5b106e804b5d5135a42ae7714bf93a42ca1b3"
   },
   {
-    "path": "Storage/SC777CE/Config/FNLEGEND.CNF",
+    "path": "Storage/sc777ce/Config/FNLEGEND.CNF",
     "bytes": 46080,
     "role": "Penjelasan fungsi proses, termasuk inisialisasi dan handshake dengan PLC.",
     "basis": "Teks penjelasan dalam biner",
@@ -28120,7 +28120,7 @@
     "sha256": "a420d26e33e95807e35283dde0693d6af5fc6e6623010271a5769a28847091fc"
   },
   {
-    "path": "Storage/SC777CE/Config/FUNCP757.TBM",
+    "path": "Storage/sc777ce/Config/FUNCP757.TBM",
     "bytes": 1907712,
     "role": "Diduga pustaka gambar fungsi proses.",
     "basis": "Nama dan daftar SECOM.CFG",
@@ -28128,7 +28128,7 @@
     "sha256": "5b15ca7ff6d96ff5167dc5d37638925bf1fb0d6e8bb044b8b1b14d82393eda1d"
   },
   {
-    "path": "Storage/SC777CE/Config/GRPIC757.TBM",
+    "path": "Storage/sc777ce/Config/GRPIC757.TBM",
     "bytes": 90624,
     "role": "Diduga gambar/ikon grup fungsi.",
     "basis": "Nama dan daftar SECOM.CFG",
@@ -28136,7 +28136,7 @@
     "sha256": "d6fdf7eaaffcb1814f2347c6843bb8c19774f512c04f113e34da2cecf4894ee8"
   },
   {
-    "path": "Storage/SC777CE/Config/HFUNICON.TBM",
+    "path": "Storage/sc777ce/Config/HFUNICON.TBM",
     "bytes": 127488,
     "role": "Diduga ikon fungsi untuk tampilan tertentu; arti prefix H belum dipastikan.",
     "basis": "Nama dan daftar SECOM.CFG",
@@ -28144,7 +28144,7 @@
     "sha256": "2eab5c5eeb1bd953a8976c39c4c838e920f3048f819b6ab06e7021ef192b8252"
   },
   {
-    "path": "Storage/SC777CE/Config/HGRPICON.TBM",
+    "path": "Storage/sc777ce/Config/HGRPICON.TBM",
     "bytes": 28672,
     "role": "Diduga ikon grup untuk tampilan tertentu; arti prefix H belum dipastikan.",
     "basis": "Nama dan daftar SECOM.CFG",
@@ -28152,7 +28152,7 @@
     "sha256": "03bc78a29469a5139c889d6b27cf414249b1ebdf61201d9346c141076cc68543"
   },
   {
-    "path": "Storage/SC777CE/Config/LOGOP757.TBM",
+    "path": "Storage/sc777ce/Config/LOGOP757.TBM",
     "bytes": 608256,
     "role": "Diduga pustaka logo tampilan.",
     "basis": "Nama dan daftar SECOM.CFG",
@@ -28160,7 +28160,7 @@
     "sha256": "e6cb5a38b71dc7515628dc101e5871879e2b24636bf09ad663b8feeabd66430d"
   },
   {
-    "path": "Storage/SC777CE/Config/MACHCONF.CNF",
+    "path": "Storage/sc777ce/Config/MACHCONF.CNF",
     "bytes": 15872,
     "role": "Konfigurasi mesin biner; memuat nama host dan jalur OT. Struktur field belum didekode penuh.",
     "basis": "SECOM.CFG dan string biner",
@@ -28168,7 +28168,7 @@
     "sha256": "be39f8c348e686d55e33753a80f5c413fb9ac9419ce88e53acd595d0e5a24790"
   },
   {
-    "path": "Storage/SC777CE/Config/PASSCODE.CNF",
+    "path": "Storage/sc777ce/Config/PASSCODE.CNF",
     "bytes": 4096,
     "role": "Diduga data kode akses; isi sensitif tidak diekstrak.",
     "basis": "Nama/lokasi",
@@ -28176,7 +28176,7 @@
     "sha256": "e4acfa5ae628befc42790b1b54d21e6618cddeab0b8c8c3691f7e16637b39aca"
   },
   {
-    "path": "Storage/SC777CE/Config/PROCI757.TBM",
+    "path": "Storage/sc777ce/Config/PROCI757.TBM",
     "bytes": 2118144,
     "role": "Pustaka ikon proses; memuat nama komponen WT_HOR/WNCH.",
     "basis": "String biner dan daftar SECOM.CFG",
@@ -28184,7 +28184,7 @@
     "sha256": "e4a0ed7ec5cbca495580496eb6108db588539d69fe2f79cb3e5910d5b6f2fd62"
   },
   {
-    "path": "Storage/SC777CE/Config/PROCP757.TBM",
+    "path": "Storage/sc777ce/Config/PROCP757.TBM",
     "bytes": 532992,
     "role": "Diduga gambar latar/halaman proses; memuat BGBLUE.",
     "basis": "String biner dan nama",
@@ -28192,7 +28192,7 @@
     "sha256": "3aaba42085c1cdcc19bbcf7fa9bb3d2c7cd3e6a1e2e0155cd921288954222c41"
   },
   {
-    "path": "Storage/SC777CE/Config/PRSMP757.TBM",
+    "path": "Storage/sc777ce/Config/PRSMP757.TBM",
     "bytes": 69120,
     "role": "Diduga gambar proses ukuran kecil/ringkas; memuat BG_BLU_S.",
     "basis": "String biner dan nama",
@@ -28200,7 +28200,7 @@
     "sha256": "e21f58b2f86d1417f745d7c182e030aae5be56530af150b7478d20835bd2053d"
   },
   {
-    "path": "Storage/SC777CE/Config/STATP757.TBM",
+    "path": "Storage/sc777ce/Config/STATP757.TBM",
     "bytes": 27648,
     "role": "Diduga gambar status; memuat TIME_SL.",
     "basis": "String biner dan nama",
@@ -28208,7 +28208,7 @@
     "sha256": "b69e96e3290e71b8a55aef49cdb55a47a0ce7bb4b3879533edd3c39e3258b4e3"
   },
   {
-    "path": "Storage/SC777CE/Config/STPIC_CE.TBM",
+    "path": "Storage/sc777ce/Config/STPIC_CE.TBM",
     "bytes": 89088,
     "role": "Aset gambar terkait tampilan CE; fungsi spesifik belum dipastikan.",
     "basis": "Daftar SECOM.CFG",
@@ -28216,7 +28216,7 @@
     "sha256": "c56957e1af9981298df33b66f27dc37eb7d75d40e73952a3bf05017d5af6816b"
   },
   {
-    "path": "Storage/SC777CE/Config/TYPECONF.CNF",
+    "path": "Storage/sc777ce/Config/TYPECONF.CNF",
     "bytes": 826368,
     "role": "Konfigurasi tipe/fungsi proses; berisi label fungsi, parameter dan kondisi mesin.",
     "basis": "SECOM.CFG dan string biner",
@@ -28224,7 +28224,7 @@
     "sha256": "2936ceff7a238bfff4b9512ca602d9cc85f132086d279674311432f424bd9f57"
   },
   {
-    "path": "Storage/SC777CE/Config/TYPECONT.CNF",
+    "path": "Storage/sc777ce/Config/TYPECONT.CNF",
     "bytes": 227328,
     "role": "Konfigurasi kontrol/tampilan tipe; berisi nama halaman, bahasa dan identitas konfigurasi.",
     "basis": "String biner; peran rinci interpretasi",
@@ -28232,7 +28232,7 @@
     "sha256": "c1398d8329f633ebabd2b533526a62c5e6b436b7ff1250ae778d534abcc4626e"
   },
   {
-    "path": "Storage/SC777CE/Config/TYPEFORM.CNF",
+    "path": "Storage/sc777ce/Config/TYPEFORM.CNF",
     "bytes": 43520,
     "role": "Diduga konfigurasi formula/parameter tipe, dengan label perhitungan volume/level.",
     "basis": "Nama dan string biner",
@@ -28240,7 +28240,7 @@
     "sha256": "e95784deef720d90a4e8e71cdf26f33bf53dc608c06f9a06e79faf9a2865a17f"
   },
   {
-    "path": "Storage/SC777CE/Config/USERCONF.CNF",
+    "path": "Storage/sc777ce/Config/USERCONF.CNF",
     "bytes": 10240,
     "role": "Konfigurasi pengguna/label proses; sampel memuat label tambahan. Bukan bukti daftar akun.",
     "basis": "String biner",
@@ -28248,7 +28248,7 @@
     "sha256": "0b5543bb664aa626d45a6d8559b4d66ccf5d1b4c74656f37602d186ad49aa954"
   },
   {
-    "path": "Storage/SC777CE/Doc/HB777-777CE_D_scr.pdf",
+    "path": "Storage/sc777ce/Doc/HB777-777CE_D_scr.pdf",
     "bytes": 3728880,
     "role": "Dokumentasi/referensi: HB777-777CE_D_scr. Keberadaan manual tidak membuktikan fitur terpasang.",
     "basis": "Nama dokumen; isi tidak semua ditelaah",
@@ -28256,7 +28256,7 @@
     "sha256": "19e9d5e98c9b40eb3c6315a170f33f607cfcb3f2055910d421bb4e90f757d643"
   },
   {
-    "path": "Storage/SC777CE/Doc/HB777-777CE_E_scr.pdf",
+    "path": "Storage/sc777ce/Doc/HB777-777CE_E_scr.pdf",
     "bytes": 3431290,
     "role": "Dokumentasi/referensi: HB777-777CE_E_scr. Keberadaan manual tidak membuktikan fitur terpasang.",
     "basis": "Nama dokumen; isi tidak semua ditelaah",
@@ -28264,7 +28264,7 @@
     "sha256": "661fec0ef67b1d325a3e29650aa4f07b74801581daf90508624613cab0d416e7"
   },
   {
-    "path": "Storage/SC777CE/ERRORLOG/Error1.txt",
+    "path": "Storage/sc777ce/ERRORLOG/Error1.txt",
     "bytes": 33306,
     "role": "Log teks diagnostik aplikasi: startup, jaringan, alarm dan power fail.",
     "basis": "Isi teks",
@@ -28272,7 +28272,7 @@
     "sha256": "a286a3216d3048453ca0766918c4e4bb8c5cfc5595716f7e525126db7a04f2bc"
   },
   {
-    "path": "Storage/SC777CE/ERRORLOG/Error2.txt",
+    "path": "Storage/sc777ce/ERRORLOG/Error2.txt",
     "bytes": 33255,
     "role": "Log teks diagnostik aplikasi: startup, jaringan, alarm dan power fail.",
     "basis": "Isi teks",
@@ -28280,7 +28280,7 @@
     "sha256": "4bcd524dd03655f3ea0225dc4ce5f6a64ed2e655c7cf67a162a048f83c5d5135"
   },
   {
-    "path": "Storage/SC777CE/ERRORLOG/Error3.txt",
+    "path": "Storage/sc777ce/ERRORLOG/Error3.txt",
     "bytes": 5637,
     "role": "Log teks diagnostik aplikasi: startup, jaringan, alarm dan power fail.",
     "basis": "Isi teks",
@@ -28288,7 +28288,7 @@
     "sha256": "0414d2b97703b1ba2bec8099646cec1abb236edcc951631ccc5e3659a9f8fa6d"
   },
   {
-    "path": "Storage/SC777CE/Loader/Loader.cfg",
+    "path": "Storage/sc777ce/Loader/Loader.cfg",
     "bytes": 69,
     "role": "Menetapkan DESTPATH, REM_PATH dan EXEFNAME untuk loader.",
     "basis": "Isi teks",
@@ -28296,7 +28296,7 @@
     "sha256": "de84f8e21b259f97cbc16872611c8e185d09928ff12a8504cc165a53b0c1ed97"
   },
   {
-    "path": "Storage/SC777CE/Loader/mfcce400d.dll",
+    "path": "Storage/sc777ce/Loader/mfcce400d.dll",
     "bytes": 840192,
     "role": "Runtime Microsoft Foundation Classes untuk Windows CE yang dipakai program C++.",
     "basis": "Exports MFC dan imports aplikasi",
@@ -28304,7 +28304,7 @@
     "sha256": "ffb566479ed02cb678a1f2db0a2b47c4953c8b8b8581153f90abed5962d8cd47"
   },
   {
-    "path": "Storage/SC777CE/Loader/SecomCE_Loader_2d.exe",
+    "path": "Storage/sc777ce/Loader/SecomCE_Loader_2d.exe",
     "bytes": 59904,
     "role": "Loader aplikasi HMI; Loader.cfg menentukan executable tujuan. Pemicu boot belum diketahui.",
     "basis": "Nama dan Loader.cfg",
@@ -28312,7 +28312,7 @@
     "sha256": "d38338df1b571289001e0a8cd5722398bbf3592e8becf451b478b49ad6fa93fb"
   },
   {
-    "path": "Storage/SC777CE/LX800ControllCenter.exe",
+    "path": "Storage/sc777ce/LX800ControllCenter.exe",
     "bytes": 1553408,
     "role": "Utilitas pengaturan platform LX800; detail menu belum diuji.",
     "basis": "Nama dan imports Cgos/FTD2XX",
@@ -28320,7 +28320,7 @@
     "sha256": "e7262bc16ec50dc5ff6d56fa7c8103336fb0bbea66ad70a68ab7f6cb6121c77e"
   },
   {
-    "path": "Storage/SC777CE/LX800TouchCalibrate.exe",
+    "path": "Storage/sc777ce/LX800TouchCalibrate.exe",
     "bytes": 928256,
     "role": "Utilitas kalibrasi touchscreen LX800.",
     "basis": "Nama dan imports hardware",
@@ -28328,7 +28328,7 @@
     "sha256": "d12f93a4eb02b6318fda3caa35e5a516eb5156bf418624c5042735d6143f94c8"
   },
   {
-    "path": "Storage/SC777CE/mfcce400d.dll",
+    "path": "Storage/sc777ce/mfcce400d.dll",
     "bytes": 840192,
     "role": "Runtime Microsoft Foundation Classes untuk Windows CE yang dipakai program C++.",
     "basis": "Exports MFC dan imports aplikasi",
@@ -28336,7 +28336,7 @@
     "sha256": "ffb566479ed02cb678a1f2db0a2b47c4953c8b8b8581153f90abed5962d8cd47"
   },
   {
-    "path": "Storage/SC777CE/MsgDiagnosticCE_2d.exe",
+    "path": "Storage/sc777ce/MsgDiagnosticCE_2d.exe",
     "bytes": 258048,
     "role": "Diagnostik pesan; mengimpor MessageService dan BGUtils.",
     "basis": "Imports PE",
@@ -28344,7 +28344,7 @@
     "sha256": "fca00216b412649522967a4fd7a3694e7d61fc6a51e7210adedcc88b46061f08"
   },
   {
-    "path": "Storage/SC777CE/olece400d.dll",
+    "path": "Storage/sc777ce/olece400d.dll",
     "bytes": 469504,
     "role": "Runtime pendukung OLE/COM Windows CE.",
     "basis": "Exports COleVariant/COleObject",
@@ -28352,7 +28352,7 @@
     "sha256": "88d034d989b992babf9ce4ef326171a133dce88ae8529930fa730c4ab151c464"
   },
   {
-    "path": "Storage/SC777CE/PATH.CFG",
+    "path": "Storage/sc777ce/PATH.CFG",
     "bytes": 852,
     "role": "Peta direktori lokal, USB dan host untuk konfigurasi, program, batch, report dan firmware.",
     "basis": "Isi teks",
@@ -28360,7 +28360,7 @@
     "sha256": "18d8151bf6dc07138a364dd9c42a2136f0fae6693d18655acb2522beff66012b"
   },
   {
-    "path": "Storage/SC777CE/PLC_IO.CFG",
+    "path": "Storage/sc777ce/PLC_IO.CFG",
     "bytes": 7867,
     "role": "Katalog jenis modul dan kemampuan I/O: bit/word input-output, PT100, counter dan scaling. Bukan mapping tag mesin terpasang.",
     "basis": "Isi teks",
@@ -28368,7 +28368,7 @@
     "sha256": "7a43b18d0ab8a8aea13e1c15319eacee1977f86ecb6ab701fcd74fc01ca83014"
   },
   {
-    "path": "Storage/SC777CE/PlcUpdate.exe",
+    "path": "Storage/sc777ce/PlcUpdate.exe",
     "bytes": 3170304,
     "role": "Utilitas pembaruan PLC/modul; bergantung pada modul background, service tool dan hardware.",
     "basis": "Nama, imports, UPDATE.CFG",
@@ -28376,7 +28376,7 @@
     "sha256": "a534cfa8b15c01bb460a0db8d8984e9b896eaf810cf06322a928cb99fa64eee6"
   },
   {
-    "path": "Storage/SC777CE/Programs/BATCHREF.REF",
+    "path": "Storage/sc777ce/Programs/BATCHREF.REF",
     "bytes": 762,
     "role": "Referensi/index yang menyertai program/batch; format relasi belum didekode.",
     "basis": "Pola keberadaan bersama PRG",
@@ -28384,7 +28384,7 @@
     "sha256": "787514d41367955ab3693ac5262e6fdb74d39ed7b15b7ee156eccdc0b45be4ed"
   },
   {
-    "path": "Storage/SC777CE/Programs/M_0140.PRG",
+    "path": "Storage/sc777ce/Programs/M_0140.PRG",
     "bytes": 16374,
     "role": "Program langkah proses dyeing dalam library lokal; format parameter lengkap belum didekode.",
     "basis": "Pola direktori dan sampel string PRG",
@@ -28392,7 +28392,7 @@
     "sha256": "ba65255461a39c21ab45e8c7f19b71b8a51ee004c0480914d1bc423bdb6e6530"
   },
   {
-    "path": "Storage/SC777CE/Programs/M_0141.PRG",
+    "path": "Storage/sc777ce/Programs/M_0141.PRG",
     "bytes": 14164,
     "role": "Program langkah proses dyeing dalam library lokal; format parameter lengkap belum didekode.",
     "basis": "Pola direktori dan sampel string PRG",
@@ -28400,7 +28400,7 @@
     "sha256": "5adad5b6bd529e06e65c659acabeff50e50158d38a5c84f310541ba644e520ba"
   },
   {
-    "path": "Storage/SC777CE/Programs/M_0142.PRG",
+    "path": "Storage/sc777ce/Programs/M_0142.PRG",
     "bytes": 14944,
     "role": "Program langkah proses dyeing dalam library lokal; format parameter lengkap belum didekode.",
     "basis": "Pola direktori dan sampel string PRG",
@@ -28408,7 +28408,7 @@
     "sha256": "bbb45f61243de2b4ee97ad8a9117eca3f79fb2bc71bee784680f64020c292f34"
   },
   {
-    "path": "Storage/SC777CE/Programs/M_0143.PRG",
+    "path": "Storage/sc777ce/Programs/M_0143.PRG",
     "bytes": 13189,
     "role": "Program langkah proses dyeing dalam library lokal; format parameter lengkap belum didekode.",
     "basis": "Pola direktori dan sampel string PRG",
@@ -28416,7 +28416,7 @@
     "sha256": "48db4c906b4bee13172114371bf789d06a7925a20c0a703fe0256120c64c4ccb"
   },
   {
-    "path": "Storage/SC777CE/Programs/M_0144.PRG",
+    "path": "Storage/sc777ce/Programs/M_0144.PRG",
     "bytes": 13839,
     "role": "Program langkah proses dyeing dalam library lokal; format parameter lengkap belum didekode.",
     "basis": "Pola direktori dan sampel string PRG",
@@ -28424,7 +28424,7 @@
     "sha256": "1ce262c81bbde0b29970d22bc6a186289f047c34f2b34828457c1e28208ad3fc"
   },
   {
-    "path": "Storage/SC777CE/Programs/M_0145.PRG",
+    "path": "Storage/sc777ce/Programs/M_0145.PRG",
     "bytes": 14814,
     "role": "Program langkah proses dyeing dalam library lokal; format parameter lengkap belum didekode.",
     "basis": "Pola direktori dan sampel string PRG",
@@ -28432,7 +28432,7 @@
     "sha256": "83a0518348b7cc79349fecbe864a71369b9e102c0e894475544e5170391572eb"
   },
   {
-    "path": "Storage/SC777CE/Programs/M_0146.PRG",
+    "path": "Storage/sc777ce/Programs/M_0146.PRG",
     "bytes": 14424,
     "role": "Program langkah proses dyeing dalam library lokal; format parameter lengkap belum didekode.",
     "basis": "Pola direktori dan sampel string PRG",
@@ -28440,7 +28440,7 @@
     "sha256": "70b656a9b6a741152308c005b4bca6b204674b5f479bc3cbf4b8b867509e3bd6"
   },
   {
-    "path": "Storage/SC777CE/Programs/M_0147.PRG",
+    "path": "Storage/sc777ce/Programs/M_0147.PRG",
     "bytes": 17934,
     "role": "Program langkah proses dyeing dalam library lokal; format parameter lengkap belum didekode.",
     "basis": "Pola direktori dan sampel string PRG",
@@ -28448,7 +28448,7 @@
     "sha256": "55023d4a2c97e41d75277735a2a662edc2d379d14789e1f4a99719326cf6402f"
   },
   {
-    "path": "Storage/SC777CE/Programs/M_0150.PRG",
+    "path": "Storage/sc777ce/Programs/M_0150.PRG",
     "bytes": 15009,
     "role": "Program langkah proses dyeing dalam library lokal; format parameter lengkap belum didekode.",
     "basis": "Pola direktori dan sampel string PRG",
@@ -28456,7 +28456,7 @@
     "sha256": "f77e9cf43643a0544d7571bc8946805078cb7163bb30f9a71acc4704fdfc0c76"
   },
   {
-    "path": "Storage/SC777CE/Programs/M_0151.PRG",
+    "path": "Storage/sc777ce/Programs/M_0151.PRG",
     "bytes": 14294,
     "role": "Program langkah proses dyeing dalam library lokal; format parameter lengkap belum didekode.",
     "basis": "Pola direktori dan sampel string PRG",
@@ -28464,7 +28464,7 @@
     "sha256": "89af2ebb9a07b86b4404b0c9009b52b5f85a50adbf976aabc6ca1180bc817d4a"
   },
   {
-    "path": "Storage/SC777CE/Programs/M_0154.PRG",
+    "path": "Storage/sc777ce/Programs/M_0154.PRG",
     "bytes": 18129,
     "role": "Program langkah proses dyeing dalam library lokal; format parameter lengkap belum didekode.",
     "basis": "Pola direktori dan sampel string PRG",
@@ -28472,7 +28472,7 @@
     "sha256": "941d730a3c19d8b5ed5ae3e38985c72180430e48a9171f493631eb02ea8825c8"
   },
   {
-    "path": "Storage/SC777CE/Programs/M_0155.PRG",
+    "path": "Storage/sc777ce/Programs/M_0155.PRG",
     "bytes": 13774,
     "role": "Program langkah proses dyeing dalam library lokal; format parameter lengkap belum didekode.",
     "basis": "Pola direktori dan sampel string PRG",
@@ -28480,7 +28480,7 @@
     "sha256": "e400ad9998f6af383c347e051d2f3e8ad3b13a96f787f9bdc73d7b5935626f6d"
   },
   {
-    "path": "Storage/SC777CE/Programs/M_0156.PRG",
+    "path": "Storage/sc777ce/Programs/M_0156.PRG",
     "bytes": 14424,
     "role": "Program langkah proses dyeing dalam library lokal; format parameter lengkap belum didekode.",
     "basis": "Pola direktori dan sampel string PRG",
@@ -28488,7 +28488,7 @@
     "sha256": "fc0cd5cb105e14c782929096e65b1160d8197c78d426fc69e7f641c8da53fbde"
   },
   {
-    "path": "Storage/SC777CE/Programs/M_0157.PRG",
+    "path": "Storage/sc777ce/Programs/M_0157.PRG",
     "bytes": 17024,
     "role": "Program langkah proses dyeing dalam library lokal; format parameter lengkap belum didekode.",
     "basis": "Pola direktori dan sampel string PRG",
@@ -28496,7 +28496,7 @@
     "sha256": "5ced0ec906fbe4f96ef5d248dd7a061d2a6a3eb02653ceaffad732d568cb3abe"
   },
   {
-    "path": "Storage/SC777CE/Programs/M_0158.PRG",
+    "path": "Storage/sc777ce/Programs/M_0158.PRG",
     "bytes": 16244,
     "role": "Program langkah proses dyeing dalam library lokal; format parameter lengkap belum didekode.",
     "basis": "Pola direktori dan sampel string PRG",
@@ -28504,7 +28504,7 @@
     "sha256": "ee222df427d1c4467c9f267f9da2f375de662b3eca60f5d95ef5ff61e1673600"
   },
   {
-    "path": "Storage/SC777CE/Programs/M_0159.PRG",
+    "path": "Storage/sc777ce/Programs/M_0159.PRG",
     "bytes": 16114,
     "role": "Program langkah proses dyeing dalam library lokal; format parameter lengkap belum didekode.",
     "basis": "Pola direktori dan sampel string PRG",
@@ -28512,7 +28512,7 @@
     "sha256": "1a418b150f7e27fa263221b3e00c635ae5c2fa2574fdc7977a00fb66a7d81142"
   },
   {
-    "path": "Storage/SC777CE/Programs/M_0160.PRG",
+    "path": "Storage/sc777ce/Programs/M_0160.PRG",
     "bytes": 16114,
     "role": "Program langkah proses dyeing dalam library lokal; format parameter lengkap belum didekode.",
     "basis": "Pola direktori dan sampel string PRG",
@@ -28520,7 +28520,7 @@
     "sha256": "84f2ed89767038a1f05314efa1f67a086c91a654e3a01ca78b0b1b5646731d04"
   },
   {
-    "path": "Storage/SC777CE/Programs/M_0161.PRG",
+    "path": "Storage/sc777ce/Programs/M_0161.PRG",
     "bytes": 15919,
     "role": "Program langkah proses dyeing dalam library lokal; format parameter lengkap belum didekode.",
     "basis": "Pola direktori dan sampel string PRG",
@@ -28528,7 +28528,7 @@
     "sha256": "65a9463f60ada5ce91e9b7ddae9a066f18e307ca1e5cd6621c661e284209ef0e"
   },
   {
-    "path": "Storage/SC777CE/Programs/M_0162.PRG",
+    "path": "Storage/sc777ce/Programs/M_0162.PRG",
     "bytes": 17219,
     "role": "Program langkah proses dyeing dalam library lokal; format parameter lengkap belum didekode.",
     "basis": "Pola direktori dan sampel string PRG",
@@ -28536,7 +28536,7 @@
     "sha256": "8eea069c5aa5bfa0e3637c7594b4f43f13d08b6bf51b3470c994e4a2e91a3b08"
   },
   {
-    "path": "Storage/SC777CE/Programs/M_0163.PRG",
+    "path": "Storage/sc777ce/Programs/M_0163.PRG",
     "bytes": 18974,
     "role": "Program langkah proses dyeing dalam library lokal; format parameter lengkap belum didekode.",
     "basis": "Pola direktori dan sampel string PRG",
@@ -28544,7 +28544,7 @@
     "sha256": "5c928acc7511a7ecf2acb89a90f012010fffdcef38e6d3c765aedee5f6f58948"
   },
   {
-    "path": "Storage/SC777CE/Programs/M_0164.PRG",
+    "path": "Storage/sc777ce/Programs/M_0164.PRG",
     "bytes": 17154,
     "role": "Program langkah proses dyeing dalam library lokal; format parameter lengkap belum didekode.",
     "basis": "Pola direktori dan sampel string PRG",
@@ -28552,7 +28552,7 @@
     "sha256": "cdb4f1f96d01984bd953db26dbfe4405785bc9544d37fadedd4ef0e42b89cd7b"
   },
   {
-    "path": "Storage/SC777CE/Programs/M_0165.PRG",
+    "path": "Storage/sc777ce/Programs/M_0165.PRG",
     "bytes": 18779,
     "role": "Program langkah proses dyeing dalam library lokal; format parameter lengkap belum didekode.",
     "basis": "Pola direktori dan sampel string PRG",
@@ -28560,7 +28560,7 @@
     "sha256": "dbbc0104a6f410edbd6189ba6ccb1e61c6c82fdbab637e3776dd81b691b05391"
   },
   {
-    "path": "Storage/SC777CE/Programs/M_0166.PRG",
+    "path": "Storage/sc777ce/Programs/M_0166.PRG",
     "bytes": 19689,
     "role": "Program langkah proses dyeing dalam library lokal; format parameter lengkap belum didekode.",
     "basis": "Pola direktori dan sampel string PRG",
@@ -28568,7 +28568,7 @@
     "sha256": "7897180575e4e15afd13b0116d6806d4ad24b86bd038740765c7643f348ec78b"
   },
   {
-    "path": "Storage/SC777CE/Programs/M_0167.PRG",
+    "path": "Storage/sc777ce/Programs/M_0167.PRG",
     "bytes": 18974,
     "role": "Program langkah proses dyeing dalam library lokal; format parameter lengkap belum didekode.",
     "basis": "Pola direktori dan sampel string PRG",
@@ -28576,7 +28576,7 @@
     "sha256": "770be09f9b0aac6e2ae88609f79a62a399eeb276c3c00acb7e5f6309ab1a8166"
   },
   {
-    "path": "Storage/SC777CE/Programs/M_0168.PRG",
+    "path": "Storage/sc777ce/Programs/M_0168.PRG",
     "bytes": 17349,
     "role": "Program langkah proses dyeing dalam library lokal; format parameter lengkap belum didekode.",
     "basis": "Pola direktori dan sampel string PRG",
@@ -28584,7 +28584,7 @@
     "sha256": "42bc07e2a98847d805f32f44f0a0d8047e225fbca81f38a926bc737e6b69b6e1"
   },
   {
-    "path": "Storage/SC777CE/Programs/M_0169.PRG",
+    "path": "Storage/sc777ce/Programs/M_0169.PRG",
     "bytes": 13254,
     "role": "Program langkah proses dyeing dalam library lokal; format parameter lengkap belum didekode.",
     "basis": "Pola direktori dan sampel string PRG",
@@ -28592,7 +28592,7 @@
     "sha256": "5a0a84f3fd8a226c194dfd8b08bfbb3b9e4906c4ab3e37f5b86d1382104c40c3"
   },
   {
-    "path": "Storage/SC777CE/Programs/M_0170.PRG",
+    "path": "Storage/sc777ce/Programs/M_0170.PRG",
     "bytes": 4414,
     "role": "Program langkah proses dyeing dalam library lokal; format parameter lengkap belum didekode.",
     "basis": "Pola direktori dan sampel string PRG",
@@ -28600,7 +28600,7 @@
     "sha256": "616aabd61481c712afae3657c88f88769129f28d1e240ad1554fc77f458a4c35"
   },
   {
-    "path": "Storage/SC777CE/Programs/M_0171.PRG",
+    "path": "Storage/sc777ce/Programs/M_0171.PRG",
     "bytes": 5649,
     "role": "Program langkah proses dyeing dalam library lokal; format parameter lengkap belum didekode.",
     "basis": "Pola direktori dan sampel string PRG",
@@ -28608,7 +28608,7 @@
     "sha256": "7365821b88f7ce863054b46f6b283ae05a123f9b67ba48c9825c802bd4c97556"
   },
   {
-    "path": "Storage/SC777CE/Programs/M_0172.PRG",
+    "path": "Storage/sc777ce/Programs/M_0172.PRG",
     "bytes": 9159,
     "role": "Program langkah proses dyeing dalam library lokal; format parameter lengkap belum didekode.",
     "basis": "Pola direktori dan sampel string PRG",
@@ -28616,7 +28616,7 @@
     "sha256": "1a8a321f4981f2caf6446ac11770dfcf00ca6db1dd977a4b9e1414331bec6aa0"
   },
   {
-    "path": "Storage/SC777CE/Programs/M_0173.PRG",
+    "path": "Storage/sc777ce/Programs/M_0173.PRG",
     "bytes": 6624,
     "role": "Program langkah proses dyeing dalam library lokal; format parameter lengkap belum didekode.",
     "basis": "Pola direktori dan sampel string PRG",
@@ -28624,7 +28624,7 @@
     "sha256": "aa5956325b5eb51dcce5107a28665bdae281a5dfb37d22f3899b291d0b176d02"
   },
   {
-    "path": "Storage/SC777CE/Programs/M_0174.PRG",
+    "path": "Storage/sc777ce/Programs/M_0174.PRG",
     "bytes": 4674,
     "role": "Program langkah proses dyeing dalam library lokal; format parameter lengkap belum didekode.",
     "basis": "Pola direktori dan sampel string PRG",
@@ -28632,7 +28632,7 @@
     "sha256": "a9f1a04782d4fa9bbbb7dd16dca49e6510de7000e2c4bf36f0fcf88b752f8155"
   },
   {
-    "path": "Storage/SC777CE/Programs/M_0175.PRG",
+    "path": "Storage/sc777ce/Programs/M_0175.PRG",
     "bytes": 11564,
     "role": "Program langkah proses dyeing dalam library lokal; format parameter lengkap belum didekode.",
     "basis": "Pola direktori dan sampel string PRG",
@@ -28640,7 +28640,7 @@
     "sha256": "1c8366ee00f260fe9e545fade61d37d19f0875a9580820619674e38966778d7d"
   },
   {
-    "path": "Storage/SC777CE/Programs/M_0176.PRG",
+    "path": "Storage/sc777ce/Programs/M_0176.PRG",
     "bytes": 6169,
     "role": "Program langkah proses dyeing dalam library lokal; format parameter lengkap belum didekode.",
     "basis": "Pola direktori dan sampel string PRG",
@@ -28648,7 +28648,7 @@
     "sha256": "c164452f9758fd8352f7f3e5612eac5d9560f29aa82d25682e37c36e85b99333"
   },
   {
-    "path": "Storage/SC777CE/Programs/M_0179.PRG",
+    "path": "Storage/sc777ce/Programs/M_0179.PRG",
     "bytes": 14554,
     "role": "Program langkah proses dyeing dalam library lokal; format parameter lengkap belum didekode.",
     "basis": "Pola direktori dan sampel string PRG",
@@ -28656,7 +28656,7 @@
     "sha256": "3a95e78db3fc120f43c54433ef1e22367f2a70d7d1bb43ce8f8edfb7480624eb"
   },
   {
-    "path": "Storage/SC777CE/Programs/M_0180.PRG",
+    "path": "Storage/sc777ce/Programs/M_0180.PRG",
     "bytes": 15139,
     "role": "Program langkah proses dyeing dalam library lokal; format parameter lengkap belum didekode.",
     "basis": "Pola direktori dan sampel string PRG",
@@ -28664,7 +28664,7 @@
     "sha256": "517c657964b5796fb2ff2f4324faab004ecfaa2d50ebba0f60c3511b16ef652b"
   },
   {
-    "path": "Storage/SC777CE/Programs/M_0181.PRG",
+    "path": "Storage/sc777ce/Programs/M_0181.PRG",
     "bytes": 14749,
     "role": "Program langkah proses dyeing dalam library lokal; format parameter lengkap belum didekode.",
     "basis": "Pola direktori dan sampel string PRG",
@@ -28672,7 +28672,7 @@
     "sha256": "8f614896aa3f24d563b36f96e50a868ce50ba9f0024aafd8c869b122c3344f2e"
   },
   {
-    "path": "Storage/SC777CE/Programs/M_0182.PRG",
+    "path": "Storage/sc777ce/Programs/M_0182.PRG",
     "bytes": 13384,
     "role": "Program langkah proses dyeing dalam library lokal; format parameter lengkap belum didekode.",
     "basis": "Pola direktori dan sampel string PRG",
@@ -28680,7 +28680,7 @@
     "sha256": "5dfc4765f3d73d83ba24ff38011709b4c9b57997cca4ba98dc7bde0b053dc4d8"
   },
   {
-    "path": "Storage/SC777CE/SC777CE.EXE",
+    "path": "Storage/sc777ce/sc777ce.EXE",
     "bytes": 3169792,
     "role": "Aplikasi utama HMI SECOM777CE, PE x86 Windows CE; log runtime menyebut 2.24.",
     "basis": "Header PE, imports dan log",
@@ -28688,7 +28688,7 @@
     "sha256": "0f73251942f8f42c3ee13d8877589d035e011e9307089a21cc5b28014076a000"
   },
   {
-    "path": "Storage/SC777CE/SECOM.CFG",
+    "path": "Storage/sc777ce/SECOM.CFG",
     "bytes": 2601,
     "role": "Pengaturan dasar SECOM, penanganan power fail, daftar file konfigurasi tipe dan mesin.",
     "basis": "Isi teks",
@@ -28696,7 +28696,7 @@
     "sha256": "e4020178cb82f4ab2b32def5c82a5d300604fb4dea59e7e3f32d65fd159e3d1e"
   },
   {
-    "path": "Storage/SC777CE/SecomCE_Arcnet_2d.dll",
+    "path": "Storage/sc777ce/SecomCE_Arcnet_2d.dll",
     "bytes": 24576,
     "role": "Antarmuka komunikasi ARCNET: start/stop modul dan status driver.",
     "basis": "Exports Arc_GetDriverStatus/Arc_StartModule",
@@ -28704,7 +28704,7 @@
     "sha256": "7f80761cc11104f8656064a6a4154d99720a12e09e69e1618c589602705fdf1c"
   },
   {
-    "path": "Storage/SC777CE/SecomCE_BGUtils_2d.dll",
+    "path": "Storage/sc777ce/SecomCE_BGUtils_2d.dll",
     "bytes": 447488,
     "role": "Utilitas bersama: konfigurasi, codec CSV, akses data dan diagnostik.",
     "basis": "Exports PE",
@@ -28712,7 +28712,7 @@
     "sha256": "f987bffc1f0b133974aebeec7d4faff01137e6e98804814c2d604dfc729a6896"
   },
   {
-    "path": "Storage/SC777CE/SecomCE_BtrieveAPI_2d.dll",
+    "path": "Storage/sc777ce/SecomCE_BtrieveAPI_2d.dll",
     "bytes": 270848,
     "role": "API akses data/record, termasuk pembacaan log alarm dan teks sistem.",
     "basis": "Exports ALRL_ReadAlarmLogRecord dan BtrieveAPI",
@@ -28720,7 +28720,7 @@
     "sha256": "accee9a1bc8369083f0dfc16d21cbef0e154330267e0d1fe7fe0a7708b3957ca"
   },
   {
-    "path": "Storage/SC777CE/SecomCE_D_BackGround_2d.dll",
+    "path": "Storage/sc777ce/SecomCE_D_BackGround_2d.dll",
     "bytes": 1144320,
     "role": "Lapisan background yang menghubungkan status/perangkat dengan TCP, ARCNET dan hardware.",
     "basis": "Imports dan exports PE",
@@ -28728,7 +28728,7 @@
     "sha256": "406141505ba017a0cb8c3a882c31c978e5b5bc9990af7ea79bfa073aeb50912c"
   },
   {
-    "path": "Storage/SC777CE/SecomCE_Hardware_2d.dll",
+    "path": "Storage/sc777ce/SecomCE_Hardware_2d.dll",
     "bytes": 101888,
     "role": "Abstraksi hardware, pengaturan jaringan, barcode dan screensaver.",
     "basis": "Exports CNetworkSettings/CBarcodeReader",
@@ -28736,7 +28736,7 @@
     "sha256": "8da723ceb290af50c80428ac5ebc7c137ac28e9fd59bce0cbd8ccc193faa2236"
   },
   {
-    "path": "Storage/SC777CE/SecomCE_History_2d.dll",
+    "path": "Storage/sc777ce/SecomCE_History_2d.dll",
     "bytes": 110592,
     "role": "Pencatatan dan pembacaan riwayat nilai proses.",
     "basis": "Exports History_AddLogRecordV2/History_GetSetValue",
@@ -28744,7 +28744,7 @@
     "sha256": "0d48a9e36747c5f7cd6bf8c245b645a56ff4964bade41cb4b2c565113367b014"
   },
   {
-    "path": "Storage/SC777CE/SecomCE_MessageService_2d.dll",
+    "path": "Storage/sc777ce/SecomCE_MessageService_2d.dll",
     "bytes": 117760,
     "role": "Layanan pesan yang digunakan modul komunikasi dan diagnostik.",
     "basis": "Hubungan imports PE",
@@ -28752,7 +28752,7 @@
     "sha256": "6adfbbacfc62450d7ff0b85b51705d852747ab68a7019b67bb226dc7d52e83a7"
   },
   {
-    "path": "Storage/SC777CE/SecomCE_ProcessInfo_2d.dll",
+    "path": "Storage/sc777ce/SecomCE_ProcessInfo_2d.dll",
     "bytes": 1021440,
     "role": "Modul informasi/tampilan proses; menerima parameter UI dan batch.",
     "basis": "Exports ProcessInfo dan imports",
@@ -28760,7 +28760,7 @@
     "sha256": "3d3602c3deaa01aa62393f2849499b2ed6a4e4fdc93d08458d2e1127f4c8a8dc"
   },
   {
-    "path": "Storage/SC777CE/SecomCE_RCClient_2d.dll",
+    "path": "Storage/sc777ce/SecomCE_RCClient_2d.dll",
     "bytes": 48128,
     "role": "Client sistem remote; memiliki fungsi koneksi dan interaksi layar. Implementasi lengkap belum dibaca.",
     "basis": "Exports CRCSystemClient",
@@ -28768,7 +28768,7 @@
     "sha256": "22b52a975681fd5750806cc7466b0fca9b95414f34d7fb65e8c3c950af5a7a7a"
   },
   {
-    "path": "Storage/SC777CE/SecomCE_RemoteServer_2d.exe",
+    "path": "Storage/sc777ce/SecomCE_RemoteServer_2d.exe",
     "bytes": 31744,
     "role": "Komponen remote server; memiliki fungsi terjemahan pesan TCP dan SC737. Protokol/port aktif belum diketahui.",
     "basis": "Exports dan imports PE",
@@ -28776,7 +28776,7 @@
     "sha256": "181a2ab590ccd57c68cb7e01be6f3062a343a5bb4526dac2a4b0b886f844e2a0"
   },
   {
-    "path": "Storage/SC777CE/SecomCE_Service_2d.dll",
+    "path": "Storage/sc777ce/SecomCE_Service_2d.dll",
     "bytes": 3844608,
     "role": "Dialog layanan/servis dan fungsi terkait data proses; dipakai aplikasi utama.",
     "basis": "Exports CSecomServiceDlg dan imports",
@@ -28784,7 +28784,7 @@
     "sha256": "62988412f6414fc0015d4a234f9af63b2134468107027f8186c4b3a6edd07485"
   },
   {
-    "path": "Storage/SC777CE/SecomCE_ServiceTool_2d.dll",
+    "path": "Storage/sc777ce/SecomCE_ServiceTool_2d.dll",
     "bytes": 4294144,
     "role": "Varian modul service tool; dipakai PlcUpdate.exe.",
     "basis": "Imports/exports PE",
@@ -28792,7 +28792,7 @@
     "sha256": "722b62cabfb47f24d040b72b0c4abad0d35116a8d314e4df1a8a1ca563398ce6"
   },
   {
-    "path": "Storage/SC777CE/SecomCE_TCP_2d.dll",
+    "path": "Storage/sc777ce/SecomCE_TCP_2d.dll",
     "bytes": 26624,
     "role": "Transport TCP: fungsi start server/client, port dan koneksi IPort. Tidak otomatis berarti Modbus TCP.",
     "basis": "Exports TCP_StartServer/TCP_StartClient",
@@ -28800,7 +28800,7 @@
     "sha256": "8379d7c4613d5597d0c6bd061359e62e9e2ac013f0a47b796de2d81fd92f1f04"
   },
   {
-    "path": "Storage/SC777CE/STATUS/ALARM.ACT",
+    "path": "Storage/sc777ce/STATUS/ALARM.ACT",
     "bytes": 34,
     "role": "Snapshot status alarm tersimpan; struktur belum didekode.",
     "basis": "Nama/lokasi",
@@ -28808,7 +28808,7 @@
     "sha256": "f6a3a883481b1edcdfa4f6fe13cc7cdf4f895c9c3a69cba23d18183c2d660c2f"
   },
   {
-    "path": "Storage/SC777CE/STATUS/ALARM.PRV",
+    "path": "Storage/sc777ce/STATUS/ALARM.PRV",
     "bytes": 34,
     "role": "Diduga snapshot status alarm sebelumnya.",
     "basis": "Pasangan nama/header",
@@ -28816,7 +28816,7 @@
     "sha256": "6132506a03101a0ba18ff1b037f75e348e8a2537b8d14153614d66f02a3e66dd"
   },
   {
-    "path": "Storage/SC777CE/STATUS/ALARMS.LOG",
+    "path": "Storage/sc777ce/STATUS/ALARMS.LOG",
     "bytes": 16896,
     "role": "Log alarm dalam format biner; bukan log teks ERRORLOG.",
     "basis": "Nama dan header",
@@ -28824,7 +28824,7 @@
     "sha256": "423785c96eefd3e7af1ea61e023a0cb01eb83480307980f0eb498e075014fe48"
   },
   {
-    "path": "Storage/SC777CE/STATUS/EVENTS.LOG",
+    "path": "Storage/sc777ce/STATUS/EVENTS.LOG",
     "bytes": 15360,
     "role": "Log event dalam format biner.",
     "basis": "Nama dan header",
@@ -28832,7 +28832,7 @@
     "sha256": "3947c5871cf6077255507f5ff3662a99ae7f43326923c68b354d5a03cc4ba860"
   },
   {
-    "path": "Storage/SC777CE/STATUS/LINE_04.ACT",
+    "path": "Storage/sc777ce/STATUS/LINE_04.ACT",
     "bytes": 52,
     "role": "Diduga snapshot line/urutan eksekusi proses; memuat referensi batch.",
     "basis": "Nama dan string biner",
@@ -28840,7 +28840,7 @@
     "sha256": "f4744bcd7dfa09d6162e7a4149b83c3fc21e41ea91479b52b9ad4dc799564ca9"
   },
   {
-    "path": "Storage/SC777CE/STATUS/LINE_05.ACT",
+    "path": "Storage/sc777ce/STATUS/LINE_05.ACT",
     "bytes": 72,
     "role": "Diduga snapshot line/urutan eksekusi proses; memuat referensi batch.",
     "basis": "Nama dan string biner",
@@ -28848,7 +28848,7 @@
     "sha256": "b9ba15ed32d78dddabd054f12b8906ed299eadc8f55edf776f792f2ca4394d76"
   },
   {
-    "path": "Storage/SC777CE/STATUS/STATUS.ACT",
+    "path": "Storage/sc777ce/STATUS/STATUS.ACT",
     "bytes": 10104,
     "role": "Snapshot status proses tersimpan; sampel berisi batch 060766 dan nama program.",
     "basis": "String biner",
@@ -28856,7 +28856,7 @@
     "sha256": "ec8ddbb773dfbfbee847a9fe82f13f349ae75601f436fddcc613722bea036b01"
   },
   {
-    "path": "Storage/SC777CE/STATUS/STATUS.PRV",
+    "path": "Storage/sc777ce/STATUS/STATUS.PRV",
     "bytes": 10104,
     "role": "Diduga snapshot status sebelumnya; struktur dan ukuran sama dengan STATUS.ACT.",
     "basis": "Pasangan nama/header",
@@ -28864,7 +28864,7 @@
     "sha256": "8ae233b45f56fd7e0d284be144ff69ad74c9491fdc73571f47a7c35e679ff635"
   },
   {
-    "path": "Storage/SC777CE/STATUS/TFiles.btr",
+    "path": "Storage/sc777ce/STATUS/TFiles.btr",
     "bytes": 15360,
     "role": "Berkas record Btrieve di folder status; semantik record belum dipastikan.",
     "basis": "Ekstensi/header/lokasi",
@@ -28872,7 +28872,7 @@
     "sha256": "ac5d281efc52bc720545ca719359b7ff4631f8580eb415ceeb3e03049386db03"
   },
   {
-    "path": "Storage/SC777CE/System/ARIALBD.TTF",
+    "path": "Storage/sc777ce/System/ARIALBD.TTF",
     "bytes": 284560,
     "role": "Font untuk teks antarmuka HMI.",
     "basis": "Ekstensi dan lokasi",
@@ -28880,7 +28880,7 @@
     "sha256": "f8f19c2bc7205605e2cdf28725b98c818d7079a4a33a654facffc74a67b4294c"
   },
   {
-    "path": "Storage/SC777CE/System/Commands.csv",
+    "path": "Storage/sc777ce/System/Commands.csv",
     "bytes": 20290,
     "role": "Kamus ID command/object: read/write program, start/stop/resume, parameter dan konfigurasi. Bukan spesifikasi paket jaringan lengkap.",
     "basis": "Isi teks",
@@ -28888,7 +28888,7 @@
     "sha256": "670950ce103d81a94c50bfc50fdf406de2cf45f6bde8fe4a595a21d673396d37"
   },
   {
-    "path": "Storage/SC777CE/System/DEFSTEXT.CNF",
+    "path": "Storage/sc777ce/System/DEFSTEXT.CNF",
     "bytes": 197632,
     "role": "Diduga basis teks sistem/default.",
     "basis": "Nama/lokasi",
@@ -28896,7 +28896,7 @@
     "sha256": "bfe3dc11b01756b2001a3cd17a541c29affaf09fd1606a537fbea34b53a63217"
   },
   {
-    "path": "Storage/SC777CE/System/ErrorEN.txt",
+    "path": "Storage/sc777ce/System/ErrorEN.txt",
     "bytes": 6399,
     "role": "Daftar teks pesan kesalahan bahasa Inggris.",
     "basis": "Isi teks",
@@ -28904,7 +28904,7 @@
     "sha256": "50e5ad693e23dbf53dfef2804bca1df14470596337f17c0b30571918b1966ad4"
   },
   {
-    "path": "Storage/SC777CE/System/Flags.BBM",
+    "path": "Storage/sc777ce/System/Flags.BBM",
     "bytes": 46080,
     "role": "Diduga aset bendera/bahasa; format internal belum didekode.",
     "basis": "Nama/lokasi",
@@ -28912,7 +28912,7 @@
     "sha256": "76a4eb902f7e4449ff5c6ba439da9b5d5f3acb556ee032057d7e3e5fb98fbd2a"
   },
   {
-    "path": "Storage/SC777CE/System/PMINGLIU.TTF",
+    "path": "Storage/sc777ce/System/PMINGLIU.TTF",
     "bytes": 8590676,
     "role": "Font untuk teks antarmuka HMI.",
     "basis": "Ekstensi dan lokasi",
@@ -28920,7 +28920,7 @@
     "sha256": "36354e475274cda9d840beaf2a05485254beef1f2ea046c1122769074d2812eb"
   },
   {
-    "path": "Storage/SC777CE/Udreg/UpdateTZI.txt",
+    "path": "Storage/sc777ce/Udreg/UpdateTZI.txt",
     "bytes": 3491,
     "role": "Definisi pembaruan timezone registry Windows CE.",
     "basis": "Isi teks registry",
@@ -28928,7 +28928,7 @@
     "sha256": "c132a06100af660d4e37bb6d1e479aa4d4cf2a759fcda18433f65f3827528711"
   },
   {
-    "path": "Storage/SC777CE/Udtools/CI16/CI16__18.BIN",
+    "path": "Storage/sc777ce/Udtools/CI16/CI16__18.BIN",
     "bytes": 72192,
     "role": "Payload firmware/update keluarga CI16; kode suffix tidak ditafsirkan sebagai versi pasti.",
     "basis": "UPDATE.CFG dan lokasi",
@@ -28936,7 +28936,7 @@
     "sha256": "16b6d09918f7df9c6037bc38a67351b198d138d571df107333bcfd9097592e8f"
   },
   {
-    "path": "Storage/SC777CE/Udtools/CI16/CI16__19.BIN",
+    "path": "Storage/sc777ce/Udtools/CI16/CI16__19.BIN",
     "bytes": 72192,
     "role": "Payload firmware/update keluarga CI16; kode suffix tidak ditafsirkan sebagai versi pasti.",
     "basis": "UPDATE.CFG dan lokasi",
@@ -28944,7 +28944,7 @@
     "sha256": "54a7a72a990c1e3fc24a3bc7d320b95c54ecf2b2234193b9d54f3ffc35be6635"
   },
   {
-    "path": "Storage/SC777CE/Udtools/CP14/CP14__59.BIN",
+    "path": "Storage/sc777ce/Udtools/CP14/CP14__59.BIN",
     "bytes": 222352,
     "role": "Payload firmware/update keluarga CP14; kode suffix tidak ditafsirkan sebagai versi pasti.",
     "basis": "UPDATE.CFG dan lokasi",
@@ -28952,7 +28952,7 @@
     "sha256": "e4d8fdd0e574c3b7491184fa46776902d8bd21684b4e4677f1289e6c5a001232"
   },
   {
-    "path": "Storage/SC777CE/Udtools/CP14/CP14__61.BIN",
+    "path": "Storage/sc777ce/Udtools/CP14/CP14__61.BIN",
     "bytes": 227808,
     "role": "Payload firmware/update keluarga CP14; kode suffix tidak ditafsirkan sebagai versi pasti.",
     "basis": "UPDATE.CFG dan lokasi",
@@ -28960,7 +28960,7 @@
     "sha256": "c785c5aaa8f106f2d4bf488c8ce02f8e6e6c87fc2b95d85f5c8266102d19b11f"
   },
   {
-    "path": "Storage/SC777CE/Udtools/CP14/CP14__65.BIN",
+    "path": "Storage/sc777ce/Udtools/CP14/CP14__65.BIN",
     "bytes": 228512,
     "role": "Payload firmware/update keluarga CP14; kode suffix tidak ditafsirkan sebagai versi pasti.",
     "basis": "UPDATE.CFG dan lokasi",
@@ -28968,7 +28968,7 @@
     "sha256": "89a1e210c99fd57f6205798eabaaf3f31cb310120c923a18ba2c8d42d4cfdabe"
   },
   {
-    "path": "Storage/SC777CE/Udtools/CP14/CP14__68.BIN",
+    "path": "Storage/sc777ce/Udtools/CP14/CP14__68.BIN",
     "bytes": 222448,
     "role": "Payload firmware/update keluarga CP14; kode suffix tidak ditafsirkan sebagai versi pasti.",
     "basis": "UPDATE.CFG dan lokasi",
@@ -28976,7 +28976,7 @@
     "sha256": "34bed42d20ec374017fc82cafdf676d4a503d4ceaf167d96bb8b2f6e287f9333"
   },
   {
-    "path": "Storage/SC777CE/Udtools/CP14/CP14_X59.BIN",
+    "path": "Storage/sc777ce/Udtools/CP14/CP14_X59.BIN",
     "bytes": 271904,
     "role": "Payload firmware/update keluarga CP14; kode suffix tidak ditafsirkan sebagai versi pasti.",
     "basis": "UPDATE.CFG dan lokasi",
@@ -28984,7 +28984,7 @@
     "sha256": "8092046f6861f0a20c805751aad8172b5d08880d3a5bec33721b436724e28606"
   },
   {
-    "path": "Storage/SC777CE/Udtools/CP14/CP14_X60.BIN",
+    "path": "Storage/sc777ce/Udtools/CP14/CP14_X60.BIN",
     "bytes": 258624,
     "role": "Payload firmware/update keluarga CP14; kode suffix tidak ditafsirkan sebagai versi pasti.",
     "basis": "UPDATE.CFG dan lokasi",
@@ -28992,7 +28992,7 @@
     "sha256": "5fe87662e050615ab2659fd90ac9c2fe3e066e4962ff0eb30b88b2540d94fc10"
   },
   {
-    "path": "Storage/SC777CE/Udtools/CP14/CP14_X65.BIN",
+    "path": "Storage/sc777ce/Udtools/CP14/CP14_X65.BIN",
     "bytes": 259680,
     "role": "Payload firmware/update keluarga CP14; kode suffix tidak ditafsirkan sebagai versi pasti.",
     "basis": "UPDATE.CFG dan lokasi",
@@ -29000,7 +29000,7 @@
     "sha256": "f34ab99e0b944d35d02f68f6bedebccb26ab716bc016a60af904a427e80c9bf9"
   },
   {
-    "path": "Storage/SC777CE/Udtools/CP14/CP14_X74.BIN",
+    "path": "Storage/sc777ce/Udtools/CP14/CP14_X74.BIN",
     "bytes": 261632,
     "role": "Payload firmware/update keluarga CP14; kode suffix tidak ditafsirkan sebagai versi pasti.",
     "basis": "UPDATE.CFG dan lokasi",
@@ -29008,7 +29008,7 @@
     "sha256": "af3ab53c2e964844dd72c0bc0c9d2ef61ad72d7935c4cf2cd138ffd5ad6ddec8"
   },
   {
-    "path": "Storage/SC777CE/Udtools/CP14/CP14_X76.BIN",
+    "path": "Storage/sc777ce/Udtools/CP14/CP14_X76.BIN",
     "bytes": 253744,
     "role": "Payload firmware/update keluarga CP14; kode suffix tidak ditafsirkan sebagai versi pasti.",
     "basis": "UPDATE.CFG dan lokasi",
@@ -29016,7 +29016,7 @@
     "sha256": "0f06b30e25e118eb7c5136acb949017643fd29cf9485392612348970f5de4dd1"
   },
   {
-    "path": "Storage/SC777CE/Udtools/CP14/CP14_X78.BIN",
+    "path": "Storage/sc777ce/Udtools/CP14/CP14_X78.BIN",
     "bytes": 253872,
     "role": "Payload firmware/update keluarga CP14; kode suffix tidak ditafsirkan sebagai versi pasti.",
     "basis": "UPDATE.CFG dan lokasi",
@@ -29024,7 +29024,7 @@
     "sha256": "76817b37692a31642020ecaa3a375030ac55dbbafcff1a1b978286c75a877011"
   },
   {
-    "path": "Storage/SC777CE/Udtools/CP14/CP14_X82.BIN",
+    "path": "Storage/sc777ce/Udtools/CP14/CP14_X82.BIN",
     "bytes": 254912,
     "role": "Payload firmware/update keluarga CP14; kode suffix tidak ditafsirkan sebagai versi pasti.",
     "basis": "UPDATE.CFG dan lokasi",
@@ -29032,7 +29032,7 @@
     "sha256": "9dc51c12b103697cbd354aaa573b9e1842de0aac3a47ec0ac15b82576f3afbd4"
   },
   {
-    "path": "Storage/SC777CE/Udtools/CP14/CP14_X83.BIN",
+    "path": "Storage/sc777ce/Udtools/CP14/CP14_X83.BIN",
     "bytes": 254992,
     "role": "Payload firmware/update keluarga CP14; kode suffix tidak ditafsirkan sebagai versi pasti.",
     "basis": "UPDATE.CFG dan lokasi",
@@ -29040,7 +29040,7 @@
     "sha256": "b98b725a99dea882ceb6c101ffa5f142b41aac971f766bd590a16253ee54f1eb"
   },
   {
-    "path": "Storage/SC777CE/Udtools/CP14/CP14_X84.BIN",
+    "path": "Storage/sc777ce/Udtools/CP14/CP14_X84.BIN",
     "bytes": 265776,
     "role": "Payload firmware/update keluarga CP14; kode suffix tidak ditafsirkan sebagai versi pasti.",
     "basis": "UPDATE.CFG dan lokasi",
@@ -29048,7 +29048,7 @@
     "sha256": "f1bf6d48822b1141f7d1b6d64372bd6243b730ced1f81dbf5497e3ba58373648"
   },
   {
-    "path": "Storage/SC777CE/Udtools/CP14/CP14_X85.BIN",
+    "path": "Storage/sc777ce/Udtools/CP14/CP14_X85.BIN",
     "bytes": 255696,
     "role": "Payload firmware/update keluarga CP14; kode suffix tidak ditafsirkan sebagai versi pasti.",
     "basis": "UPDATE.CFG dan lokasi",
@@ -29056,7 +29056,7 @@
     "sha256": "946232328fd98d83bb5297ef6309d5cfd9b852f27455a2e66af86011e4da0d25"
   },
   {
-    "path": "Storage/SC777CE/Udtools/CP8/CP8___56.BIN",
+    "path": "Storage/sc777ce/Udtools/CP8/CP8___56.BIN",
     "bytes": 65536,
     "role": "Payload firmware/update keluarga CP8; kode suffix tidak ditafsirkan sebagai versi pasti.",
     "basis": "UPDATE.CFG dan lokasi",
@@ -29064,7 +29064,7 @@
     "sha256": "bee3c71330cbf331ce0bdb466668511f5c78c21f6029c981c6ff97bd57c77c44"
   },
   {
-    "path": "Storage/SC777CE/Udtools/CP8/CP8___57.BIN",
+    "path": "Storage/sc777ce/Udtools/CP8/CP8___57.BIN",
     "bytes": 65536,
     "role": "Payload firmware/update keluarga CP8; kode suffix tidak ditafsirkan sebagai versi pasti.",
     "basis": "UPDATE.CFG dan lokasi",
@@ -29072,7 +29072,7 @@
     "sha256": "81b09144c11d334b8d189c929c26c51ec1f549c002fb2dd7df341361ea248fef"
   },
   {
-    "path": "Storage/SC777CE/Udtools/CP8/CP8___58.BIN",
+    "path": "Storage/sc777ce/Udtools/CP8/CP8___58.BIN",
     "bytes": 65536,
     "role": "Payload firmware/update keluarga CP8; kode suffix tidak ditafsirkan sebagai versi pasti.",
     "basis": "UPDATE.CFG dan lokasi",
@@ -29080,7 +29080,7 @@
     "sha256": "1ee53a4d91d9034160a6caa432f5a04fdeeb39a65a112557a9e0587a424b4a7a"
   },
   {
-    "path": "Storage/SC777CE/Udtools/IMARC/IMARC_09.BIN",
+    "path": "Storage/sc777ce/Udtools/IMARC/IMARC_09.BIN",
     "bytes": 10048,
     "role": "Payload firmware/update keluarga IMARC; kode suffix tidak ditafsirkan sebagai versi pasti.",
     "basis": "UPDATE.CFG dan lokasi",
@@ -29088,7 +29088,7 @@
     "sha256": "3376d94d46b2126677527061413a2f3ff7114be5dca573c04a5ca5c3e5399ac7"
   },
   {
-    "path": "Storage/SC777CE/Udtools/IMARC/IMARC_10.BIN",
+    "path": "Storage/sc777ce/Udtools/IMARC/IMARC_10.BIN",
     "bytes": 10064,
     "role": "Payload firmware/update keluarga IMARC; kode suffix tidak ditafsirkan sebagai versi pasti.",
     "basis": "UPDATE.CFG dan lokasi",
@@ -29096,7 +29096,7 @@
     "sha256": "b63a3edc84aba93cb5b27341306bc91cc7c648ec4d1cc20d1f21611875d9c3f0"
   },
   {
-    "path": "Storage/SC777CE/Udtools/IMARC/IMARC_11.BIN",
+    "path": "Storage/sc777ce/Udtools/IMARC/IMARC_11.BIN",
     "bytes": 10112,
     "role": "Payload firmware/update keluarga IMARC; kode suffix tidak ditafsirkan sebagai versi pasti.",
     "basis": "UPDATE.CFG dan lokasi",
@@ -29104,7 +29104,7 @@
     "sha256": "0800a4f60d4c6d7d79b16a52a9a45e6ad4a5207550fb3aaedf4ad92d2bee63c0"
   },
   {
-    "path": "Storage/SC777CE/UPDATE.CFG",
+    "path": "Storage/sc777ce/UPDATE.CFG",
     "bytes": 2383,
     "role": "Daftar ID/nama modul yang dikenali updater. Tidak membuktikan modul terpasang.",
     "basis": "Isi teks",

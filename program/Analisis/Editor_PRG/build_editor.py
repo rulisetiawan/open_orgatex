@@ -18,7 +18,7 @@ for id,f in funcs.items():
     f['lines']=sorted({g['line'] for g in groups if not g['disabled'] and int(id) in g['ids']})
     f['groups']=[g['name'] for g in groups if not g['disabled'] and int(id) in g['ids']]
 templates=[];observed={}
-for p in sorted((ROOT/'Storage/SC777CE/Programs').glob('*.PRG')):
+for p in sorted((ROOT/'Storage/sc777ce/Programs').glob('*.PRG')):
     b=p.read_bytes();title=b[10:31].split(b'\0')[0].decode('cp437')
     templates.append({'filename':p.name,'title':title,'id':struct.unpack_from('<H',b,8)[0],
                       'steps':struct.unpack_from('<H',b,33)[0],'base64':base64.b64encode(b).decode(),
@@ -30,7 +30,7 @@ for id,lines in observed.items():
     if id in funcs:funcs[id]['lines']=sorted(set(funcs[id]['lines'])|lines)
 data={'templates':templates,'functions':funcs,'parameters':schema['parameters'],'resources':resources,
       'groups':groups,'text_choices':schema['text_choices'],
-      'cnf_sha256':hashlib.sha256((ROOT/'Storage/SC777CE/Config/TYPECONF.CNF').read_bytes()).hexdigest(),
+      'cnf_sha256':hashlib.sha256((ROOT/'Storage/sc777ce/Config/TYPECONF.CNF').read_bytes()).hexdigest(),
       'date':'29 Oktober 2026'}
 (HERE/'data.json').write_text(json.dumps(data,ensure_ascii=False),encoding='utf-8')
 template=(HERE/'template.html').read_text(encoding='utf-8')

@@ -1,38 +1,42 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import axios from 'axios';
-import { 
-  Layers, 
-  Plus, 
-  Trash2, 
-  ArrowUp, 
-  ArrowDown, 
-  Save, 
-  Download, 
-  Play, 
-  Settings2, 
-  Flame, 
-  Droplet, 
-  Clock, 
-  Gauge, 
-  Sliders, 
-  CheckCircle2, 
-  AlertCircle, 
-  Search, 
-  Copy, 
-  RefreshCw, 
-  FileCode, 
-  ExternalLink, 
-  Sparkles, 
-  ArrowLeft, 
-  ChevronRight, 
-  ChevronDown, 
-  ChevronUp, 
-  Eye, 
-  BookOpen, 
+import {
+  Layers,
+  Plus,
+  Trash2,
+  ArrowUp,
+  ArrowDown,
+  Save,
+  Download,
+  Play,
+  Settings2,
+  Flame,
+  Droplet,
+  Clock,
+  Gauge,
+  Sliders,
+  CheckCircle2,
+  AlertCircle,
+  Search,
+  Copy,
+  RefreshCw,
+  FileCode,
+  ExternalLink,
+  Sparkles,
+  ArrowLeft,
+  ChevronRight,
+  ChevronDown,
+  ChevronUp,
+  Eye,
+  BookOpen,
   Info,
   Server,
   Zap,
-  Boxes
+  Boxes,
+  Cpu,
+  Send,
+  Upload,
+  X
 } from 'lucide-react';
 import TempCurveChart from '../components/Charts/TempCurveChart';
 
@@ -52,7 +56,18 @@ const CATEGORY_COLORS = {
 export default function OrgatexEdxProgram() {
   // Navigation / View State
   const [viewMode, setViewMode] = useState('LIST'); // 'LIST' | 'EDITOR'
-  
+
+  // Active Selected Machine (Synchronized across OrgaTEX & SETEX Studio)
+  const [activeMachine, setActiveMachine] = useState(() => {
+    return localStorage.getItem('selected_dyeing_machine') || 'TD12';
+  });
+  const [filterMachineScope, setFilterMachineScope] = useState('ACTIVE'); // 'ACTIVE' | 'ALL'
+  const [machineList, setMachineList] = useState([]);
+
+  // FTP Transfer Modal State
+  const [ftpTransferModal, setFtpTransferModal] = useState(null);
+  const [isTransferringFtp, setIsTransferringFtp] = useState(false);
+
   // Program List State
   const [programList, setProgramList] = useState([]);
   const [loadingList, setLoadingList] = useState(false);
@@ -67,7 +82,13 @@ export default function OrgatexEdxProgram() {
   // Editor State (Procedure = Level 1)
   const [programNo, setProgramNo] = useState(101);
   const [programName, setProgramName] = useState('COTTON REACTIVE DARK 60C');
-  const [machineCode, setMachineCode] = useState('C012');
+  const [machineCode, setMachineCode] = useState(() => {
+    return localStorage.getItem('selected_dyeing_machine') || 'TD12';
+  });
+  const [controllerModel, setControllerModel] = useState(() => {
+    const savedM = localStorage.getItem('selected_dyeing_machine') || 'TD12';
+    return localStorage.getItem('controller_model_' + savedM) || '777';
+  });
   const [procedureTreatments, setProcedureTreatments] = useState([]); // List of Treatment Items
   const [selectedPosition, setSelectedPosition] = useState(0); // 0-based index
   const [isSaving, setIsSaving] = useState(false);
@@ -103,14 +124,147 @@ export default function OrgatexEdxProgram() {
     }
   };
 
+  // 3. Fetch Registered Machines
+  const fetchMachines = async () => {
+    try {
+      const res = await axios.get('/api/machines/');
+      if (Array.isArray(res.data) && res.data.length > 0) {
+        setMachineList(res.data);
+      }
+    } catch (err) {
+      console.error('Gagal memuat machine list:', err);
+    }
+  };
+
   useEffect(() => {
     fetchProgramList();
     fetchTreatmentsLibrary();
+    fetchMachines();
   }, []);
+
+  // Available Machines (with fallback to default factory controllers)
+  const availableMachines = useMemo(() => {
+    const defaults = [
+      { machine_no: 'DA01', display_name: 'DA01 - SETEX 797CE Mesin DA01', ip_address: '192.168.1.95', ftp_port: 21, controller_type: '797' },
+      { machine_no: '797', display_name: '797 - SETEX 797CE Controller', ip_address: '192.168.1.95', ftp_port: 21, controller_type: '797' },
+      { machine_no: '10B', display_name: '10B - Mesin 10B (Novatech/SETEX)', ip_address: '172.16.110.160', ftp_port: 21, controller_type: '777' },
+      { machine_no: 'TD12', display_name: 'TD12 - SETEX Controller', ip_address: '172.16.110.101', ftp_port: 21, controller_type: '777' },
+      { machine_no: 'A002', display_name: 'A002 - Jet Dyeing Mesin 2', ip_address: '172.16.110.102', ftp_port: 21, controller_type: '777' },
+      { machine_no: 'A003', display_name: 'A003 - Jet Dyeing Mesin 3', ip_address: '172.16.110.103', ftp_port: 21, controller_type: '777' },
+      { machine_no: '1A', display_name: '1A - Jet Dyeing Mesin 1A', ip_address: '172.16.110.104', ftp_port: 21, controller_type: '777' },
+    ];
+    if (!machineList || machineList.length === 0) return defaults;
+    const existingNos = new Set(machineList.map(m => m.machine_no));
+    const merged = [...machineList];
+    defaults.forEach(d => {
+      if (!existingNos.has(d.machine_no)) merged.push(d);
+    });
+    return merged;
+  }, [machineList]);
+
+  // Active selected machine details
+  const selectedMachineObj = useMemo(() => {
+    return availableMachines.find(m => m.machine_no.toUpperCase() === activeMachine.toUpperCase()) || availableMachines[0];
+  }, [availableMachines, activeMachine]);
+
+  // Select Machine Handler (Persisted in localStorage)
+  const handleSelectMachine = (code) => {
+    const clean = code.trim().toUpperCase();
+    setActiveMachine(clean);
+    setMachineCode(clean);
+    localStorage.setItem('selected_dyeing_machine', clean);
+
+    const mObj = availableMachines.find(m => m.machine_no.toUpperCase() === clean);
+    const is797Machine = (mObj?.ip_address === '192.168.1.95') || clean.includes('797') || clean.startsWith('DA');
+    const savedModel = is797Machine ? '797' : (localStorage.getItem('controller_model_' + clean) || '777');
+    setControllerModel(savedModel);
+  };
+
+  const handleSelectControllerModel = (model) => {
+    setControllerModel(model);
+    localStorage.setItem('controller_model_' + activeMachine, model);
+  };
+
+  const currentRemoteDir = controllerModel === '797'
+    ? '/Flashdisk/SC797CE/Programs'
+    : '/Storage/sc777ce/Programs';
+
+  // Transfer Program to FTP Controller Handler
+  const handleTransferToFtp = async (pNo, mCode) => {
+    const targetM = (mCode || activeMachine).trim().toUpperCase();
+    const targetObj = availableMachines.find(m => m.machine_no.toUpperCase() === targetM) || selectedMachineObj;
+    setIsTransferringFtp(true);
+    try {
+      const res = await axios.post(`/api/programs/transfer-ftp/${pNo}`, {
+        machine_code: targetM,
+        ip_address: targetObj?.ip_address,
+        controller_type: controllerModel,
+        target_dir: currentRemoteDir,
+        timeout: 6.0
+      });
+      showToast(res.data.message || `Program M_${String(pNo).padStart(4, '0')}.PRG berhasil ditulis ke FTP Kontroler Mesin ${targetM}!`);
+      setFtpTransferModal(null);
+    } catch (err) {
+      showToast(err.response?.data?.detail || err.message, 'error');
+    } finally {
+      setIsTransferringFtp(false);
+    }
+  };
+
+  // Count programs for active machine
+  const activeMachineProgramsCount = useMemo(() => {
+    return programList.filter(p => (p.machine_code || 'TD12').toUpperCase() === activeMachine.toUpperCase()).length;
+  }, [programList, activeMachine]);
 
   const showToast = (message, type = 'success') => {
     setNotification({ message, type });
     setTimeout(() => setNotification(null), 4500);
+  };
+
+  // State & Handlers for Downloading / Uploading Programs to Machine
+  const [isFetchingFromMachine, setIsFetchingFromMachine] = useState(false);
+  const fileInputRef = useRef(null);
+
+  const handleFetchProgramsFromMachine = async () => {
+    setIsFetchingFromMachine(true);
+    try {
+      const res = await axios.post(`/api/programs/fetch-from-machine/${activeMachine}`, {
+        ip_address: selectedMachineObj?.ip_address,
+        controller_type: controllerModel,
+        remote_dir: currentRemoteDir,
+        timeout: 10.0
+      });
+      showToast(res.data.message || `Pemeriksaan program Mesin ${activeMachine} selesai!`, res.data.success ? 'success' : 'error');
+      await fetchProgramList();
+      setFilterMachineScope('ACTIVE');
+    } catch (err) {
+      showToast(err.response?.data?.detail || err.message, 'error');
+    } finally {
+      setIsFetchingFromMachine(false);
+    }
+  };
+
+  const handleUploadPrg = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = async () => {
+      try {
+        const base64Content = reader.result.split(',')[1];
+        const res = await axios.post(`/api/programs/upload-prg?machine_code=${activeMachine}`, {
+          filename: file.name,
+          base64: base64Content,
+          machine_code: activeMachine
+        });
+        showToast(res.data.message || `File ${file.name} berhasil diimpor untuk Mesin ${activeMachine}!`);
+        await fetchProgramList();
+        setFilterMachineScope('ACTIVE');
+      } catch (err) {
+        showToast(err.response?.data?.detail || err.message, 'error');
+      }
+    };
+    reader.readAsDataURL(file);
+    e.target.value = '';
   };
 
   // 3. Open Existing Program in EDX300 Builder
@@ -120,13 +274,69 @@ export default function OrgatexEdxProgram() {
       const data = res.data;
       setProgramNo(data.program_no || pno);
       setProgramName(data.program_name || `PROGRAM #${pno}`);
-      setMachineCode(data.machine_code || 'C012');
+      setMachineCode(data.machine_code || activeMachine);
 
       if (data.sub_programs && data.sub_programs.length > 0) {
         setProcedureTreatments(data.sub_programs);
+      } else if (data.steps && data.steps.length > 0) {
+        // Group raw SECOM bytecode steps into logical treatments (Pretreatment, Dyeing, Soaping, Rinse)
+        const rawSteps = data.steps;
+        const treatments = [];
+        let curSteps = [];
+        let curCategory = 'Pretreatment';
+        let pos = 1;
+
+        rawSteps.forEach((s) => {
+          const fids = (s.functions || []).map(f => f.function_id);
+          let cat = curCategory;
+          if (fids.includes(141)) {
+            const temp = s.summary_temp || 0;
+            if (temp >= 85 && pos > 2) cat = 'Washing';
+            else if (temp >= 50) cat = 'Dyeing';
+            else cat = 'Pretreatment';
+          } else if (fids.includes(71)) {
+            cat = 'Rinse';
+          } else if (fids.includes(2) || fids.includes(122)) {
+            cat = 'End';
+          }
+
+          if (curSteps.length > 0 && cat !== curCategory && curSteps.length >= 3) {
+            treatments.push({
+              position: pos++,
+              treatment_name: `${curCategory} (Langkah ${curSteps[0].step_no} - ${curSteps[curSteps.length - 1].step_no})`,
+              category: curCategory,
+              parameters: {
+                temperature: curSteps.find(st => st.summary_temp)?.summary_temp || 60,
+                hold_time: curSteps.reduce((acc, st) => acc + (st.summary_time_min || 0), 0) || 30,
+                pump_speed: 85,
+                water_level: 3000
+              },
+              steps: [...curSteps]
+            });
+            curSteps = [];
+            curCategory = cat;
+          }
+          curSteps.push(s);
+        });
+
+        if (curSteps.length > 0) {
+          treatments.push({
+            position: pos++,
+            treatment_name: `${curCategory} (Langkah ${curSteps[0].step_no} - ${curSteps[curSteps.length - 1].step_no})`,
+            category: curCategory,
+            parameters: {
+              temperature: curSteps.find(st => st.summary_temp)?.summary_temp || 60,
+              hold_time: curSteps.reduce((acc, st) => acc + (st.summary_time_min || 0), 0) || 30,
+              pump_speed: 85,
+              water_level: 3000
+            },
+            steps: [...curSteps]
+          });
+        }
+
+        setProcedureTreatments(treatments);
       } else {
         // If it's a flat program without explicit sub_programs, create default treatments
-        // or attempt grouping
         if (treatmentsLibrary.length > 0) {
           const defaultSeq = [
             {
@@ -181,9 +391,9 @@ export default function OrgatexEdxProgram() {
   const handleCreateNewProcedure = () => {
     const nextNo = programList.length > 0 ? Math.max(...programList.map(p => p.program_number || 0)) + 1 : 101;
     setProgramNo(nextNo);
-    setProgramName('NEW ORGATEX DYEING PROCEDURE');
-    setMachineCode('C012');
-    
+    setProgramName(`ORGATEX RESEP MESIN ${activeMachine}`);
+    setMachineCode(activeMachine);
+
     // Seed with standard sequence: Scouring -> Dyeing -> Soaping -> Rinse
     if (treatmentsLibrary.length >= 4) {
       const initSeq = [
@@ -482,9 +692,8 @@ export default function OrgatexEdxProgram() {
     <div className="mx-auto max-w-7xl p-4 md:p-6 space-y-6">
       {/* Toast Notification */}
       {notification && (
-        <div className={`fixed top-4 right-4 z-50 flex items-center gap-3 px-5 py-3 rounded-lg shadow-xl text-white font-medium transition-all ${
-          notification.type === 'error' ? 'bg-rose-600' : 'bg-emerald-600'
-        }`}>
+        <div className={`fixed top-4 right-4 z-50 flex items-center gap-3 px-5 py-3 rounded-lg shadow-xl text-white font-medium transition-all ${notification.type === 'error' ? 'bg-rose-600' : 'bg-emerald-600'
+          }`}>
           {notification.type === 'error' ? <AlertCircle className="w-5 h-5" /> : <CheckCircle2 className="w-5 h-5" />}
           <span>{notification.message}</span>
         </div>
@@ -536,6 +745,15 @@ export default function OrgatexEdxProgram() {
                 {isSaving ? 'Menyimpan...' : 'Simpan Procedure'}
               </button>
               <button
+                onClick={() => handleTransferToFtp(programNo, machineCode)}
+                disabled={isTransferringFtp}
+                className="flex items-center gap-2 px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-semibold shadow-md transition-all disabled:opacity-50"
+                title={`Tulis file biner M_${String(programNo).padStart(4, '0')}.PRG langsung ke FTP Mesin ${machineCode}`}
+              >
+                <Send className={`w-4 h-4 ${isTransferringFtp ? 'animate-spin' : ''}`} />
+                <span>{isTransferringFtp ? 'Menulis FTP...' : `Tulis ke FTP (${machineCode})`}</span>
+              </button>
+              <button
                 onClick={handleCompileAndDownload}
                 className="flex items-center gap-2 px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-semibold shadow-md transition-all"
               >
@@ -561,6 +779,114 @@ export default function OrgatexEdxProgram() {
               </button>
             </>
           )}
+        </div>
+      </div>
+
+      {/* BILAH PILIHAN MESIN AKTIF & STATUS KONTROLER FTP */}
+      <div className="bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 text-white p-5 rounded-2xl border border-indigo-500/30 shadow-md flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div className="flex items-center gap-3.5">
+          <div className="p-3 bg-indigo-500/20 text-indigo-400 rounded-xl border border-indigo-500/30">
+            <Cpu className="w-6 h-6" />
+          </div>
+          <div>
+            <div className="flex items-center gap-2">
+              <span className="text-[11px] font-bold uppercase tracking-wider text-indigo-300">
+                Mesin Kontroler Aktif Terpilih:
+              </span>
+              <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
+                <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                Siap FTP Port 21
+              </span>
+            </div>
+            <h3 className="text-lg font-black text-white flex items-center gap-2">
+              <span>Mesin {activeMachine}</span>
+              <span className="text-xs font-normal text-indigo-200">
+                — {selectedMachineObj?.display_name || activeMachine}
+              </span>
+            </h3>
+            <div className="flex flex-wrap items-center gap-3 text-xs font-mono text-slate-300 mt-1">
+              <span>IP Host FTP: <strong className="text-emerald-400">{selectedMachineObj?.ip_address || '172.16.110.101'}:21</strong></span>
+              <span>•</span>
+              <span>Folder Remote: <strong className="text-indigo-300">{currentRemoteDir}</strong></span>
+              <span>•</span>
+              <span className="text-amber-300 font-semibold">Tipe: SECOM {controllerModel}</span>
+            </div>
+          </div>
+        </div>
+
+        <div className="flex flex-wrap items-center gap-3 bg-slate-800/80 p-2.5 rounded-xl border border-slate-700">
+          <div className="flex flex-col">
+            <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+              Ganti Pilihan Mesin:
+            </label>
+            <select
+              value={activeMachine}
+              onChange={(e) => handleSelectMachine(e.target.value)}
+              className="text-xs font-bold font-mono bg-slate-900 border border-indigo-500/50 rounded px-2.5 py-1.5 text-indigo-300 outline-none cursor-pointer hover:border-indigo-400 transition"
+            >
+              {availableMachines.map((m) => (
+                <option key={m.machine_no} value={m.machine_no} className="bg-boxdark text-white">
+                  Mesin {m.machine_no} ({m.ip_address})
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div className="flex flex-col">
+            <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+              Model Kontroler / Folder:
+            </label>
+            <select
+              value={controllerModel}
+              onChange={(e) => handleSelectControllerModel(e.target.value)}
+              className="text-xs font-bold font-mono bg-slate-900 border border-emerald-500/50 rounded px-2.5 py-1.5 text-emerald-300 outline-none cursor-pointer hover:border-emerald-400 transition"
+              title="Pilih folder kontroler: SECOM 777 (/Storage/SC777CE) atau SECOM 797 (/Flashdisk/SC797CE)"
+            >
+              <option value="777" className="bg-boxdark text-white">
+                SETEX 777 (/Storage/SC777CE)
+              </option>
+              <option value="797" className="bg-boxdark text-white">
+                SETEX 797 (/Flashdisk/SC797CE)
+              </option>
+            </select>
+          </div>
+
+          <div className="flex items-center gap-2 pt-2 md:pt-0">
+            <button
+              onClick={handleFetchProgramsFromMachine}
+              disabled={isFetchingFromMachine}
+              className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold shadow-md transition disabled:opacity-50"
+              title={`Unduh seluruh file .PRG dari kontroler Mesin ${activeMachine} (${selectedMachineObj?.ip_address || ''}) via FTP`}
+            >
+              {isFetchingFromMachine ? (
+                <>
+                  <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                  <span>Mengunduh...</span>
+                </>
+              ) : (
+                <>
+                  <Download className="w-3.5 h-3.5" />
+                  <span>Unduh Program Mesin {activeMachine} (FTP)</span>
+                </>
+              )}
+            </button>
+
+            <button
+              onClick={() => fileInputRef.current?.click()}
+              className="flex items-center gap-1.5 px-2.5 py-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-slate-200 text-xs font-medium border border-slate-600 transition"
+              title={`Impor file biner .PRG dari Storage untuk Mesin ${activeMachine}`}
+            >
+              <Upload className="w-3.5 h-3.5 text-indigo-300" />
+              <span>Impor .PRG</span>
+            </button>
+            <input
+              type="file"
+              ref={fileInputRef}
+              onChange={handleUploadPrg}
+              accept=".prg,.PRG"
+              className="hidden"
+            />
+          </div>
         </div>
       </div>
 
@@ -595,17 +921,37 @@ export default function OrgatexEdxProgram() {
               <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
               <input
                 type="text"
-                placeholder="Cari nama atau nomor program..."
+                placeholder={`Cari program mesin ${activeMachine} atau nomor...`}
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="w-full pl-10 pr-4 py-2 text-sm rounded-lg border border-stroke dark:border-strokedark bg-transparent focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
 
-            <div className="flex items-center gap-2">
-              <span className="text-xs text-slate-500 dark:text-slate-400">
-                Total: <strong>{programList.length}</strong> Program Terdaftar
-              </span>
+            <div className="flex flex-wrap items-center gap-2">
+              {/* Filter Lingkup Mesin */}
+              <div className="flex items-center gap-1 bg-slate-100 dark:bg-meta-4 p-1 rounded-lg border border-stroke dark:border-strokedark">
+                <button
+                  onClick={() => setFilterMachineScope('ACTIVE')}
+                  className={`px-3 py-1.5 text-xs font-bold rounded-md transition flex items-center gap-1.5 ${filterMachineScope === 'ACTIVE'
+                    ? 'bg-blue-600 text-white shadow-sm'
+                    : 'text-slate-600 dark:text-slate-300 hover:text-black dark:hover:text-white'
+                    }`}
+                >
+                  <Cpu className="w-3.5 h-3.5" />
+                  <span>Mesin {activeMachine} ({activeMachineProgramsCount})</span>
+                </button>
+                <button
+                  onClick={() => setFilterMachineScope('ALL')}
+                  className={`px-3 py-1.5 text-xs font-bold rounded-md transition ${filterMachineScope === 'ALL'
+                    ? 'bg-blue-600 text-white shadow-sm'
+                    : 'text-slate-600 dark:text-slate-300 hover:text-black dark:hover:text-white'
+                    }`}
+                >
+                  <span>Semua Mesin ({programList.length})</span>
+                </button>
+              </div>
+
               <button
                 onClick={fetchProgramList}
                 className="p-2 rounded-lg border border-stroke dark:border-strokedark hover:bg-slate-100 dark:hover:bg-meta-4 transition-colors"
@@ -622,7 +968,8 @@ export default function OrgatexEdxProgram() {
               <table className="w-full text-left border-collapse text-sm">
                 <thead>
                   <tr className="border-b border-stroke dark:border-strokedark bg-slate-50 dark:bg-meta-4 text-slate-600 dark:text-slate-300 font-semibold">
-                    <th className="p-4">No. Program</th>
+                    <th className="p-4 w-24">No. Program</th>
+                    <th className="p-4 w-28">Mesin</th>
                     <th className="p-4">Nama Prosedur (Master Program)</th>
                     <th className="p-4">Struktur Modul</th>
                     <th className="p-4">Total Langkah PRG</th>
@@ -633,37 +980,85 @@ export default function OrgatexEdxProgram() {
                 <tbody className="divide-y divide-stroke dark:divide-strokedark">
                   {loadingList ? (
                     <tr>
-                      <td colSpan="6" className="p-8 text-center text-slate-500">
+                      <td colSpan="7" className="p-8 text-center text-slate-500">
                         <RefreshCw className="w-6 h-6 animate-spin mx-auto mb-2 text-blue-500" />
                         Memuat daftar program OrgaTEX...
                       </td>
                     </tr>
-                  ) : programList.filter(p => 
-                      String(p.program_number).includes(searchTerm) || 
-                      (p.program_name && p.program_name.toLowerCase().includes(searchTerm.toLowerCase()))
-                    ).length === 0 ? (
+                  ) : programList
+                    .filter(p => {
+                      const matchSearch = String(p.program_number).includes(searchTerm) ||
+                        (p.program_name && p.program_name.toLowerCase().includes(searchTerm.toLowerCase())) ||
+                        (p.machine_code && p.machine_code.toLowerCase().includes(searchTerm.toLowerCase()));
+                      const pMach = (p.machine_code || 'TD12').toUpperCase();
+                      if (filterMachineScope === 'ACTIVE' && pMach !== activeMachine.toUpperCase()) {
+                        return false;
+                      }
+                      return matchSearch;
+                    }).length === 0 ? (
                     <tr>
-                      <td colSpan="6" className="p-8 text-center text-slate-500">
-                        Tidak ada program yang sesuai dengan pencarian "{searchTerm}".
+                      <td colSpan="7" className="p-8 text-center text-slate-500">
+                        <div className="max-w-md mx-auto space-y-3 py-2">
+                          <p className="text-slate-600 dark:text-slate-400 font-medium">
+                            {searchTerm
+                              ? `Tidak ada program yang sesuai dengan pencarian "${searchTerm}".`
+                              : `Belum ada program yang terdaftar untuk Mesin ${activeMachine}.`}
+                          </p>
+                          <div className="flex flex-wrap items-center justify-center gap-2.5 pt-1">
+                            <button
+                              onClick={handleFetchProgramsFromMachine}
+                              disabled={isFetchingFromMachine}
+                              className="flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold shadow-sm transition disabled:opacity-50"
+                            >
+                              <Download className="w-3.5 h-3.5" />
+                              <span>Unduh Program dari Mesin {activeMachine} (FTP)</span>
+                            </button>
+                            <button
+                              onClick={() => fileInputRef.current?.click()}
+                              className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 text-xs font-medium border border-stroke dark:border-strokedark transition"
+                            >
+                              <Upload className="w-3.5 h-3.5 text-indigo-500" />
+                              <span>Impor File .PRG</span>
+                            </button>
+                            <button
+                              onClick={() => setFilterMachineScope('ALL')}
+                              className="px-3 py-2 rounded-lg bg-blue-50 hover:bg-blue-100 dark:bg-blue-950/40 text-blue-600 dark:text-blue-300 text-xs font-medium transition"
+                            >
+                              Lihat Semua Program ({programList.length})
+                            </button>
+                          </div>
+                        </div>
                       </td>
                     </tr>
                   ) : (
                     programList
-                      .filter(p => 
-                        String(p.program_number).includes(searchTerm) || 
-                        (p.program_name && p.program_name.toLowerCase().includes(searchTerm.toLowerCase()))
-                      )
+                      .filter(p => {
+                        const matchSearch = String(p.program_number).includes(searchTerm) ||
+                          (p.program_name && p.program_name.toLowerCase().includes(searchTerm.toLowerCase())) ||
+                          (p.machine_code && p.machine_code.toLowerCase().includes(searchTerm.toLowerCase()));
+                        const pMach = (p.machine_code || 'TD12').toUpperCase();
+                        if (filterMachineScope === 'ACTIVE' && pMach !== activeMachine.toUpperCase()) {
+                          return false;
+                        }
+                        return matchSearch;
+                      })
                       .map((p) => (
                         <tr key={p.program_number} className="hover:bg-slate-50/80 dark:hover:bg-meta-4/40 transition-colors">
                           <td className="p-4 font-mono font-bold text-blue-600 dark:text-blue-400">
                             M_{String(p.program_number).padStart(4, '0')}
                           </td>
                           <td className="p-4">
+                            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded font-mono text-xs font-bold bg-blue-50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300 border border-blue-500/20">
+                              <Cpu className="w-3 h-3 text-blue-500" />
+                              {p.machine_code || 'TD12'}
+                            </span>
+                          </td>
+                          <td className="p-4">
                             <div className="font-semibold text-slate-900 dark:text-white">
                               {p.program_name}
                             </div>
                             <div className="text-xs text-slate-500">
-                              Target Mesin: C012 (Jet Dyeing HT)
+                              Target Mesin: {p.machine_code || activeMachine} ({availableMachines.find(m => m.machine_no === (p.machine_code || activeMachine))?.display_name || 'Jet Dyeing'})
                             </div>
                           </td>
                           <td className="p-4">
@@ -696,6 +1091,14 @@ export default function OrgatexEdxProgram() {
                           <td className="p-4 text-right">
                             <div className="flex items-center justify-end gap-2">
                               <button
+                                onClick={() => setFtpTransferModal(p)}
+                                className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold shadow-sm transition-colors"
+                                title={`Tulis biner M_${String(p.program_number).padStart(4, '0')}.PRG langsung ke FTP Mesin ${p.machine_code || activeMachine}`}
+                              >
+                                <Send className="w-3.5 h-3.5" />
+                                <span>Tulis FTP</span>
+                              </button>
+                              <button
                                 onClick={() => handleOpenProgram(p.program_number)}
                                 className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-xs font-medium shadow-sm transition-colors"
                               >
@@ -719,6 +1122,80 @@ export default function OrgatexEdxProgram() {
               </table>
             </div>
           </div>
+
+          {/* MODAL KONFIRMASI TRANSFER KE FTP KONTROLER */}
+          {ftpTransferModal && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+              <div className="bg-white dark:bg-boxdark rounded-2xl border border-stroke dark:border-strokedark shadow-2xl max-w-md w-full p-6 space-y-4 animate-in fade-in">
+                <div className="flex items-center justify-between border-b border-stroke dark:border-strokedark pb-3">
+                  <div className="flex items-center gap-2.5">
+                    <div className="p-2 bg-indigo-500/10 text-indigo-600 rounded-lg">
+                      <Send className="w-5 h-5" />
+                    </div>
+                    <div>
+                      <h3 className="text-sm font-bold uppercase tracking-wider text-black dark:text-white">
+                        Tulis Program ke FTP Kontroler
+                      </h3>
+                      <p className="text-[11px] text-gray-500">Kirim file biner .PRG langsung ke SETEX 777</p>
+                    </div>
+                  </div>
+                  <button onClick={() => setFtpTransferModal(null)} className="text-gray-400 hover:text-gray-600">
+                    <X className="w-5 h-5" />
+                  </button>
+                </div>
+
+                <div className="bg-gray-50 dark:bg-meta-4/40 p-4 rounded-xl border border-stroke dark:border-strokedark space-y-2.5 text-xs">
+                  <div className="flex justify-between items-center pb-2 border-b border-stroke dark:border-strokedark">
+                    <span className="text-gray-500 font-medium">Program Target:</span>
+                    <strong className="text-black dark:text-white font-mono">
+                      M_{String(ftpTransferModal.program_number).padStart(4, '0')}.PRG ({ftpTransferModal.program_name})
+                    </strong>
+                  </div>
+                  <div className="flex justify-between items-center pb-2 border-b border-stroke dark:border-strokedark">
+                    <span className="text-gray-500 font-medium">Mesin Target:</span>
+                    <span className="font-bold text-blue-600 font-mono">
+                      Mesin {ftpTransferModal.machine_code || activeMachine}
+                    </span>
+                  </div>
+                  <div className="flex justify-between items-center pb-2 border-b border-stroke dark:border-strokedark">
+                    <span className="text-gray-500 font-medium">IP Controller:</span>
+                    <span className="font-mono font-bold text-emerald-600">
+                      {availableMachines.find(m => m.machine_no === (ftpTransferModal.machine_code || activeMachine))?.ip_address || '172.16.110.101'}:21
+                    </span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-gray-500 font-medium">Direktori Remote:</span>
+                    <span className="font-mono text-gray-700 dark:text-gray-300">
+                      /Storage/sc777ce/Programs/
+                    </span>
+                  </div>
+                </div>
+
+                <p className="text-[11px] text-gray-500">
+                  File biner M_{String(ftpTransferModal.program_number).padStart(4, '0')}.PRG akan langsung disimpan ke storage kontroler mesin ini dan siap dijalankan oleh operator pada HMI SETEX 777.
+                </p>
+
+                <div className="flex items-center justify-end gap-2.5 pt-2 border-t border-stroke dark:border-strokedark">
+                  <button
+                    type="button"
+                    onClick={() => setFtpTransferModal(null)}
+                    className="px-4 py-2 text-xs font-semibold text-gray-600 dark:text-gray-300 bg-gray-100 dark:bg-meta-4 hover:bg-gray-200 rounded-lg transition"
+                  >
+                    Batal
+                  </button>
+                  <button
+                    type="button"
+                    disabled={isTransferringFtp}
+                    onClick={() => handleTransferToFtp(ftpTransferModal.program_number, ftpTransferModal.machine_code || activeMachine)}
+                    className="flex items-center gap-1.5 px-4 py-2 text-xs font-bold text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg shadow transition active:scale-95 disabled:opacity-50"
+                  >
+                    <Send className={`w-4 h-4 ${isTransferringFtp ? 'animate-spin' : ''}`} />
+                    <span>{isTransferringFtp ? 'Sedang Mentransfer...' : `Tulis Sekarang ke FTP Mesin ${ftpTransferModal.machine_code || activeMachine}`}</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       )}
 
@@ -749,7 +1226,7 @@ export default function OrgatexEdxProgram() {
               </div>
 
               {/* Procedure Name */}
-              <div className="md:col-span-5">
+              <div className="md:col-span-4">
                 <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1 uppercase tracking-wider">
                   Nama Prosedur (Master Procedure)
                 </label>
@@ -762,20 +1239,22 @@ export default function OrgatexEdxProgram() {
                 />
               </div>
 
-              {/* Machine Code */}
-              <div className="md:col-span-2">
-                <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1 uppercase tracking-wider">
-                  Grup Mesin
+              {/* Target Machine */}
+              <div className="md:col-span-3">
+                <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1 uppercase tracking-wider flex items-center gap-1.5">
+                  <Cpu className="w-3.5 h-3.5 text-blue-500" />
+                  <span>Target Mesin & Kontroler:</span>
                 </label>
                 <select
                   value={machineCode}
                   onChange={(e) => setMachineCode(e.target.value)}
-                  className="w-full px-3 py-2 text-sm rounded-lg border border-stroke dark:border-strokedark bg-transparent focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 text-sm font-bold font-mono rounded-lg border border-stroke dark:border-strokedark bg-transparent text-primary dark:text-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer"
                 >
-                  <option value="C012">C012 (Jet HT)</option>
-                  <option value="C014">C014 (Overflow)</option>
-                  <option value="C015">C015 (Winch)</option>
-                  <option value="ALL">Semua Mesin</option>
+                  {availableMachines.map((m) => (
+                    <option key={m.machine_no} value={m.machine_no} className="bg-white dark:bg-boxdark text-black dark:text-white">
+                      Mesin {m.machine_no} ({m.ip_address})
+                    </option>
+                  ))}
                 </select>
               </div>
 
@@ -850,11 +1329,10 @@ export default function OrgatexEdxProgram() {
                         <div
                           key={`${tr.treatment_number}-${idx}`}
                           onClick={() => setSelectedPosition(idx)}
-                          className={`p-3.5 rounded-xl border transition-all cursor-pointer relative ${
-                            isSelected
-                              ? 'border-blue-500 bg-blue-50/70 dark:bg-blue-950/40 shadow-sm ring-1 ring-blue-500'
-                              : 'border-stroke dark:border-strokedark bg-slate-50/50 dark:bg-meta-4/30 hover:bg-slate-100/80 dark:hover:bg-meta-4/60'
-                          }`}
+                          className={`p-3.5 rounded-xl border transition-all cursor-pointer relative ${isSelected
+                            ? 'border-blue-500 bg-blue-50/70 dark:bg-blue-950/40 shadow-sm ring-1 ring-blue-500'
+                            : 'border-stroke dark:border-strokedark bg-slate-50/50 dark:bg-meta-4/30 hover:bg-slate-100/80 dark:hover:bg-meta-4/60'
+                            }`}
                         >
                           <div className="flex items-center justify-between gap-2">
                             <div className="flex items-center gap-2.5 min-w-0">
@@ -1159,7 +1637,7 @@ export default function OrgatexEdxProgram() {
                           </div>
 
                           <div className="text-right font-mono text-[11px] text-slate-500">
-                            {st.summary_temp ? `${st.summary_temp}°C` : ''} 
+                            {st.summary_temp ? `${st.summary_temp}°C` : ''}
                             {st.summary_time_min ? ` • ${st.summary_time_min}m` : ''}
                           </div>
                         </div>
@@ -1233,11 +1711,10 @@ export default function OrgatexEdxProgram() {
                 <button
                   key={cat}
                   onClick={() => setTreatmentFilterCategory(cat)}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
-                    treatmentFilterCategory === cat
-                      ? 'bg-blue-600 text-white shadow-sm'
-                      : 'bg-white dark:bg-boxdark border border-stroke dark:border-strokedark text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-meta-4'
-                  }`}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${treatmentFilterCategory === cat
+                    ? 'bg-blue-600 text-white shadow-sm'
+                    : 'bg-white dark:bg-boxdark border border-stroke dark:border-strokedark text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-meta-4'
+                    }`}
                 >
                   {cat === 'ALL' ? 'Semua Kategori' : cat}
                 </button>

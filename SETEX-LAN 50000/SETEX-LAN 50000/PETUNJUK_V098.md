@@ -15,6 +15,6 @@ Belum diketahui: rentang alamat valid, nama utilitas setiap alamat, faktor skala
 
 Fitur ini membaca pada saat Anda meminta atau secara cyclic, belum otomatis mendeteksi Program End atau menyimpan laporan akhir batch. Untuk menangkap nilai akhir, pembacaan harus terjadi sebelum reset counter; cyclic pun dapat melewatkan nilai akhir jika jendela waktunya pendek. Klaim waktu reset spesifik mesin masih perlu dicocokkan dengan rekaman nyata.
 
-Bukti lokal: 13E/SC777CE/System/Commands.csv baris 97 mencantumkan service 1/objek 1035 sebagai pembacaan doubleword; baris 166 mencantumkan service 11/objek 1035 sebagai block doubleword. Decoder memakai format 4-byte Little-Endian sesuai informasi yang diberikan pengguna. Penerimaan dan layout balasan TCP mesin belum diuji untuk objek ini; panjang payload harus tepat jumlah counter × 4, jika berbeda nilai tidak ditampilkan.
+Bukti lokal: 13E/sc777ce/System/Commands.csv baris 97 mencantumkan service 1/objek 1035 sebagai pembacaan doubleword; baris 166 mencantumkan service 11/objek 1035 sebagai block doubleword. Decoder memakai format 4-byte Little-Endian sesuai informasi yang diberikan pengguna. Penerimaan dan layout balasan TCP mesin belum diuji untuk objek ini; panjang payload harus tepat jumlah counter × 4, jika berbeda nilai tidak ditampilkan.
 
 Fitur status 112/0 dan detail alarm tetap dipisahkan sesuai PETUNJUK_V097.md. Intervent tetap mengikuti PETUNJUK_V095.md.

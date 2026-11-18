@@ -2,7 +2,7 @@
   "basis": "Candidate layout from decompiled T_BATCH_HEADER_ELEMENT (759 bytes) + T_PROG_LIST_ELEMENT (3 bytes). Static validation only; field units depend on machine configuration.",
   "records": [
     {
-      "path": "D:\\File HMI\\Storage\\SC777CE\\BATCH\\012282\\BATCHREF.REF",
+      "path": "D:\\File HMI\\Storage\\sc777ce\\BATCH\\012282\\BATCHREF.REF",
       "sha256": "787514d41367955ab3693ac5262e6fdb74d39ed7b15b7ee156eccdc0b45be4ed",
       "length": 762,
       "layout_matches": true,
@@ -69,7 +69,7 @@
       "folder_matches_reference": true
     },
     {
-      "path": "D:\\File HMI\\Storage\\SC777CE\\BATCH\\060066\\BATCHREF.REF",
+      "path": "D:\\File HMI\\Storage\\sc777ce\\BATCH\\060066\\BATCHREF.REF",
       "sha256": "9425cbf9825b6a5fd3f597550fe2f078365005356e1675d85e1d7671a4a5c169",
       "length": 762,
       "layout_matches": true,
@@ -136,7 +136,7 @@
       "folder_matches_reference": true
     },
     {
-      "path": "D:\\File HMI\\Storage\\SC777CE\\BATCH\\060218\\BATCHREF.REF",
+      "path": "D:\\File HMI\\Storage\\sc777ce\\BATCH\\060218\\BATCHREF.REF",
       "sha256": "5e68db0182f4a686321fdb2a8b6900fa6d0aeba738697c38a28124846e8bf68a",
       "length": 762,
       "layout_matches": true,
@@ -203,7 +203,7 @@
       "folder_matches_reference": true
     },
     {
-      "path": "D:\\File HMI\\Storage\\SC777CE\\BATCH\\060267\\BATCHREF.REF",
+      "path": "D:\\File HMI\\Storage\\sc777ce\\BATCH\\060267\\BATCHREF.REF",
       "sha256": "68a70d43629f572045346018009bbcadf58359381edb8a25b889f39e1e931e5e",
       "length": 762,
       "layout_matches": true,
@@ -270,7 +270,7 @@
       "folder_matches_reference": true
     },
     {
-      "path": "D:\\File HMI\\Storage\\SC777CE\\BATCH\\060348\\BATCHREF.REF",
+      "path": "D:\\File HMI\\Storage\\sc777ce\\BATCH\\060348\\BATCHREF.REF",
       "sha256": "115c8a1cdb3d941c37bd5a3e6c7c10f0d4121afeb3a6a3b7c9c748ea676e9f61",
       "length": 762,
       "layout_matches": true,
@@ -337,7 +337,7 @@
       "folder_matches_reference": true
     },
     {
-      "path": "D:\\File HMI\\Storage\\SC777CE\\BATCH\\060406\\BATCHREF.REF",
+      "path": "D:\\File HMI\\Storage\\sc777ce\\BATCH\\060406\\BATCHREF.REF",
       "sha256": "5b6e44763370bf51f4e70bfb402e3c3045cce36b551bd6b066a14d6bca4d7e3c",
       "length": 762,
       "layout_matches": true,
@@ -404,7 +404,7 @@
       "folder_matches_reference": true
     },
     {
-      "path": "D:\\File HMI\\Storage\\SC777CE\\BATCH\\060455\\BATCHREF.REF",
+      "path": "D:\\File HMI\\Storage\\sc777ce\\BATCH\\060455\\BATCHREF.REF",
       "sha256": "1badebf7306715ff38cbd58b6223e49c9eae0bfd640aae10d14732d97a18ba04",
       "length": 762,
       "layout_matches": true,
@@ -471,7 +471,7 @@
       "folder_matches_reference": true
     },
     {
-      "path": "D:\\File HMI\\Storage\\SC777CE\\BATCH\\060735\\BATCHREF.REF",
+      "path": "D:\\File HMI\\Storage\\sc777ce\\BATCH\\060735\\BATCHREF.REF",
       "sha256": "f327b2a01efd531dc8faeaf23da4019519a7e38a45e9208b04e1f91fb0b4056f",
       "length": 762,
       "layout_matches": true,
@@ -538,7 +538,7 @@
       "folder_matches_reference": true
     },
     {
-      "path": "D:\\File HMI\\Storage\\SC777CE\\BATCH\\060766\\BATCHREF.REF",
+      "path": "D:\\File HMI\\Storage\\sc777ce\\BATCH\\060766\\BATCHREF.REF",
       "sha256": "774d3824ae3b5b5f2c090d8435597b0596f0408c176fa9086635b800c3fc95b0",
       "length": 762,
       "layout_matches": true,
@@ -605,7 +605,7 @@
       "folder_matches_reference": true
     },
     {
-      "path": "D:\\File HMI\\Storage\\SC777CE\\BATCH\\060892\\BATCHREF.REF",
+      "path": "D:\\File HMI\\Storage\\sc777ce\\BATCH\\060892\\BATCHREF.REF",
       "sha256": "0e4f397d58ff7808999cbaef497b173056cebbf9d80f23d7c21cc25d6964c36a",
       "length": 762,
       "layout_matches": true,
@@ -672,7 +672,7 @@
       "folder_matches_reference": true
     },
     {
-      "path": "D:\\File HMI\\Storage\\SC777CE\\BATCH\\BATCHREF.REF",
+      "path": "D:\\File HMI\\Storage\\sc777ce\\BATCH\\BATCHREF.REF",
       "sha256": "1923ce87eda9de3b421262d64af1925cbe2f1ed164dd9a5aff47aec4679e758f",
       "length": 762,
       "layout_matches": true,

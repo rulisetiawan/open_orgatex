@@ -9,7 +9,7 @@ from pathlib import Path
 sys.path.insert(0, r'C:\Users\surface\Documents\ORGATEX_SETEX\PRG_Studio')
 from cnf_decode import CNFReader
 
-ROOT = Path(r'C:\Users\surface\Documents\ORGATEX_SETEX\13E\SC777CE')
+ROOT = Path(r'C:\Users\surface\Documents\ORGATEX_SETEX\13E\sc777ce')
 OUT = Path(__file__).resolve().parent / 'decoded_13E'
 
 

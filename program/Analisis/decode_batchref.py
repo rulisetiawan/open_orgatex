@@ -16,7 +16,7 @@ def decode(p):
  'position':struct.unpack_from('<H',b,757)[0],'program_list':programs,
  'sibling_program_files':[x.name for x in p.parent.glob('*.PRG')],
  'folder_matches_reference':p.parent.name==ref}
-records=[decode(p) for folder in ['Storage/SC777CE/BATCH','Network/F/OT/BATCH'] for p in sorted((ROOT/folder).rglob('BATCHREF.REF'))]
+records=[decode(p) for folder in ['Storage/sc777ce/BATCH','Network/F/OT/BATCH'] for p in sorted((ROOT/folder).rglob('BATCHREF.REF'))]
 (OUT/'BATCHREF_decoded.json').write_text(json.dumps({'basis':'Candidate layout from decompiled T_BATCH_HEADER_ELEMENT (759 bytes) + T_PROG_LIST_ELEMENT (3 bytes). Static validation only; field units depend on machine configuration.','records':records},ensure_ascii=False,indent=2),encoding='utf-8')
 for r in records:
  if '\\Storage\\' in r['path']:print(json.dumps({k:r.get(k) for k in ['reference','length','state_raw','program_no','machine','texts','parameters_raw_float','program_list','sibling_program_files']},ensure_ascii=False))

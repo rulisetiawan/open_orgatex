@@ -18,12 +18,14 @@ services:
       - DATABASE_URL=postgresql+psycopg2://postgres:sensorSMM!@192.168.100.30:5433/pt_smm_jetflow
       - WRITE_MODE_ENABLED=false
     volumes:
-      - ./backend/data:/app/open_orgatex/backend/data
-      - ../OrgaTex_Share:/app/OrgaTex_Share:ro
-      - ../Programs:/app/Programs:ro
-      - ../STATUS:/app/STATUS:ro
-      - ../plain_export:/app/plain_export:ro
-      - ..:/app/sc777ce_root:ro
+      - ./backend:/app/open_orgatex/backend
+      - ../OrgaTex_Share:/app/OrgaTex_Share
+      - ../Programs:/app/Programs
+      - ../STATUS:/app/STATUS
+      - ../plain_export:/app/plain_export
+      - ..:/app/sc777ce_root
+      - C:/:/host_c
+      - D:/:/host_d
     networks:
       - orgatex_net
 

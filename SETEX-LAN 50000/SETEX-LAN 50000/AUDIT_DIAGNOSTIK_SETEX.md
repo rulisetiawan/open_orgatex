@@ -5,7 +5,7 @@ tidak memuat DLL, tidak membuka koneksi ke mesin, dan tidak mengubah backup.
 
 ## MsgDiagnosticCE_2d.exe
 
-Lokasi: `13E/SC777CE/MsgDiagnosticCE_2d.exe` (juga ada di 6A dan 12B).
+Lokasi: `13E/sc777ce/MsgDiagnosticCE_2d.exe` (juga ada di 6A dan 12B).
 Ukuran 258048 byte. PE machine 0x14C (x86), subsystem 9 (Windows CE GUI),
 subsystem version 5.0. Ini bukan aplikasi desktop Windows biasa.
 
@@ -23,7 +23,7 @@ bahwa menjalankan alat ini sepenuhnya pasif atau tidak memengaruhi HMI.
 
 ## Kendala utama: fungsi Msg_Log pada DLL pendamping adalah stub
 
-Pada `13E/SC777CE/SecomCE_MessageService_2d.dll`:
+Pada `13E/sc777ce/SecomCE_MessageService_2d.dll`:
 
 | Export | RVA | Hasil pemeriksaan |
 | --- | --- | --- |
@@ -54,7 +54,7 @@ logging yang berbeda.
 
 ## Jalur diagnostik kedua: CDiagModule di BGUtils
 
-`13E/SC777CE/SecomCE_BGUtils_2d.dll` menyediakan implementasi yang berbeda:
+`13E/sc777ce/SecomCE_BGUtils_2d.dll` menyediakan implementasi yang berbeda:
 
 - BGU_NewMessageServiceEvent, RVA 0x30C0.
 - CDiagModule::NewMessageServiceEvent, RVA 0x10FCC: memeriksa IsToLog,

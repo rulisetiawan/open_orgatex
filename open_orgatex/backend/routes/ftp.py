@@ -43,7 +43,7 @@ class FTPBrowseRequest(BaseModel):
     port: int = 21
     username: Optional[str] = ""
     password: Optional[str] = ""
-    remote_path: str = Field("/storage/SC777CE", description="Remote folder path")
+    remote_path: str = Field("/Storage/sc777ce", description="Remote folder path")
     timeout: float = 6.0
 
 class FTPReadFileRequest(BaseModel):
@@ -60,7 +60,7 @@ class FTPUploadRequest(BaseModel):
     port: int = 21
     username: Optional[str] = ""
     password: Optional[str] = ""
-    target_dir: str = "/storage/SC777CE"
+    target_dir: str = "/Storage/sc777ce"
     file_name: str
     content_base64: Optional[str] = None
     content_text: Optional[str] = None
@@ -71,7 +71,8 @@ class FTPDispatchBatchRequest(BaseModel):
     username: Optional[str] = ""
     password: Optional[str] = ""
     batch_id: str
-    target_dir: str = Field("/storage/SC777CE/BATCH", description="Remote target directory for batch")
+    target_dir: Optional[str] = Field(None, description="Remote target directory for batch (e.g. /Flashdisk/SC797CE/BATCH or /Storage/sc777ce/BATCH)")
+    controller_type: Optional[str] = None
 
 class FTPCopyPasteRequest(BaseModel):
     ip: str
@@ -313,7 +314,18 @@ def read_remote_file(req: FTPReadFileRequest):
     try:
         ftp = _get_ftp_connection(req.ip, req.port, req.username, req.password, req.timeout)
         bio = io.BytesIO()
-        ftp.retrbinary(f"RETR {req.remote_path}", bio.write)
+        remote_clean = req.remote_path.replace("\\", "/")
+        r_dir = posixpath.dirname(remote_clean)
+        r_file = posixpath.basename(remote_clean)
+        if r_dir:
+            try:
+                ftp.cwd(r_dir)
+            except Exception:
+                try:
+                    ftp.cwd(r_dir.replace("/", "\\"))
+                except Exception:
+                    pass
+        ftp.retrbinary(f"RETR {r_file}", bio.write)
         ftp.quit()
 
         raw_bytes = bio.getvalue()
@@ -328,7 +340,7 @@ def read_remote_file(req: FTPReadFileRequest):
 
         # If reading STATUS.ACT, decode Setex binary structure
         if "STATUS.ACT" in file_name or "STATUS" in file_name:
-            decoded = SetexFolderReader.read_status_act(ip=req.ip, ftp_port=req.port)
+            decoded = SetexFolderReader.read_status_act(ip=req.ip, ftp_port=req.port, raw_bytes=raw_bytes)
             response_data["decoded_telemetry"] = decoded
 
         # Decode content as text or hex preview
@@ -384,17 +396,55 @@ def dispatch_batch_via_ftp(req: FTPDispatchBatchRequest):
     try:
         ftp = _get_ftp_connection(req.ip, req.port, req.username, req.password)
         
-        # Ensure target directory exists (e.g. /storage/SC777CE/BATCH)
-        target_dir = req.target_dir.rstrip("/")
-        try:
-            ftp.cwd(target_dir)
-        except Exception:
-            # Try to create directory
+        # Determine target directory based on IP and controller type
+        # Special rule: IP 192.168.1.95 or SETEX 797CE defaults to /Flashdisk/SC797CE/BATCH
+        is_797 = (
+            req.ip.strip() == "192.168.1.95" or 
+            (req.controller_type and "797" in req.controller_type.upper()) or
+            (req.target_dir and "SC797" in req.target_dir.upper())
+        )
+
+        primary_dir = req.target_dir.rstrip("/\\") if req.target_dir else ("/Flashdisk/SC797CE/BATCH" if is_797 else "/Storage/sc777ce/BATCH")
+
+        # Prepare candidate directories with automatic fallback between 797 and 777
+        candidate_dirs = [primary_dir, primary_dir.replace("/", "\\"), primary_dir.replace("\\", "/")]
+        if is_797:
+            candidate_dirs.extend([
+                "/Flashdisk/SC797CE/BATCH",
+                "\\Flashdisk\\SC797CE\\BATCH",
+                "/flashdisk/sc797ce/batch",
+                "/Flashdisk/SC797CE/Batch",
+                "/Flashdisk/sc797ce/BATCH",
+                "/Storage/sc777ce/BATCH",
+                "\\Storage\\sc777ce\\BATCH"
+            ])
+        else:
+            candidate_dirs.extend([
+                "/Storage/sc777ce/BATCH",
+                "\\Storage\\sc777ce\\BATCH",
+                "/Storage/SC777CE/BATCH",
+                "/Flashdisk/SC797CE/BATCH",
+                "\\Flashdisk\\SC797CE\\BATCH",
+                "/flashdisk/sc797ce/batch"
+            ])
+
+        resolved_target_dir = None
+        for cand in candidate_dirs:
             try:
-                ftp.mkd(target_dir)
-                ftp.cwd(target_dir)
-            except Exception as e:
-                pass
+                ftp.cwd(cand)
+                resolved_target_dir = cand
+                break
+            except Exception:
+                continue
+
+        if not resolved_target_dir:
+            # Try to create directory if not existing
+            try:
+                ftp.mkd(primary_dir)
+                ftp.cwd(primary_dir)
+                resolved_target_dir = primary_dir
+            except Exception:
+                resolved_target_dir = primary_dir
 
         # 1. Upload BATCHREF.REF
         ftp.storbinary("STOR BATCHREF.REF", io.BytesIO(batchref_bytes))
@@ -413,9 +463,11 @@ def dispatch_batch_via_ftp(req: FTPDispatchBatchRequest):
 
         return {
             "status": "success",
-            "message": f"Batch {target_batch.get('batch_no')} (Ref: {ref_no}) berhasil dikirim ke Controller {req.ip} via FTP!",
+            "message": f"Batch {target_batch.get('batch_no')} (Ref: {ref_no}) berhasil dikirim ke Controller {req.ip} ({resolved_target_dir}) via FTP!",
             "uploaded_files": ["BATCHREF.REF", prg_name],
-            "destination_dir": target_dir,
+            "destination_dir": resolved_target_dir,
+            "ip": req.ip,
+            "controller_type": "SETEX 797CE" if is_797 else "SETEX 777",
             "batch": target_batch
         }
 
@@ -468,11 +520,22 @@ def download_file_from_ftp(ip: str, remote_path: str, port: int = 21, username: 
     try:
         ftp = _get_ftp_connection(ip, port, username, password)
         bio = io.BytesIO()
-        ftp.retrbinary(f"RETR {remote_path}", bio.write)
+        remote_clean = remote_path.replace("\\", "/")
+        r_dir = posixpath.dirname(remote_clean)
+        r_file = posixpath.basename(remote_clean)
+        if r_dir:
+            try:
+                ftp.cwd(r_dir)
+            except Exception:
+                try:
+                    ftp.cwd(r_dir.replace("/", "\\"))
+                except Exception:
+                    pass
+        ftp.retrbinary(f"RETR {r_file}", bio.write)
         ftp.quit()
 
         file_bytes = bio.getvalue()
-        file_name = os.path.basename(remote_path)
+        file_name = r_file
 
         return Response(
             content=file_bytes,
@@ -498,9 +561,25 @@ def get_live_controller_status(ip: str, port: int = 21):
 def _copy_ftp_single_file(ftp: ftplib.FTP, src: str, dst: str):
     """Stream file from src and save to dst using in-memory buffer."""
     bio = io.BytesIO()
-    ftp.retrbinary(f"RETR {src}", bio.write)
+    src_clean = src.replace("\\", "/")
+    src_dir = posixpath.dirname(src_clean)
+    src_file = posixpath.basename(src_clean)
+    if src_dir:
+        try:
+            ftp.cwd(src_dir)
+        except Exception:
+            pass
+    ftp.retrbinary(f"RETR {src_file}", bio.write)
     bio.seek(0)
-    ftp.storbinary(f"STOR {dst}", bio)
+    dst_clean = dst.replace("\\", "/")
+    dst_dir = posixpath.dirname(dst_clean)
+    dst_file = posixpath.basename(dst_clean)
+    if dst_dir:
+        try:
+            ftp.cwd(dst_dir)
+        except Exception:
+            pass
+    ftp.storbinary(f"STOR {dst_file}", bio)
 
 
 @router.post("/copy-paste")
@@ -646,30 +725,59 @@ def rename_ftp_item(req: FTPRenameRequest):
         raise HTTPException(status_code=500, detail=f"Gagal mengubah nama: {str(e)}")
 
 
+def resolve_target_local_path(req_path: Optional[str]) -> str:
+    p = (req_path or "").strip().replace("\\", "/")
+    if not p:
+        return LOCAL_HOST_ROOT
+    
+    # Windows drive translation if running inside container with mounted host drives
+    if os.path.exists("/host_c"):
+        if p.upper().startswith("C:/"):
+            p = "/host_c/" + p[3:].lstrip("/")
+        elif p.upper() in ("C:", "C:/"):
+            p = "/host_c"
+    if os.path.exists("/host_d"):
+        if p.upper().startswith("D:/"):
+            p = "/host_d/" + p[3:].lstrip("/")
+        elif p.upper() in ("D:", "D:/"):
+            p = "/host_d"
+
+    if os.path.isabs(p) and os.path.exists(p):
+        return p
+
+    rel = os.path.normpath(os.path.join(LOCAL_HOST_ROOT, p.lstrip("/\\"))).replace("\\", "/")
+    if os.path.exists(rel):
+        return rel
+
+    if os.path.exists(p):
+        return p
+    return LOCAL_HOST_ROOT
+
+
 @router.post("/local/browse")
 def browse_local_directory(req: LocalBrowseRequest):
     """Browse files and folders on the local host / server machine."""
     try:
-        req_path = req.path.strip() if req.path else ""
-        if not req_path or req_path in ("/", "."):
-            target = LOCAL_HOST_ROOT
-        else:
-            if os.path.isabs(req_path) and os.path.exists(req_path):
-                target = req_path
-            else:
-                target = os.path.normpath(os.path.join(LOCAL_HOST_ROOT, req_path.lstrip("/\\")))
-
-        if not os.path.exists(target):
-            target = LOCAL_HOST_ROOT
+        target = resolve_target_local_path(req.path)
 
         entries = []
-        for item in os.listdir(target):
+        try:
+            items = os.listdir(target)
+        except PermissionError:
+            raise HTTPException(status_code=403, detail=f"Akses ditolak ke direktori '{target}'")
+
+        for item in items:
             item_path = os.path.join(target, item)
-            is_dir = os.path.isdir(item_path)
+            try:
+                is_dir = os.path.isdir(item_path)
+            except Exception:
+                is_dir = False
+
             try:
                 size = 0 if is_dir else os.path.getsize(item_path)
             except Exception:
                 size = 0
+
             try:
                 mtime = datetime.fromtimestamp(os.path.getmtime(item_path)).strftime('%m-%d-%y %H:%M')
             except Exception:
@@ -701,18 +809,38 @@ def browse_local_directory(req: LocalBrowseRequest):
 
         entries.sort(key=lambda x: (not x["is_dir"], x["name"].lower()))
         
-        parent_path = os.path.dirname(target).replace("\\", "/")
-        if target.replace("\\", "/") == LOCAL_HOST_ROOT.replace("\\", "/"):
+        norm_target = target.replace("\\", "/").rstrip("/")
+        if not norm_target or norm_target in ("/", "C:", "D:"):
             parent_path = ""
+        else:
+            parent_path = os.path.dirname(norm_target).replace("\\", "/") or "/"
+
+        # Available quick host locations
+        locations = [
+            {"name": "📂 Proyek DA-TEX (Root)", "path": LOCAL_HOST_ROOT.replace("\\", "/")},
+            {"name": "📂 Programs (PRG Resep)", "path": posixpath.join(LOCAL_HOST_ROOT.replace("\\", "/"), "Programs")},
+            {"name": "📂 OrgaTex_Share", "path": posixpath.join(LOCAL_HOST_ROOT.replace("\\", "/"), "OrgaTex_Share")},
+            {"name": "📂 STATUS Telemetri", "path": posixpath.join(LOCAL_HOST_ROOT.replace("\\", "/"), "STATUS")},
+            {"name": "📂 plain_export", "path": posixpath.join(LOCAL_HOST_ROOT.replace("\\", "/"), "plain_export")}
+        ]
+        if os.path.exists("/host_c"):
+            locations.append({"name": "💻 Drive C:\\ (Seluruh Host PC)", "path": "/host_c"})
+        if os.path.exists("/host_d"):
+            locations.append({"name": "💻 Drive D:\\ (Host Drive)", "path": "/host_d"})
+        if os.path.exists("/app"):
+            locations.append({"name": "📁 Folder Aplikasi (/app)", "path": "/app"})
 
         return {
             "status": "success",
             "current_path": target.replace("\\", "/"),
             "parent_path": parent_path,
             "root_path": LOCAL_HOST_ROOT.replace("\\", "/"),
+            "available_locations": locations,
             "entries_count": len(entries),
             "entries": entries
         }
+    except HTTPException:
+        raise
     except Exception as e:
         logger.error(f"Error browsing local directory: {e}")
         raise HTTPException(status_code=500, detail=f"Gagal membaca folder lokal: {str(e)}")
@@ -726,7 +854,7 @@ def transfer_ftp_file(req: FTPTransferRequest):
         
         if req.direction == "local_to_remote":
             # Upload from local host to remote FTP controller
-            local_src = os.path.normpath(req.local_path)
+            local_src = resolve_target_local_path(req.local_path)
             if not os.path.isfile(local_src):
                 ftp.quit()
                 raise HTTPException(status_code=404, detail=f"Berkas lokal '{req.local_path}' tidak ditemukan.")
@@ -758,8 +886,10 @@ def transfer_ftp_file(req: FTPTransferRequest):
 
         elif req.direction == "remote_to_local":
             # Download from remote FTP controller to local host
-            file_name = posixpath.basename(req.remote_path)
-            local_target_dir = os.path.normpath(req.local_path)
+            remote_clean = req.remote_path.replace("\\", "/")
+            file_name = posixpath.basename(remote_clean)
+            remote_dir = posixpath.dirname(remote_clean)
+            local_target_dir = resolve_target_local_path(req.local_path)
 
             if os.path.isdir(local_target_dir):
                 local_target_file = os.path.join(local_target_dir, file_name)
@@ -768,8 +898,17 @@ def transfer_ftp_file(req: FTPTransferRequest):
 
             os.makedirs(os.path.dirname(local_target_file), exist_ok=True)
 
+            if remote_dir:
+                try:
+                    ftp.cwd(remote_dir)
+                except Exception:
+                    try:
+                        ftp.cwd(remote_dir.replace("/", "\\"))
+                    except Exception:
+                        pass
+
             with open(local_target_file, "wb") as f:
-                ftp.retrbinary(f"RETR {req.remote_path}", f.write)
+                ftp.retrbinary(f"RETR {file_name}", f.write)
 
             ftp.quit()
             return {

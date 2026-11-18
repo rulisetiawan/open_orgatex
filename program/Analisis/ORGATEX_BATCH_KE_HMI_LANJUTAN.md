@@ -6,7 +6,7 @@ Tanggal pemeriksaan: 31 Oktober 2026. Analisis statis atas backup lokal dan hasi
 
 File PRG membawa program proses. Data identitas batch berada di BATCHREF.REF dan menunjuk ke program yang digunakan. Karena itu aplikasi pengganti Orgatex membutuhkan pengelolaan batch dan antrian selain editor PRG.
 
-Contoh langsung dari `Storage/SC777CE/BATCH/060892`:
+Contoh langsung dari `Storage/sc777ce/BATCH/060892`:
 
 | Elemen | Nilai yang terbaca | Dasar |
 |---|---|---|
@@ -47,9 +47,9 @@ Struktur `T_BATCH_HEADER_ELEMENT` memakai Pack=1. Dari ukuran field yang didekla
 | 757 | 2 | position |
 | 759 dan seterusnya | 3 per elemen | program_no uint16 dan program_type byte |
 
-Pemeriksaan menemukan 1.591 file pada dua cabang `Storage/SC777CE/BATCH` dan `Network/F/OT/BATCH`; semuanya memenuhi panjang header dan kelipatan elemen tersebut. Sebanyak 1.590 nama folder cocok dengan nomor referensi dalam file. Satu pengecualian adalah file langsung di folder BATCH, tanpa subfolder nomor referensi. Kecocokan ini mendukung layout, tetapi tidak memvalidasi satuan seluruh parameter atau status runtime.
+Pemeriksaan menemukan 1.591 file pada dua cabang `Storage/sc777ce/BATCH` dan `Network/F/OT/BATCH`; semuanya memenuhi panjang header dan kelipatan elemen tersebut. Sebanyak 1.590 nama folder cocok dengan nomor referensi dalam file. Satu pengecualian adalah file langsung di folder BATCH, tanpa subfolder nomor referensi. Kecocokan ini mendukung layout, tetapi tidak memvalidasi satuan seluruh parameter atau status runtime.
 
-Pada contoh 060892, byte status adalah 0; enum library menamainya CREATED. Keberadaan file di HMI maupun nilai tersebut tidak membuktikan mesin sedang menjalankan batch. File utama `Storage/SC777CE/BATCH/BATCHREF.REF` justru berisi referensi 038964 dan byte status 3. Backup dapat memuat keadaan dari waktu berbeda.
+Pada contoh 060892, byte status adalah 0; enum library menamainya CREATED. Keberadaan file di HMI maupun nilai tersebut tidak membuktikan mesin sedang menjalankan batch. File utama `Storage/sc777ce/BATCH/BATCHREF.REF` justru berisi referensi 038964 dan byte status 3. Backup dapat memuat keadaan dari waktu berbeda.
 
 ## 3. Antrian per mesin dan konfirmasi pengambilan
 
@@ -111,7 +111,7 @@ Yang sudah tersedia untuk pekerjaan offline: decoder batch, contoh metadata nyat
 - `D:/ORGATEX/OrgaTEX/analysis/decompiled/CommunicationServiceTasks/SetexCommunication.VirtualController/HostBatchList.cs`: antrian dan operasi record. Namespace memuat VirtualController; klaim penerapan pada layanan CE didasarkan pada pemanggilan kelas ini oleh CECommunicationService, bukan pada simulator saja.
 - `D:/ORGATEX/OrgaTEX/analysis/decompiled/CommunicationServiceTasks/CommunicationServiceTasks.BackgroundTasks.CECommunicationService/CECommunicationService.cs`: ReadBatch sekitar baris 608, ReadBatchQueue sekitar 633, LoadHostBatch sekitar 651.
 - Folder yang sama: `LOAD_HOST_BATCH_REQ.cs`, `LOAD_HOST_BATCH_RES.cs`, `T_SECOM_VARIABLE_MESSAGE_COMMAND.cs`.
-- `D:/File HMI/Storage/SC777CE/BATCH/060892/BATCHREF.REF` dan `M_0401.PRG`.
+- `D:/File HMI/Storage/sc777ce/BATCH/060892/BATCHREF.REF` dan `M_0401.PRG`.
 - `D:/File HMI/Network/F/OT/CFG/ORGATEX.INI`: konfigurasi snapshot.
 
 Hasil decode seluruh file dan SHA256 per file: `BATCHREF_decoded.json`. Decoder: `decode_batchref.py`. Script hanya membaca sumber dan menulis hasil analisis.

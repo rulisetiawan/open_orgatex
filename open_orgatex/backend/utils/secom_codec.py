@@ -398,7 +398,7 @@ def generate_batch_zip(
             f"Program Mesin   : M_{prog_no:04d}.PRG\r\n"
             f"Queue Antrean   : {'Disertakan (QUEUE.BTD)' if queue_bytes else 'Tidak disertakan'}\r\n\r\n"
             "CATATAN PENGGUNAAN:\r\n"
-            "1. Ekstrak isi ZIP ke folder share mesin OrgaTEX (drive F:\\ atau Storage\\SC777CE).\r\n"
+            "1. Ekstrak isi ZIP ke folder share mesin OrgaTEX (drive F:\\ atau Storage\\sc777ce).\r\n"
             "2. Queue BTD yang disertakan diverifikasi melalui Btrieve BTRCALL resmi.\r\n"
             "3. Sistem beroperasi dalam mode aman offline tanpa memodifikasi file produksi aktif.\r\n"
         ))

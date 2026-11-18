@@ -3,7 +3,7 @@ from pathlib import Path
 import struct, re, json, hashlib, math
 
 ROOT=Path(r'D:\File HMI')
-CNF=ROOT/'Storage/SC777CE/Config/TYPECONF.CNF'
+CNF=ROOT/'Storage/sc777ce/Config/TYPECONF.CNF'
 OUT=ROOT/'Analisis'
 
 class CNFReader:

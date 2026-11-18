@@ -1,0 +1,8498 @@
+{
+  "Cat_1_Grp_1": [
+    {
+      "item": 1,
+      "type": 0,
+      "de": "System",
+      "en": "System"
+    },
+    {
+      "item": 1,
+      "type": 1,
+      "de": "System",
+      "en": "System"
+    },
+    {
+      "item": 2,
+      "type": 0,
+      "de": "Füllen",
+      "en": "Fill"
+    },
+    {
+      "item": 2,
+      "type": 1,
+      "de": "Füllen",
+      "en": "Fill"
+    },
+    {
+      "item": 3,
+      "type": 0,
+      "de": "Spülen",
+      "en": "Rinse"
+    },
+    {
+      "item": 3,
+      "type": 1,
+      "de": "Spülen",
+      "en": "Rinse"
+    },
+    {
+      "item": 4,
+      "type": 0,
+      "de": "Ablassen",
+      "en": "Drain"
+    },
+    {
+      "item": 4,
+      "type": 1,
+      "de": "Ablassen",
+      "en": "Drain"
+    },
+    {
+      "item": 5,
+      "type": 0,
+      "de": "Dosieren/Einzieh.AB1",
+      "en": "DosingÏ\u0001┴ü¼\u0001ù\u0001é"
+    },
+    {
+      "item": 5,
+      "type": 1,
+      "de": "Dos. AB1",
+      "en": "Dos. AT1"
+    },
+    {
+      "item": 7,
+      "type": 0,
+      "de": "",
+      "en": "Operator Call"
+    },
+    {
+      "item": 7,
+      "type": 1,
+      "de": "Bediener",
+      "en": "Operator"
+    },
+    {
+      "item": 8,
+      "type": 0,
+      "de": "Färben",
+      "en": "Dyeing"
+    },
+    {
+      "item": 8,
+      "type": 1,
+      "de": "Färben",
+      "en": "Dyeing"
+    },
+    {
+      "item": 201,
+      "type": 0,
+      "de": "Dosieren/Einzieh.AB2",
+      "en": "Dosing/Inject"
+    },
+    {
+      "item": 201,
+      "type": 1,
+      "de": "Dos. AB2",
+      "en": "Dos. AT2"
+    }
+  ],
+  "Cat_1_Grp_2": [
+    {
+      "item": 102,
+      "type": 0,
+      "de": "Warenlauf",
+      "en": "Material flow"
+    },
+    {
+      "item": 102,
+      "type": 1,
+      "de": "Warenl.",
+      "en": "Mat. Flow"
+    },
+    {
+      "item": 131,
+      "type": 0,
+      "de": "AB 1 (Farbe)",
+      "en": "Addition Tank 1"
+    },
+    {
+      "item": 131,
+      "type": 1,
+      "de": "AB1",
+      "en": "AT1"
+    },
+    {
+      "item": 132,
+      "type": 0,
+      "de": "AB 2 (Chemie)",
+      "en": "Addition Tank 2"
+    },
+    {
+      "item": 132,
+      "type": 1,
+      "de": "AB2",
+      "en": "AT2"
+    },
+    {
+      "item": 202,
+      "type": 0,
+      "de": "AB 1 Abrufe",
+      "en": "Tank 1 Calls"
+    },
+    {
+      "item": 202,
+      "type": 1,
+      "de": "AB1",
+      "en": "AT1"
+    },
+    {
+      "item": 203,
+      "type": 0,
+      "de": "Pumpe",
+      "en": "Pump"
+    },
+    {
+      "item": 203,
+      "type": 1,
+      "de": "",
+      "en": "Pump"
+    }
+  ],
+  "Cat_2_Grp_0": [
+    {
+      "item": 1,
+      "type": 0,
+      "de": "Sollzeit",
+      "en": "Set Time Main"
+    },
+    {
+      "item": 1,
+      "type": 2,
+      "de": "min",
+      "en": "min"
+    },
+    {
+      "item": 2,
+      "type": 0,
+      "de": "Schutzzeit",
+      "en": "Protect Time Main"
+    },
+    {
+      "item": 2,
+      "type": 2,
+      "de": "min",
+      "en": "min"
+    },
+    {
+      "item": 3,
+      "type": 0,
+      "de": "Temperatur",
+      "en": "Temperature"
+    },
+    {
+      "item": 3,
+      "type": 2,
+      "de": "°C",
+      "en": "°C"
+    },
+    {
+      "item": 4,
+      "type": 0,
+      "de": "Gradient",
+      "en": "Gradient"
+    },
+    {
+      "item": 4,
+      "type": 2,
+      "de": "°C/min",
+      "en": "°C/min"
+    },
+    {
+      "item": 5,
+      "type": 0,
+      "de": "Haltezeit",
+      "en": "Hold Time"
+    },
+    {
+      "item": 5,
+      "type": 2,
+      "de": "min",
+      "en": "min"
+    },
+    {
+      "item": 7,
+      "type": 0,
+      "de": "Wassersorte",
+      "en": "Water Type"
+    },
+    {
+      "item": 7,
+      "type": 2,
+      "de": "",
+      "en": ""
+    },
+    {
+      "item": 8,
+      "type": 0,
+      "de": "Niveau",
+      "en": "Level"
+    },
+    {
+      "item": 8,
+      "type": 2,
+      "de": "",
+      "en": ""
+    },
+    {
+      "item": 13,
+      "type": 0,
+      "de": "",
+      "en": "Rinse Time"
+    },
+    {
+      "item": 13,
+      "type": 2,
+      "de": "min",
+      "en": "min"
+    },
+    {
+      "item": 16,
+      "type": 0,
+      "de": "Ablauf",
+      "en": "Drain"
+    },
+    {
+      "item": 16,
+      "type": 2,
+      "de": "",
+      "en": ""
+    },
+    {
+      "item": 18,
+      "type": 0,
+      "de": "Nachlaufzeit",
+      "en": "Waiting Time"
+    },
+    {
+      "item": 18,
+      "type": 2,
+      "de": "min",
+      "en": "min"
+    },
+    {
+      "item": 20,
+      "type": 0,
+      "de": "Dosierkurve AB1",
+      "en": "Dosing Curve AT1"
+    },
+    {
+      "item": 20,
+      "type": 2,
+      "de": "",
+      "en": ""
+    },
+    {
+      "item": 22,
+      "type": 0,
+      "de": "Dosierzeit AB1",
+      "en": "Dosing Time AT1"
+    },
+    {
+      "item": 22,
+      "type": 2,
+      "de": "min",
+      "en": "min"
+    },
+    {
+      "item": 25,
+      "type": 0,
+      "de": "Dosierkurve AB2",
+      "en": "Dosing Curve AT2"
+    },
+    {
+      "item": 25,
+      "type": 2,
+      "de": "",
+      "en": ""
+    },
+    {
+      "item": 27,
+      "type": 0,
+      "de": "Dosierzeit AB2",
+      "en": "Dosing Time AT2"
+    },
+    {
+      "item": 27,
+      "type": 2,
+      "de": "min",
+      "en": "min"
+    },
+    {
+      "item": 36,
+      "type": 0,
+      "de": "Zeit bis Alarm",
+      "en": "Alert time"
+    },
+    {
+      "item": 36,
+      "type": 2,
+      "de": "",
+      "en": "min"
+    },
+    {
+      "item": 60,
+      "type": 0,
+      "de": "Einzug Nr.  AB1",
+      "en": "Check prep. number"
+    },
+    {
+      "item": 60,
+      "type": 2,
+      "de": "",
+      "en": ""
+    },
+    {
+      "item": 81,
+      "type": 0,
+      "de": "Sollzeit Gesch.",
+      "en": "Set Time Speed"
+    },
+    {
+      "item": 81,
+      "type": 2,
+      "de": "min",
+      "en": "min"
+    },
+    {
+      "item": 82,
+      "type": 0,
+      "de": "Schutzzeit Geschw.",
+      "en": "Protect Time Speed"
+    },
+    {
+      "item": 82,
+      "type": 2,
+      "de": "min",
+      "en": "min"
+    },
+    {
+      "item": 83,
+      "type": 0,
+      "de": "Geschwindigkeit",
+      "en": "Speed"
+    },
+    {
+      "item": 83,
+      "type": 2,
+      "de": "m/min",
+      "en": "m/min"
+    },
+    {
+      "item": 131,
+      "type": 0,
+      "de": "Sollzeit AB1",
+      "en": "Set time AT1"
+    },
+    {
+      "item": 131,
+      "type": 2,
+      "de": "min",
+      "en": "min"
+    },
+    {
+      "item": 132,
+      "type": 0,
+      "de": "Schutzzeit AB1",
+      "en": "Protect time AT1"
+    },
+    {
+      "item": 132,
+      "type": 2,
+      "de": "min",
+      "en": "min"
+    },
+    {
+      "item": 134,
+      "type": 0,
+      "de": "Füllventil AB1",
+      "en": "Valve AT1"
+    },
+    {
+      "item": 134,
+      "type": 2,
+      "de": "",
+      "en": ""
+    },
+    {
+      "item": 135,
+      "type": 0,
+      "de": "",
+      "en": "Level AT1"
+    },
+    {
+      "item": 135,
+      "type": 2,
+      "de": "%",
+      "en": "%"
+    },
+    {
+      "item": 136,
+      "type": 0,
+      "de": "Temperatur AB1",
+      "en": "Temperature AT1"
+    },
+    {
+      "item": 136,
+      "type": 2,
+      "de": "°C",
+      "en": "°C"
+    },
+    {
+      "item": 137,
+      "type": 0,
+      "de": "Lösezeit AB1",
+      "en": "Dissolving time AT1"
+    },
+    {
+      "item": 137,
+      "type": 2,
+      "de": "min",
+      "en": "min"
+    },
+    {
+      "item": 138,
+      "type": 0,
+      "de": "Mischen AB1",
+      "en": "Mixer AT1"
+    },
+    {
+      "item": 138,
+      "type": 2,
+      "de": "",
+      "en": ""
+    },
+    {
+      "item": 140,
+      "type": 0,
+      "de": "Rezept Nummer AB1",
+      "en": "Recipe number AT1"
+    },
+    {
+      "item": 140,
+      "type": 2,
+      "de": "",
+      "en": ""
+    },
+    {
+      "item": 141,
+      "type": 0,
+      "de": "Ansatz Nr. AB1",
+      "en": "Preparation no"
+    },
+    {
+      "item": 141,
+      "type": 2,
+      "de": "",
+      "en": ""
+    },
+    {
+      "item": 143,
+      "type": 0,
+      "de": "Tank Nr. AB1",
+      "en": "Tank No AT1"
+    },
+    {
+      "item": 143,
+      "type": 2,
+      "de": "",
+      "en": ""
+    },
+    {
+      "item": 144,
+      "type": 0,
+      "de": "Ansatz Freigabe AB1",
+      "en": "Prep. release AT1"
+    },
+    {
+      "item": 144,
+      "type": 2,
+      "de": "",
+      "en": ""
+    },
+    {
+      "item": 145,
+      "type": 0,
+      "de": "Stationsnummer AB1",
+      "en": "Station No AT1"
+    },
+    {
+      "item": 145,
+      "type": 2,
+      "de": "",
+      "en": ""
+    },
+    {
+      "item": 151,
+      "type": 0,
+      "de": "Sollzeit AB2",
+      "en": "Set time AT2"
+    },
+    {
+      "item": 151,
+      "type": 2,
+      "de": "min",
+      "en": "min"
+    },
+    {
+      "item": 152,
+      "type": 0,
+      "de": "Schutzzeit AB2",
+      "en": "Protect time AT2"
+    },
+    {
+      "item": 152,
+      "type": 2,
+      "de": "min",
+      "en": "min"
+    },
+    {
+      "item": 154,
+      "type": 0,
+      "de": "Füllventil AB2",
+      "en": "Valve AT2"
+    },
+    {
+      "item": 154,
+      "type": 2,
+      "de": "",
+      "en": ""
+    },
+    {
+      "item": 155,
+      "type": 0,
+      "de": "Niveau AB2",
+      "en": "Level AT2"
+    },
+    {
+      "item": 155,
+      "type": 2,
+      "de": "",
+      "en": ""
+    },
+    {
+      "item": 156,
+      "type": 0,
+      "de": "Temperatur AB2",
+      "en": "Temperature AT2"
+    },
+    {
+      "item": 156,
+      "type": 2,
+      "de": "°C",
+      "en": "°C"
+    },
+    {
+      "item": 157,
+      "type": 0,
+      "de": "Lösezeit AB2",
+      "en": "Dissolving time AT2"
+    },
+    {
+      "item": 157,
+      "type": 2,
+      "de": "min",
+      "en": "min"
+    },
+    {
+      "item": 158,
+      "type": 0,
+      "de": "Mischen AB2",
+      "en": "Mixer AT2"
+    },
+    {
+      "item": 158,
+      "type": 2,
+      "de": "",
+      "en": ""
+    },
+    {
+      "item": 160,
+      "type": 0,
+      "de": "Rezept Nummer AB2",
+      "en": "Recipe number AT2"
+    },
+    {
+      "item": 160,
+      "type": 2,
+      "de": "",
+      "en": ""
+    },
+    {
+      "item": 161,
+      "type": 0,
+      "de": "Ansatz Nummer AB2",
+      "en": "PreparÍ\u0001┐ü»\u0001Ä\u0001~\u0001e\u0001R\u0001"
+    },
+    {
+      "item": 161,
+      "type": 2,
+      "de": "",
+      "en": ""
+    },
+    {
+      "item": 163,
+      "type": 0,
+      "de": "Tank Nr. AB2",
+      "en": "Tank No AT2"
+    },
+    {
+      "item": 163,
+      "type": 2,
+      "de": "",
+      "en": ""
+    },
+    {
+      "item": 164,
+      "type": 0,
+      "de": "Ansatz Freigabe AB2",
+      "en": "Prep. release AT2"
+    },
+    {
+      "item": 164,
+      "type": 2,
+      "de": "",
+      "en": ""
+    },
+    {
+      "item": 165,
+      "type": 0,
+      "de": "Stationsnummer AB2",
+      "en": "Station No AT2"
+    },
+    {
+      "item": 165,
+      "type": 2,
+      "de": "",
+      "en": ""
+    },
+    {
+      "item": 271,
+      "type": 0,
+      "de": "Zeit bis Alarm AB1",
+      "en": ""
+    },
+    {
+      "item": 271,
+      "type": 2,
+      "de": "min",
+      "en": ""
+    },
+    {
+      "item": 272,
+      "type": 0,
+      "de": "Einzug Nr. AB1",
+      "en": ""
+    },
+    {
+      "item": 272,
+      "type": 2,
+      "de": "",
+      "en": ""
+    },
+    {
+      "item": 273,
+      "type": 0,
+      "de": "Partiefreigabe AB1",
+      "en": "ReleaseNextBatch AT1"
+    },
+    {
+      "item": 273,
+      "type": 2,
+      "de": "",
+      "en": ""
+    },
+    {
+      "item": 274,
+      "type": 0,
+      "de": "Benötigt in",
+      "en": "required in"
+    },
+    {
+      "item": 274,
+      "type": 2,
+      "de": "min",
+      "en": "min"
+    },
+    {
+      "item": 275,
+      "type": 0,
+      "de": "Pumpendruck",
+      "en": "Pump pressure"
+    },
+    {
+      "item": 275,
+      "type": 2,
+      "de": "%",
+      "en": "%"
+    },
+    {
+      "item": 276,
+      "type": 0,
+      "de": "Menge",
+      "en": "Quantity"
+    },
+    {
+      "item": 276,
+      "type": 2,
+      "de": "L",
+      "en": "L"
+    },
+    {
+      "item": 281,
+      "type": 0,
+      "de": "Zeit bis Alarm AB2",
+      "en": ""
+    },
+    {
+      "item": 281,
+      "type": 2,
+      "de": "min",
+      "en": ""
+    },
+    {
+      "item": 282,
+      "type": 0,
+      "de": "Einzug Nr. AB2",
+      "en": ""
+    },
+    {
+      "item": 282,
+      "type": 2,
+      "de": "",
+      "en": ""
+    },
+    {
+      "item": 283,
+      "type": 0,
+      "de": "Partiefreigabe AB2",
+      "en": ""
+    },
+    {
+      "item": 283,
+      "type": 2,
+      "de": "",
+      "en": ""
+    },
+    {
+      "item": 284,
+      "type": 0,
+      "de": "Benötigt in",
+      "en": "required in"
+    },
+    {
+      "item": 284,
+      "type": 2,
+      "de": "min",
+      "en": "min"
+    },
+    {
+      "item": 291,
+      "type": 0,
+      "de": "Einzug Nr.  AB2",
+      "en": "Check prep. number"
+    },
+    {
+      "item": 291,
+      "type": 2,
+      "de": "",
+      "en": ""
+    }
+  ],
+  "Cat_2_Grp_6": [
+    {
+      "item": 24400,
+      "type": 0,
+      "de": "\u0003",
+      "en": ""
+    },
+    {
+      "item": 17057,
+      "type": 0,
+      "de": "",
+      "en": ""
+    },
+    {
+      "item": 4085,
+      "type": 0,
+      "de": "\u0003",
+      "en": ""
+    },
+    {
+      "item": 38034,
+      "type": 0,
+      "de": "",
+      "en": ""
+    }
+  ],
+  "Cat_3_Grp_0": [
+    {
+      "item": 1,
+      "type": 0,
+      "de": "Programm-Start",
+      "en": "Program Start"
+    },
+    {
+      "item": 1,
+      "type": 1,
+      "de": "Start",
+      "en": "Start"
+    },
+    {
+      "item": 2,
+      "type": 0,
+      "de": "Programm-Ende",
+      "en": "Program End"
+    },
+    {
+      "item": 2,
+      "type": 1,
+      "de": "Ende",
+      "en": "End"
+    },
+    {
+      "item": 3,
+      "type": 0,
+      "de": "Keine Funktion",
+      "en": "No Operation"
+    },
+    {
+      "item": 3,
+      "type": 1,
+      "de": "Nop",
+      "en": "Nop"
+    },
+    {
+      "item": 4,
+      "type": 0,
+      "de": "Nachsatz-Start",
+      "en": "Addition Start"
+    },
+    {
+      "item": 4,
+      "type": 1,
+      "de": "Nachsatz",
+      "en": "add start"
+    },
+    {
+      "item": 5,
+      "type": 0,
+      "de": "Nachsatz-Ende",
+      "en": "Addition End"
+    },
+    {
+      "item": 5,
+      "type": 1,
+      "de": "Rücksprg",
+      "en": "add end"
+    },
+    {
+      "item": 6,
+      "type": 0,
+      "de": "Sprungmarke",
+      "en": "Label"
+    },
+    {
+      "item": 6,
+      "type": 1,
+      "de": "",
+      "en": "Label"
+    },
+    {
+      "item": 7,
+      "type": 0,
+      "de": "Sprung",
+      "en": "Jump"
+    },
+    {
+      "item": 7,
+      "type": 1,
+      "de": "Sprung",
+      "en": "Jump"
+    },
+    {
+      "item": 21,
+      "type": 0,
+      "de": "Füllen Niveau",
+      "en": "Fill level"
+    },
+    {
+      "item": 21,
+      "type": 1,
+      "de": "Niveau",
+      "en": "Level"
+    },
+    {
+      "item": 52,
+      "type": 0,
+      "de": "Spülen Zeit",
+      "en": "Rinse Time"
+    },
+    {
+      "item": 52,
+      "type": 1,
+      "de": "Zeit",
+      "en": "Time"
+    },
+    {
+      "item": 61,
+      "type": 0,
+      "de": "Ablassen",
+      "en": "Drain"
+    },
+    {
+      "item": 61,
+      "type": 1,
+      "de": "Ablassen",
+      "en": "Drain"
+    },
+    {
+      "item": 121,
+      "type": 0,
+      "de": "Beladen",
+      "en": "Load"
+    },
+    {
+      "item": 121,
+      "type": 1,
+      "de": "Beladen",
+      "en": "Load"
+    },
+    {
+      "item": 122,
+      "type": 0,
+      "de": "Entladen",
+      "en": "Unload"
+    },
+    {
+      "item": 122,
+      "type": 1,
+      "de": "Entladen",
+      "en": "Unload"
+    },
+    {
+      "item": 123,
+      "type": 0,
+      "de": "Mustern",
+      "en": "Sample"
+    },
+    {
+      "item": 123,
+      "type": 1,
+      "de": "Mustern",
+      "en": "Sample"
+    },
+    {
+      "item": 126,
+      "type": 0,
+      "de": "Stop",
+      "en": "Stop"
+    },
+    {
+      "item": 126,
+      "type": 1,
+      "de": "Stop",
+      "en": "Stop"
+    },
+    {
+      "item": 127,
+      "type": 0,
+      "de": "pH Kontrolle",
+      "en": "Check pH"
+    },
+    {
+      "item": 127,
+      "type": 1,
+      "de": "pH !",
+      "en": "pH !"
+    },
+    {
+      "item": 141,
+      "type": 0,
+      "de": "Temperaturregelung",
+      "en": "Temperature Control"
+    },
+    {
+      "item": 141,
+      "type": 1,
+      "de": "Temp.",
+      "en": "Temp."
+    },
+    {
+      "item": 144,
+      "type": 0,
+      "de": "Laufzeit",
+      "en": "Runtime"
+    },
+    {
+      "item": 144,
+      "type": 1,
+      "de": "Zeit",
+      "en": "Time"
+    },
+    {
+      "item": 411,
+      "type": 0,
+      "de": "Warenlauf",
+      "en": "Material Flow"
+    },
+    {
+      "item": 411,
+      "type": 1,
+      "de": "Geschw.",
+      "en": "Speed"
+    },
+    {
+      "item": 701,
+      "type": 0,
+      "de": "AB1 vorbereitet ?",
+      "en": "AT1 ready ?"
+    },
+    {
+      "item": 701,
+      "type": 1,
+      "de": "AB1 ?",
+      "en": "AT1 ?"
+    },
+    {
+      "item": 702,
+      "type": 0,
+      "de": "Einziehen AB1",
+      "en": "Inject AT1"
+    },
+    {
+      "item": 702,
+      "type": 1,
+      "de": "Einziehen",
+      "en": "Inject"
+    },
+    {
+      "item": 703,
+      "type": 0,
+      "de": "Dosieren AB1",
+      "en": "Dosing AT1"
+    },
+    {
+      "item": 703,
+      "type": 1,
+      "de": "",
+      "en": "Dosing"
+    },
+    {
+      "item": 704,
+      "type": 0,
+      "de": "Pumpe",
+      "en": "Pump"
+    },
+    {
+      "item": 704,
+      "type": 1,
+      "de": "Pumpe",
+      "en": "Pump"
+    },
+    {
+      "item": 705,
+      "type": 0,
+      "de": "Füllen Menge",
+      "en": "Fill Quantity"
+    },
+    {
+      "item": 705,
+      "type": 1,
+      "de": "Menge",
+      "en": "Quantity"
+    },
+    {
+      "item": 706,
+      "type": 0,
+      "de": "Spülen Menge",
+      "en": "Rinse Quantity"
+    },
+    {
+      "item": 706,
+      "type": 1,
+      "de": "Menge",
+      "en": "Quantity"
+    },
+    {
+      "item": 711,
+      "type": 0,
+      "de": "AB2 vorbereitet ?",
+      "en": "AT2 ready ?"
+    },
+    {
+      "item": 711,
+      "type": 1,
+      "de": "AB2 ?",
+      "en": "AT2 ?"
+    },
+    {
+      "item": 712,
+      "type": 0,
+      "de": "Einziehen AB2",
+      "en": "Inject AT2"
+    },
+    {
+      "item": 712,
+      "type": 1,
+      "de": "Einziehen",
+      "en": "Inject"
+    },
+    {
+      "item": 713,
+      "type": 0,
+      "de": "Dosieren AB2",
+      "en": "Dosing AT2"
+    },
+    {
+      "item": 713,
+      "type": 1,
+      "de": "Dosieren",
+      "en": "Dosing"
+    },
+    {
+      "item": 801,
+      "type": 0,
+      "de": "AB1 Warten Maschine",
+      "en": "AT1 wait for machine"
+    },
+    {
+      "item": 801,
+      "type": 1,
+      "de": "Warten",
+      "en": "Wait"
+    },
+    {
+      "item": 802,
+      "type": 0,
+      "de": "AB1 Füllen Niveau",
+      "en": "AT1 Fill Level"
+    },
+    {
+      "item": 802,
+      "type": 1,
+      "de": "Füllen",
+      "en": "Fill AT1"
+    },
+    {
+      "item": 803,
+      "type": 0,
+      "de": "AB1 Handzugabe",
+      "en": "AT1 OperatorCall"
+    },
+    {
+      "item": 803,
+      "type": 1,
+      "de": "Zugabe",
+      "en": "Operator"
+    },
+    {
+      "item": 804,
+      "type": 0,
+      "de": "AB1 Abruf Farbe",
+      "en": "AT1 Call"
+    },
+    {
+      "item": 804,
+      "type": 1,
+      "de": "Abruf",
+      "en": "Call"
+    },
+    {
+      "item": 805,
+      "type": 0,
+      "de": "AB1 Mischen / Heizen",
+      "en": "AT1 mixing/heating"
+    },
+    {
+      "item": 805,
+      "type": 1,
+      "de": "Mischen",
+      "en": "mixing"
+    },
+    {
+      "item": 806,
+      "type": 0,
+      "de": "AB1 Ablassen",
+      "en": "AT1 Drain"
+    },
+    {
+      "item": 806,
+      "type": 1,
+      "de": "Ablassen",
+      "en": "Drain"
+    },
+    {
+      "item": 807,
+      "type": 0,
+      "de": "AB1 vorbereitet !",
+      "en": "AT1 ready !"
+    },
+    {
+      "item": 807,
+      "type": 1,
+      "de": "Fertig",
+      "en": "Ready"
+    },
+    {
+      "item": 808,
+      "type": 0,
+      "de": "AB1 Freigabe nP",
+      "en": "AT1 Release nB"
+    },
+    {
+      "item": 808,
+      "type": 1,
+      "de": "Freigabe",
+      "en": "Rel nB"
+    },
+    {
+      "item": 901,
+      "type": 0,
+      "de": "AB2 Warten Maschine",
+      "en": "AT2 wait for machine"
+    },
+    {
+      "item": 901,
+      "type": 1,
+      "de": "",
+      "en": "Wait"
+    },
+    {
+      "item": 902,
+      "type": 0,
+      "de": "AB2 Füllen Niveau",
+      "en": "AT2 Fill Level"
+    },
+    {
+      "item": 902,
+      "type": 1,
+      "de": "Füllen",
+      "en": "Fill AT2"
+    },
+    {
+      "item": 903,
+      "type": 0,
+      "de": "AB2 Handzugabe",
+      "en": "AT2 OperatorCall"
+    },
+    {
+      "item": 903,
+      "type": 1,
+      "de": "Zugabe",
+      "en": "Operator"
+    },
+    {
+      "item": 904,
+      "type": 0,
+      "de": "AB2 Abruf Chemie",
+      "en": "AT2 Call"
+    },
+    {
+      "item": 904,
+      "type": 1,
+      "de": "Abruf",
+      "en": "Call"
+    },
+    {
+      "item": 905,
+      "type": 0,
+      "de": "AB2 Mischen / Heizen",
+      "en": "AT2 mixing/heating"
+    },
+    {
+      "item": 905,
+      "type": 1,
+      "de": "Mischen",
+      "en": "mixing"
+    },
+    {
+      "item": 906,
+      "type": 0,
+      "de": "AB2 Ablassen",
+      "en": "AT2 Drain"
+    },
+    {
+      "item": 906,
+      "type": 1,
+      "de": "Ablassen",
+      "en": "Drain"
+    },
+    {
+      "item": 907,
+      "type": 0,
+      "de": "AB2 vor▄\u0001─ü¼\u0001É\u0001y\u0001U\u0001",
+      "en": "AT2 ready !"
+    },
+    {
+      "item": 907,
+      "type": 1,
+      "de": "Fertig",
+      "en": "Ready"
+    },
+    {
+      "item": 908,
+      "type": 0,
+      "de": "AB2 Freigabe nP",
+      "en": "AT2 Release nB"
+    },
+    {
+      "item": 908,
+      "type": 1,
+      "de": "Freigabe",
+      "en": "Rel nB"
+    }
+  ],
+  "Cat_4_Grp_0": [
+    {
+      "item": 1,
+      "type": 0,
+      "de": "",
+      "en": "Label 1"
+    },
+    {
+      "item": 2,
+      "type": 0,
+      "de": "Label 2",
+      "en": "Label 2"
+    },
+    {
+      "item": 3,
+      "type": 0,
+      "de": "Label 3",
+      "en": "Label 3"
+    },
+    {
+      "item": 4,
+      "type": 0,
+      "de": "Label 4",
+      "en": "Label 4"
+    },
+    {
+      "item": 5,
+      "type": 0,
+      "de": "Label 5",
+      "en": "Label 5"
+    },
+    {
+      "item": 6,
+      "type": 0,
+      "de": "Label 6",
+      "en": "Label 6"
+    },
+    {
+      "item": 7,
+      "type": 0,
+      "de": "Label 7",
+      "en": "Label 7"
+    },
+    {
+      "item": 8,
+      "type": 0,
+      "de": "Label 8",
+      "en": "Label 8"
+    },
+    {
+      "item": 9,
+      "type": 0,
+      "de": "Label 9",
+      "en": "Label 9"
+    },
+    {
+      "item": 10,
+      "type": 0,
+      "de": "Label 10",
+      "en": "Label 10"
+    },
+    {
+      "item": 11,
+      "type": 0,
+      "de": "Label 11",
+      "en": "Label 11"
+    },
+    {
+      "item": 12,
+      "type": 0,
+      "de": "Label 12",
+      "en": "Label 12"
+    },
+    {
+      "item": 13,
+      "type": 0,
+      "de": "Label 13",
+      "en": "Label 13"
+    },
+    {
+      "item": 14,
+      "type": 0,
+      "de": "Label 14",
+      "en": "Label 14"
+    },
+    {
+      "item": 15,
+      "type": 0,
+      "de": "Label 15",
+      "en": "Label 15"
+    },
+    {
+      "item": 16,
+      "type": 0,
+      "de": "",
+      "en": "Label 16"
+    },
+    {
+      "item": 17,
+      "type": 0,
+      "de": "Label 17",
+      "en": "Label 17"
+    },
+    {
+      "item": 18,
+      "type": 0,
+      "de": "Label 18",
+      "en": "Label 18"
+    },
+    {
+      "item": 19,
+      "type": 0,
+      "de": "Label 19",
+      "en": "Label 19"
+    },
+    {
+      "item": 20,
+      "type": 0,
+      "de": "Label 20",
+      "en": "Label 20"
+    }
+  ],
+  "Cat_4_Grp_1": [
+    {
+      "item": 31,
+      "type": 0,
+      "de": "Nachs.Label 1",
+      "en": "Add.Label 1"
+    },
+    {
+      "item": 32,
+      "type": 0,
+      "de": "Nachs.Label 2",
+      "en": "Add.Label 2"
+    },
+    {
+      "item": 33,
+      "type": 0,
+      "de": "Nachs.Label 3",
+      "en": "Add.Label 3"
+    },
+    {
+      "item": 34,
+      "type": 0,
+      "de": "Nachs.Label 4",
+      "en": "Add.Label 4"
+    },
+    {
+      "item": 35,
+      "type": 0,
+      "de": "Nachs.Label 5",
+      "en": "Add.Label 5"
+    },
+    {
+      "item": 36,
+      "type": 0,
+      "de": "Nachs.Label 6",
+      "en": "Add.Label 6"
+    },
+    {
+      "item": 37,
+      "type": 0,
+      "de": "Nachs.Label 7",
+      "en": "Add.Label 7"
+    },
+    {
+      "item": 38,
+      "type": 0,
+      "de": "Nachs.Label 8",
+      "en": "Add.Label 8"
+    },
+    {
+      "item": 39,
+      "type": 0,
+      "de": "Nachs.Label 9",
+      "en": "Add.Label 9"
+    },
+    {
+      "item": 40,
+      "type": 0,
+      "de": "Nachs.Label 10",
+      "en": "Add.Label 10"
+    },
+    {
+      "item": 101,
+      "type": 0,
+      "de": "OT-Nachsatz 1",
+      "en": "OT-Nachsatz 1"
+    },
+    {
+      "item": 102,
+      "type": 0,
+      "de": "OT-Nach▄\u0001─üº\u0001ë\u0001",
+      "en": "OT-Nachsatz 2"
+    }
+  ],
+  "Cat_5_Grp_0": [
+    {
+      "item": 1,
+      "type": 0,
+      "de": "Partiegewicht",
+      "en": "load"
+    },
+    {
+      "item": 1,
+      "type": 2,
+      "de": "Kg",
+      "en": "Kg"
+    },
+    {
+      "item": 3,
+      "type": 0,
+      "de": "Flottenverh.",
+      "en": "liquor ratio"
+    },
+    {
+      "item": 3,
+      "type": 2,
+      "de": "",
+      "en": ""
+    },
+    {
+      "item": 4,
+      "type": 0,
+      "de": "Flottenmenge",
+      "en": "liquor quantity"
+    },
+    {
+      "item": 4,
+      "type": 2,
+      "de": "l",
+      "en": "l"
+    },
+    {
+      "item": 7,
+      "type": 0,
+      "de": "Warengeschw.",
+      "en": "speed"
+    },
+    {
+      "item": 7,
+      "type": 2,
+      "de": "m/min",
+      "en": "m/min"
+    },
+    {
+      "item": 12,
+      "type": 0,
+      "de": "Flottenaufn.",
+      "en": "abs.factor"
+    },
+    {
+      "item": 12,
+      "type": 2,
+      "de": "%",
+      "en": "%"
+    }
+  ],
+  "Cat_6_Grp_0": [
+    {
+      "item": 1,
+      "type": 0,
+      "de": "Partie-Nr",
+      "en": "batch no"
+    },
+    {
+      "item": 3,
+      "type": 0,
+      "de": "Kunden-Nr.",
+      "en": "customer"
+    },
+    {
+      "item": 4,
+      "type": 0,
+      "de": "Artikel",
+      "en": "article"
+    },
+    {
+      "item": 5,
+      "type": 0,
+      "de": "Farbnummer",
+      "en": "colour number"
+    },
+    {
+      "item": 6,
+      "type": 0,
+      "de": "Farbbezeichnung",
+      "en": "shade"
+    }
+  ],
+  "Cat_7_Grp_0": [
+    {
+      "item": 1,
+      "type": 0,
+      "de": "Einzugs-Nr. AB1",
+      "en": "Inject-No AT1"
+    },
+    {
+      "item": 2,
+      "type": 0,
+      "de": "Einzugs-Nr. AB1",
+      "en": "Inject-No AT1"
+    },
+    {
+      "item": 3,
+      "type": 0,
+      "de": "Einzugs-Nr.Ï\u0001╝üØ\u0001",
+      "en": "Inject-No AT2"
+    },
+    {
+      "item": 4,
+      "type": 0,
+      "de": "Einzugs-Nr. AB2",
+      "en": "Inject-No AT2"
+    }
+  ],
+  "Cat_8_Grp_0": [
+    {
+      "item": 1,
+      "type": 0,
+      "de": "AB1 nicht bereit !",
+      "en": "AT1 not ready !"
+    },
+    {
+      "item": 1,
+      "type": 3,
+      "de": "Ansatzbehälter 1 nicht",
+      "en": "addition tank 1 not"
+    },
+    {
+      "item": 1,
+      "type": 4,
+      "de": "vorbereitet !",
+      "en": "ready !"
+    },
+    {
+      "item": 2,
+      "type": 0,
+      "de": "Keine neue Partie !",
+      "en": "no batch available !"
+    },
+    {
+      "item": 2,
+      "type": 3,
+      "de": "Keine neue Partie ausgewählt !",
+      "en": "no new batch available !"
+    },
+    {
+      "item": 2,
+      "type": 4,
+      "de": "Überlappung nicht möglich !",
+      "en": "batch overlapping not possible"
+    },
+    {
+      "item": 3,
+      "type": 0,
+      "de": "Partielade-Fehler !",
+      "en": "load batch error !"
+    },
+    {
+      "item": 3,
+      "type": 3,
+      "de": "Neue Partie nicht geladen !",
+      "en": "can't load or start new batch"
+    },
+    {
+      "item": 3,
+      "type": 4,
+      "de": "Überlappung nicht möglich !",
+      "en": "batch overlapping not possible"
+    },
+    {
+      "item": 11,
+      "type": 0,
+      "de": "",
+      "en": "dispensing error !"
+    },
+    {
+      "item": 11,
+      "type": 3,
+      "de": "Fehler bei der Ansatz-",
+      "en": "error during dispensing"
+    },
+    {
+      "item": 11,
+      "type": 4,
+      "de": "anforderung für AB1 !",
+      "en": "request for AT1 !"
+    },
+    {
+      "item": 12,
+      "type": 0,
+      "de": "Ansatz aktiv !",
+      "en": "calloff requested !"
+    },
+    {
+      "item": 12,
+      "type": 3,
+      "de": "Ansatz für AB1 wurde bereits",
+      "en": "calloff for AT1 already"
+    },
+    {
+      "item": 12,
+      "type": 4,
+      "de": "angefordert !",
+      "en": "requested !"
+    },
+    {
+      "item": 13,
+      "type": 0,
+      "de": "Manueller Ansatz !",
+      "en": "manual calloff !"
+    },
+    {
+      "item": 13,
+      "type": 3,
+      "de": "Manueller Ansatz für AB1 !",
+      "en": "manual calloff for AT1 !"
+    },
+    {
+      "item": 13,
+      "type": 4,
+      "de": "Produkte zugeben !",
+      "en": "fill in products !"
+    },
+    {
+      "item": 14,
+      "type": 0,
+      "de": "Falscher Tank !",
+      "en": "wrong tank !"
+    },
+    {
+      "item": 14,
+      "type": 3,
+      "de": "Falscher Tank für Ansatz",
+      "en": "wrong tank for calloff"
+    },
+    {
+      "item": 14,
+      "type": 4,
+      "de": "für Behälter AB1 !",
+      "en": "in AT1 !"
+    },
+    {
+      "item": 15,
+      "type": 0,
+      "de": "Maschine gesperrt !",
+      "en": "machine disabled !"
+    },
+    {
+      "item": 15,
+      "type": 3,
+      "de": "Maschine ist für Ansatz-",
+      "en": "machine disabled for calloffs"
+    },
+    {
+      "item": 15,
+      "type": 4,
+      "de": "vorbereitung in AB1 gespõ\u0001╗üô\u0001p\u0001",
+      "en": "in AT1 !"
+    },
+    {
+      "item": 21,
+      "type": 0,
+      "de": "AB2 nicht bereit !",
+      "en": "AT2 not ready !"
+    },
+    {
+      "item": 21,
+      "type": 3,
+      "de": "Ansatzbehälter 2 nicht",
+      "en": "addition tank 2 not"
+    },
+    {
+      "item": 21,
+      "type": 4,
+      "de": "vorbereitet !",
+      "en": "ready !"
+    },
+    {
+      "item": 22,
+      "type": 0,
+      "de": "Keine neue Partie !",
+      "en": "no batch available !"
+    },
+    {
+      "item": 22,
+      "type": 3,
+      "de": "Keine neue Partie ausgewählt !",
+      "en": "no new batch available !"
+    },
+    {
+      "item": 22,
+      "type": 4,
+      "de": "Überlappung nicht möglich !",
+      "en": "batch overlapping not possible"
+    },
+    {
+      "item": 23,
+      "type": 0,
+      "de": "Partielade-Fehler !",
+      "en": "load batch error !"
+    },
+    {
+      "item": 23,
+      "type": 3,
+      "de": "Neue Partie nicht geladen !",
+      "en": "can't load or start new batch"
+    },
+    {
+      "item": 23,
+      "type": 4,
+      "de": "Überlappung nicht möglich !",
+      "en": "batch overlapping not possible"
+    },
+    {
+      "item": 31,
+      "type": 0,
+      "de": "Dosiersystemfehler !",
+      "en": "dispensing error !"
+    },
+    {
+      "item": 31,
+      "type": 3,
+      "de": "Fehler bei der Ansatz-",
+      "en": "error during dispensing"
+    },
+    {
+      "item": 31,
+      "type": 4,
+      "de": "anforderung für AB2 !",
+      "en": "request for AT2 !"
+    },
+    {
+      "item": 32,
+      "type": 0,
+      "de": "Ansatz aktiv !",
+      "en": "calloff requested !"
+    },
+    {
+      "item": 32,
+      "type": 3,
+      "de": "Ansatz für AB2 wurde bereits",
+      "en": "calloff for AT2 already"
+    },
+    {
+      "item": 32,
+      "type": 4,
+      "de": "angefordert !",
+      "en": "requested !"
+    },
+    {
+      "item": 33,
+      "type": 0,
+      "de": "Manueller Ansatz !",
+      "en": "manual calloff !"
+    },
+    {
+      "item": 33,
+      "type": 3,
+      "de": "Manueller Ansatz für AB2 !",
+      "en": "manual calloff for AT2 !"
+    },
+    {
+      "item": 33,
+      "type": 4,
+      "de": "Produkte zugeben !",
+      "en": "fill in products !"
+    },
+    {
+      "item": 34,
+      "type": 0,
+      "de": "Falscher Tank !",
+      "en": "wrong tank !"
+    },
+    {
+      "item": 34,
+      "type": 3,
+      "de": "Falscher Tank für Ansatz",
+      "en": "wrong tank for calloff"
+    },
+    {
+      "item": 34,
+      "type": 4,
+      "de": "für Behälter AB2 !",
+      "en": "in AT2 !"
+    },
+    {
+      "item": 35,
+      "type": 0,
+      "de": "Maschine gesperrt !",
+      "en": "machine disabled !"
+    },
+    {
+      "item": 35,
+      "type": 3,
+      "de": "Maschine ist für Ansatz-",
+      "en": "machine disabled for calloffs"
+    },
+    {
+      "item": 35,
+      "type": 4,
+      "de": "vorbereitung in AB2 gesperrt !",
+      "en": "in AT2 !"
+    },
+    {
+      "item": 41,
+      "type": 0,
+      "de": "Bedienerzeit !",
+      "en": "operator call time !"
+    },
+    {
+      "item": 41,
+      "type": 3,
+      "de": "Bedienerzeit überschritten !",
+      "en": "operator call time !"
+    },
+    {
+      "item": 41,
+      "type": 4,
+      "de": "",
+      "en": ""
+    },
+    {
+      "item": 101,
+      "type": 0,
+      "de": "SPS-Kommunikation",
+      "en": "PLC-Communication"
+    },
+    {
+      "item": 101,
+      "type": 3,
+      "de": "SPS Kommunikation gestört",
+      "en": "PLC communication error"
+    },
+    {
+      "item": 101,
+      "type": 4,
+      "de": "Bitte Verbindung prüfen !",
+      "en": "please check connection !"
+    },
+    {
+      "item": 102,
+      "type": 0,
+      "de": "",
+      "en": "Analog board error"
+    },
+    {
+      "item": 102,
+      "type": 3,
+      "de": "Meßwerterfassung gestört !",
+      "en": "Analog board error !"
+    },
+    {
+      "item": 102,
+      "type": 4,
+      "de": "Keine Analogverarbeitung !",
+      "en": ""
+    },
+    {
+      "item": 103,
+      "type": 0,
+      "de": "SPS Reset !",
+      "en": "PLC reset !"
+    },
+    {
+      "item": 103,
+      "type": 3,
+      "de": "SPS wurde neu",
+      "en": "PLC reset !"
+    },
+    {
+      "item": 103,
+      "type": 4,
+      "de": "initialisiert !",
+      "en": ""
+    },
+    {
+      "item": 104,
+      "type": 0,
+      "de": "SPS Programm-Fehler",
+      "en": "PLC program fault !"
+    },
+    {
+      "item": 104,
+      "type": 3,
+      "de": "Das SPS-Programm",
+      "en": "PLC program fault !"
+    },
+    {
+      "item": 104,
+      "type": 4,
+      "de": "ist feÔ\u0001╦ü½\u0001ê\u0001i\u0001L\u0001",
+      "en": ""
+    },
+    {
+      "item": 105,
+      "type": 0,
+      "de": "SPS Karten-Fehler",
+      "en": "PLC board error !"
+    },
+    {
+      "item": 105,
+      "type": 3,
+      "de": "Die SPS hat eine fehlerhafte",
+      "en": "PLC board error !"
+    },
+    {
+      "item": 105,
+      "type": 4,
+      "de": "Karte !",
+      "en": ""
+    },
+    {
+      "item": 106,
+      "type": 0,
+      "de": "SPS Programm-Timeout",
+      "en": "PLC program timeout!"
+    },
+    {
+      "item": 106,
+      "type": 3,
+      "de": "Timeout des SPS-Programmes !",
+      "en": "PLC program timeout !"
+    },
+    {
+      "item": 106,
+      "type": 4,
+      "de": "",
+      "en": ""
+    },
+    {
+      "item": 107,
+      "type": 0,
+      "de": "SPS Batterie leer",
+      "en": "PLC battery empty !"
+    },
+    {
+      "item": 107,
+      "type": 3,
+      "de": "Die Batterie der SPS ist leer,",
+      "en": "PLC battery empty !"
+    },
+    {
+      "item": 107,
+      "type": 4,
+      "de": "bitte austauschen !",
+      "en": "please change !"
+    },
+    {
+      "item": 108,
+      "type": 0,
+      "de": "SPS EEProm-Fehler !",
+      "en": "PLC EEProm error !"
+    },
+    {
+      "item": 108,
+      "type": 3,
+      "de": "Fehler beim Brennen des SPS-",
+      "en": "Error during burning plc"
+    },
+    {
+      "item": 108,
+      "type": 4,
+      "de": "EEProms ! Bitte erneut brennen",
+      "en": "EEProm ! Please try once more!"
+    },
+    {
+      "item": 109,
+      "type": 0,
+      "de": "Falsche Funktionsnr!",
+      "en": "Invalid function no!"
+    },
+    {
+      "item": 109,
+      "type": 3,
+      "de": "Fehlerhafte Funktionsnummer",
+      "en": "Invalid function number during"
+    },
+    {
+      "item": 109,
+      "type": 4,
+      "de": "beim Schrittwechsel !",
+      "en": "step change !"
+    },
+    {
+      "item": 110,
+      "type": 0,
+      "de": "Falscher Parameter !",
+      "en": "Invalid parameter !"
+    },
+    {
+      "item": 110,
+      "type": 3,
+      "de": "Fehlerhafte Parameternummer",
+      "en": "Invalid parameter number"
+    },
+    {
+      "item": 110,
+      "type": 4,
+      "de": "beim Schrittwechsel !",
+      "en": "during step change !"
+    },
+    {
+      "item": 111,
+      "type": 0,
+      "de": "Kommunikat. Modul 1",
+      "en": "Communicat.module 1"
+    },
+    {
+      "item": 111,
+      "type": 3,
+      "de": "Kommunikationsfehler !",
+      "en": "Communicatõ\u0001╔üª\u0001é\u0001Y\u00016\u0001\u0019"
+    },
+    {
+      "item": 111,
+      "type": 4,
+      "de": "SPS-Modul 1",
+      "en": "plc module 1"
+    },
+    {
+      "item": 112,
+      "type": 0,
+      "de": "Kommunikat. Modul 2",
+      "en": "Communicat.module 2"
+    },
+    {
+      "item": 112,
+      "type": 3,
+      "de": "Kommunikationsfehler !",
+      "en": "Communication Error !"
+    },
+    {
+      "item": 112,
+      "type": 4,
+      "de": "SPS-Modul 2",
+      "en": "plc module 2"
+    },
+    {
+      "item": 113,
+      "type": 0,
+      "de": "Kommunikat. Modul 3",
+      "en": "Communicat.module 3"
+    },
+    {
+      "item": 113,
+      "type": 3,
+      "de": "Kommunikationsfehler !",
+      "en": "Communication Error !"
+    },
+    {
+      "item": 113,
+      "type": 4,
+      "de": "SPS-Modul 3",
+      "en": "plc module 3"
+    },
+    {
+      "item": 114,
+      "type": 0,
+      "de": "Kommunikat. Modul 4",
+      "en": "Communicat.module 4"
+    },
+    {
+      "item": 114,
+      "type": 3,
+      "de": "Kommunikationsfehler !",
+      "en": "Communication Error !"
+    },
+    {
+      "item": 114,
+      "type": 4,
+      "de": "SPS-Modul 4",
+      "en": "plc module 4"
+    },
+    {
+      "item": 115,
+      "type": 0,
+      "de": "Kommunikat. Modul 5",
+      "en": "Communicat.module 5"
+    },
+    {
+      "item": 115,
+      "type": 3,
+      "de": "Kommunikationsfehler !",
+      "en": "Communication Error !"
+    },
+    {
+      "item": 115,
+      "type": 4,
+      "de": "SPS-Modul 5",
+      "en": "plc module 5"
+    },
+    {
+      "item": 116,
+      "type": 0,
+      "de": "Kommunikat. Modul 6",
+      "en": "CommunicaÓ\u0001ãü¬\u0001à\u0001b\u0001F\u0001"
+    },
+    {
+      "item": 116,
+      "type": 3,
+      "de": "Kommunikationsfehler !",
+      "en": "Communication Error !"
+    },
+    {
+      "item": 116,
+      "type": 4,
+      "de": "SPS-Modul 6",
+      "en": "plc module 6"
+    },
+    {
+      "item": 117,
+      "type": 0,
+      "de": "",
+      "en": "Communicat.module 7"
+    },
+    {
+      "item": 117,
+      "type": 3,
+      "de": "Kommunikationsfehler !",
+      "en": "Communication Error !"
+    },
+    {
+      "item": 117,
+      "type": 4,
+      "de": "SPS-Modul 7",
+      "en": "plc module 7"
+    },
+    {
+      "item": 118,
+      "type": 0,
+      "de": "Kommunikat. Modul 8",
+      "en": "Communicat.module 8"
+    },
+    {
+      "item": 118,
+      "type": 3,
+      "de": "Kommunikationsfehler !",
+      "en": "Communication Error !"
+    },
+    {
+      "item": 118,
+      "type": 4,
+      "de": "SPS-Modul 8",
+      "en": "plc module 8"
+    },
+    {
+      "item": 119,
+      "type": 0,
+      "de": "Kommunikat. Modul 9",
+      "en": "Communicat.module 9"
+    },
+    {
+      "item": 119,
+      "type": 3,
+      "de": "Kommunikationsfehler !",
+      "en": "Communication Error !"
+    },
+    {
+      "item": 119,
+      "type": 4,
+      "de": "SPS-Modul 9",
+      "en": "plc module 9"
+    },
+    {
+      "item": 120,
+      "type": 0,
+      "de": "Kommunikat. Modul 10",
+      "en": "Communicat.module 10"
+    },
+    {
+      "item": 120,
+      "type": 3,
+      "de": "Kommunikationsfehler !",
+      "en": "Communication Error !"
+    },
+    {
+      "item": 120,
+      "type": 4,
+      "de": "SPS-Modul 10",
+      "en": "plc module 10"
+    },
+    {
+      "item": 121,
+      "type": 0,
+      "de": "Kommunikat. Modul 11",
+      "en": "Communicat.module 11"
+    },
+    {
+      "item": 121,
+      "type": 3,
+      "de": "Kommunikationsfehler !",
+      "en": "Communication Error !"
+    },
+    {
+      "item": 121,
+      "type": 4,
+      "de": "SPS-Modul 11",
+      "en": "plc module 11"
+    },
+    {
+      "item": 122,
+      "type": 0,
+      "de": "Kommunikat. Modul 12",
+      "en": "Communicat.module 12"
+    },
+    {
+      "item": 122,
+      "type": 3,
+      "de": "KommunikationÔ\u0001─üá\u0001ä\u0001^\u0001:",
+      "en": "Communication Error !"
+    },
+    {
+      "item": 122,
+      "type": 4,
+      "de": "SPS-Modul 12",
+      "en": "plc module 12"
+    },
+    {
+      "item": 123,
+      "type": 0,
+      "de": "Kommunikat. Modul 13",
+      "en": "Communicat.module 13"
+    },
+    {
+      "item": 123,
+      "type": 3,
+      "de": "Kommunikationsfehler !",
+      "en": "Communication Error !"
+    },
+    {
+      "item": 123,
+      "type": 4,
+      "de": "SPS-Modul 13",
+      "en": "plc module 13"
+    },
+    {
+      "item": 124,
+      "type": 0,
+      "de": "Kommunikat. Modul 14",
+      "en": "Communicat.module 14"
+    },
+    {
+      "item": 124,
+      "type": 3,
+      "de": "Kommunikationsfehler !",
+      "en": "Communication Error !"
+    },
+    {
+      "item": 124,
+      "type": 4,
+      "de": "SPS-Modul 14",
+      "en": "plc module 14"
+    },
+    {
+      "item": 125,
+      "type": 0,
+      "de": "Kommunikat. Modul 15",
+      "en": "Communicat.modulÔ\u0001┴üñ\u0001"
+    },
+    {
+      "item": 125,
+      "type": 3,
+      "de": "Kommunikationsfehler !",
+      "en": "Communication Error !"
+    },
+    {
+      "item": 125,
+      "type": 4,
+      "de": "SPS-Modul 15",
+      "en": "plc module 15"
+    },
+    {
+      "item": 126,
+      "type": 0,
+      "de": "Kommunikat. Modul 16",
+      "en": "Communicat.module 16"
+    },
+    {
+      "item": 126,
+      "type": 3,
+      "de": "Kommunikationsfehler !",
+      "en": "Communication Error !"
+    },
+    {
+      "item": 126,
+      "type": 4,
+      "de": "SPS-Modul 16",
+      "en": "plc module 16"
+    },
+    {
+      "item": 127,
+      "type": 0,
+      "de": "Kommunikat. Modul 17",
+      "en": "Communicat.module 17"
+    },
+    {
+      "item": 127,
+      "type": 3,
+      "de": "Kommunikationsfehler !",
+      "en": "Communication Error !"
+    },
+    {
+      "item": 127,
+      "type": 4,
+      "de": "SPS-Modul 17",
+      "en": "plc module 17"
+    },
+    {
+      "item": 128,
+      "type": 0,
+      "de": "Kommunikat. Modul 18",
+      "en": "Communicat.module 18"
+    },
+    {
+      "item": 128,
+      "type": 3,
+      "de": "Kommunikationsfehler !",
+      "en": "Communication Error !"
+    },
+    {
+      "item": 128,
+      "type": 4,
+      "de": "SPS-Modul 18",
+      "en": "plc module 18"
+    },
+    {
+      "item": 129,
+      "type": 0,
+      "de": "Kommunikat. Modul 19",
+      "en": "Communicat.module 19"
+    },
+    {
+      "item": 129,
+      "type": 3,
+      "de": "Kommunikationsfehler !",
+      "en": "Communication Error !"
+    },
+    {
+      "item": 129,
+      "type": 4,
+      "de": "SPS-Modul 19",
+      "en": "plc module 19"
+    },
+    {
+      "item": 130,
+      "type": 0,
+      "de": "Kommunikat. Modul 20",
+      "en": "Communicat.module 20"
+    },
+    {
+      "item": 130,
+      "type": 3,
+      "de": "Kommunikationsfehler !",
+      "en": "Communication Error !"
+    },
+    {
+      "item": 130,
+      "type": 4,
+      "de": "SPS-Modul 20",
+      "en": "plc module 20"
+    },
+    {
+      "item": 131,
+      "type": 0,
+      "de": "Kommunikat. Modul 21",
+      "en": "Communicat.module 21"
+    },
+    {
+      "item": 131,
+      "type": 3,
+      "de": "KommunikaÔ\u0001╚üñ\u0001ê\u0001b\u0001>\u0001\"\u0001",
+      "en": "Communication Error !"
+    },
+    {
+      "item": 131,
+      "type": 4,
+      "de": "SPS-Modul 21",
+      "en": "plc module 21"
+    },
+    {
+      "item": 132,
+      "type": 0,
+      "de": "Kommunikat. Modul 22",
+      "en": "Communicat.module 22"
+    },
+    {
+      "item": 132,
+      "type": 3,
+      "de": "Kommunikationsfehler !",
+      "en": "Communication Error !"
+    },
+    {
+      "item": 132,
+      "type": 4,
+      "de": "SPS-Modul 22",
+      "en": "plc module 22"
+    },
+    {
+      "item": 133,
+      "type": 0,
+      "de": "Kommunikat. Modul 23",
+      "en": "Communicat.module 23"
+    },
+    {
+      "item": 133,
+      "type": 3,
+      "de": "Kommunikationsfehler !",
+      "en": "Communication Error !"
+    },
+    {
+      "item": 133,
+      "type": 4,
+      "de": "SPS-Modul 23",
+      "en": "plc module 23"
+    },
+    {
+      "item": 134,
+      "type": 0,
+      "de": "Kommunikat. Modul 24",
+      "en": "Communicat.modulÔ\u0001┴üñ\u0001"
+    },
+    {
+      "item": 134,
+      "type": 3,
+      "de": "Kommunikationsfehler !",
+      "en": "Communication Error !"
+    },
+    {
+      "item": 134,
+      "type": 4,
+      "de": "SPS-Modul 24",
+      "en": "plc module 24"
+    },
+    {
+      "item": 135,
+      "type": 0,
+      "de": "Kommunikat. Modul 25",
+      "en": "Communicat.module 25"
+    },
+    {
+      "item": 135,
+      "type": 3,
+      "de": "Kommunikationsfehler !",
+      "en": "Communication Error !"
+    },
+    {
+      "item": 135,
+      "type": 4,
+      "de": "SPS-Modul 25",
+      "en": "plc module 25"
+    },
+    {
+      "item": 136,
+      "type": 0,
+      "de": "Kommunikat. Modul 26",
+      "en": "Communicat.module 26"
+    },
+    {
+      "item": 136,
+      "type": 3,
+      "de": "Kommunikationsfehler !",
+      "en": "Communication Error !"
+    },
+    {
+      "item": 136,
+      "type": 4,
+      "de": "SPS-Modul 26",
+      "en": "plc module 26"
+    },
+    {
+      "item": 137,
+      "type": 0,
+      "de": "",
+      "en": "Communicat.module 27"
+    },
+    {
+      "item": 137,
+      "type": 3,
+      "de": "Kommunikationsfehler !",
+      "en": "Communication Error !"
+    },
+    {
+      "item": 137,
+      "type": 4,
+      "de": "SPS-Modul 27",
+      "en": "plc module 27"
+    },
+    {
+      "item": 138,
+      "type": 0,
+      "de": "Kommunikat. Modul 28",
+      "en": "Communicat.module 28"
+    },
+    {
+      "item": 138,
+      "type": 3,
+      "de": "Kommunikationsfehler !",
+      "en": "Communication Error !"
+    },
+    {
+      "item": 138,
+      "type": 4,
+      "de": "SPS-Modul 28",
+      "en": "plc module 28"
+    },
+    {
+      "item": 139,
+      "type": 0,
+      "de": "Kommunikat. Modul 29",
+      "en": "Communicat.module 29"
+    },
+    {
+      "item": 139,
+      "type": 3,
+      "de": "Kommunikationsfehler !",
+      "en": "Communication Error !"
+    },
+    {
+      "item": 139,
+      "type": 4,
+      "de": "SPS-Modul 29",
+      "en": "plc module 29"
+    },
+    {
+      "item": 140,
+      "type": 0,
+      "de": "Kommunikat. Modul 30",
+      "en": "Communicat.module 30"
+    },
+    {
+      "item": 140,
+      "type": 3,
+      "de": "KommunikaÔ\u0001╚üñ\u0001ê\u0001b\u0001>\u0001\"\u0001",
+      "en": "Communication Error !"
+    },
+    {
+      "item": 140,
+      "type": 4,
+      "de": "SPS-Modul 30",
+      "en": "plc module 30"
+    },
+    {
+      "item": 141,
+      "type": 0,
+      "de": "Kommunikat. Modul 31",
+      "en": "Communicat.module 31"
+    },
+    {
+      "item": 141,
+      "type": 3,
+      "de": "Kommunikationsfehler !",
+      "en": "Communication Error !"
+    },
+    {
+      "item": 141,
+      "type": 4,
+      "de": "SPS-Modul 31",
+      "en": "plc module 31"
+    },
+    {
+      "item": 142,
+      "type": 0,
+      "de": "Kommunikat. Modul 32",
+      "en": "Communicat.module 32"
+    },
+    {
+      "item": 142,
+      "type": 3,
+      "de": "Kommunikationsfehler !",
+      "en": "Communication Error !"
+    },
+    {
+      "item": 142,
+      "type": 4,
+      "de": "SPS-Modul 32",
+      "en": "plc module 32"
+    },
+    {
+      "item": 143,
+      "type": 0,
+      "de": "SPS Bestückung !",
+      "en": "PLC placement !"
+    },
+    {
+      "item": 143,
+      "type": 3,
+      "de": "Fehlerhafte SPS-Bestückung !",
+      "en": "PLC placement error !"
+    },
+    {
+      "item": 143,
+      "type": 4,
+      "de": "Bitte Module prüfen !",
+      "en": "Please check modules !"
+    },
+    {
+      "item": 144,
+      "type": 0,
+      "de": "SPS Konfiguration !",
+      "en": "PLC configuration !"
+    },
+    {
+      "item": 144,
+      "type": 3,
+      "de": "Fehlerhafte Steuerungs-",
+      "en": "Invalid PLC configuration !"
+    },
+    {
+      "item": 144,
+      "type": 4,
+      "de": "konfiguration der Ô\u0001┐üÿ\u0001u",
+      "en": "Please check modules !"
+    },
+    {
+      "item": 151,
+      "type": 0,
+      "de": "Gradientenalarm R1",
+      "en": "Heat/Cool slow  C1"
+    },
+    {
+      "item": 151,
+      "type": 3,
+      "de": "Gradientenalarm !",
+      "en": "Heating/Cooling to slow !"
+    },
+    {
+      "item": 151,
+      "type": 4,
+      "de": "Temperatur Färbekessel !",
+      "en": "Temperature main kier !"
+    },
+    {
+      "item": 152,
+      "type": 0,
+      "de": "Temp.abweichung R1",
+      "en": "Temp. overshoot C1"
+    },
+    {
+      "item": 152,
+      "type": 3,
+      "de": "Temperaturabweichung",
+      "en": "Temperature overshoot !"
+    },
+    {
+      "item": 152,
+      "type": 4,
+      "de": "Färbekessel zu groß !",
+      "en": "Main kier !"
+    },
+    {
+      "item": 153,
+      "type": 0,
+      "de": "",
+      "en": "Heat/Cool enable C1"
+    },
+    {
+      "item": 153,
+      "type": 3,
+      "de": "keine Reglerfreigabe",
+      "en": "No heating/coolõ\u0001─üí\u0001å\u0001_\u0001=\u0001"
+    },
+    {
+      "item": 153,
+      "type": 4,
+      "de": "Temperatur Färbekessel !",
+      "en": "Temperatur main kier !"
+    },
+    {
+      "item": 154,
+      "type": 0,
+      "de": "Gradientenalarm R2",
+      "en": "Heat/Cool slow  C2"
+    },
+    {
+      "item": 154,
+      "type": 3,
+      "de": "Gradientenalarm !",
+      "en": "Heating/Cooling to slow !"
+    },
+    {
+      "item": 154,
+      "type": 4,
+      "de": "Mischwassertemperautur !",
+      "en": "Blend water temperatutre !"
+    },
+    {
+      "item": 155,
+      "type": 0,
+      "de": "Temp.abweichÔ\u0001┼üØ\u0001|\u0001",
+      "en": "Temp. overshoot C2"
+    },
+    {
+      "item": 155,
+      "type": 3,
+      "de": "Temperaturabweichung",
+      "en": "Temperature overshoot !"
+    },
+    {
+      "item": 155,
+      "type": 4,
+      "de": "Mischwasserregler zu groß !",
+      "en": "Blend water controller !"
+    },
+    {
+      "item": 156,
+      "type": 0,
+      "de": "keine Reglerfrg. R2",
+      "en": "Heat/Cool enable C2"
+    },
+    {
+      "item": 156,
+      "type": 3,
+      "de": "keine Reglerfreigabe",
+      "en": "No heating/cooling enable"
+    },
+    {
+      "item": 156,
+      "type": 4,
+      "de": "Mischwasserregler !",
+      "en": "Blend water controller !"
+    },
+    {
+      "item": 157,
+      "type": 0,
+      "de": "Gradientenalarm R3",
+      "en": "Heat/Cool slow  C3"
+    },
+    {
+      "item": 157,
+      "type": 3,
+      "de": "Gradientenalarm !",
+      "en": "Heating/Cooling to slow !"
+    },
+    {
+      "item": 157,
+      "type": 4,
+      "de": "Temperatur Ansatzbehälter 1!",
+      "en": "Temperature add tank 1 !"
+    },
+    {
+      "item": 158,
+      "type": 0,
+      "de": "Temp.abweichung R3",
+      "en": "Temp. overshoot C3"
+    },
+    {
+      "item": 158,
+      "type": 3,
+      "de": "Temperaturabweichung",
+      "en": "Temperature overshoot !"
+    },
+    {
+      "item": 158,
+      "type": 4,
+      "de": "Ansatzbehälter 1 zu groß",
+      "en": "add tank 1 !"
+    },
+    {
+      "item": 159,
+      "type": 0,
+      "de": "keine Reglerfrg. R3",
+      "en": "Heat/Cool enable C3"
+    },
+    {
+      "item": 159,
+      "type": 3,
+      "de": "keine Reglerfreigabe",
+      "en": "No heating/cooling enable"
+    },
+    {
+      "item": 159,
+      "type": 4,
+      "de": "Temperatur Ansatzbehälter 1 !",
+      "en": "Temperatur add tank 1 !"
+    },
+    {
+      "item": 160,
+      "type": 0,
+      "de": "Gradientenalarm R4",
+      "en": "Heat/Cool slow  C4"
+    },
+    {
+      "item": 160,
+      "type": 3,
+      "de": "Gradientenalarm !",
+      "en": "Heating/Cooling to slow !"
+    },
+    {
+      "item": 160,
+      "type": 4,
+      "de": "Temperatur Ansatzbehälter 2 !",
+      "en": "Temperature add tank 2 !"
+    },
+    {
+      "item": 161,
+      "type": 0,
+      "de": "Temp.abweichung R4",
+      "en": "Temp. overshoot C4"
+    },
+    {
+      "item": 161,
+      "type": 3,
+      "de": "Temperaturabweichung",
+      "en": "Temperature overshoot !"
+    },
+    {
+      "item": 161,
+      "type": 4,
+      "de": "Ansatzbehälter 2 zu groß",
+      "en": "add tank 2 !"
+    },
+    {
+      "item": 162,
+      "type": 0,
+      "de": "keine Reglerfrg. R4",
+      "en": "Heat/Cool enable C4"
+    },
+    {
+      "item": 162,
+      "type": 3,
+      "de": "keine Reglerfreigabe",
+      "en": "No heating/cooling enable"
+    },
+    {
+      "item": 162,
+      "type": 4,
+      "de": "Temperatur Ansatzbehälter 2 !",
+      "en": "Temperatur add tank 2 !"
+    },
+    {
+      "item": 163,
+      "type": 0,
+      "de": "Gradientenalarm R5",
+      "en": "Heat/Cool slow  C5"
+    },
+    {
+      "item": 163,
+      "type": 3,
+      "de": "Gradientenalarm !",
+      "en": "Heating/Cooling to slow !"
+    },
+    {
+      "item": 163,
+      "type": 4,
+      "de": "Temperatur Nebenbehälter 1!",
+      "en": "Temperature stock tank 1 !"
+    },
+    {
+      "item": 164,
+      "type": 0,
+      "de": "Temp.abweichung R5",
+      "en": "Temp. overshoot C5"
+    },
+    {
+      "item": 164,
+      "type": 3,
+      "de": "Temperaturabweichung",
+      "en": "Temperature overshoot !"
+    },
+    {
+      "item": 164,
+      "type": 4,
+      "de": "Nebenbehälter 1 zu groß",
+      "en": "stock tank 1 !"
+    },
+    {
+      "item": 165,
+      "type": 0,
+      "de": "keine Reglerfrg. R5",
+      "en": "Heat/Cool enable C5"
+    },
+    {
+      "item": 165,
+      "type": 3,
+      "de": "keine Reglerfreigabe",
+      "en": "No heating/cooling enable"
+    },
+    {
+      "item": 165,
+      "type": 4,
+      "de": "Temperatur Nebenbehälter 1 !",
+      "en": "Temperatur stock tank 1 !"
+    },
+    {
+      "item": 166,
+      "type": 0,
+      "de": "Gradientenalarm R6",
+      "en": "Heat/Cool slow  C6"
+    },
+    {
+      "item": 166,
+      "type": 3,
+      "de": "Gradientenalarm !",
+      "en": "Heating/Cooling to slow !"
+    },
+    {
+      "item": 166,
+      "type": 4,
+      "de": "Temperatur Nebenbehälter 2 !",
+      "en": "Temperature stock tank 2 !"
+    },
+    {
+      "item": 167,
+      "type": 0,
+      "de": "Temp.abweichung R6",
+      "en": "Temp. overshoot C6"
+    },
+    {
+      "item": 167,
+      "type": 3,
+      "de": "Temperatõ\u0001╦ü®\u0001}\u0001\\\u0001:\u0001\u000e\u0001",
+      "en": "Temperature overshoot !"
+    },
+    {
+      "item": 167,
+      "type": 4,
+      "de": "Nebenbehälter 2 zu groß",
+      "en": "stock tank 2 !"
+    },
+    {
+      "item": 168,
+      "type": 0,
+      "de": "keine Reglerfrg. R6",
+      "en": "Heat/Cool enable C6"
+    },
+    {
+      "item": 168,
+      "type": 3,
+      "de": "keine Reglerfreigabe",
+      "en": "No heating/cooling enable"
+    },
+    {
+      "item": 168,
+      "type": 4,
+      "de": "Temperatur Nebenbehälter 2 !",
+      "en": "Temperatur stock tank 2 !"
+    },
+    {
+      "item": 169,
+      "type": 0,
+      "de": "Gradientenalarm R7",
+      "en": "Heat/Cool slow  C7"
+    },
+    {
+      "item": 169,
+      "type": 3,
+      "de": "Gradientenalarm !",
+      "en": "Heating/Cooling to slow !"
+    },
+    {
+      "item": 169,
+      "type": 4,
+      "de": "Temperatur Farbküche 1!",
+      "en": "Temperature Dye kitchen 1 !"
+    },
+    {
+      "item": 170,
+      "type": 0,
+      "de": "Temp.abweichung R7",
+      "en": "Temp. overshoot C7"
+    },
+    {
+      "item": 170,
+      "type": 3,
+      "de": "Temperaturabweichung",
+      "en": "Temperature overshoot !"
+    },
+    {
+      "item": 170,
+      "type": 4,
+      "de": "Farbküchenbehälter 1 zu groß !",
+      "en": "Dye kitchen tank 1 !"
+    },
+    {
+      "item": 171,
+      "type": 0,
+      "de": "keine Reglerfrg. R7",
+      "en": "Heat/Cool enable C7"
+    },
+    {
+      "item": 171,
+      "type": 3,
+      "de": "keine Reglerfreigabe",
+      "en": "No heating/cooling enable"
+    },
+    {
+      "item": 171,
+      "type": 4,
+      "de": "Temperatur Farbküche  1 !",
+      "en": "Temperatur Dye kitchen 1 !"
+    },
+    {
+      "item": 172,
+      "type": 0,
+      "de": "Gradientenalarm R8",
+      "en": "Heat/Cool slow  C8"
+    },
+    {
+      "item": 172,
+      "type": 3,
+      "de": "Gradientenalarm !",
+      "en": "Heating/Cooling to slow !"
+    },
+    {
+      "item": 172,
+      "type": 4,
+      "de": "Temperatur Farbküche 2!",
+      "en": "Temperature Dye kitchen 2 !"
+    },
+    {
+      "item": 173,
+      "type": 0,
+      "de": "Temp.abweichung R8",
+      "en": "Temp. overshoot C8"
+    },
+    {
+      "item": 173,
+      "type": 3,
+      "de": "Temperaturabweichung",
+      "en": "Temperature overshoot !"
+    },
+    {
+      "item": 173,
+      "type": 4,
+      "de": "Farbküchenbehälter 2 zu groß !",
+      "en": "Dye kitchen tank 2 !"
+    },
+    {
+      "item": 174,
+      "type": 0,
+      "de": "keine Reglerfrg. R8",
+      "en": "Heat/Cool enable C8"
+    },
+    {
+      "item": 174,
+      "type": 3,
+      "de": "keine Reglerfreigabe",
+      "en": "No heating/cooling enable"
+    },
+    {
+      "item": 174,
+      "type": 4,
+      "de": "Temperatur Farbküche  2 !",
+      "en": "Temperatur Dye kitchen 2 !"
+    },
+    {
+      "item": 175,
+      "type": 0,
+      "de": "Gradientenalarm R9",
+      "en": "Heat/Cool slow  C9"
+    },
+    {
+      "item": 175,
+      "type": 3,
+      "de": "Gradientenalarm !",
+      "en": "Heating/Cooling to slow !"
+    },
+    {
+      "item": 175,
+      "type": 4,
+      "de": "Temperatur Fõ\u0001Ãüª\u0001ä\u0001[\u00017\u0001\u0014\u0001",
+      "en": "Temperature Dye kitchen 3 !"
+    },
+    {
+      "item": 176,
+      "type": 0,
+      "de": "Temp.abweichung R9",
+      "en": "Temp. overshoot C9"
+    },
+    {
+      "item": 176,
+      "type": 3,
+      "de": "Temperaturabweichung",
+      "en": "Temperature overshoot !"
+    },
+    {
+      "item": 176,
+      "type": 4,
+      "de": "Farbküchenbehälter 3 zu groß !",
+      "en": "Dye kitchen tank 3 !"
+    },
+    {
+      "item": 177,
+      "type": 0,
+      "de": "keine Reglerfrg. R9",
+      "en": "Heat/Cool enable C9"
+    },
+    {
+      "item": 177,
+      "type": 3,
+      "de": "keine Reglerfreigabe",
+      "en": "No heating/cooling enable"
+    },
+    {
+      "item": 177,
+      "type": 4,
+      "de": "Temperatur Farbküche  3 !",
+      "en": "Temperatur Dye kitchen 3 !"
+    },
+    {
+      "item": 178,
+      "type": 0,
+      "de": "",
+      "en": "Heat/Cool slow  C10"
+    },
+    {
+      "item": 178,
+      "type": 3,
+      "de": "Gradientenalarm !",
+      "en": "Heating/Cooling to slow !"
+    },
+    {
+      "item": 178,
+      "type": 4,
+      "de": "Temperatur Farbküche 4 !",
+      "en": "Temperature Dye kitchen 4 !"
+    },
+    {
+      "item": 179,
+      "type": 0,
+      "de": "Temp.abweichung R10",
+      "en": "Temp. overshoot C10"
+    },
+    {
+      "item": 179,
+      "type": 3,
+      "de": "Temperaturabweichung",
+      "en": "Temperature overshoot !"
+    },
+    {
+      "item": 179,
+      "type": 4,
+      "de": "Farbküchenbehälter 4 zu groß !",
+      "en": "Dye kitchen tank 4 !"
+    },
+    {
+      "item": 180,
+      "type": 0,
+      "de": "keine Reglerfrg. R10",
+      "en": "Heat/Cool enable C10"
+    },
+    {
+      "item": 180,
+      "type": 3,
+      "de": "keine Reglerfreigabe",
+      "en": "No heating/cooling enable"
+    },
+    {
+      "item": 180,
+      "type": 4,
+      "de": "Temperatur Farbküche  4 !",
+      "en": "Temperatur Dye kitchen 4 !"
+    },
+    {
+      "item": 181,
+      "type": 0,
+      "de": "Gradientenalarm R11",
+      "en": "Heat/Cool slow  C11"
+    },
+    {
+      "item": 181,
+      "type": 3,
+      "de": "Gradientenalarm !",
+      "en": "Change of the value to slow !"
+    },
+    {
+      "item": 181,
+      "type": 4,
+      "de": "pH - Wert-Regler Säure !",
+      "en": "pH Controller acid !"
+    },
+    {
+      "item": 182,
+      "type": 0,
+      "de": "Wert.abweichung R11",
+      "en": "Value overshoot C11"
+    },
+    {
+      "item": 182,
+      "type": 3,
+      "de": "Wertabweichung !",
+      "en": "pH-Value overshoot !"
+    },
+    {
+      "item": 182,
+      "type": 4,
+      "de": "pH-Wert-Regler Säure zu groß !",
+      "en": "pH - Controller acid !"
+    },
+    {
+      "item": 183,
+      "type": 0,
+      "de": "keine Reglerfrg. R11",
+      "en": "Controll enable C11"
+    },
+    {
+      "item": 183,
+      "type": 3,
+      "de": "keine Reglerfreigabe",
+      "en": "No controlling enable"
+    },
+    {
+      "item": 183,
+      "type": 4,
+      "de": "pH-Wert-Regler Säure !",
+      "en": "pH - Controller acid !"
+    },
+    {
+      "item": 184,
+      "type": 0,
+      "de": "Gradientenõ\u0001╔üú\u0001\u0001[\u0001-",
+      "en": "Heat/Cool slow  C12"
+    },
+    {
+      "item": 184,
+      "type": 3,
+      "de": "Gradientenalarm !",
+      "en": "Change of the value to slow !"
+    },
+    {
+      "item": 184,
+      "type": 4,
+      "de": "pH - Wert-Regler Lauge !",
+      "en": "pH Controller lye !"
+    },
+    {
+      "item": 185,
+      "type": 0,
+      "de": "Wert.abweichung R12",
+      "en": "Value overshoot C12"
+    },
+    {
+      "item": 185,
+      "type": 3,
+      "de": "Wertabweichung !",
+      "en": "pH-Value overshoot !"
+    },
+    {
+      "item": 185,
+      "type": 4,
+      "de": "pH-Wert-Regler Lauge zu groß !",
+      "en": "pH - Controller lye !"
+    },
+    {
+      "item": 186,
+      "type": 0,
+      "de": "keine Reglerfrg. R12",
+      "en": "Controll enabõ\u0001ãüí\u0001}\u0001"
+    },
+    {
+      "item": 186,
+      "type": 3,
+      "de": "keine Reglerfreigabe",
+      "en": "No controlling enable"
+    },
+    {
+      "item": 186,
+      "type": 4,
+      "de": "pH-Wert-Regler Lauge !",
+      "en": "pH - Controller lye !"
+    },
+    {
+      "item": 187,
+      "type": 0,
+      "de": "Gradientenalarm R13",
+      "en": "Heat/Cool slow  C13"
+    },
+    {
+      "item": 187,
+      "type": 3,
+      "de": "Gradientenalarm !",
+      "en": "Change of the value to slow !"
+    },
+    {
+      "item": 187,
+      "type": 4,
+      "de": "Regler Nr.13 !",
+      "en": "Controller No. 13 !"
+    },
+    {
+      "item": 188,
+      "type": 0,
+      "de": "Wert.abweichung R13",
+      "en": "Value overshoot C13"
+    },
+    {
+      "item": 188,
+      "type": 3,
+      "de": "WertabweichÔ\u0001ãüú\u0001à\u0001",
+      "en": "Value overshoot !"
+    },
+    {
+      "item": 188,
+      "type": 4,
+      "de": "Regler Nr. 13 zu groß !",
+      "en": "Controller No. 13 !"
+    },
+    {
+      "item": 189,
+      "type": 0,
+      "de": "keine Reglerfrg. R13",
+      "en": "Controll enable C13"
+    },
+    {
+      "item": 189,
+      "type": 3,
+      "de": "keine Reglerfreigabe",
+      "en": "No controlling enable"
+    },
+    {
+      "item": 189,
+      "type": 4,
+      "de": "Regler Nr. 13 !",
+      "en": "Controller No. 13 !"
+    },
+    {
+      "item": 190,
+      "type": 0,
+      "de": "Gradientenalarm R14",
+      "en": "Heat/Cool slow  C14"
+    },
+    {
+      "item": 190,
+      "type": 3,
+      "de": "Gradientenalarm !",
+      "en": "Change of Ô\u0001Ãüñ\u0001ü\u0001\\\u00019\u0001\u0016\u0001"
+    },
+    {
+      "item": 190,
+      "type": 4,
+      "de": "Regler Nr.14 !",
+      "en": "Controller No. 14 !"
+    },
+    {
+      "item": 191,
+      "type": 0,
+      "de": "Wert.abweichung R14",
+      "en": "Value overshoot C14"
+    },
+    {
+      "item": 191,
+      "type": 3,
+      "de": "Wertabweichung !",
+      "en": "Value overshoot !"
+    },
+    {
+      "item": 191,
+      "type": 4,
+      "de": "Regler Nr. 14 zu groß !",
+      "en": "Controller No. 14 !"
+    },
+    {
+      "item": 192,
+      "type": 0,
+      "de": "keine Reglerfrg. R14",
+      "en": "Controll enable C14"
+    },
+    {
+      "item": 192,
+      "type": 3,
+      "de": "keine Reglerfreigabe",
+      "en": "No controlling enable"
+    },
+    {
+      "item": 192,
+      "type": 4,
+      "de": "Regler Nr. 14 !",
+      "en": "Controller No. 14 !"
+    },
+    {
+      "item": 193,
+      "type": 0,
+      "de": "Gradientenalarm R15",
+      "en": "Heat/Cool slow  C15"
+    },
+    {
+      "item": 193,
+      "type": 3,
+      "de": "Gradientenalarm !",
+      "en": "Change of the value to slow !"
+    },
+    {
+      "item": 193,
+      "type": 4,
+      "de": "Regler Nr.15 !",
+      "en": "Controller No. 15 !"
+    },
+    {
+      "item": 194,
+      "type": 0,
+      "de": "Wert.abweichung R15",
+      "en": "Value overshoot C15"
+    },
+    {
+      "item": 194,
+      "type": 3,
+      "de": "Wertabweichung !",
+      "en": "Value overshoot !"
+    },
+    {
+      "item": 194,
+      "type": 4,
+      "de": "Regler Nr. 15 zu groß !",
+      "en": "Controller No. 15 !"
+    },
+    {
+      "item": 195,
+      "type": 0,
+      "de": "keine Reglerfrg. R15",
+      "en": "Controll enable C15"
+    },
+    {
+      "item": 195,
+      "type": 3,
+      "de": "keine Reglerfreigabe",
+      "en": "No controlling enable"
+    },
+    {
+      "item": 195,
+      "type": 4,
+      "de": "Regler Nr. 15 !",
+      "en": "Controller No. 15 !"
+    },
+    {
+      "item": 196,
+      "type": 0,
+      "de": "Gradientenalarm R16",
+      "en": "Heat/Cool slow  C16"
+    },
+    {
+      "item": 196,
+      "type": 3,
+      "de": "Gradientenalarm !",
+      "en": "Change of the value to slow !"
+    },
+    {
+      "item": 196,
+      "type": 4,
+      "de": "Regler Nr.16 !",
+      "en": "Controller No. 16 !"
+    },
+    {
+      "item": 197,
+      "type": 0,
+      "de": "Wert.abweichung R16",
+      "en": "Value overshoot C16"
+    },
+    {
+      "item": 197,
+      "type": 3,
+      "de": "WertabweichuÔ\u0001┼üó\u0001ä",
+      "en": "Value overshoot !"
+    },
+    {
+      "item": 197,
+      "type": 4,
+      "de": "Regler Nr. 16 zu groß !",
+      "en": "Controller No. 16 !"
+    },
+    {
+      "item": 198,
+      "type": 0,
+      "de": "keine Reglerfrg. R16",
+      "en": "Controll enable C16"
+    },
+    {
+      "item": 198,
+      "type": 3,
+      "de": "keine Reglerfreigabe",
+      "en": "No controlling enable"
+    },
+    {
+      "item": 198,
+      "type": 4,
+      "de": "Regler Nr. 16 !",
+      "en": "Controller No. 16 !"
+    },
+    {
+      "item": 199,
+      "type": 0,
+      "de": "Gradientenalarm R17",
+      "en": "Heat/Cool slow  C17"
+    },
+    {
+      "item": 199,
+      "type": 3,
+      "de": "Gradientenalarm !",
+      "en": "Change of the value to slow !"
+    },
+    {
+      "item": 199,
+      "type": 4,
+      "de": "Differenzdruckregler Turbine !",
+      "en": "Diff.pressure controller !"
+    },
+    {
+      "item": 200,
+      "type": 0,
+      "de": "Wert.abweichung R17",
+      "en": "Value overshoot C17"
+    },
+    {
+      "item": 200,
+      "type": 3,
+      "de": "Wertabweichung zu groß !",
+      "en": "Value overshoot !"
+    },
+    {
+      "item": 200,
+      "type": 4,
+      "de": "Differenzdruckregler Turbine !",
+      "en": "Diff.pressure controller !"
+    },
+    {
+      "item": 201,
+      "type": 0,
+      "de": "keine Reglerfrg. R17",
+      "en": "Controll enable C17"
+    },
+    {
+      "item": 201,
+      "type": 3,
+      "de": "keine Reglerfreigabe",
+      "en": "No controlling enable"
+    },
+    {
+      "item": 201,
+      "type": 4,
+      "de": "Differenzdruckregler Turbine !",
+      "en": "Diff.pressure controller !"
+    },
+    {
+      "item": 202,
+      "type": 0,
+      "de": "Gradientenalarm R18",
+      "en": "Heat/Cool slow  C18"
+    },
+    {
+      "item": 202,
+      "type": 3,
+      "de": "Gradientenalarm !",
+      "en": "Change of the value to slow !"
+    },
+    {
+      "item": 202,
+      "type": 4,
+      "de": "Durflussregler Turbine !",
+      "en": "flow rate controller !"
+    },
+    {
+      "item": 203,
+      "type": 0,
+      "de": "",
+      "en": "Value overshoot C18"
+    },
+    {
+      "item": 203,
+      "type": 3,
+      "de": "Wertabweichung zu groß !",
+      "en": "Value overshoot !"
+    },
+    {
+      "item": 203,
+      "type": 4,
+      "de": "Durchflussregler Turbine !",
+      "en": "flow rate controller !"
+    },
+    {
+      "item": 204,
+      "type": 0,
+      "de": "keine Reglerfrg. R18",
+      "en": "Controll enable C18"
+    },
+    {
+      "item": 204,
+      "type": 3,
+      "de": "keine Reglerfreigabe",
+      "en": "No controlling enable"
+    },
+    {
+      "item": 204,
+      "type": 4,
+      "de": "Durchflussregler Turbine !",
+      "en": "flow rate controller !"
+    },
+    {
+      "item": 205,
+      "type": 0,
+      "de": "Gradientenalarm R19",
+      "en": "Heat/Cool slow  C19"
+    },
+    {
+      "item": 205,
+      "type": 3,
+      "de": "Gradientenalarm !",
+      "en": "Change of the value to slow !"
+    },
+    {
+      "item": 205,
+      "type": 4,
+      "de": "Düsendruckregler !",
+      "en": "nozzle pressure controller !"
+    },
+    {
+      "item": 206,
+      "type": 0,
+      "de": "Wert.abweichung R19",
+      "en": "Value overshoot C19"
+    },
+    {
+      "item": 206,
+      "type": 3,
+      "de": "Wertabweichung zu groß !",
+      "en": "Value overshoot !"
+    },
+    {
+      "item": 206,
+      "type": 4,
+      "de": "Düsendruckregler !",
+      "en": "nozzle pressure controller !"
+    },
+    {
+      "item": 207,
+      "type": 0,
+      "de": "keine Reglerfrg. R19",
+      "en": "Controll enable C19"
+    },
+    {
+      "item": 207,
+      "type": 3,
+      "de": "keine Reglerfreigabe",
+      "en": "No controlling enable"
+    },
+    {
+      "item": 207,
+      "type": 4,
+      "de": "Düsendruckregler !",
+      "en": "nozzle pressure controller !"
+    },
+    {
+      "item": 208,
+      "type": 0,
+      "de": "Gradientenalarm R20",
+      "en": "Heat/Cool slow  C20"
+    },
+    {
+      "item": 208,
+      "type": 3,
+      "de": "Gradientenalarm !",
+      "en": "Change of the value to slow !"
+    },
+    {
+      "item": 208,
+      "type": 4,
+      "de": "DSR-Regler Nr. 20 !",
+      "en": "DSR-Controller No. 20 !"
+    },
+    {
+      "item": 209,
+      "type": 0,
+      "de": "Wert.abweichung R20",
+      "en": "Value overshoot C20"
+    },
+    {
+      "item": 209,
+      "type": 3,
+      "de": "Wertabweichung zu groß !",
+      "en": "Value overshoot !"
+    },
+    {
+      "item": 209,
+      "type": 4,
+      "de": "DSR - Regler Nr. 20 !",
+      "en": "DSR  - Controller No. 20 !"
+    },
+    {
+      "item": 210,
+      "type": 0,
+      "de": "keine Reglerfrg. R20",
+      "en": "Controll enable C20"
+    },
+    {
+      "item": 210,
+      "type": 3,
+      "de": "keine Reglerfreigabe",
+      "en": "No controlling enable"
+    },
+    {
+      "item": 210,
+      "type": 4,
+      "de": "DSR - Regler Nr. 20 !",
+      "en": "DSR - Controller No. 20 !"
+    },
+    {
+      "item": 211,
+      "type": 0,
+      "de": "Dos.vorgabe AG1 R21",
+      "en": "Dos.value AT1 C21"
+    },
+    {
+      "item": 211,
+      "type": 3,
+      "de": "Dosiervorgaben außerhalb des",
+      "en": "Dosing values out of range,"
+    },
+    {
+      "item": 211,
+      "type": 4,
+      "de": "zulässigen Bereiches, AG 1",
+      "en": "Add tank 1 !"
+    },
+    {
+      "item": 212,
+      "type": 0,
+      "de": "Dos.fehler AG 1 R21",
+      "en": "Dos.faulty AT1 C21"
+    },
+    {
+      "item": 212,
+      "type": 3,
+      "de": "Meßwerterfassung Dosierung",
+      "en": "Dosing Add tank 1 is not"
+    },
+    {
+      "item": 212,
+      "type": 4,
+      "de": "AG 1 fehlerhaft !",
+      "en": "working !"
+    },
+    {
+      "item": 213,
+      "type": 0,
+      "de": "Dos.Diff AG 1 R21",
+      "en": "Dos.Diff AT 1 C21"
+    },
+    {
+      "item": 213,
+      "type": 3,
+      "de": "Differenz Soll/Ist bei",
+      "en": "Difference act/set at dosing"
+    },
+    {
+      "item": 213,
+      "type": 4,
+      "de": "Dosierung AG 1 zu groß !",
+      "en": "Add tank 1 to high !"
+    },
+    {
+      "item": 214,
+      "type": 0,
+      "de": "Dos.vorgabe AG2 R22",
+      "en": "Dos.value AT2 C22"
+    },
+    {
+      "item": 214,
+      "type": 3,
+      "de": "Dosiervorgaben außerhalb des",
+      "en": "Dosing values out of range,"
+    },
+    {
+      "item": 214,
+      "type": 4,
+      "de": "zulässigen Bereiches, AG 2",
+      "en": "Add tank 2 !"
+    },
+    {
+      "item": 215,
+      "type": 0,
+      "de": "Dos.fehler AG 2 R22",
+      "en": "Dos.faulty AT2 C22"
+    },
+    {
+      "item": 215,
+      "type": 3,
+      "de": "Meßwerterfassung Dosierung",
+      "en": "Dosing Add tank 2 is not"
+    },
+    {
+      "item": 215,
+      "type": 4,
+      "de": "AG 2 fehlerhaft !",
+      "en": "working !"
+    },
+    {
+      "item": 216,
+      "type": 0,
+      "de": "Dos.Diff AG 2 R22",
+      "en": "Dos.Diff AT 2 C22"
+    },
+    {
+      "item": 216,
+      "type": 3,
+      "de": "Differenz Soll/Ist bei",
+      "en": "Difference act/set at dosing"
+    },
+    {
+      "item": 216,
+      "type": 4,
+      "de": "Dosierung AG 2 zu groß !",
+      "en": "Add tank 2 to high !"
+    },
+    {
+      "item": 217,
+      "type": 0,
+      "de": "Dos.vorgabe  R23",
+      "en": "Dos.value  C23"
+    },
+    {
+      "item": 217,
+      "type": 3,
+      "de": "Dosiervorgaben außerhalb des",
+      "en": "Dosing values out of range,"
+    },
+    {
+      "item": 217,
+      "type": 4,
+      "de": "zulässigen Bereiches, Nr. R23",
+      "en": "Controller No. C23"
+    },
+    {
+      "item": 218,
+      "type": 0,
+      "de": "Dos.fehler R23",
+      "en": "Dos.faulty  C23"
+    },
+    {
+      "item": 218,
+      "type": 3,
+      "de": "Meßwerterfassung Dosierung",
+      "en": "Dosing Controller No. 23"
+    },
+    {
+      "item": 218,
+      "type": 4,
+      "de": "Regler Nr. 23 fehlerhaft !",
+      "en": "is not working !"
+    },
+    {
+      "item": 219,
+      "type": 0,
+      "de": "Dos.Diff  R23",
+      "en": "Dos.Diff  C23"
+    },
+    {
+      "item": 219,
+      "type": 3,
+      "de": "Differenz Soll/Ist bei",
+      "en": "Difference act/set at dosing"
+    },
+    {
+      "item": 219,
+      "type": 4,
+      "de": "Dosierregler Nr. 23 zu groß !",
+      "en": "controler no. 23 to high !"
+    },
+    {
+      "item": 220,
+      "type": 0,
+      "de": "Dos.vorgabe  R24",
+      "en": "Dos.value  C24"
+    },
+    {
+      "item": 220,
+      "type": 3,
+      "de": "Dosiervorgaben außerhalb des",
+      "en": "Dosing values out of range,"
+    },
+    {
+      "item": 220,
+      "type": 4,
+      "de": "zulässigen Bereiches, Nr. R24",
+      "en": "Controller No. C24"
+    },
+    {
+      "item": 221,
+      "type": 0,
+      "de": "Dos.fehler R24",
+      "en": "Dos.faulty  C24"
+    },
+    {
+      "item": 221,
+      "type": 3,
+      "de": "Meßwerterfassung Dosierung",
+      "en": "Dosing Controller No. 24"
+    },
+    {
+      "item": 221,
+      "type": 4,
+      "de": "Regler Nr. 24 fehlerhaft !",
+      "en": "is not working !"
+    },
+    {
+      "item": 222,
+      "type": 0,
+      "de": "Dos.Diff  R24",
+      "en": "Dos.Diff  C24"
+    },
+    {
+      "item": 222,
+      "type": 3,
+      "de": "Differenz Soll/Ist bei",
+      "en": "Difference act/set at dosing"
+    },
+    {
+      "item": 222,
+      "type": 4,
+      "de": "Dosierregler Nr. 24 zu groß !",
+      "en": "controler no. 24 to high !"
+    },
+    {
+      "item": 241,
+      "type": 0,
+      "de": "PT100 Nr.  1 defekt",
+      "en": "PT100 No.1 faulty !"
+    },
+    {
+      "item": 241,
+      "type": 3,
+      "de": "Temperatur-Meßwerterfassung",
+      "en": "Temperature probe faulty !"
+    },
+    {
+      "item": 241,
+      "type": 4,
+      "de": "defekt, PT100-Kanal 1",
+      "en": "PT-100õ\u0001═üú\u0001Ç\u0001V\u0001*\u0001"
+    },
+    {
+      "item": 242,
+      "type": 0,
+      "de": "PT100 Nr.  2 defekt",
+      "en": "PT100 No.2 faulty !"
+    },
+    {
+      "item": 242,
+      "type": 3,
+      "de": "Temperatur-Meßwerterfassung",
+      "en": "Temperature probe faulty !"
+    },
+    {
+      "item": 242,
+      "type": 4,
+      "de": "defekt, PT100-Kanal 2",
+      "en": "PT-100 channel 2"
+    },
+    {
+      "item": 243,
+      "type": 0,
+      "de": "PT100 Nr.  3 defekt",
+      "en": "PT100 No.3 faulty !"
+    },
+    {
+      "item": 243,
+      "type": 3,
+      "de": "Temperatur-Meßwerterfassung",
+      "en": "Temperature probe faulty !"
+    },
+    {
+      "item": 243,
+      "type": 4,
+      "de": "defekt, PT100-Kanal 3 !\u0005µ",
+      "en": "PT-100 channel 3 !"
+    },
+    {
+      "item": 244,
+      "type": 0,
+      "de": "PT100 Nr.  4 defekt",
+      "en": "PT100 No.4 faulty !"
+    },
+    {
+      "item": 244,
+      "type": 3,
+      "de": "Temperatur-Meßwerterfassung",
+      "en": "Temperature probe faulty !"
+    },
+    {
+      "item": 244,
+      "type": 4,
+      "de": "defekt, PT100-Kanal 4 !",
+      "en": "PT-100 channel 4 !"
+    },
+    {
+      "item": 245,
+      "type": 0,
+      "de": "PT100 Nr.  5 defekt",
+      "en": "PT100 No.5 faulty !"
+    },
+    {
+      "item": 245,
+      "type": 3,
+      "de": "Temperatur-Meßwerterfassung",
+      "en": "Temperature probe faulty !"
+    },
+    {
+      "item": 245,
+      "type": 4,
+      "de": "defekt, PT100-Kanal 5 !",
+      "en": "PT-100 channelõ\u0001┼üø\u0001"
+    },
+    {
+      "item": 246,
+      "type": 0,
+      "de": "",
+      "en": "PT100 No.6 faulty !"
+    },
+    {
+      "item": 246,
+      "type": 3,
+      "de": "Temperatur-Meßwerterfassung",
+      "en": "Temperature probe faulty !"
+    },
+    {
+      "item": 246,
+      "type": 4,
+      "de": "defekt, PT100-Kanal 6 !",
+      "en": "PT-100 channel 6 !"
+    },
+    {
+      "item": 247,
+      "type": 0,
+      "de": "PT100 Nr.  7 defekt",
+      "en": "PT100 No.7 faulty !"
+    },
+    {
+      "item": 247,
+      "type": 3,
+      "de": "Temperatur-Meßwerterfassung",
+      "en": "Temperature probe faulty !"
+    },
+    {
+      "item": 247,
+      "type": 4,
+      "de": "defekt, PT100-Kanal 7 !",
+      "en": "PT-100 channel 7 !"
+    },
+    {
+      "item": 248,
+      "type": 0,
+      "de": "PT100 Nr.  8 defekt",
+      "en": "PT100 No.8 faulty !"
+    },
+    {
+      "item": 248,
+      "type": 3,
+      "de": "Temperatur-Meßwerterfassung",
+      "en": "Temperature probe faulty !"
+    },
+    {
+      "item": 248,
+      "type": 4,
+      "de": "defekt, PT100-Kanal 8 !",
+      "en": "PT-100 channel 8 !"
+    },
+    {
+      "item": 249,
+      "type": 0,
+      "de": "PT100 Nr.  9 defekt",
+      "en": "PT100 No.9 faulty !"
+    },
+    {
+      "item": 249,
+      "type": 3,
+      "de": "Temperatur-Meßwerterfassung",
+      "en": "Temperature probe faulty !"
+    },
+    {
+      "item": 249,
+      "type": 4,
+      "de": "defekt, PT100-Kanal 9 !",
+      "en": "PT-100 channel 9 !õ\u0001"
+    },
+    {
+      "item": 250,
+      "type": 0,
+      "de": "PT100 Nr. 10 defekt",
+      "en": "PT100 No.10 faulty !"
+    },
+    {
+      "item": 250,
+      "type": 3,
+      "de": "Temperatur-Meßwerterfassung",
+      "en": "Temperature probe faulty !"
+    },
+    {
+      "item": 250,
+      "type": 4,
+      "de": "defekt, PT100-Kanal 10 !",
+      "en": "PT-100 channel 10 !"
+    },
+    {
+      "item": 251,
+      "type": 0,
+      "de": "PT100 Nr. 11 defekt",
+      "en": "PT100 No.11 faulty !"
+    },
+    {
+      "item": 251,
+      "type": 3,
+      "de": "Temperatµ\u0001═ü¬\u0001}\u0001Q\u0001.\u0001\u0002\u0001",
+      "en": "Temperature probe faulty !"
+    },
+    {
+      "item": 251,
+      "type": 4,
+      "de": "defekt, PT100-Kanal 11 !",
+      "en": "PT-100 channel 11 !"
+    },
+    {
+      "item": 252,
+      "type": 0,
+      "de": "PT100 Nr. 12 defekt",
+      "en": "PT100 No.12 faulty !"
+    },
+    {
+      "item": 252,
+      "type": 3,
+      "de": "Temperatur-Meßwerterfassung",
+      "en": "Temperature probe faulty !"
+    },
+    {
+      "item": 252,
+      "type": 4,
+      "de": "defekt, PT100-Kanal 12 !",
+      "en": "PT-100 channel 12 !"
+    },
+    {
+      "item": 253,
+      "type": 0,
+      "de": "PT100 Nr. 13 defekt",
+      "en": "PT100 No.13 faulty !"
+    },
+    {
+      "item": 253,
+      "type": 3,
+      "de": "Temperatur-Meßwerterfassung",
+      "en": "Temperature probe faulty !"
+    },
+    {
+      "item": 253,
+      "type": 4,
+      "de": "defekt, PT100-Kanal 13 !",
+      "en": "PT-100 channel õ\u0001─üÜ\u0001"
+    },
+    {
+      "item": 254,
+      "type": 0,
+      "de": "PT100 Nr. 14 defekt",
+      "en": "PT100 No.14 faulty !"
+    },
+    {
+      "item": 254,
+      "type": 3,
+      "de": "Temperatur-Meßwerterfassung",
+      "en": "Temperature probe faulty !"
+    },
+    {
+      "item": 254,
+      "type": 4,
+      "de": "defekt, PT100-Kanal 14 !",
+      "en": "PT-100 channel 14 !"
+    },
+    {
+      "item": 255,
+      "type": 0,
+      "de": "PT100 Nr. 15 defeµ\u0001─ü",
+      "en": "PT100 No.15 faulty !"
+    },
+    {
+      "item": 255,
+      "type": 3,
+      "de": "Temperatur-Meßwerterfassung",
+      "en": "Temperature probe faulty !"
+    },
+    {
+      "item": 255,
+      "type": 4,
+      "de": "defekt, PT100-Kanal 15 !",
+      "en": "PT-100 channel 15 !"
+    },
+    {
+      "item": 256,
+      "type": 0,
+      "de": "PT100 Nr. 16 defekt",
+      "en": "PT100 No.16 faulty !"
+    },
+    {
+      "item": 256,
+      "type": 3,
+      "de": "Temperatur-Meßwerterfassung",
+      "en": "Temperature probe faulty !"
+    },
+    {
+      "item": 256,
+      "type": 4,
+      "de": "defekt, PT100-Kanal 16 !",
+      "en": "PT-100 channel 16 !"
+    },
+    {
+      "item": 257,
+      "type": 0,
+      "de": "PT100 Nr. 17 defekt",
+      "en": "PT100 No.17 faulty !"
+    },
+    {
+      "item": 257,
+      "type": 3,
+      "de": "Temperatur-Meßwerterfassung",
+      "en": "Temperature probe faulty !"
+    },
+    {
+      "item": 257,
+      "type": 4,
+      "de": "defekt, PT100-Kanal 17 !",
+      "en": "PT-100 chanõ\u0001╚ü×\u0001z\u0001R\u0001"
+    },
+    {
+      "item": 258,
+      "type": 0,
+      "de": "PT100 Nr. 18 defekt",
+      "en": "PT100 No.18 faulty !"
+    },
+    {
+      "item": 258,
+      "type": 3,
+      "de": "Temperatur-Meßwerterfassung",
+      "en": "Temperature probe faulty !"
+    },
+    {
+      "item": 258,
+      "type": 4,
+      "de": "defekt, PT100-Kanal 18 !",
+      "en": "PT-100 channel 18 !"
+    },
+    {
+      "item": 259,
+      "type": 0,
+      "de": "PT100 Nr. 19 defekt",
+      "en": "PT100 No.19 faulty !"
+    },
+    {
+      "item": 259,
+      "type": 3,
+      "de": "Temperatur-Meßwerterfassung",
+      "en": "Temperature probe faulty !"
+    },
+    {
+      "item": 259,
+      "type": 4,
+      "de": "defekt, PT100-Kanal 19 !",
+      "en": "PT-100 channel 19 !"
+    },
+    {
+      "item": 260,
+      "type": 0,
+      "de": "PT100 Nr. 20 defekt",
+      "en": "PT100 No.20 faulty !"
+    },
+    {
+      "item": 260,
+      "type": 3,
+      "de": "Temperatur-Meßwerterfassung",
+      "en": "Temperature probe faulty !"
+    },
+    {
+      "item": 260,
+      "type": 4,
+      "de": "defekt, PT100-Kanal 20 !",
+      "en": "PT-100 channel 20 !"
+    },
+    {
+      "item": 261,
+      "type": 0,
+      "de": "Stromeingang 1",
+      "en": "current input 1"
+    },
+    {
+      "item": 261,
+      "type": 3,
+      "de": "Störung an Stromeingang 1 !",
+      "en": "current input 1 faulty !"
+    },
+    {
+      "item": 261,
+      "type": 4,
+      "de": "",
+      "en": ""
+    },
+    {
+      "item": 262,
+      "type": 0,
+      "de": "Stromeingang 2",
+      "en": "current input 2"
+    },
+    {
+      "item": 262,
+      "type": 3,
+      "de": "Störung an Stromeingang 2 !",
+      "en": "current input 2 faulty !"
+    },
+    {
+      "item": 262,
+      "type": 4,
+      "de": "",
+      "en": ""
+    },
+    {
+      "item": 263,
+      "type": 0,
+      "de": "Stromeingang 3",
+      "en": "current input 3"
+    },
+    {
+      "item": 263,
+      "type": 3,
+      "de": "Störung an Stromeingang 3 !",
+      "en": "current input 3 faulty !"
+    },
+    {
+      "item": 263,
+      "type": 4,
+      "de": "",
+      "en": ""
+    },
+    {
+      "item": 264,
+      "type": 0,
+      "de": "Stromeingang 4",
+      "en": "current input 4"
+    },
+    {
+      "item": 264,
+      "type": 3,
+      "de": "Störung an Stromeingang 4 !",
+      "en": "current input 4 faulty !"
+    },
+    {
+      "item": 264,
+      "type": 4,
+      "de": "",
+      "en": ""
+    },
+    {
+      "item": 265,
+      "type": 0,
+      "de": "Stromeingang 5",
+      "en": "current input 5"
+    },
+    {
+      "item": 265,
+      "type": 3,
+      "de": "Störung an Stromeingang 5 !",
+      "en": "current input 5 faulty !"
+    },
+    {
+      "item": 265,
+      "type": 4,
+      "de": "",
+      "en": ""
+    },
+    {
+      "item": 266,
+      "type": 0,
+      "de": "Stromeingang 6",
+      "en": "current input 6"
+    },
+    {
+      "item": 266,
+      "type": 3,
+      "de": "Störung an Stromeingang 6 !",
+      "en": "current input 6 faulty !"
+    },
+    {
+      "item": 266,
+      "type": 4,
+      "de": "",
+      "en": ""
+    },
+    {
+      "item": 267,
+      "type": 0,
+      "de": "Stromeingang 7",
+      "en": "current input 7"
+    },
+    {
+      "item": 267,
+      "type": 3,
+      "de": "Störung an Stromeingang 7 !",
+      "en": "current input 7 faulty !"
+    },
+    {
+      "item": 267,
+      "type": 4,
+      "de": "",
+      "en": ""
+    },
+    {
+      "item": 268,
+      "type": 0,
+      "de": "Stromeingang 8",
+      "en": "current input 8"
+    },
+    {
+      "item": 268,
+      "type": 3,
+      "de": "Störung an Stromeingang 8 !",
+      "en": "current input 8 faulty !"
+    },
+    {
+      "item": 268,
+      "type": 4,
+      "de": "",
+      "en": ""
+    },
+    {
+      "item": 269,
+      "type": 0,
+      "de": "Stromeingang 9",
+      "en": "current input 9"
+    },
+    {
+      "item": 269,
+      "type": 3,
+      "de": "Störung an Stromeingang 9 !",
+      "en": "current input 9 faulty !"
+    },
+    {
+      "item": 269,
+      "type": 4,
+      "de": "",
+      "en": ""
+    },
+    {
+      "item": 270,
+      "type": 0,
+      "de": "Stromeingang 10",
+      "en": "current input 10"
+    },
+    {
+      "item": 270,
+      "type": 3,
+      "de": "Störung an Stromeingang 10 !",
+      "en": "current input 10 faulty !"
+    },
+    {
+      "item": 270,
+      "type": 4,
+      "de": "",
+      "en": ""
+    },
+    {
+      "item": 271,
+      "type": 0,
+      "de": "Stromeingang 11",
+      "en": "current input 11"
+    },
+    {
+      "item": 271,
+      "type": 3,
+      "de": "Störung an Stromeingang 11 !",
+      "en": "current input 11 faulty !"
+    },
+    {
+      "item": 271,
+      "type": 4,
+      "de": "",
+      "en": ""
+    },
+    {
+      "item": 272,
+      "type": 0,
+      "de": "Stromeingang 12",
+      "en": "current input 12"
+    },
+    {
+      "item": 272,
+      "type": 3,
+      "de": "Störung an Stromeingang 12 !",
+      "en": "current iÌ\u0001─üñ\u0001ö\u0001k\u0001K\u0001;\u0001\u0012\u0001"
+    },
+    {
+      "item": 272,
+      "type": 4,
+      "de": "",
+      "en": ""
+    },
+    {
+      "item": 273,
+      "type": 0,
+      "de": "Stromeingang 13",
+      "en": "current input 13"
+    },
+    {
+      "item": 273,
+      "type": 3,
+      "de": "Störung an Stromeingang 13 !",
+      "en": "current input 13 faulty !"
+    },
+    {
+      "item": 273,
+      "type": 4,
+      "de": "",
+      "en": ""
+    },
+    {
+      "item": 274,
+      "type": 0,
+      "de": "Stromeingang 14",
+      "en": "current input 14"
+    },
+    {
+      "item": 274,
+      "type": 3,
+      "de": "Störung an Stromeingang 14 !",
+      "en": "current input 14 faulty !"
+    },
+    {
+      "item": 274,
+      "type": 4,
+      "de": "",
+      "en": ""
+    },
+    {
+      "item": 275,
+      "type": 0,
+      "de": "Stromeingang 15",
+      "en": "current input 15"
+    },
+    {
+      "item": 275,
+      "type": 3,
+      "de": "Störung an Stromeingang 15 !",
+      "en": "current input 15 faulty !"
+    },
+    {
+      "item": 275,
+      "type": 4,
+      "de": "",
+      "en": ""
+    },
+    {
+      "item": 276,
+      "type": 0,
+      "de": "Stromeingang 16",
+      "en": "current input 16"
+    },
+    {
+      "item": 276,
+      "type": 3,
+      "de": "Störung an Stromeingang 16 !",
+      "en": "current input 16 faulty !"
+    },
+    {
+      "item": 276,
+      "type": 4,
+      "de": "",
+      "en": ""
+    },
+    {
+      "item": 277,
+      "type": 0,
+      "de": "Stromeingang 17",
+      "en": "current input 17"
+    },
+    {
+      "item": 277,
+      "type": 3,
+      "de": "Störung an Stromeingang 17 !",
+      "en": "current input 17 faulty !"
+    },
+    {
+      "item": 277,
+      "type": 4,
+      "de": "",
+      "en": ""
+    },
+    {
+      "item": 278,
+      "type": 0,
+      "de": "Stromeingang 18",
+      "en": "current input 18"
+    },
+    {
+      "item": 278,
+      "type": 3,
+      "de": "Störung an Stromeingang 18 !",
+      "en": "current input 18 faulty !"
+    },
+    {
+      "item": 278,
+      "type": 4,
+      "de": "",
+      "en": ""
+    },
+    {
+      "item": 279,
+      "type": 0,
+      "de": "Stromeingang 19",
+      "en": "current input 19"
+    },
+    {
+      "item": 279,
+      "type": 3,
+      "de": "Störung an Stromeingang 19 !",
+      "en": "current input 19 faulty !"
+    },
+    {
+      "item": 279,
+      "type": 4,
+      "de": "",
+      "en": ""
+    },
+    {
+      "item": 280,
+      "type": 0,
+      "de": "Stromeingang 20",
+      "en": "current input 20"
+    },
+    {
+      "item": 280,
+      "type": 3,
+      "de": "Störung an Stromeingang 20 !",
+      "en": "current input 20 faulty !"
+    },
+    {
+      "item": 280,
+      "type": 4,
+      "de": "",
+      "en": ""
+    },
+    {
+      "item": 301,
+      "type": 0,
+      "de": "",
+      "en": "PLC-Communication"
+    },
+    {
+      "item": 301,
+      "type": 3,
+      "de": "SPS Kommunikation gestört !",
+      "en": "PLC communication error"
+    },
+    {
+      "item": 301,
+      "type": 4,
+      "de": "Bitte Verbindung prüfen !",
+      "en": "please check connection !"
+    },
+    {
+      "item": 302,
+      "type": 0,
+      "de": "SPS ausgetauscht !",
+      "en": "PLC changed !"
+    },
+    {
+      "item": 302,
+      "type": 3,
+      "de": "Die SPS wurde ausgetauscht !",
+      "en": "PLC has been changed !"
+    },
+    {
+      "item": 302,
+      "type": 4,
+      "de": "",
+      "en": ""
+    },
+    {
+      "item": 303,
+      "type": 0,
+      "de": "Batterie leer !",
+      "en": "battery empty !"
+    },
+    {
+      "item": 303,
+      "type": 3,
+      "de": "Batterie leer !",
+      "en": "battery empty !"
+    },
+    {
+      "item": 303,
+      "type": 4,
+      "de": "",
+      "en": ""
+    },
+    {
+      "item": 304,
+      "type": 0,
+      "de": "Batterie Laufwerk A!",
+      "en": "battery drive a: !"
+    },
+    {
+      "item": 304,
+      "type": 3,
+      "de": "Batterie der Karte in Laufwerk",
+      "en": "battery of card in drive a:"
+    },
+    {
+      "item": 304,
+      "type": 4,
+      "de": "A: leer ! Daten sind ok !",
+      "en": "empty ! data is ok !"
+    },
+    {
+      "item": 305,
+      "type": 0,
+      "de": "Batterie Laufwerk A!",
+      "en": "battery drive a: !"
+    },
+    {
+      "item": 305,
+      "type": 3,
+      "de": "Batterie der Karte in Laufwerk",
+      "en": "battery of card in drive a:"
+    },
+    {
+      "item": 305,
+      "type": 4,
+      "de": "A: leer ! Daten sind zerstört!",
+      "en": "empty ! data is lost !"
+    },
+    {
+      "item": 306,
+      "type": 0,
+      "de": "Batterie Laufwerk B!",
+      "en": "battery drive b: !"
+    },
+    {
+      "item": 306,
+      "type": 3,
+      "de": "Batterie der Karte in Laufwerk",
+      "en": "battery of card in drive b:"
+    },
+    {
+      "item": 306,
+      "type": 4,
+      "de": "B: leer ! Daten sind ok !",
+      "en": "empty ! data is ok !"
+    },
+    {
+      "item": 307,
+      "type": 0,
+      "de": "Batterie Laufwerk B!",
+      "en": "battery drive bÔ\u0001┬ü×"
+    },
+    {
+      "item": 307,
+      "type": 3,
+      "de": "Batterie der Karte in Laufwerk",
+      "en": "battery of card in drive b:"
+    },
+    {
+      "item": 307,
+      "type": 4,
+      "de": "B: leer ! Daten sind zerstört!",
+      "en": "empty ! data is lost !"
+    },
+    {
+      "item": 308,
+      "type": 0,
+      "de": "SPS-Softwareversion",
+      "en": "PLC software version"
+    },
+    {
+      "item": 308,
+      "type": 3,
+      "de": "Falsche SPS-Softwareversion !",
+      "en": "Wrong plc software version !"
+    },
+    {
+      "item": 308,
+      "type": 4,
+      "de": "Bitte neue Version einsetzen !",
+      "en": "please use new version !"
+    },
+    {
+      "item": 309,
+      "type": 0,
+      "de": "SPS-Softwareversion",
+      "en": "PLC software version"
+    },
+    {
+      "item": 309,
+      "type": 3,
+      "de": "Falsche SPS-Softwareversion !",
+      "en": "Wrong plc software version !"
+    },
+    {
+      "item": 309,
+      "type": 4,
+      "de": "Bitte neue Version einsetzen !",
+      "en": "please use new version !"
+    },
+    {
+      "item": 310,
+      "type": 0,
+      "de": "SPS - Bestückung !",
+      "en": "PLC - components !"
+    },
+    {
+      "item": 310,
+      "type": 3,
+      "de": "Falsche SPS - Bestückung !",
+      "en": "Wrong plc components !"
+    },
+    {
+      "item": 310,
+      "type": 4,
+      "de": "Bitte Konfiguration anpassen !",
+      "en": "please correct configuration !"
+    },
+    {
+      "item": 311,
+      "type": 0,
+      "de": "Type - Konfiguration",
+      "en": "Type confõ\u0001╩ü£\u0001v\u0001T\u0001,"
+    },
+    {
+      "item": 311,
+      "type": 3,
+      "de": "Type-Konfiguration fehlerhaft!",
+      "en": "Wrong type configuration !"
+    },
+    {
+      "item": 311,
+      "type": 4,
+      "de": "Bitte Konfiguration anpassen !",
+      "en": "please correct configuration !"
+    },
+    {
+      "item": 312,
+      "type": 0,
+      "de": "Konfiguration",
+      "en": "configuration"
+    },
+    {
+      "item": 312,
+      "type": 3,
+      "de": "Falsche Maschinen-Konfi-",
+      "en": "Wrong machine configuration !"
+    },
+    {
+      "item": 312,
+      "type": 4,
+      "de": "guration ! Bitte anpassen !",
+      "en": "please correct configuration !"
+    },
+    {
+      "item": 313,
+      "type": 0,
+      "de": "Falscher SPS-Type !",
+      "en": "Wrong plc type !"
+    },
+    {
+      "item": 313,
+      "type": 3,
+      "de": "Falscher SPS-Type !",
+      "en": "Wrong plc type !"
+    },
+    {
+      "item": 313,
+      "type": 4,
+      "de": "",
+      "en": ""
+    },
+    {
+      "item": 320,
+      "type": 0,
+      "de": "SPS-Initialisierung",
+      "en": "PLC-Configuration"
+    },
+    {
+      "item": 320,
+      "type": 3,
+      "de": "SPS kann nicht initialisiert",
+      "en": "PLC configuration error !"
+    },
+    {
+      "item": 320,
+      "type": 4,
+      "de": "",
+      "en": ""
+    },
+    {
+      "item": 321,
+      "type": 0,
+      "de": "Programm-Fehler",
+      "en": "Invalid Program"
+    },
+    {
+      "item": 321,
+      "type": 3,
+      "de": "Färbeprogramm ist fehler-",
+      "en": "Invalid dye program !"
+    },
+    {
+      "item": 321,
+      "type": 4,
+      "de": "haft ! Bitte prüfen !",
+      "en": "please check program !"
+    },
+    {
+      "item": 322,
+      "type": 0,
+      "de": "Programm-Fehler",
+      "en": "Invalid Program"
+    },
+    {
+      "item": 322,
+      "type": 3,
+      "de": "Färbeprogramm passt nicht",
+      "en": "dye program does not fit"
+    },
+    {
+      "item": 322,
+      "type": 4,
+      "de": "zur Konfiguration !",
+      "en": "to the configuration !"
+    },
+    {
+      "item": 323,
+      "type": 0,
+      "de": "Programm-Fehler",
+      "en": "Invalid Program"
+    },
+    {
+      "item": 323,
+      "type": 3,
+      "de": "Temporäres Färbeprogramm",
+      "en": "Invalid temporary dye"
+    },
+    {
+      "item": 323,
+      "type": 4,
+      "de": "ist fehlerhaft !",
+      "en": "program !"
+    },
+    {
+      "item": 324,
+      "type": 0,
+      "de": "Schrittwechsel",
+      "en": "Step change"
+    },
+    {
+      "item": 324,
+      "type": 3,
+      "de": "Schrittwechsel konnte nicht",
+      "en": "Can't process step"
+    },
+    {
+      "item": 324,
+      "type": 4,
+      "de": "durchgeführt werden !",
+      "en": "change !"
+    },
+    {
+      "item": 325,
+      "type": 0,
+      "de": "Steuerungsstatus",
+      "en": "Controller State"
+    },
+    {
+      "item": 325,
+      "type": 3,
+      "de": "Fehlerhafter Steuerungs-",
+      "en": "Invalid controller"
+    },
+    {
+      "item": 325,
+      "type": 4,
+      "de": "status !",
+      "en": "state !"
+    },
+    {
+      "item": 326,
+      "type": 0,
+      "de": "Powerfail",
+      "en": "powerfail"
+    },
+    {
+      "item": 326,
+      "type": 3,
+      "de": "Powerfail !",
+      "en": "powerfaiÓ\u0001Ãü«"
+    },
+    {
+      "item": 326,
+      "type": 4,
+      "de": "",
+      "en": ""
+    },
+    {
+      "item": 327,
+      "type": 0,
+      "de": "Rücksprung Fehler !",
+      "en": "Wrong label call !"
+    },
+    {
+      "item": 327,
+      "type": 3,
+      "de": "Rücksprung Fehler !",
+      "en": "Wrong label call !"
+    },
+    {
+      "item": 327,
+      "type": 4,
+      "de": "",
+      "en": ""
+    },
+    {
+      "item": 328,
+      "type": 0,
+      "de": "Parameterberechnung",
+      "en": "formula calculation"
+    },
+    {
+      "item": 328,
+      "type": 3,
+      "de": "Fehlerhafte Formel bei der",
+      "en": "Invalid formula for"
+    },
+    {
+      "item": 328,
+      "type": 4,
+      "de": "Parameterberechnung !",
+      "en": "parameter calculation !"
+    },
+    {
+      "item": 329,
+      "type": 0,
+      "de": "Sollzeitberechnung",
+      "en": "set time calculation"
+    },
+    {
+      "item": 329,
+      "type": 3,
+      "de": "Fehlerhafte Formel bei der",
+      "en": "Invalid formula for"
+    },
+    {
+      "item": 329,
+      "type": 4,
+      "de": "SollzeitÓ\u0001Ãü£\u0001z\u0001U\u0001*\u0001\u0007\u0001",
+      "en": "set time calculation !"
+    },
+    {
+      "item": 330,
+      "type": 0,
+      "de": "Host-Kommunikation",
+      "en": "Host-Communication"
+    },
+    {
+      "item": 330,
+      "type": 3,
+      "de": "Host-Kommunikation gestört !",
+      "en": "Host communication error"
+    },
+    {
+      "item": 330,
+      "type": 4,
+      "de": "Bitte Verbindung prüfen !",
+      "en": "please check connection !"
+    },
+    {
+      "item": 331,
+      "type": 0,
+      "de": "Logging-Speicher",
+      "en": "Logging diÓ\u0001┼ü£\u0001t\u0001R\u0001"
+    },
+    {
+      "item": 331,
+      "type": 3,
+      "de": "Nicht genügend Log-Speicher,",
+      "en": "Not enough log disk space,"
+    },
+    {
+      "item": 331,
+      "type": 4,
+      "de": "Aufzeichnung unterbrochen !",
+      "en": "logging interrupted !"
+    },
+    {
+      "item": 332,
+      "type": 0,
+      "de": "Parameter Transfer",
+      "en": "parameter transfer"
+    },
+    {
+      "item": 332,
+      "type": 3,
+      "de": "Parameter konnten nicht zur",
+      "en": "Can't  transfer the parameters"
+    },
+    {
+      "item": 332,
+      "type": 4,
+      "de": "SPS transferiert werden !",
+      "en": "to the plc !"
+    },
+    {
+      "item": 333,
+      "type": 0,
+      "de": "Sollwert-Speicherung",
+      "en": "backup set values"
+    },
+    {
+      "item": 333,
+      "type": 3,
+      "de": "Parameter konnten nicht",
+      "en": "Can't  save set values !"
+    },
+    {
+      "item": 333,
+      "type": 4,
+      "de": "gespeiõ\u0001═üª\u0001é\u0001Y\u0001-\u0001\n\u0001",
+      "en": ""
+    },
+    {
+      "item": 334,
+      "type": 0,
+      "de": "Partieauswahl",
+      "en": "batch selection"
+    },
+    {
+      "item": 334,
+      "type": 3,
+      "de": "Partie konnte nicht",
+      "en": "Can't select batch !"
+    },
+    {
+      "item": 334,
+      "type": 4,
+      "de": "ausgewählt  werden !",
+      "en": ""
+    },
+    {
+      "item": 335,
+      "type": 0,
+      "de": "Partiestart",
+      "en": "batch start"
+    },
+    {
+      "item": 335,
+      "type": 3,
+      "de": "Partie konnte nicht",
+      "en": "Can't start batch !"
+    },
+    {
+      "item": 335,
+      "type": 4,
+      "de": "gestartet  werden !",
+      "en": ""
+    },
+    {
+      "item": 336,
+      "type": 0,
+      "de": "Ramdisk-Speicher",
+      "en": "ram disk space"
+    },
+    {
+      "item": 336,
+      "type": 3,
+      "de": "Warnung ! Speichergrenze",
+      "en": "warning !"
+    },
+    {
+      "item": 336,
+      "type": 4,
+      "de": "für Ramdisk unterschritten !",
+      "en": "ram disk space low !"
+    },
+    {
+      "item": 337,
+      "type": 0,
+      "de": "Konfiguration",
+      "en": "configuration"
+    },
+    {
+      "item": 337,
+      "type": 3,
+      "de": "Fehler beim Lesen der",
+      "en": "Can't read configuration !"
+    },
+    {
+      "item": 337,
+      "type": 4,
+      "de": "Konfiguration !",
+      "en": ""
+    },
+    {
+      "item": 338,
+      "type": 0,
+      "de": "Status-Speicher",
+      "en": "status disk space"
+    },
+    {
+      "item": 338,
+      "type": 3,
+      "de": "Warnung ! Speichergrenze",
+      "en": "warning !"
+    },
+    {
+      "item": 338,
+      "type": 4,
+      "de": "für Status unterschritten !",
+      "en": "status disk space low !"
+    },
+    {
+      "item": 339,
+      "type": 0,
+      "de": "Partiewechsel !",
+      "en": "Can't change batch !"
+    },
+    {
+      "item": 339,
+      "type": 3,
+      "de": "Warnung ! Partiewechsel",
+      "en": "warning !"
+    },
+    {
+      "item": 339,
+      "type": 4,
+      "de": "nicht möglich !",
+      "en": "can't change batch !"
+    },
+    {
+      "item": 340,
+      "type": 0,
+      "de": "SPS-Modulparameter",
+      "en": "plc module parameter"
+    },
+    {
+      "item": 340,
+      "type": 3,
+      "de": "SPS-Modulparameter nicht",
+      "en": "plc module parameter not"
+    },
+    {
+      "item": 340,
+      "type": 4,
+      "de": "komplett übertragen !",
+      "en": "transferred !"
+    },
+    {
+      "item": 350,
+      "type": 0,
+      "de": "Partie-Referenz",
+      "en": "Batch Reference"
+    },
+    {
+      "item": 350,
+      "type": 3,
+      "de": "Partie-Referenz nicht",
+      "en": "Batch Reference Number not"
+    },
+    {
+      "item": 350,
+      "type": 4,
+      "de": "erhalten !",
+      "en": "available !"
+    },
+    {
+      "item": 360,
+      "type": 0,
+      "de": "Barcode-Alarm 1",
+      "en": "Barcode alarm 1"
+    },
+    {
+      "item": 360,
+      "type": 3,
+      "de": "Barcode-Alarm 1",
+      "en": "Barcode alarm 1"
+    },
+    {
+      "item": 360,
+      "type": 4,
+      "de": "",
+      "en": ""
+    },
+    {
+      "item": 361,
+      "type": 0,
+      "de": "Barcode-Alarm 2",
+      "en": "Barcode alarm 2"
+    },
+    {
+      "item": 361,
+      "type": 3,
+      "de": "Barcode-Alarm 2",
+      "en": "Barcode alarm 2"
+    },
+    {
+      "item": 361,
+      "type": 4,
+      "de": "",
+      "en": ""
+    },
+    {
+      "item": 362,
+      "type": 0,
+      "de": "Barcode-Alarm 3",
+      "en": "Barcode alarm 3"
+    },
+    {
+      "item": 362,
+      "type": 3,
+      "de": "Barcode-Alarm 3",
+      "en": "Barcode alarm 3"
+    },
+    {
+      "item": 362,
+      "type": 4,
+      "de": "",
+      "en": ""
+    },
+    {
+      "item": 363,
+      "type": 0,
+      "de": "Barcode-Alarm 4",
+      "en": "Barcode alarm 4"
+    },
+    {
+      "item": 363,
+      "type": 3,
+      "de": "Barcode-Alarm 4",
+      "en": "Barcode alarm 4"
+    },
+    {
+      "item": 363,
+      "type": 4,
+      "de": "",
+      "en": ""
+    },
+    {
+      "item": 364,
+      "type": 0,
+      "de": "Barcode-Alarm 5",
+      "en": "Barcode alarm 5"
+    },
+    {
+      "item": 364,
+      "type": 3,
+      "de": "Barcode-Alarm 5",
+      "en": "Barcode alarm 5"
+    },
+    {
+      "item": 364,
+      "type": 4,
+      "de": "",
+      "en": ""
+    },
+    {
+      "item": 365,
+      "type": 0,
+      "de": "",
+      "en": "Barcode alarm 6"
+    },
+    {
+      "item": 365,
+      "type": 3,
+      "de": "Barcode-Alarm 6",
+      "en": "Barcode alarm 6"
+    },
+    {
+      "item": 365,
+      "type": 4,
+      "de": "",
+      "en": ""
+    },
+    {
+      "item": 366,
+      "type": 0,
+      "de": "Barcode-Alarm 7",
+      "en": "Barcode alarm 7"
+    },
+    {
+      "item": 366,
+      "type": 3,
+      "de": "Barcode-┌\u0001┴üó\u0001Æ\u0001s",
+      "en": "Barcode alarm 7"
+    },
+    {
+      "item": 366,
+      "type": 4,
+      "de": "",
+      "en": ""
+    },
+    {
+      "item": 367,
+      "type": 0,
+      "de": "Barcode-Alarm 8",
+      "en": "Barcode alarm 8"
+    },
+    {
+      "item": 367,
+      "type": 3,
+      "de": "Barcode-Alarm 8",
+      "en": "Barcode alarm 8"
+    },
+    {
+      "item": 367,
+      "type": 4,
+      "de": "",
+      "en": ""
+    },
+    {
+      "item": 368,
+      "type": 0,
+      "de": "Barcode-Alarm 9",
+      "en": "Barcode alarm 9"
+    },
+    {
+      "item": 368,
+      "type": 3,
+      "de": "Barcode-Alarm 9",
+      "en": "Barcode alarm 9"
+    },
+    {
+      "item": 368,
+      "type": 4,
+      "de": "",
+      "en": ""
+    },
+    {
+      "item": 369,
+      "type": 0,
+      "de": "Barcode-Alarm 10",
+      "en": "Barcode alarm 10"
+    },
+    {
+      "item": 369,
+      "type": 3,
+      "de": "Barcode-Alarm 10",
+      "en": "Barcode alarm 10"
+    },
+    {
+      "item": 369,
+      "type": 4,
+      "de": "",
+      "en": ""
+    },
+    {
+      "item": 370,
+      "type": 0,
+      "de": "Barcode-Alarm 11",
+      "en": "Barcode alarm 11"
+    },
+    {
+      "item": 370,
+      "type": 3,
+      "de": "Barcode-Alarm 11",
+      "en": "Barcode alarm 11"
+    },
+    {
+      "item": 370,
+      "type": 4,
+      "de": "",
+      "en": ""
+    },
+    {
+      "item": 371,
+      "type": 0,
+      "de": "Barcode-Alarm 12",
+      "en": "Barcode alarm 12"
+    },
+    {
+      "item": 371,
+      "type": 3,
+      "de": "Barcode-Alarm 12",
+      "en": "Barcode alarm 12"
+    },
+    {
+      "item": 371,
+      "type": 4,
+      "de": "",
+      "en": ""
+    },
+    {
+      "item": 372,
+      "type": 0,
+      "de": "Barcode-Alarm 13",
+      "en": "Barcode alarm 13"
+    },
+    {
+      "item": 372,
+      "type": 3,
+      "de": "Barcode-Alarm 13",
+      "en": "Barcode alarm 13"
+    },
+    {
+      "item": 372,
+      "type": 4,
+      "de": "",
+      "en": ""
+    },
+    {
+      "item": 373,
+      "type": 0,
+      "de": "Barcode-Alarm 14",
+      "en": "Barcode alarm 14"
+    },
+    {
+      "item": 373,
+      "type": 3,
+      "de": "Barcode-Alarm 14",
+      "en": "Barcode alarm 14"
+    },
+    {
+      "item": 373,
+      "type": 4,
+      "de": "",
+      "en": ""
+    },
+    {
+      "item": 374,
+      "type": 0,
+      "de": "Barcode-Alarm 15",
+      "en": "Barcode alarm 15"
+    },
+    {
+      "item": 374,
+      "type": 3,
+      "de": "Barcode-Alarm 15",
+      "en": "Barcode alarm 15"
+    },
+    {
+      "item": 374,
+      "type": 4,
+      "de": "",
+      "en": ""
+    },
+    {
+      "item": 375,
+      "type": 0,
+      "de": "Barcode-Alarm 16",
+      "en": "Barcode alarm 16"
+    },
+    {
+      "item": 375,
+      "type": 3,
+      "de": "Barcode-Alarm 16",
+      "en": "Barcode alarm 16"
+    },
+    {
+      "item": 375,
+      "type": 4,
+      "de": "",
+      "en": ""
+    },
+    {
+      "item": 376,
+      "type": 0,
+      "de": "Barcode-Alarm 17",
+      "en": "Barcode alarm 17"
+    },
+    {
+      "item": 376,
+      "type": 3,
+      "de": "Barcode-Alarm 17",
+      "en": "Barcode alarm 17"
+    },
+    {
+      "item": 376,
+      "type": 4,
+      "de": "",
+      "en": ""
+    },
+    {
+      "item": 377,
+      "type": 0,
+      "de": "Barcode-Alarm 18",
+      "en": "Barcode alarm 18"
+    },
+    {
+      "item": 377,
+      "type": 3,
+      "de": "Barcode-Alarm 18",
+      "en": "Barcode alarm 18"
+    },
+    {
+      "item": 377,
+      "type": 4,
+      "de": "",
+      "en": ""
+    },
+    {
+      "item": 378,
+      "type": 0,
+      "de": "Barcode-Alarm 19",
+      "en": "Barcode alarm 19"
+    },
+    {
+      "item": 378,
+      "type": 3,
+      "de": "Barcode-Alarm 19",
+      "en": "Barcode alarm 19"
+    },
+    {
+      "item": 378,
+      "type": 4,
+      "de": "",
+      "en": ""
+    },
+    {
+      "item": 379,
+      "type": 0,
+      "de": "Barcode-Alarm 20",
+      "en": "Barcode alarm 20"
+    },
+    {
+      "item": 379,
+      "type": 3,
+      "de": "Barcode-Alarm 20",
+      "en": "Barcode alarm 20"
+    },
+    {
+      "item": 379,
+      "type": 4,
+      "de": "",
+      "en": ""
+    },
+    {
+      "item": 380,
+      "type": 0,
+      "de": "Barcode-Alarm 21",
+      "en": "Barcode alarm 21"
+    },
+    {
+      "item": 380,
+      "type": 3,
+      "de": "Barcode-Alarm 21",
+      "en": "Barcode alarm 21"
+    },
+    {
+      "item": 380,
+      "type": 4,
+      "de": "",
+      "en": ""
+    },
+    {
+      "item": 381,
+      "type": 0,
+      "de": "Barcode-Alarm 22",
+      "en": "Barcode alarm 22"
+    },
+    {
+      "item": 381,
+      "type": 3,
+      "de": "Barcode-Alarm 22",
+      "en": "Barcode alarm 22"
+    },
+    {
+      "item": 381,
+      "type": 4,
+      "de": "",
+      "en": ""
+    },
+    {
+      "item": 382,
+      "type": 0,
+      "de": "Barcode-Alarm 23",
+      "en": "Barcode alarm 23"
+    },
+    {
+      "item": 382,
+      "type": 3,
+      "de": "Barcode-Alarm 23",
+      "en": "Barcode alarm 23"
+    },
+    {
+      "item": 382,
+      "type": 4,
+      "de": "",
+      "en": ""
+    },
+    {
+      "item": 383,
+      "type": 0,
+      "de": "Barcode-Alarm 24",
+      "en": "Barcode alarm 24"
+    },
+    {
+      "item": 383,
+      "type": 3,
+      "de": "Barcode-Alarm 24",
+      "en": "Barcode alarm 24"
+    },
+    {
+      "item": 383,
+      "type": 4,
+      "de": "",
+      "en": ""
+    },
+    {
+      "item": 384,
+      "type": 0,
+      "de": "Barcode-Alarm 25",
+      "en": "Barcode alarm 25"
+    },
+    {
+      "item": 384,
+      "type": 3,
+      "de": "Barcode-Alarm 25",
+      "en": "Barcode alarm 25"
+    },
+    {
+      "item": 384,
+      "type": 4,
+      "de": "",
+      "en": ""
+    },
+    {
+      "item": 385,
+      "type": 0,
+      "de": "Barcode-Alarm 26",
+      "en": "Barcode alarm 26"
+    },
+    {
+      "item": 385,
+      "type": 3,
+      "de": "Barcode-Alarm 26",
+      "en": "Barcode alarm 26"
+    },
+    {
+      "item": 385,
+      "type": 4,
+      "de": "",
+      "en": ""
+    },
+    {
+      "item": 386,
+      "type": 0,
+      "de": "Barcode-Alarm 27",
+      "en": "Barcode alarm 27"
+    },
+    {
+      "item": 386,
+      "type": 3,
+      "de": "Barcode-Alarm 27",
+      "en": "Barcode alarm 27"
+    },
+    {
+      "item": 386,
+      "type": 4,
+      "de": "",
+      "en": ""
+    },
+    {
+      "item": 387,
+      "type": 0,
+      "de": "Barcode-Alarm 28",
+      "en": "Barcode alarm 28"
+    },
+    {
+      "item": 387,
+      "type": 3,
+      "de": "Barcode-Alarm 28",
+      "en": "Barcode alarm 28"
+    },
+    {
+      "item": 387,
+      "type": 4,
+      "de": "",
+      "en": ""
+    },
+    {
+      "item": 388,
+      "type": 0,
+      "de": "Barcode-Alarm 29",
+      "en": "Barcode alarm 29"
+    },
+    {
+      "item": 388,
+      "type": 3,
+      "de": "Barcode-Alarm 29",
+      "en": "Barcode alarm 29"
+    },
+    {
+      "item": 388,
+      "type": 4,
+      "de": "",
+      "en": ""
+    },
+    {
+      "item": 389,
+      "type": 0,
+      "de": "Barcode-Alarm 30",
+      "en": "Barcode alarm 30"
+    },
+    {
+      "item": 389,
+      "type": 3,
+      "de": "Barcode-Alarm 30",
+      "en": "Barcode alarm 30"
+    },
+    {
+      "item": 389,
+      "type": 4,
+      "de": "",
+      "en": ""
+    }
+  ],
+  "Cat_0_Grp_2": [
+    {
+      "item": 17434,
+      "type": 0,
+      "de": "\u0001",
+      "en": ""
+    },
+    {
+      "item": 4152,
+      "type": 0,
+      "de": "",
+      "en": ""
+    },
+    {
+      "item": 17804,
+      "type": 0,
+      "de": "",
+      "en": ""
+    },
+    {
+      "item": 24255,
+      "type": 0,
+      "de": "",
+      "en": ""
+    },
+    {
+      "item": 24405,
+      "type": 0,
+      "de": "",
+      "en": ""
+    },
+    {
+      "item": 4232,
+      "type": 0,
+      "de": "\u0001",
+      "en": ""
+    },
+    {
+      "item": 11645,
+      "type": 0,
+      "de": "",
+      "en": "\u0001"
+    },
+    {
+      "item": 31156,
+      "type": 0,
+      "de": "",
+      "en": ""
+    },
+    {
+      "item": 38561,
+      "type": 0,
+      "de": "\u0001",
+      "en": ""
+    },
+    {
+      "item": 65185,
+      "type": 0,
+      "de": "",
+      "en": ""
+    }
+  ],
+  "Cat_0_Grp_4": [
+    {
+      "item": 44710,
+      "type": 0,
+      "de": "",
+      "en": ""
+    },
+    {
+      "item": 44930,
+      "type": 0,
+      "de": "",
+      "en": ""
+    }
+  ],
+  "Cat_10_Grp_0": [
+    {
+      "item": 1,
+      "type": 0,
+      "de": "Temperatur",
+      "en": "Temperature"
+    },
+    {
+      "item": 1,
+      "type": 2,
+      "de": "°C",
+      "en": "°C"
+    },
+    {
+      "item": 2,
+      "type": 0,
+      "de": "Zeit",
+      "en": "Time"
+    },
+    {
+      "item": 2,
+      "type": 2,
+      "de": "min",
+      "en": "min"
+    },
+    {
+      "item": 3,
+      "type": 0,
+      "de": "Füllmenge",
+      "en": "Quantity"
+    },
+    {
+      "item": 3,
+      "type": 2,
+      "de": "",
+      "en": ""
+    },
+    {
+      "item": 10,
+      "type": 0,
+      "de": "Geschwindigkeit",
+      "en": "Speed"
+    },
+    {
+      "item": 10,
+      "type": 2,
+      "de": "m/min",
+      "en": "m/min"
+    },
+    {
+      "item": 13,
+      "type": 0,
+      "de": "Duesendruck",
+      "en": "Jet pressure"
+    },
+    {
+      "item": 13,
+      "type": 2,
+      "de": "bar",
+      "en": "bar"
+    },
+    {
+      "item": 15,
+      "type": 0,
+      "de": "Soll Temperatur",
+      "en": "Set Temperature"
+    },
+    {
+      "item": 15,
+      "type": 2,
+      "de": "°C",
+      "en": "°C"
+    },
+    {
+      "item": 21,
+      "type": 0,
+      "de": "Solldosiermenge",
+      "en": "Set Dosing-Quantity"
+    },
+    {
+      "item": 21,
+      "type": 2,
+      "de": "%",
+      "en": "%"
+    },
+    {
+      "item": 33,
+      "type": 0,
+      "de": "Zeit AG1",
+      "en": "Time AT 1"
+    },
+    {
+      "item": 33,
+      "type": 2,
+      "de": "min",
+      "en": "min"
+    },
+    {
+      "item": 34,
+      "type": 0,
+      "de": "Zeit AG2",
+      "en": "Time AT 2"
+    },
+    {
+      "item": 34,
+      "type": 2,
+      "de": "min",
+      "en": "min"
+    },
+    {
+      "item": 42,
+      "type": 0,
+      "de": "Temperatur AG1",
+      "en": "Temperature AT 1"
+    },
+    {
+      "item": 42,
+      "type": 2,
+      "de": "°C",
+      "en": "°C"
+    },
+    {
+      "item": 43,
+      "type": 0,
+      "de": "Temperatur AG2",
+      "en": "Temperature AT2"
+    },
+    {
+      "item": 43,
+      "type": 2,
+      "de": "°C",
+      "en": "°C"
+    },
+    {
+      "item": 44,
+      "type": 0,
+      "de": "Temperatur AG 100%",
+      "en": "Temperature AT 100%"
+    },
+    {
+      "item": 44,
+      "type": 2,
+      "de": "C",
+      "en": "C"
+    },
+    {
+      "item": 50,
+      "type": 0,
+      "de": "Füllniveau APP",
+      "en": "Level mac."
+    },
+    {
+      "item": 50,
+      "type": 2,
+      "de": "",
+      "en": ""
+    },
+    {
+      "item": 51,
+      "type": 0,
+      "de": "Füllmenge App %",
+      "en": "fill level MC %"
+    },
+    {
+      "item": 51,
+      "type": 2,
+      "de": "%",
+      "en": "%"
+    },
+    {
+      "item": 53,
+      "type": 0,
+      "de": "Füllmenge App",
+      "en": "Quantity"
+    },
+    {
+      "item": 53,
+      "type": 2,
+      "de": "L",
+      "en": "l"
+    },
+    {
+      "item": 57,
+      "type": 0,
+      "de": "Füllmenge AG1",
+      "en": "Level AT 1"
+    },
+    {
+      "item": 57,
+      "type": 2,
+      "de": "%",
+      "en": "%"
+    },
+    {
+      "item": 58,
+      "type": 0,
+      "de": "Füllmenge AG2",
+      "en": "Level AT 2"
+    },
+    {
+      "item": 58,
+      "type": 2,
+      "de": "L",
+      "en": "l"
+    },
+    {
+      "item": 67,
+      "type": 0,
+      "de": "Füllniveau AG 100% L",
+      "en": "fill level AT 100% L"
+    },
+    {
+      "item": 67,
+      "type": 2,
+      "de": "L",
+      "en": "l"
+    },
+    {
+      "item": 89,
+      "type": 0,
+      "de": "UmlaufkontrÏ\u0001╝ü½\u0001ç\u0001v\u0001",
+      "en": "rotation check alarm"
+    },
+    {
+      "item": 89,
+      "type": 2,
+      "de": "",
+      "en": ""
+    }
+  ],
+  "Cat_11_Grp_0": [
+    {
+      "item": 1,
+      "type": 0,
+      "de": "Verbrauch Wasser 1",
+      "en": "Consumption water 1"
+    },
+    {
+      "item": 1,
+      "type": 2,
+      "de": "l",
+      "en": "l"
+    },
+    {
+      "item": 2,
+      "type": 0,
+      "de": "Verbrauch Wasser 2",
+      "en": "Consumption water 2"
+    },
+    {
+      "item": 2,
+      "type": 2,
+      "de": "l",
+      "en": "l"
+    },
+    {
+      "item": 3,
+      "type": 0,
+      "de": "Verbrauch Wasser 3",
+      "en": "Consumption water 3"
+    },
+    {
+      "item": 3,
+      "type": 2,
+      "de": "l",
+      "en": "l"
+    },
+    {
+      "item": 6,
+      "type": 0,
+      "de": "Verbrauch Strom",
+      "en": "Consumption power"
+    },
+    {
+      "item": 6,
+      "type": 2,
+      "de": "",
+      "en": ""
+    }
+  ],
+  "Cat_16_Grp_0": [
+    {
+      "item": 1,
+      "type": 0,
+      "de": "Dosier-Regler",
+      "en": "DosingÏ\u0001┴ü▒\u0001É\u0001\u0001\\\u0001K"
+    },
+    {
+      "item": 2,
+      "type": 0,
+      "de": "PID-Regler",
+      "en": "PID Controller"
+    },
+    {
+      "item": 3,
+      "type": 0,
+      "de": "DSR-Regler",
+      "en": "Step Controller"
+    },
+    {
+      "item": 4,
+      "type": 0,
+      "de": "Linearer Niveaumat",
+      "en": "linear niveaumat"
+    },
+    {
+      "item": 5,
+      "type": 0,
+      "de": "Niveaumat",
+      "en": "Niveaumat"
+    },
+    {
+      "item": 6,
+      "type": 0,
+      "de": "Niveaumat CP16",
+      "en": "Niveaumat CP16"
+    },
+    {
+      "item": 7,
+      "type": 0,
+      "de": "TemperaturreglerCP16",
+      "en": "TempController CP16"
+    },
+    {
+      "item": 8,
+      "type": 0,
+      "de": "PID-Regler C┌\u0001¢üÖ",
+      "en": "PID-Controller CP16"
+    },
+    {
+      "item": 9,
+      "type": 0,
+      "de": "DSR-Regler CP16",
+      "en": "Step Controller CP16"
+    },
+    {
+      "item": 10,
+      "type": 0,
+      "de": "Dosierregler CP16",
+      "en": "Dosing Controll CP16"
+    }
+  ],
+  "Cat_17_Grp_1": [
+    {
+      "item": 1,
+      "type": 0,
+      "de": "Pulse pro Minute",
+      "en": "pulse per minute"
+    },
+    {
+      "item": 1,
+      "type": 2,
+      "de": "",
+      "en": ""
+    },
+    {
+      "item": 2,
+      "type": 0,
+      "de": "Pulse pro Einheit",
+      "en": "pulse per unit"
+    },
+    {
+      "item": 2,
+      "type": 2,
+      "de": "",
+      "en": ""
+    },
+    {
+      "item": 3,
+      "type": 0,
+      "de": "nicht benutzt",
+      "en": "not used"
+    },
+    {
+      "item": 3,
+      "type": 2,
+      "de": "",
+      "en": ""
+    },
+    {
+      "item": 4,
+      "type": 0,
+      "de": "Alarmgrenze",
+      "en": "Alarm lim▄\u0001┬ü"
+    },
+    {
+      "item": 4,
+      "type": 2,
+      "de": "",
+      "en": ""
+    },
+    {
+      "item": 5,
+      "type": 0,
+      "de": "Modus",
+      "en": "dosing mode"
+    },
+    {
+      "item": 5,
+      "type": 2,
+      "de": "",
+      "en": ""
+    },
+    {
+      "item": 6,
+      "type": 0,
+      "de": "PSS Aktivierung",
+      "en": "PSS activation"
+    },
+    {
+      "item": 6,
+      "type": 2,
+      "de": "",
+      "en": ""
+    },
+    {
+      "item": 7,
+      "type": 0,
+      "de": "PSS Zykluszeit",
+      "en": "PSS cycle time"
+    },
+    {
+      "item": 7,
+      "type": 2,
+      "de": "sec",
+      "en": "sec"
+    },
+    {
+      "item": 8,
+      "type": 0,
+      "de": "min. Ein-/Auszeit",
+      "en": "min. on/off time"
+    },
+    {
+      "item": 8,
+      "type": 2,
+      "de": "sec",
+      "en": "sec"
+    },
+    {
+      "item": 9,
+      "type": 0,
+      "de": "Verz.zeit Dos.Alarm",
+      "en": "delay time dos.alarm"
+    },
+    {
+      "item": 9,
+      "type": 2,
+      "de": "sec",
+      "en": "sec"
+    }
+  ],
+  "Cat_17_Grp_2": [
+    {
+      "item": 1,
+      "type": 0,
+      "de": "KP Heizen",
+      "en": "KP heating"
+    },
+    {
+      "item": 1,
+      "type": 2,
+      "de": "",
+      "en": ""
+    },
+    {
+      "item": 2,
+      "type": 0,
+      "de": "TN Heizen",
+      "en": "TN heating"
+    },
+    {
+      "item": 2,
+      "type": 2,
+      "de": "sec",
+      "en": "sec"
+    },
+    {
+      "item": 3,
+      "type": 0,
+      "de": "TV Heizen",
+      "en": "TV heating"
+    },
+    {
+      "item": 3,
+      "type": 2,
+      "de": "sec",
+      "en": "sec"
+    },
+    {
+      "item": 4,
+      "type": 0,
+      "de": "KP Kühlen",
+      "en": "KP cooling"
+    },
+    {
+      "item": 4,
+      "type": 2,
+      "de": "",
+      "en": ""
+    },
+    {
+      "item": 5,
+      "type": 0,
+      "de": "TN Kühlen",
+      "en": "TN cooling"
+    },
+    {
+      "item": 5,
+      "type": 2,
+      "de": "sec",
+      "en": "sec"
+    },
+    {
+      "item": 6,
+      "type": 0,
+      "de": "TV Kühlen",
+      "en": "TV cooling"
+    },
+    {
+      "item": 6,
+      "type": 2,
+      "de": "sec",
+      "en": "sec"
+    },
+    {
+      "item": 7,
+      "type": 0,
+      "de": "Gradientenalarmzeit",
+      "en": "Gradient alarm time"
+    },
+    {
+      "item": 7,
+      "type": 2,
+      "de": "sec",
+      "en": "sec"
+    },
+    {
+      "item": 8,
+      "type": 0,
+      "de": "Alarmgrenze",
+      "en": "Alarm limit"
+    },
+    {
+      "item": 8,
+      "type": 2,
+      "de": "",
+      "en": ""
+    },
+    {
+      "item": 9,
+      "type": 0,
+      "de": "Reglercharakteristik",
+      "en": "Kind of ctrl. output"
+    },
+    {
+      "item": 9,
+      "type": 2,
+      "de": "",
+      "en": ""
+    },
+    {
+      "item": 10,
+      "type": 0,
+      "de": "Reglerausgabeart",
+      "en": "output mode"
+    },
+    {
+      "item": 10,
+      "type": 2,
+      "de": "",
+      "en": ""
+    },
+    {
+      "item": 11,
+      "type": 0,
+      "de": "Umschaltverzögerung",
+      "en": "switch delay"
+    },
+    {
+      "item": 11,
+      "type": 2,
+      "de": "sec",
+      "en": "sec"
+    },
+    {
+      "item": 12,
+      "type": 0,
+      "de": "PSS Aktivierung",
+      "en": "PSS activation"
+    },
+    {
+      "item": 12,
+      "type": 2,
+      "de": "",
+      "en": ""
+    },
+    {
+      "item": 13,
+      "type": 0,
+      "de": "PSS Zykluszeit",
+      "en": "PSS cycle time"
+    },
+    {
+      "item": 13,
+      "type": 2,
+      "de": "sec",
+      "en": "sec"
+    },
+    {
+      "item": 14,
+      "type": 0,
+      "de": "PSS min. Ein/Aus",
+      "en": "PSS min. on/off"
+    },
+    {
+      "item": 14,
+      "type": 2,
+      "de": "sec",
+      "en": "sec"
+    }
+  ],
+  "Cat_17_Grp_3": [
+    {
+      "item": 1,
+      "type": 0,
+      "de": "Tod-Band",
+      "en": "dead band"
+    },
+    {
+      "item": 1,
+      "type": 2,
+      "de": "",
+      "en": ""
+    },
+    {
+      "item": 2,
+      "type": 0,
+      "de": "P-Anteil",
+      "en": "del. feedback p-part"
+    },
+    {
+      "item": 2,
+      "type": 2,
+      "de": "sec",
+      "en": "sec"
+    },
+    {
+      "item": 3,
+      "type": 0,
+      "de": "T-Anteil",
+      "en": "del. feedback t-part"
+    },
+    {
+      "item": 3,
+      "type": 2,
+      "de": "sec",
+      "en": "sec"
+    },
+    {
+      "item": 4,
+      "type": 0,
+      "de": "nicht benutzt",
+      "en": "not used"
+    },
+    {
+      "item": 4,
+      "type": 2,
+      "de": "",
+      "en": ""
+    },
+    {
+      "item": 5,
+      "type": 0,
+      "de": "Gradientenalarmzeit",
+      "en": "Gradient alarm time"
+    },
+    {
+      "item": 5,
+      "type": 2,
+      "de": "sec",
+      "en": "sec"
+    },
+    {
+      "item": 6,
+      "type": 0,
+      "de": "Alarmgrenze",
+      "en": "Alarm limit"
+    },
+    {
+      "item": 6,
+      "type": 2,
+      "de": "",
+      "en": ""
+    },
+    {
+      "item": 7,
+      "type": 0,
+      "de": "Reglercharakteristik",
+      "en": "Kind of ctrl. output"
+    },
+    {
+      "item": 7,
+      "type": 2,
+      "de": "",
+      "en": ""
+    },
+    {
+      "item": 8,
+      "type": 0,
+      "de": "Reglerausgabeart",
+      "en": "output mode"
+    },
+    {
+      "item": 8,
+      "type": 2,
+      "de": "",
+      "en": ""
+    },
+    {
+      "item": 9,
+      "type": 0,
+      "de": "Umschaltverzögerung",
+      "en": "switch delay"
+    },
+    {
+      "item": 9,
+      "type": 2,
+      "de": "sec",
+      "en": "sec"
+    },
+    {
+      "item": 10,
+      "type": 0,
+      "de": "PSS Aktivierung",
+      "en": "PSS activation"
+    },
+    {
+      "item": 10,
+      "type": 2,
+      "de": "",
+      "en": ""
+    },
+    {
+      "item": 11,
+      "type": 0,
+      "de": "PSS Zykluszeit",
+      "en": "PSS cycle time"
+    },
+    {
+      "item": 11,
+      "type": 2,
+      "de": "sec",
+      "en": "sec"
+    },
+    {
+      "item": 12,
+      "type": 0,
+      "de": "PSS min. Ein/Aus",
+      "en": "PSS min. on/off"
+    },
+    {
+      "item": 12,
+      "type": 2,
+      "de": "sec",
+      "en": "sec"
+    }
+  ],
+  "Cat_17_Grp_4": [
+    {
+      "item": 1,
+      "type": 0,
+      "de": "1. SPS Meßwert",
+      "en": "1st plc value"
+    },
+    {
+      "item": 1,
+      "type": 2,
+      "de": "",
+      "en": ""
+    },
+    {
+      "item": 2,
+      "type": 0,
+      "de": "1. angezeigter Wert",
+      "en": "1st displayed value"
+    },
+    {
+      "item": 2,
+      "type": 2,
+      "de": "",
+      "en": ""
+    },
+    {
+      "item": 3,
+      "type": 0,
+      "de": "2. SPS Meßwert",
+      "en": "2nd plc value"
+    },
+    {
+      "item": 3,
+      "type": 2,
+      "de": "",
+      "en": ""
+    },
+    {
+      "item": 4,
+      "type": 0,
+      "de": "2. angezeigter Wert",
+      "en": "2nd displayed value"
+    },
+    {
+      "item": 4,
+      "type": 2,
+      "de": "",
+      "en": ""
+    },
+    {
+      "item": 5,
+      "type": 0,
+      "de": "",
+      "en": ""
+    },
+    {
+      "item": 5,
+      "type": 2,
+      "de": "",
+      "en": ""
+    },
+    {
+      "item": 6,
+      "type": 0,
+      "de": "",
+      "en": ""
+    },
+    {
+      "item": 6,
+      "type": 2,
+      "de": "",
+      "en": ""
+    },
+    {
+      "item": 7,
+      "type": 0,
+      "de": "",
+      "en": ""
+    },
+    {
+      "item": 7,
+      "type": 2,
+      "de": "",
+      "en": ""
+    },
+    {
+      "item": 8,
+      "type": 0,
+      "de": "",
+      "en": ""
+    },
+    {
+      "item": 8,
+      "type": 2,
+      "de": "",
+      "en": ""
+    },
+    {
+      "item": 9,
+      "type": 0,
+      "de": "",
+      "en": ""
+    },
+    {
+      "item": 9,
+      "type": 2,
+      "de": "",
+      "en": ""
+    }
+  ],
+  "Cat_17_Grp_5": [
+    {
+      "item": 1,
+      "type": 0,
+      "de": "Anzahl Stützpunkte",
+      "en": "no of points"
+    },
+    {
+      "item": 1,
+      "type": 2,
+      "de": "",
+      "en": ""
+    },
+    {
+      "item": 2,
+      "type": 0,
+      "de": "Endwert Ausgangswert",
+      "en": "last value output"
+    },
+    {
+      "item": 2,
+      "type": 2,
+      "de": "",
+      "en": ""
+    },
+    {
+      "item": 3,
+      "type": 0,
+      "de": "Schrittweite Kalibr.",
+      "en": "calibration step"
+    },
+    {
+      "item": 3,
+      "type": 2,
+      "de": "",
+      "en": ""
+    }
+  ],
+  "Cat_17_Grp_6": [
+    {
+      "item": 1,
+      "type": 0,
+      "de": "Anzahl Stützpunkte",
+      "en": "no of points"
+    },
+    {
+      "item": 1,
+      "type": 2,
+      "de": "",
+      "en": ""
+    },
+    {
+      "item": 2,
+      "type": 0,
+      "de": "Endwert Ausgangswert",
+      "en": "last value output"
+    },
+    {
+      "item": 2,
+      "type": 2,
+      "de": "",
+      "en": ""
+    },
+    {
+      "item": 3,
+      "type": 0,
+      "de": "Schrittweite Kalibr.",
+      "en": "calibration step"
+    },
+    {
+      "item": 3,
+      "type": 2,
+      "de": "",
+      "en": ""
+    }
+  ],
+  "Cat_17_Grp_7": [
+    {
+      "item": 1,
+      "type": 0,
+      "de": "XP",
+      "en": "XP"
+    },
+    {
+      "item": 1,
+      "type": 2,
+      "de": "°C",
+      "en": "°C"
+    },
+    {
+      "item": 2,
+      "type": 0,
+      "de": "TN",
+      "en": "TN"
+    },
+    {
+      "item": 2,
+      "type": 2,
+      "de": "sec",
+      "en": "sec"
+    },
+    {
+      "item": 3,
+      "type": 0,
+      "de": "TV",
+      "en": "TV"
+    },
+    {
+      "item": 3,
+      "type": 2,
+      "de": "sec",
+      "en": "sec"
+    },
+    {
+      "item": 4,
+      "type": 0,
+      "de": "TA",
+      "en": "TA"
+    },
+    {
+      "item": 4,
+      "type": 2,
+      "de": "ms",
+      "en": "ms"
+    },
+    {
+      "item": 5,
+      "type": 0,
+      "de": "Fuzzy Faktor",
+      "en": "Fuzzy factor"
+    },
+    {
+      "item": 5,
+      "type": 2,
+      "de": "",
+      "en": ""
+    },
+    {
+      "item": 6,
+      "type": 0,
+      "de": "Sollwert Hysterese",
+      "en": "setpoint hysterese"
+    },
+    {
+      "item": 6,
+      "type": 2,
+      "de": "°C",
+      "en": "°C"
+    },
+    {
+      "item": 7,
+      "type": 0,
+      "de": "Alarmgrenze",
+      "en": "Alarm limit"
+    },
+    {
+      "item": 7,
+      "type": 2,
+      "de": "°C",
+      "en": "°C"
+    },
+    {
+      "item": 8,
+      "type": 0,
+      "de": "Gradientenalarmzeit",
+      "en": "Gradient alarm time"
+    },
+    {
+      "item": 8,
+      "type": 2,
+      "de": "sec",
+      "en": "sec"
+    },
+    {
+      "item": 9,
+      "type": 0,
+      "de": "Umschaltverzögerung",
+      "en": "switch delay"
+    },
+    {
+      "item": 9,
+      "type": 2,
+      "de": "sec",
+      "en": "sec"
+    },
+    {
+      "item": 10,
+      "type": 0,
+      "de": "PSS Aktivierung",
+      "en": "PSS activation"
+    },
+    {
+      "item": 10,
+      "type": 2,
+      "de": "Modus",
+      "en": "mode"
+    },
+    {
+      "item": 11,
+      "type": 0,
+      "de": "PSS Zykluszeit",
+      "en": "PSS cycle time"
+    },
+    {
+      "item": 11,
+      "type": 2,
+      "de": "sec",
+      "en": "sec"
+    }
+  ],
+  "Cat_17_Grp_8": [
+    {
+      "item": 1,
+      "type": 0,
+      "de": "XP",
+      "en": "XP"
+    },
+    {
+      "item": 1,
+      "type": 2,
+      "de": "%",
+      "en": "%"
+    },
+    {
+      "item": 2,
+      "type": 0,
+      "de": "TN",
+      "en": "TN"
+    },
+    {
+      "item": 2,
+      "type": 2,
+      "de": "sec",
+      "en": "sec"
+    },
+    {
+      "item": 3,
+      "type": 0,
+      "de": "TV",
+      "en": "TV"
+    },
+    {
+      "item": 3,
+      "type": 2,
+      "de": "sec",
+      "en": "sec"
+    },
+    {
+      "item": 4,
+      "type": 0,
+      "de": "TA",
+      "en": "TA"
+    },
+    {
+      "item": 4,
+      "type": 2,
+      "de": "ms",
+      "en": "ms"
+    },
+    {
+      "item": 5,
+      "type": 0,
+      "de": "Fuzzy Faktor",
+      "en": "Fuzzy factor"
+    },
+    {
+      "item": 5,
+      "type": 2,
+      "de": "",
+      "en": ""
+    },
+    {
+      "item": 6,
+      "type": 0,
+      "de": "Sollwert Hysterese",
+      "en": "setpoint hysterese"
+    },
+    {
+      "item": 6,
+      "type": 2,
+      "de": "%",
+      "en": "%"
+    },
+    {
+      "item": 7,
+      "type": 0,
+      "de": "Alarmgrenze",
+      "en": "Alarm limit"
+    },
+    {
+      "item": 7,
+      "type": 2,
+      "de": "%",
+      "en": "%"
+    },
+    {
+      "item": 8,
+      "type": 0,
+      "de": "Umschaltverzögerung",
+      "en": "switch delay"
+    },
+    {
+      "item": 8,
+      "type": 2,
+      "de": "sec",
+      "en": "sec"
+    },
+    {
+      "item": 9,
+      "type": 0,
+      "de": "PSS Aktivierung",
+      "en": "PSS activation"
+    },
+    {
+      "item": 9,
+      "type": 2,
+      "de": "Modus",
+      "en": "mode"
+    },
+    {
+      "item": 10,
+      "type": 0,
+      "de": "PSS Zykluszeit",
+      "en": "PSS cycle time"
+    },
+    {
+      "item": 10,
+      "type": 2,
+      "de": "sec",
+      "en": "sec"
+    }
+  ],
+  "Cat_17_Grp_9": [
+    {
+      "item": 1,
+      "type": 0,
+      "de": "XP",
+      "en": "XP"
+    },
+    {
+      "item": 1,
+      "type": 2,
+      "de": "%",
+      "en": "%"
+    },
+    {
+      "item": 2,
+      "type": 0,
+      "de": "TN",
+      "en": "TN"
+    },
+    {
+      "item": 2,
+      "type": 2,
+      "de": "sec",
+      "en": "sec"
+    },
+    {
+      "item": 3,
+      "type": 0,
+      "de": "TV",
+      "en": "TV"
+    },
+    {
+      "item": 3,
+      "type": 2,
+      "de": "sec",
+      "en": "sec"
+    },
+    {
+      "item": 4,
+      "type": 0,
+      "de": "TA",
+      "en": "TA"
+    },
+    {
+      "item": 4,
+      "type": 2,
+      "de": "ms",
+      "en": "ms"
+    },
+    {
+      "item": 5,
+      "type": 0,
+      "de": "Fuzzy Faktor",
+      "en": "Fuzzy factor"
+    },
+    {
+      "item": 5,
+      "type": 2,
+      "de": "",
+      "en": ""
+    },
+    {
+      "item": 6,
+      "type": 0,
+      "de": "Sollwert Hysterese",
+      "en": "setpoint hysterese"
+    },
+    {
+      "item": 6,
+      "type": 2,
+      "de": "%",
+      "en": "%"
+    },
+    {
+      "item": 7,
+      "type": 0,
+      "de": "Alarmgrenze",
+      "en": "Alarm limit"
+    },
+    {
+      "item": 7,
+      "type": 2,
+      "de": "%",
+      "en": "%"
+    },
+    {
+      "item": 8,
+      "type": 0,
+      "de": "Todband",
+      "en": "Deadband"
+    },
+    {
+      "item": 8,
+      "type": 2,
+      "de": "%",
+      "en": "%"
+    },
+    {
+      "item": 9,
+      "type": 0,
+      "de": "Hysterese",
+      "en": "Hysterese"
+    },
+    {
+      "item": 9,
+      "type": 2,
+      "de": "%",
+      "en": "%"
+    },
+    {
+      "item": 10,
+      "type": 0,
+      "de": "Motorlaufzeit",
+      "en": "Motor runtime"
+    },
+    {
+      "item": 10,
+      "type": 2,
+      "de": "sec",
+      "en": "sec"
+    }
+  ],
+  "Cat_2_Grp_1": [
+    {
+      "item": 20771,
+      "type": 0,
+      "de": "",
+      "en": ""
+    },
+    {
+      "item": 62650,
+      "type": 0,
+      "de": "",
+      "en": ""
+    }
+  ],
+  "Cat_17_Grp_10": [
+    {
+      "item": 1,
+      "type": 0,
+      "de": "Menge pro Minute",
+      "en": "Volume per minute"
+    },
+    {
+      "item": 1,
+      "type": 2,
+      "de": "",
+      "en": ""
+    },
+    {
+      "item": 2,
+      "type": 0,
+      "de": "TN",
+      "en": "TN"
+    },
+    {
+      "item": 2,
+      "type": 2,
+      "de": "sec",
+      "en": "sec"
+    },
+    {
+      "item": 3,
+      "type": 0,
+      "de": "TV",
+      "en": "TV"
+    },
+    {
+      "item": 3,
+      "type": 2,
+      "de": "sec",
+      "en": "sec"
+    },
+    {
+      "item": 4,
+      "type": 0,
+      "de": "TA",
+      "en": "TA"
+    },
+    {
+      "item": 4,
+      "type": 2,
+      "de": "ms",
+      "en": "ms"
+    },
+    {
+      "item": 5,
+      "type": 0,
+      "de": "Fuzzy Faktor",
+      "en": "Fuzzy factor"
+    },
+    {
+      "item": 5,
+      "type": 2,
+      "de": "",
+      "en": ""
+    },
+    {
+      "item": 6,
+      "type": 0,
+      "de": "Alarmgrenze",
+      "en": "Alarm limit"
+    },
+    {
+      "item": 6,
+      "type": 2,
+      "de": "",
+      "en": ""
+    },
+    {
+      "item": 7,
+      "type": 0,
+      "de": "PSS Zykluszeit",
+      "en": "PSS cycle time"
+    },
+    {
+      "item": 7,
+      "type": 2,
+      "de": "sec",
+      "en": "sec"
+    }
+  ],
+  "Cat_18_Grp_1": [
+    {
+      "item": 21,
+      "type": 0,
+      "de": "Dosieren AB1",
+      "en": "dosing AT1"
+    },
+    {
+      "item": 22,
+      "type": 0,
+      "de": "Dosieren AB2",
+      "en": "dosing AT2"
+    }
+  ],
+  "Cat_18_Grp_2": [
+    {
+      "item": 1,
+      "type": 0,
+      "de": "Temp. Färbekessel",
+      "en": "temperat. main kier"
+    }
+  ],
+  "Cat_19_Grp_0": [
+    {
+      "item": 2,
+      "type": 0,
+      "de": "Verz. Start Warenl.",
+      "en": "delay start mat.flow"
+    },
+    {
+      "item": 2,
+      "type": 2,
+      "de": "s",
+      "en": "s"
+    },
+    {
+      "item": 3,
+      "type": 0,
+      "de": "Verz. Störung Signal",
+      "en": "delay error disturb."
+    },
+    {
+      "item": 3,
+      "type": 2,
+      "de": "s",
+      "en": "s"
+    },
+    {
+      "item": 5,
+      "type": 0,
+      "de": "Hysterese Umlaufkont",
+      "en": "Hys.rotation-control"
+    },
+    {
+      "item": 5,
+      "type": 2,
+      "de": "s",
+      "en": "s"
+    },
+    {
+      "item": 6,
+      "type": 0,
+      "de": "Restentl. Färbetank",
+      "en": "remain time mainkier"
+    },
+    {
+      "item": 6,
+      "type": 2,
+      "de": "min",
+      "en": "min"
+    },
+    {
+      "item": 7,
+      "type": 0,
+      "de": "Verz. Kond./ Kühlwas",
+      "en": "delay cooling"
+    },
+    {
+      "item": 7,
+      "type": 2,
+      "de": "s",
+      "en": "s"
+    },
+    {
+      "item": 8,
+      "type": 0,
+      "de": "Grundst. Wärmetausch",
+      "en": "def. pos. heat. exch"
+    },
+    {
+      "item": 8,
+      "type": 2,
+      "de": "min",
+      "en": "min"
+    },
+    {
+      "item": 9,
+      "type": 0,
+      "de": "Durchblaszeit Wärmet",
+      "en": "ventilate time heat"
+    },
+    {
+      "item": 9,
+      "type": 2,
+      "de": "s",
+      "en": "s"
+    },
+    {
+      "item": 10,
+      "type": 0,
+      "de": "Entlüftungszt DPumpe",
+      "en": "Venting time P.Pump"
+    },
+    {
+      "item": 10,
+      "type": 2,
+      "de": "s",
+      "en": "s"
+    },
+    {
+      "item": 14,
+      "type": 0,
+      "de": "Restentl Abl.m.Pumpe",
+      "en": "Res.Drain w.Pump"
+    },
+    {
+      "item": 14,
+      "type": 2,
+      "de": "s",
+      "en": "s"
+    },
+    {
+      "item": 15,
+      "type": 0,
+      "de": "Störung Warenlauf",
+      "en": "delay varijet"
+    },
+    {
+      "item": 15,
+      "type": 2,
+      "de": "s",
+      "en": "s"
+    },
+    {
+      "item": 21,
+      "type": 0,
+      "de": "1.Nachlfzt Spül. AB1",
+      "en": "1.remaintime AT1"
+    },
+    {
+      "item": 21,
+      "type": 2,
+      "de": "s",
+      "en": "s"
+    },
+    {
+      "item": 22,
+      "type": 0,
+      "de": "1.Zeit Nachspül. AB1",
+      "en": "1.time cleaning AT1"
+    },
+    {
+      "item": 22,
+      "type": 2,
+      "de": "s",
+      "en": "s"
+    },
+    {
+      "item": 23,
+      "type": 0,
+      "de": "2.Nachlfzt Spül. AB1",
+      "en": "2.remaintime AT1"
+    },
+    {
+      "item": 23,
+      "type": 2,
+      "de": "s",
+      "en": "s"
+    },
+    {
+      "item": 24,
+      "type": 0,
+      "de": "2.Zeit Nachspül. AB1",
+      "en": "2.time cleaning AT1"
+    },
+    {
+      "item": 24,
+      "type": 2,
+      "de": "s",
+      "en": "s"
+    },
+    {
+      "item": 25,
+      "type": 0,
+      "de": "Restentleerung AB1",
+      "en": "residual drain AT1"
+    },
+    {
+      "item": 25,
+      "type": 2,
+      "de": "s",
+      "en": "s"
+    },
+    {
+      "item": 26,
+      "type": 0,
+      "de": "1.Nachlfzt Spül. AB2",
+      "en": "1.remaintime AT2"
+    },
+    {
+      "item": 26,
+      "type": 2,
+      "de": "s",
+      "en": "s"
+    },
+    {
+      "item": 27,
+      "type": 0,
+      "de": "1.Zeit Nachspül. AB2",
+      "en": "1.time cleaning AT2"
+    },
+    {
+      "item": 27,
+      "type": 2,
+      "de": "s",
+      "en": "s"
+    },
+    {
+      "item": 28,
+      "type": 0,
+      "de": "2.Nachlfzt Spül. AB2",
+      "en": "2.remaintime AT2"
+    },
+    {
+      "item": 28,
+      "type": 2,
+      "de": "s",
+      "en": "s"
+    },
+    {
+      "item": 29,
+      "type": 0,
+      "de": "2.Zeit Nachspül. AB2",
+      "en": "2.time cleaning AT2"
+    },
+    {
+      "item": 29,
+      "type": 2,
+      "de": "s",
+      "en": "s"
+    },
+    {
+      "item": 30,
+      "type": 0,
+      "de": "Restentleerung AB2",
+      "en": "residual drain AT2"
+    },
+    {
+      "item": 30,
+      "type": 2,
+      "de": "s",
+      "en": "s"
+    }
+  ],
+  "Cat_20_Grp_0": [
+    {
+      "item": 1,
+      "type": 0,
+      "de": "min. Beladung",
+      "en": "min. load"
+    },
+    {
+      "item": 1,
+      "type": 2,
+      "de": "kg",
+      "en": "kg"
+    },
+    {
+      "item": 2,
+      "type": 0,
+      "de": "max. Beladung",
+      "en": "max. load"
+    },
+    {
+      "item": 2,
+      "type": 2,
+      "de": "kg",
+      "en": "kg"
+    },
+    {
+      "item": 3,
+      "type": 0,
+      "de": "min. Füllmenge",
+      "en": "min. Fill quantity"
+    },
+    {
+      "item": 3,
+      "type": 2,
+      "de": "l",
+      "en": "l"
+    },
+    {
+      "item": 4,
+      "type": 0,
+      "de": "max. Füllmenge",
+      "en": "max. Fill quantity"
+    },
+    {
+      "item": 4,
+      "type": 2,
+      "de": "l",
+      "en": "l"
+    },
+    {
+      "item": 5,
+      "type": 0,
+      "de": "min. Flottenverhält.",
+      "en": "min. liquor ratio"
+    },
+    {
+      "item": 5,
+      "type": 2,
+      "de": "l/kg",
+      "en": "l/kg"
+    },
+    {
+      "item": 6,
+      "type": 0,
+      "de": "max. Flottenverhält.",
+      "en": "max. liquor ratio"
+    },
+    {
+      "item": 6,
+      "type": 2,
+      "de": "l/kg",
+      "en": "l/kg"
+    },
+    {
+      "item": 7,
+      "type": 0,
+      "de": "min. Geschwindigkeit",
+      "en": "min. speed"
+    },
+    {
+      "item": 7,
+      "type": 2,
+      "de": "m/min",
+      "en": "m/min"
+    },
+    {
+      "item": 8,
+      "type": 0,
+      "de": "max. Geschwindigkeit",
+      "en": "max. speed"
+    },
+    {
+      "item": 8,
+      "type": 2,
+      "de": "m/min",
+      "en": "m/min"
+    },
+    {
+      "item": 9,
+      "type": 0,
+      "de": "min. Differenzdruck",
+      "en": "min. diff. pressure"
+    },
+    {
+      "item": 9,
+      "type": 2,
+      "de": "Bar",
+      "en": "bar"
+    },
+    {
+      "item": 10,
+      "type": 0,
+      "de": "max. Differenzdruck",
+      "en": "max. diff. pressure"
+    },
+    {
+      "item": 10,
+      "type": 2,
+      "de": "Bar",
+      "en": "bar"
+    },
+    {
+      "item": 13,
+      "type": 0,
+      "de": "max. Gradient",
+      "en": "max. gradient"
+    },
+    {
+      "item": 13,
+      "type": 2,
+      "de": "°C/min",
+      "en": "°C/min"
+    },
+    {
+      "item": 14,
+      "type": 0,
+      "de": "max. Temperatur",
+      "en": "max. temperature"
+    },
+    {
+      "item": 14,
+      "type": 2,
+      "de": "°C",
+      "en": "°C"
+    },
+    {
+      "item": 15,
+      "type": 0,
+      "de": "Grenztemp. HT-Ver.",
+      "en": "limit temp. HT enab."
+    },
+    {
+      "item": 15,
+      "type": 2,
+      "de": "oC",
+      "en": "°C"
+    },
+    {
+      "item": 16,
+      "type": 0,
+      "de": "Grenztemp. Ablassen",
+      "en": "limit temp. Draining"
+    },
+    {
+      "item": 16,
+      "type": 2,
+      "de": "°C",
+      "en": "°C"
+    },
+    {
+      "item": 17,
+      "type": 0,
+      "de": "max. Füllniveau",
+      "en": "max. fill level"
+    },
+    {
+      "item": 17,
+      "type": 2,
+      "de": "%",
+      "en": "%"
+    },
+    {
+      "item": 18,
+      "type": 0,
+      "de": "max. Anz.Füllventile",
+      "en": "max. filling valves"
+    },
+    {
+      "item": 18,
+      "type": 2,
+      "de": "",
+      "en": ""
+    },
+    {
+      "item": 19,
+      "type": 0,
+      "de": "max. Anz.Ablaufvent.",
+      "en": "max. draining valves"
+    },
+    {
+      "item": 19,
+      "type": 2,
+      "de": "",
+      "en": ""
+    },
+    {
+      "item": 32,
+      "type": 0,
+      "de": "Anz.Füllven. AB1",
+      "en": "filling valves AT1"
+    },
+    {
+      "item": 32,
+      "type": 2,
+      "de": "",
+      "en": ""
+    },
+    {
+      "item": 34,
+      "type": 0,
+      "de": "max. Niveau AB1",
+      "en": "max. level AT1"
+    },
+    {
+      "item": 34,
+      "type": 2,
+      "de": "%",
+      "en": "%"
+    },
+    {
+      "item": 38,
+      "type": 0,
+      "de": "max. Temp. AB1",
+      "en": "max temperature A┌\u0001©ü"
+    },
+    {
+      "item": 38,
+      "type": 2,
+      "de": "°C",
+      "en": "°C"
+    },
+    {
+      "item": 42,
+      "type": 0,
+      "de": "Anz.Füllventile AB2",
+      "en": "filling valves AT2"
+    },
+    {
+      "item": 42,
+      "type": 2,
+      "de": "",
+      "en": ""
+    },
+    {
+      "item": 44,
+      "type": 0,
+      "de": "max. Niveau AB2",
+      "en": "max. level AT2"
+    },
+    {
+      "item": 44,
+      "type": 2,
+      "de": "",
+      "en": ""
+    },
+    {
+      "item": 48,
+      "type": 0,
+      "de": "max. Temperatur AB2",
+      "en": "max temperature AT2"
+    },
+    {
+      "item": 48,
+      "type": 2,
+      "de": "°C",
+      "en": "°C"
+    },
+    {
+      "item": 130,
+      "type": 0,
+      "de": "Zeit Füllen",
+      "en": "stand. time filling"
+    },
+    {
+      "item": 130,
+      "type": 2,
+      "de": "min",
+      "en": "min"
+    },
+    {
+      "item": 131,
+      "type": 0,
+      "de": "Zeit Ablassen",
+      "en": "stand.time draining"
+    },
+    {
+      "item": 131,
+      "type": 2,
+      "de": "min",
+      "en": "min"
+    },
+    {
+      "item": 132,
+      "type": 0,
+      "de": "Zeit Einziehen AB1",
+      "en": "time injecting AT1"
+    },
+    {
+      "item": 132,
+      "type": 2,
+      "de": "min",
+      "en": "min"
+    },
+    {
+      "item": 133,
+      "type": 0,
+      "de": "Zeit Einziehen AB2",
+      "en": "time injecting AT2"
+    },
+    {
+      "item": 133,
+      "type": 2,
+      "de": "min",
+      "en": "min"
+    },
+    {
+      "item": 137,
+      "type": 0,
+      "de": "Zeit Füllen 100L",
+      "en": "time filling 100L"
+    },
+    {
+      "item": 137,
+      "type": 2,
+      "de": "min",
+      "en": "min"
+    },
+    {
+      "item": 138,
+      "type": 0,
+      "de": "Zeit 1 Intervall",
+      "en": "time 1 interval"
+    },
+    {
+      "item": 138,
+      "type": 2,
+      "de": "min",
+      "en": "min"
+    },
+    {
+      "item": 140,
+      "type": 0,
+      "de": "max. Heizrate",
+      "en": "max. heating rate"
+    },
+    {
+      "item": 140,
+      "type": 2,
+      "de": "°C/min",
+      "en": "°C/min"
+    },
+    {
+      "item": 141,
+      "type": 0,
+      "de": "max. Kühlrate",
+      "en": "max. cooling rate"
+    },
+    {
+      "item": 141,
+      "type": 2,
+      "de": "°C/min",
+      "en": "°C/min"
+    },
+    {
+      "item": 142,
+      "type": 0,
+      "de": "Wasser1-Temperatur",
+      "en": "temperature water 1"
+    },
+    {
+      "item": 142,
+      "type": 2,
+      "de": "°C",
+      "en": "°C"
+    },
+    {
+      "item": 143,
+      "type": 0,
+      "de": "Wasser2-Temperatur",
+      "en": "temperature water 2"
+    },
+    {
+      "item": 143,
+      "type": 2,
+      "de": "°C",
+      "en": "°C"
+    },
+    {
+      "item": 144,
+      "type": 0,
+      "de": "Wasser3-Temperatur",
+      "en": "temperature water 3"
+    },
+    {
+      "item": 144,
+      "type": 2,
+      "de": "°C",
+      "en": "°C"
+    },
+    {
+      "item": 145,
+      "type": 0,
+      "de": "Stand. Mustern-Zeit",
+      "en": "stand. sample time"
+    },
+    {
+      "item": 145,
+      "type": 2,
+      "de": "min",
+      "en": "min"
+    },
+    {
+      "item": 146,
+      "type": 0,
+      "de": "Stand. Chemie-Zeit",
+      "en": "stand. chemical time"
+    },
+    {
+      "item": 146,
+      "type": 2,
+      "de": "min",
+      "en": "min"
+    },
+    {
+      "item": 147,
+      "type": 0,
+      "de": "Stand. Belade-Zeit",
+      "en": "stand. load time"
+    },
+    {
+      "item": 147,
+      "type": 2,
+      "de": "min",
+      "en": "min"
+    },
+    {
+      "item": 148,
+      "type": 0,
+      "de": "Stand. Entlade-Zeit",
+      "en": "stand. unload time"
+    },
+    {
+      "item": 148,
+      "type": 2,
+      "de": "min",
+      "en": "min"
+    },
+    {
+      "item": 149,
+      "type": 0,
+      "de": "Stand. Stop-Zeit",
+      "en": "stand. opcall time"
+    },
+    {
+      "item": 149,
+      "type": 2,
+      "de": "min",
+      "en": "min"
+    },
+    {
+      "item": 150,
+      "type": 0,
+      "de": "SPS-Prüfnummer",
+      "en": "plc check number"
+    },
+    {
+      "item": 150,
+      "type": 2,
+      "de": "",
+      "en": ""
+    },
+    {
+      "item": 151,
+      "type": 0,
+      "de": "Zeit Füllen AB1",
+      "en": "time filling AT1"
+    },
+    {
+      "item": 151,
+      "type": 2,
+      "de": "min",
+      "en": "min"
+    },
+    {
+      "item": 152,
+      "type": 0,
+      "de": "Zeit Füllen AB2",
+      "en": "time filling AT2"
+    },
+    {
+      "item": 152,
+      "type": 2,
+      "de": "min",
+      "en": "min"
+    },
+    {
+      "item": 153,
+      "type": 0,
+      "de": "Zeit Ablassen AB1",
+      "en": "time draining AT1"
+    },
+    {
+      "item": 153,
+      "type": 2,
+      "de": "min",
+      "en": "min"
+    },
+    {
+      "item": 154,
+      "type": 0,
+      "de": "Zeit Ablassen AB2",
+      "en": "time draining AT2"
+    },
+    {
+      "item": 154,
+      "type": 2,
+      "de": "min",
+      "en": "min"
+    },
+    {
+      "item": 161,
+      "type": 0,
+      "de": "Zeit Farbabruf",
+      "en": "time color call"
+    },
+    {
+      "item": 161,
+      "type": 2,
+      "de": "min",
+      "en": "min"
+    },
+    {
+      "item": 162,
+      "type": 0,
+      "de": "Zeit Chemieabruf",
+      "en": "time chem call"
+    },
+    {
+      "item": 162,
+      "type": 2,
+      "de": "min",
+      "en": "min"
+    },
+    {
+      "item": 163,
+      "type": 0,
+      "de": "Zeit Stop/Test",
+      "en": "time Stop"
+    },
+    {
+      "item": 163,
+      "type": 2,
+      "de": "min",
+      "en": "min"
+    }
+  ],
+  "Cat_0_Grp_1": [
+    {
+      "item": 20626,
+      "type": 0,
+      "de": "",
+      "en": ""
+    },
+    {
+      "item": 20776,
+      "type": 0,
+      "de": "",
+      "en": ""
+    },
+    {
+      "item": 62655,
+      "type": 0,
+      "de": "",
+      "en": ""
+    },
+    {
+      "item": 62955,
+      "type": 0,
+      "de": "\u0001",
+      "en": ""
+    }
+  ],
+  "Cat_2_Grp_2": [
+    {
+      "item": 11490,
+      "type": 0,
+      "de": "",
+      "en": ""
+    },
+    {
+      "item": 11640,
+      "type": 0,
+      "de": "",
+      "en": ""
+    },
+    {
+      "item": 17579,
+      "type": 0,
+      "de": "",
+      "en": ""
+    },
+    {
+      "item": 38556,
+      "type": 0,
+      "de": "",
+      "en": ""
+    },
+    {
+      "item": 17809,
+      "type": 0,
+      "de": "\u0001",
+      "en": ""
+    },
+    {
+      "item": 31161,
+      "type": 0,
+      "de": "\u0001",
+      "en": ""
+    },
+    {
+      "item": 65190,
+      "type": 0,
+      "de": "\u0001",
+      "en": ""
+    }
+  ],
+  "Cat_2_Grp_3": [
+    {
+      "item": 5663,
+      "type": 0,
+      "de": "",
+      "en": ""
+    },
+    {
+      "item": 5813,
+      "type": 0,
+      "de": "",
+      "en": ""
+    }
+  ],
+  "Cat_0_Grp_3": [
+    {
+      "item": 5668,
+      "type": 0,
+      "de": "\u0001",
+      "en": ""
+    },
+    {
+      "item": 13231,
+      "type": 0,
+      "de": "\u0001",
+      "en": ""
+    }
+  ],
+  "Cat_2_Grp_4": [
+    {
+      "item": 44935,
+      "type": 0,
+      "de": "",
+      "en": ""
+    }
+  ],
+  "Cat_0_Grp_5": [
+    {
+      "item": 21935,
+      "type": 0,
+      "de": "",
+      "en": ""
+    },
+    {
+      "item": 41738,
+      "type": 0,
+      "de": "",
+      "en": ""
+    },
+    {
+      "item": 55602,
+      "type": 0,
+      "de": "",
+      "en": ""
+    },
+    {
+      "item": 48931,
+      "type": 0,
+      "de": "\u0002",
+      "en": ""
+    },
+    {
+      "item": 62645,
+      "type": 0,
+      "de": "",
+      "en": "\u0003"
+    }
+  ],
+  "Cat_2_Grp_5": [
+    {
+      "item": 28973,
+      "type": 0,
+      "de": "",
+      "en": ""
+    },
+    {
+      "item": 21940,
+      "type": 0,
+      "de": "",
+      "en": ""
+    },
+    {
+      "item": 41513,
+      "type": 0,
+      "de": "",
+      "en": ""
+    },
+    {
+      "item": 55377,
+      "type": 0,
+      "de": "",
+      "en": ""
+    },
+    {
+      "item": 62640,
+      "type": 0,
+      "de": "",
+      "en": ""
+    },
+    {
+      "item": 41743,
+      "type": 0,
+      "de": "\u0002",
+      "en": ""
+    },
+    {
+      "item": 55607,
+      "type": 0,
+      "de": "",
+      "en": "\u0002"
+    }
+  ],
+  "Cat_0_Grp_6": [
+    {
+      "item": 4080,
+      "type": 0,
+      "de": "",
+      "en": ""
+    },
+    {
+      "item": 24395,
+      "type": 0,
+      "de": "",
+      "en": ""
+    },
+    {
+      "item": 17062,
+      "type": 0,
+      "de": "",
+      "en": "\u0003"
+    }
+  ]
+}

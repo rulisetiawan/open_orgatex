@@ -13,14 +13,14 @@ dari HMI mesin celup (SETEX / SECOM 777, 737, 838).
    - FNLEGEND.CNF  <-- [Opsional] Keterangan handshake langkah proses
    - TYPECONT.CNF  <-- [Opsional] Pengaturan batas kontrol & level
 
-2. CARA MENGAMBIL FILE DARI HMI (VIA FLASHDISK):
+2. CARA MENGAMBIL FILE DARI HMI (VIA Storage):
    ----------------------------------------------
-   a. Tancapkan USB Flashdisk ke port USB pada layar HMI SETEX di mesin.
+   a. Tancapkan USB Storage ke port USB pada layar HMI SETEX di mesin.
    b. Buka Windows Explorer di Windows CE HMI.
-   c. Masuk ke folder: \Storage\SC777CE\Config\  (atau C:\SC777CE\Config\)
+   c. Masuk ke folder: \Storage\sc777ce\Config\  (atau C:\sc777ce\Config\)
    d. Salin (Copy) file TYPECONF.CNF, CONFTEXT.CNF, dan MACHCONF.CNF.
-   e. Tempel (Paste) ke USB Flashdisk Anda.
-   f. Bawa flashdisk ke komputer server ini, lalu paste ke folder ini:
+   e. Tempel (Paste) ke USB Storage Anda.
+   f. Bawa Storage ke komputer server ini, lalu paste ke folder ini:
       WORKSPACE_PROGRAM_MESIN/<NAMA_MESIN>/01_CONFIG_DARI_HMI/
 
 3. CARA MENGAKTIFKANNYA DI OPENORGATEX:

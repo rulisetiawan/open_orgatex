@@ -7,10 +7,10 @@ OUT=ROOT/'Analisis'
 sys.path.insert(0,str(OUT/'_deps'))
 import xlrd
 
-source=ROOT/'Storage/SC777CE/Programs/M_0182.PRG'
+source=ROOT/'Storage/sc777ce/Programs/M_0182.PRG'
 binary=source.read_bytes()
 before=hashlib.sha256(binary).hexdigest()
-cnf_path=ROOT/'Storage/SC777CE/Config/TYPECONF.CNF'
+cnf_path=ROOT/'Storage/sc777ce/Config/TYPECONF.CNF'
 cnf=cnf_path.read_bytes()
 sheet=xlrd.open_workbook(str(ROOT/'Network/F/function-label.xls')).sheet_by_index(0)
 mapping={}

@@ -1,6 +1,6 @@
 # Parameter dan fungsi mesin 13E
 
-Sumber: `13E/SC777CE/Config/TYPECONF.CNF`, rekonstruksi fragment dan RLE.
+Sumber: `13E/sc777ce/Config/TYPECONF.CNF`, rekonstruksi fragment dan RLE.
 Ini ID definisi parameter/fungsi; belum otomatis merupakan alamat SV_CHANGE.
 
 Ditemukan 107 definisi parameter dan 105 fungsi unik.

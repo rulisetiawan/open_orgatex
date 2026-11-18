@@ -9,6 +9,7 @@ Directly decodes SETEX 777 binary files on-the-fly:
 import os
 import re
 import io
+import json
 import ftplib
 import struct
 import logging
@@ -84,11 +85,18 @@ class SetexFolderReader:
                         pass
 
                 # 2. CWD into directory then RETR filename (Windows CE robust approach)
-                parts = [p for p in clean_path.strip("/").split("/") if p]
+                parts = [p for p in clean_path.strip("/\\").replace("\\", "/").split("/") if p]
                 if len(parts) > 1:
-                    dir_path = "/" + "/".join(parts[:-1])
+                    dir_path_slash = "/" + "/".join(parts[:-1])
+                    dir_path_bslash = "\\" + "\\".join(parts[:-1])
                     fname = parts[-1]
-                    for target_dir in (dir_path, dir_path.lstrip("/")):
+                    cwd_targets = [
+                        dir_path_slash,
+                        dir_path_slash.lstrip("/"),
+                        dir_path_bslash,
+                        dir_path_bslash.lstrip("\\")
+                    ]
+                    for target_dir in cwd_targets:
                         try:
                             ftp.cwd(target_dir)
                             bio = io.BytesIO()
@@ -106,30 +114,55 @@ class SetexFolderReader:
         return None
 
     @staticmethod
-    def read_status_act(folder_path: str = "", ip: Optional[str] = None, ftp_port: int = 21) -> Dict[str, Any]:
-        """Reads STATUS.ACT from FTP first (if IP provided) or local folder."""
-        data = None
-        is_ftp = False
-        ftp_source_path = ""
+    def read_status_act(folder_path: str = "", ip: Optional[str] = None, ftp_port: int = 21, raw_bytes: Optional[bytes] = None) -> Dict[str, Any]:
+        """Reads and parses STATUS.ACT from raw bytes, FTP (prioritizing Flashdisk/SC797CE for 192.168.1.95), or local folder."""
+        data = raw_bytes
+        is_ftp = bool(raw_bytes and ip)
+        ftp_source_path = f"ftp://{ip}:{ftp_port or 21}/STATUS.ACT" if is_ftp else ""
 
-        # 1. Try FTP first if IP is provided (real machine takes precedence)
-        if ip:
-            ftp_paths = [
+        # 1. Try FTP if no raw bytes provided but IP is given
+        if not data and ip:
+            is_797 = (ip.strip() == "192.168.1.95")
+            flashdisk_paths = [
+                "/Flashdisk/SC797CE/STATUS/STATUS.ACT",
+                "/Flashdisk/sc797ce/STATUS/STATUS.ACT",
+                "/flashdisk/sc797ce/status/status.act",
+                "\\Flashdisk\\SC797CE\\STATUS\\STATUS.ACT",
+                "\\flashdisk\\sc797ce\\status\\status.act",
+                "/Flashdisk/SC797CE/STATUS.ACT",
+                "/Flashdisk/sc797ce/STATUS.ACT",
+                "\\Flashdisk\\SC797CE\\STATUS.ACT",
+                "/Flashdisk/STATUS/STATUS.ACT",
+                "\\Flashdisk\\STATUS\\STATUS.ACT",
+                "Flashdisk/SC797CE/STATUS/STATUS.ACT",
+                "/Flashdisk/STATUS.ACT",
+                "/STATUS/STATUS.ACT",
+                "STATUS/STATUS.ACT",
+                "STATUS.ACT"
+            ]
+            storage_paths = [
+                "/Storage/sc777ce/STATUS/STATUS.ACT",
                 "/Storage/SC777CE/STATUS/STATUS.ACT",
-                "/storage/SC777CE/STATUS/STATUS.ACT",
-                "Storage/SC777CE/STATUS/STATUS.ACT",
-                "/SC777CE/STATUS/STATUS.ACT",
+                "/storage/sc777ce/status/status.act",
+                "\\Storage\\SC777CE\\STATUS\\STATUS.ACT",
+                "\\storage\\sc777ce\\status\\status.act",
+                "Storage/sc777ce/STATUS/STATUS.ACT",
+                "/sc777ce/STATUS/STATUS.ACT",
+                "/Storage/sc777ce/STATUS.ACT",
                 "/STATUS/STATUS.ACT",
                 "STATUS/STATUS.ACT",
                 "/OT/STATUS.ACT",
                 "STATUS.ACT"
             ]
+
+            ftp_paths = (flashdisk_paths + storage_paths) if is_797 else (storage_paths + flashdisk_paths)
+
             for fp in ftp_paths:
                 data = SetexFolderReader.read_file_from_ftp(ip, ftp_port, fp)
                 if data and len(data) > 0:
                     is_ftp = True
                     ftp_source_path = f"ftp://{ip}:{ftp_port or 21}{fp}"
-                    logger.info(f"Berhasil membaca telemetry langsung dari HMI: {ftp_source_path} ({len(data)} byte)")
+                    logger.info(f"Berhasil membaca telemetry langsung dari HMI ({'Flashdisk 797' if 'Flashdisk' in fp else 'Storage 777'}): {ftp_source_path} ({len(data)} byte)")
                     break
 
         # 2. Try local filesystem if not found via FTP
@@ -247,18 +280,29 @@ class SetexFolderReader:
 
     @staticmethod
     def read_alarm_act(folder_path: str = "", ip: Optional[str] = None, ftp_port: int = 21) -> Dict[str, Any]:
-        """Reads ALARM.ACT for active alarms from FTP or local folder."""
+        """Reads ALARM.ACT for active alarms from FTP (supporting Flashdisk/SC797CE) or local folder."""
         data = None
         if ip:
-            for fp in [
-                "/Storage/SC777CE/STATUS/ALARM.ACT",
-                "/Storage/SC777CE/STATUS/alarm.act",
-                "/storage/SC777CE/STATUS/ALARM.ACT",
-                "/storage/SC777CE/STATUS/alarm.act",
-                "Storage/SC777CE/STATUS/ALARM.ACT",
+            is_797 = (ip.strip() == "192.168.1.95")
+            flashdisk_alarms = [
+                "/Flashdisk/SC797CE/STATUS/ALARM.ACT",
+                "/Flashdisk/sc797ce/STATUS/ALARM.ACT",
+                "\\Flashdisk\\SC797CE\\STATUS\\ALARM.ACT",
+                "/Flashdisk/SC797CE/ALARM.ACT",
+                "/Flashdisk/STATUS/ALARM.ACT",
                 "STATUS/ALARM.ACT",
                 "ALARM.ACT"
-            ]:
+            ]
+            storage_alarms = [
+                "/Storage/sc777ce/STATUS/ALARM.ACT",
+                "/Storage/SC777CE/STATUS/ALARM.ACT",
+                "\\Storage\\SC777CE\\STATUS\\ALARM.ACT",
+                "Storage/sc777ce/STATUS/ALARM.ACT",
+                "STATUS/ALARM.ACT",
+                "ALARM.ACT"
+            ]
+            alarm_paths = (flashdisk_alarms + storage_alarms) if is_797 else (storage_alarms + flashdisk_alarms)
+            for fp in alarm_paths:
                 data = SetexFolderReader.read_file_from_ftp(ip, ftp_port, fp)
                 if data:
                     break
@@ -299,18 +343,28 @@ class SetexFolderReader:
 
     @staticmethod
     def read_alarms_log(folder_path: str = "", ip: Optional[str] = None, ftp_port: int = 21, limit: int = 50) -> List[Dict[str, Any]]:
-        """Parses ALARMS.LOG from FTP or local folder."""
+        """Parses ALARMS.LOG from FTP (supporting Flashdisk/SC797CE) or local folder."""
         data = None
         if ip:
-            for fp in [
-                "/Storage/SC777CE/STATUS/ALARMS.LOG",
-                "/Storage/SC777CE/STATUS/alarms.log",
-                "/storage/SC777CE/STATUS/ALARMS.LOG",
-                "/storage/SC777CE/STATUS/alarms.log",
-                "Storage/SC777CE/STATUS/ALARMS.LOG",
+            is_797 = (ip.strip() == "192.168.1.95")
+            flashdisk_logs = [
+                "/Flashdisk/SC797CE/STATUS/ALARMS.LOG",
+                "/Flashdisk/sc797ce/STATUS/ALARMS.LOG",
+                "\\Flashdisk\\SC797CE\\STATUS\\ALARMS.LOG",
+                "/Flashdisk/STATUS/ALARMS.LOG",
                 "STATUS/ALARMS.LOG",
                 "ALARMS.LOG"
-            ]:
+            ]
+            storage_logs = [
+                "/Storage/sc777ce/STATUS/ALARMS.LOG",
+                "/Storage/SC777CE/STATUS/ALARMS.LOG",
+                "\\Storage\\SC777CE\\STATUS\\ALARMS.LOG",
+                "Storage/sc777ce/STATUS/ALARMS.LOG",
+                "STATUS/ALARMS.LOG",
+                "ALARMS.LOG"
+            ]
+            log_paths = (flashdisk_logs + storage_logs) if is_797 else (storage_logs + flashdisk_logs)
+            for fp in log_paths:
                 data = SetexFolderReader.read_file_from_ftp(ip, ftp_port, fp)
                 if data:
                     break
@@ -560,13 +614,13 @@ class SetexFolderReader:
             return []
 
         paths = [
-            f"/Storage/SC777CE/BATCH/{batch_no}/PR{batch_no}.LOG",
-            f"/Storage/SC777CE/BATCH/{batch_no}/pr{batch_no}.log",
-            f"/storage/SC777CE/BATCH/{batch_no}/PR{batch_no}.LOG",
-            f"/storage/SC777CE/BATCH/{batch_no}/pr{batch_no}.log",
-            f"Storage/SC777CE/BATCH/{batch_no}/PR{batch_no}.LOG",
-            f"/Storage/SC777CE/BATCH/PR{batch_no}.LOG",
-            f"/storage/SC777CE/BATCH/PR{batch_no}.LOG",
+            f"/Storage/sc777ce/BATCH/{batch_no}/PR{batch_no}.LOG",
+            f"/Storage/sc777ce/BATCH/{batch_no}/pr{batch_no}.log",
+            f"/Storage/sc777ce/BATCH/{batch_no}/PR{batch_no}.LOG",
+            f"/Storage/sc777ce/BATCH/{batch_no}/pr{batch_no}.log",
+            f"Storage/sc777ce/BATCH/{batch_no}/PR{batch_no}.LOG",
+            f"/Storage/sc777ce/BATCH/PR{batch_no}.LOG",
+            f"/Storage/sc777ce/BATCH/PR{batch_no}.LOG",
             f"/BATCH/{batch_no}/PR{batch_no}.LOG",
             f"/Network/F/OT/MACHINES/A001/BATCHES/PR{batch_no}.LOG",
             f"PR{batch_no}.LOG"
@@ -595,3 +649,280 @@ class SetexFolderReader:
                     if f.upper().endswith(".LOG") and not f.upper().startswith("EVENT") and not f.upper().startswith("ALARM"):
                         found.append(os.path.join(root, f))
         return found
+
+    _PRG_STEPS_CACHE: Dict[str, List[Dict[str, Any]]] = {}
+    _FUNCTION_CATALOG: Optional[Dict[str, Any]] = None
+
+    @classmethod
+    def get_function_catalog(cls) -> Dict[str, Any]:
+        """Loads typeconf_functions.json catalog if available, or uses built-in standard SETEX function names."""
+        if cls._FUNCTION_CATALOG is not None:
+            return cls._FUNCTION_CATALOG
+
+        catalog = {}
+        candidate_paths = [
+            os.path.join(os.path.dirname(__file__), "..", "data", "typeconf_functions.json"),
+            os.path.join(os.path.dirname(__file__), "..", "..", "data", "typeconf_functions.json"),
+            "/app/open_orgatex/backend/data/typeconf_functions.json",
+            "./data/typeconf_functions.json",
+            "typeconf_functions.json"
+        ]
+        for cp in candidate_paths:
+            if os.path.exists(cp):
+                try:
+                    with open(cp, "r", encoding="utf-8") as f:
+                        data = json.load(f)
+                        catalog = data.get("functions", {})
+                        logger.info(f"Loaded SETEX function catalog ({len(catalog)} functions) from {cp}")
+                        break
+                except Exception as e:
+                    logger.warning(f"Failed to load function catalog from {cp}: {e}")
+
+        cls._FUNCTION_CATALOG = catalog
+        return cls._FUNCTION_CATALOG
+
+    @staticmethod
+    def format_step_param(func_id: int, param_idx: int, val: Optional[float], max_params: int = 3) -> str:
+        """Formats SETEX Secom float parameter into human-readable representation with engineering units."""
+        if val is None or param_idx >= max_params:
+            return ""
+        if func_id in (141, 121):  # Temperature Control / Hold
+            if param_idx == 0: return f"{val:.1f} °C" if val > 0 else f"{int(val)} °C"
+            if param_idx == 1: return f"{val:.1f} °C/min"
+            if param_idx == 2: return f"{int(val)} min" if val > 0 else "0 min"
+        elif func_id in (241, 747, 131):  # Rinsing / Cooling
+            if param_idx == 0: return f"{val:.1f} °C" if val > 0 else f"{int(val)} °C"
+            if param_idx == 1: return f"{val:.1f} °C/min"
+            if param_idx == 2: return f"{int(val)} min" if val > 0 else "0 min"
+        elif func_id == 404:  # Dye Liquor Pump
+            if param_idx in (0, 1): return f"{int(val)} %"
+        elif func_id == 712:  # Material Flow
+            if param_idx == 0: return "Off" if val == 0 else "On" if val == 1 else "Auto"
+            if param_idx == 1: return f"{int(val)} m/min"
+        elif func_id in (713, 717, 720, 668, 678):  # Filling / Level
+            if param_idx == 0: return "cold water" if val == 0 else "hot water" if val == 1 else f"{int(val)}"
+            if param_idx == 1: return f"{int(val)}"
+            if param_idx == 2: return f"{int(val)} %" if val <= 100 else f"{val:.1f} °C"
+            if param_idx == 3: return f"{int(val)} L"
+        elif func_id in (85, 86, 227, 228, 938, 939):  # Dosing Progression / Chemicals
+            if param_idx == 0: return f"{int(val)} %"
+            if param_idx == 1: return f"{int(val)}"
+            if param_idx == 2: return f"{int(val)} min"
+        elif func_id in (61, 71):  # Drain Percent
+            if param_idx == 0: return f"{int(val)} %"
+            if param_idx == 1: return f"{int(val)} min"
+        elif func_id in (30, 144):  # Runtime / Circulation
+            if param_idx == 0: return f"{int(val)} min"
+
+        if abs(val - round(val)) < 0.01:
+            return f"{int(round(val))}" if val != 0 else "0"
+        return f"{val:.1f}"
+
+    @staticmethod
+    def parse_prg_steps(prg_bytes: bytes, function_catalog: Optional[Dict[str, Any]] = None) -> List[Dict[str, Any]]:
+        """
+        Parses a SETEX Secom .PRG binary recipe to extract every defined step (1..N),
+        all sub-lines (1..16), and their parameter values (P1, P2, P3).
+        """
+        if not prg_bytes or len(prg_bytes) < 256:
+            return []
+
+        FALLBACK_FUNCTION_NAMES = {
+            1: "Program Start",
+            2: "Fill",
+            5: "Addition End",
+            30: "Runtime",
+            31: "Inject AT2",
+            61: "Drain",
+            71: "Drain Percent",
+            85: "Dosing",
+            86: "Dosing Chemical",
+            106: "Call-Off Operator",
+            121: "Holding",
+            126: "Check",
+            131: "Cooling",
+            141: "Temperature Control",
+            144: "Runtime",
+            227: "Dosing AT1",
+            228: "Dosing AT2",
+            238: "Inject AT2",
+            241: "Rinsing / Cooling",
+            261: "Load",
+            401: "Pump Set Value",
+            404: "Dye Liquor Pump",
+            668: "Filling AT2 Level",
+            678: "Fill ST1 Quantity",
+            708: "Machine -> ST1",
+            709: "Rinse Nozzle",
+            712: "Material Flow",
+            713: "Fill Level",
+            714: "Washing",
+            715: "Dosing AT2->AT1",
+            716: "ST -> Machine",
+            717: "Filling AT1 Level",
+            720: "Fill Level ST",
+            747: "Rinsing / Cooling",
+            938: "Dosing Progression 1",
+            939: "Dosing Progression 2",
+        }
+
+        catalog = function_catalog or {}
+        steps = []
+
+        for step_no in range(1, 255):
+            pat1 = struct.pack("<HH", step_no, 1)
+            idx1 = prg_bytes.find(pat1)
+            if idx1 == -1:
+                continue
+
+            lines = []
+            main_func_id = 0
+            main_func_name = f"Step #{step_no}"
+            main_type = "PROCESS"
+
+            # Parse all sub-lines (1 to 16) for this step
+            for line_no in range(1, 17):
+                pat = struct.pack("<HH", step_no, line_no)
+                idx = prg_bytes.find(pat)
+                if idx == -1:
+                    continue
+
+                if idx + 6 <= len(prg_bytes):
+                    func_id = struct.unpack_from("<H", prg_bytes, idx + 4)[0]
+                    if line_no > 1 and func_id in (0, 2):
+                        continue
+                    func_meta = catalog.get(str(func_id), {})
+                    base_name = func_meta.get("name") or FALLBACK_FUNCTION_NAMES.get(func_id) or f"Func {func_id}"
+
+                    if "prpgression" in base_name.lower():
+                        base_name = base_name.replace("Prpgression", "Progression").replace("prpgression", "progression")
+
+                    display_name = base_name if line_no == 1 else f"- {base_name}"
+                    param_count = func_meta.get("parameter_count", 3)
+
+                    # Unpack 32-bit floats
+                    rec = prg_bytes[idx:idx + 65]
+                    raw_params = []
+                    for p_off in (9, 15, 21, 27):
+                        if p_off + 4 <= len(rec):
+                            val = struct.unpack_from("<f", rec, p_off)[0]
+                            raw_params.append(val if abs(val) < 100000 else 0.0)
+
+                    fmt_p = [SetexFolderReader.format_step_param(func_id, pi, v, param_count) for pi, v in enumerate(raw_params)]
+                    while len(fmt_p) < 3:
+                        fmt_p.append("")
+
+                    if line_no == 1:
+                        main_func_id = func_id
+                        main_func_name = base_name
+                        f_lower = base_name.lower()
+                        if "temp" in f_lower or "heat" in f_lower or func_id in (141, 121):
+                            main_type = "HEAT"
+                        elif "rinse" in f_lower or "cool" in f_lower or func_id in (241, 747, 131):
+                            main_type = "COOL"
+                        elif "dose" in f_lower or "dosing" in f_lower or func_id in (85, 86, 227, 228, 938, 939):
+                            main_type = "DOSE"
+                        elif "fill" in f_lower or func_id in (713, 668, 678, 717, 720):
+                            main_type = "FILL"
+                        elif "drain" in f_lower or func_id in (61, 71):
+                            main_type = "DRAIN"
+                        elif "inject" in f_lower or func_id in (238, 712):
+                            main_type = "INJECT"
+                        elif "hold" in f_lower or func_id == 121:
+                            main_type = "HOLD"
+                        elif "wash" in f_lower or func_id == 714:
+                            main_type = "WASH"
+                        elif "pump" in f_lower or "speed" in f_lower or func_id in (401, 404):
+                            main_type = "PUMP"
+                        elif "run" in f_lower or func_id in (30, 144):
+                            main_type = "RUNTIME"
+
+                    lines.append({
+                        "line": line_no,
+                        "func_id": func_id,
+                        "name": display_name,
+                        "is_sub": line_no > 1,
+                        "p1": fmt_p[0],
+                        "p2": fmt_p[1],
+                        "p3": fmt_p[2]
+                    })
+
+            if lines:
+                p1_val = lines[0]["p1"] if lines else ""
+                p2_val = lines[0]["p2"] if lines else ""
+                p3_val = lines[0]["p3"] if lines else ""
+                steps.append({
+                    "no": step_no,
+                    "func_id": main_func_id,
+                    "name": main_func_name,
+                    "type": main_type,
+                    "icon": str(main_func_id),
+                    "p1": p1_val,
+                    "p2": p2_val,
+                    "p3": p3_val,
+                    "sub_steps": lines
+                })
+
+        return steps
+
+    @classmethod
+    def get_recipe_steps(cls, ip: Optional[str] = None, ftp_port: int = 21, batch_no: Optional[str] = None, folder_path: Optional[str] = None) -> List[Dict[str, Any]]:
+        """
+        Retrieves and caches recipe steps for the active batch.
+        Tries FTP BATCH directory first, then local folders.
+        """
+        cache_key = f"{ip or 'local'}_{batch_no or 'default'}"
+        if cache_key in cls._PRG_STEPS_CACHE:
+            return cls._PRG_STEPS_CACHE[cache_key]
+
+        catalog = cls.get_function_catalog()
+        prg_bytes = None
+
+        # 1. Try reading from FTP if IP & batch_no available
+        if ip and batch_no and batch_no != "UNKNOWN":
+            try:
+                ftp = ftplib.FTP(timeout=3.0)
+                ftp.connect(ip, ftp_port or 21)
+                ftp.login()
+                ftp.set_pasv(True)
+                batch_dir = f"/Storage/sc777ce/BATCH/{batch_no}"
+                try:
+                    ftp.cwd(batch_dir)
+                    files = ftp.nlst()
+                    prg_candidates = [f for f in files if f.upper().endswith(".PRG")]
+                    if prg_candidates:
+                        bio = io.BytesIO()
+                        ftp.retrbinary(f"RETR {prg_candidates[0]}", bio.write)
+                        prg_bytes = bio.getvalue()
+                except Exception:
+                    pass
+                ftp.quit()
+            except Exception:
+                pass
+
+        # 2. Try fallback to local files if FTP didn't get PRG
+        if not prg_bytes:
+            local_candidates = [
+                os.path.join(folder_path or "", "M_0342.PRG"),
+                os.path.join(os.path.dirname(__file__), "..", "data", "M_0342.PRG"),
+                "/app/open_orgatex/backend/data/M_0342.PRG",
+                "./data/M_0342.PRG"
+            ]
+            for lp in local_candidates:
+                if lp and os.path.exists(lp):
+                    try:
+                        with open(lp, "rb") as f:
+                            prg_bytes = f.read()
+                        if prg_bytes:
+                            break
+                    except Exception:
+                        pass
+
+        if prg_bytes:
+            steps = cls.parse_prg_steps(prg_bytes, catalog)
+            if steps:
+                cls._PRG_STEPS_CACHE[cache_key] = steps
+                logger.info(f"Successfully parsed and cached {len(steps)} steps for batch {batch_no} (key: {cache_key})")
+                return steps
+
+        return []

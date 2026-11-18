@@ -1,15 +1,909 @@
-<!doctype html><html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>PRG Studio — Editor program SETEX</title><style>
-:root{--bg:#eef2f5;--paper:#fff;--ink:#172f40;--muted:#6a7e8e;--line:#dce4e9;--teal:#147d80;--navy:#183b50;--amber:#9b6515}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:14px 'Segoe UI',Arial,sans-serif}button,input,select,textarea{font:inherit}button{cursor:pointer;border:1px solid var(--line);background:white;border-radius:7px;padding:9px 13px;color:var(--ink)}button:hover{border-color:var(--teal);background:#f0f8f8}button:disabled{cursor:default;opacity:.4}button.primary{background:var(--teal);color:white;border-color:var(--teal)}button.primary:hover{background:#106c70}button.quiet{background:transparent}input,select,textarea{width:100%;border:1px solid #cbd7df;border-radius:6px;background:white;padding:10px;color:var(--ink)}input:focus,select:focus,textarea:focus{outline:2px solid #a0d8d7;outline-offset:1px}label{display:block;color:var(--muted);font-size:12px;font-weight:600;margin-bottom:6px}h1,h2,h3,p{margin-top:0}header.top{height:76px;background:var(--navy);color:white;padding:0 26px;display:flex;align-items:center;justify-content:space-between;gap:14px}.brand{display:flex;align-items:center;gap:12px}.brandicon{font-weight:800;letter-spacing:-1px;border:1px solid #598294;border-radius:9px;padding:10px 8px;color:#a6e2dc}.brand h1{font-size:21px;margin:0;letter-spacing:.3px}.brand small{display:block;color:#b6cbd5;margin-top:3px}.topmeta{font-size:12px;color:#c4d9e1;display:flex;gap:15px;align-items:center}.dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:#8cd2c0;margin-right:6px}.shell{display:grid;grid-template-columns:275px minmax(0,1fr);min-height:calc(100vh - 76px)}aside.library{background:#f8fafb;border-right:1px solid var(--line);padding:21px 16px;max-height:calc(100vh - 76px);overflow:auto;position:sticky;top:0}.eyebrow{font-size:10px;font-weight:700;letter-spacing:1.8px;color:var(--muted);margin-bottom:9px}.libraryhead{display:flex;justify-content:space-between;align-items:center;margin-bottom:15px}.library h2{font-size:17px;margin:0}.countbadge{background:#e5edef;border-radius:5px;padding:4px 7px;font-size:11px;color:#4e6979}.search{margin-bottom:14px}.program{display:block;text-align:left;width:100%;padding:12px;border:1px solid transparent;background:transparent;margin-bottom:5px}.program:hover{background:#edf4f5}.program.active{border-color:#a1cecd;background:#e7f3f2}.program strong{display:block;font-size:13px;margin:5px 0;line-height:1.35}.program small{font-size:11px;color:var(--muted)}.programid{font:11px Consolas,monospace;letter-spacing:.5px;color:var(--teal)}.libraryactions{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:18px}.libraryactions button{padding:9px 4px;font-size:12px}.workspace{padding:24px;min-width:0}.titlebar{display:flex;align-items:flex-start;justify-content:space-between;gap:20px;margin-bottom:18px}.titlebar h2{font-size:25px;letter-spacing:-.5px;margin-bottom:7px}.subtitle{color:var(--muted);font-size:13px}.actions{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}.metadata{background:white;border:1px solid var(--line);border-radius:10px;padding:18px;display:grid;grid-template-columns:130px minmax(180px,1fr) auto;gap:16px;align-items:end;margin-bottom:17px}.metadata small{display:block;color:var(--muted);margin-top:6px;font-size:11px}.stats{display:flex;gap:22px;padding:0 12px 5px}.stat strong{display:block;font-size:24px;line-height:1.1}.stat span{font-size:11px;color:var(--muted)}.draftbar{padding:12px 16px;background:#fff7e4;border:1px solid #ebd8ac;border-radius:8px;margin-bottom:15px;display:flex;align-items:center;justify-content:space-between;gap:12px}.draftbar[hidden]{display:none}.editor{display:grid;grid-template-columns:240px minmax(0,1fr);border:1px solid var(--line);border-radius:10px;overflow:hidden;background:white;min-height:520px}.stepspane{background:#f8fafb;border-right:1px solid var(--line);padding:16px 12px}.stepshead{display:flex;justify-content:space-between;align-items:center;margin-bottom:13px;padding:0 4px}.stepshead h3{font-size:14px;margin:0}.stepslist{max-height:655px;overflow:auto}.stepitem{display:flex;width:100%;text-align:left;gap:10px;border:1px solid transparent;background:transparent;padding:11px 8px;margin-bottom:3px}.stepitem.active{background:white;border-color:#b8d6d5;box-shadow:0 2px 5px #16384b08}.stepnum{min-width:30px;height:29px;background:#e6edef;color:#6a7e8e;display:flex;align-items:center;justify-content:center;border-radius:6px;font:12px Consolas,monospace}.active .stepnum{background:var(--teal);color:white}.steptext{min-width:0}.steptext strong{display:block;font-size:12px}.steptext small{display:block;color:var(--muted);font-size:11px;margin-top:4px;line-height:1.4}.details{padding:23px;min-width:0}.stepbar{display:flex;justify-content:space-between;gap:12px;align-items:center;margin-bottom:17px}.stepbar h3{font-size:19px;margin:0}.smallactions{display:flex;gap:5px}.smallactions button{font-size:12px;padding:7px 9px}.comment{margin-bottom:19px}.resource{border:1px solid var(--line);border-radius:9px;margin-bottom:13px;overflow:hidden}.resourcehead{background:#f8fafb;padding:13px 15px;display:flex;justify-content:space-between;gap:12px;align-items:center}.resourcetitle strong{display:block;font-size:13px}.resourcetitle small{color:var(--muted);font-size:11px;display:block;margin-top:3px}.functionbody{padding:15px}.functionselect{margin-bottom:14px}.fields{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:14px}.field .control{display:flex;align-items:stretch}.field .control input{border-radius:6px 0 0 6px;min-width:0}.unit{background:#edf3f5;border:1px solid #cbd7df;border-left:0;border-radius:0 6px 6px 0;padding:10px 9px;min-width:42px;white-space:nowrap;color:#577181;font-size:12px;display:flex;align-items:center;justify-content:center}.hint{font-size:10px;color:#7a8e9b;margin-top:5px;line-height:1.4}.emptyparams{color:var(--muted);font-size:12px;padding:5px 0}.preserved{background:#fff7e5;border-left:3px solid #d5a955;padding:10px 12px;margin-top:13px;font-size:12px;line-height:1.5}.addresource{display:flex;gap:8px;align-items:center;margin-top:17px}.addresource select{max-width:270px}.validation{margin-top:18px;border:1px solid var(--line);border-radius:9px;background:white;padding:15px 18px;font-size:12px;line-height:1.65}.validation.good{border-color:#bcded2}.validation.bad{border-color:#e1b7ad;background:#fff9f7}.validation strong{display:block;font-size:13px}.validation ul{margin:8px 0 0;padding-left:18px}.footer{color:var(--muted);font-size:11px;line-height:1.6;margin-top:15px}.linkbutton{border:0;background:none;color:var(--teal);padding:0;font-size:12px}.toast{position:fixed;right:24px;bottom:24px;background:#173b50;color:white;padding:14px 19px;border-radius:9px;max-width:480px;box-shadow:0 10px 30px #0002;z-index:99}.toast[hidden]{display:none}.danger{color:#a34e36}dialog{border:1px solid var(--line);border-radius:12px;width:min(700px,95vw);padding:24px;box-shadow:0 16px 60px #142d4740}dialog::backdrop{background:#10253566}dialog h2{font-size:20px}dialog .cataloglist{max-height:55vh;overflow:auto}dialog table{width:100%;border-collapse:collapse;font-size:12px}dialog td,dialog th{text-align:left;border-bottom:1px solid var(--line);padding:9px}dialog .dialogbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:15px}.noscript{padding:30px;color:#b00}a{color:var(--teal)}@media(max-width:1120px){.shell{grid-template-columns:225px 1fr}.workspace{padding:18px}.editor{grid-template-columns:190px 1fr}.details{padding:17px}.metadata{grid-template-columns:105px 1fr}.stats{grid-column:1/-1;padding:0}.titlebar{display:block}.actions{justify-content:flex-start;margin-top:12px}.topmeta span:last-child{display:none}}@media(max-width:760px){header.top{padding:0 16px}.topmeta{display:none}.shell{display:block}aside.library{max-height:280px;position:static;border-bottom:1px solid var(--line)}.programs{display:flex;overflow:auto;gap:6px}.program{min-width:185px;max-width:210px}.libraryactions{max-width:360px}.editor{grid-template-columns:1fr}.stepspane{border-right:0;border-bottom:1px solid var(--line)}.stepslist{display:flex;overflow:auto;max-height:none}.stepitem{min-width:190px;max-width:220px}.metadata{grid-template-columns:90px 1fr}.stepbar{align-items:flex-start;flex-direction:column}.smallactions{flex-wrap:wrap}.titlebar h2{font-size:22px}.fields{grid-template-columns:1fr 1fr}}@media print{header.top,.library,.stepspane,.actions,.smallactions,.addresource,.draftbar,.footer{display:none}.shell,.editor{display:block}.workspace{padding:0}.resource{break-inside:avoid}}
-</style></head><body>
-<header class="top"><div class="brand"><div class="brandicon">PRG</div><div><h1>PRG Studio</h1><small>Editor program proses · SETEX / SECOM</small></div></div><div class="topmeta"><span><i class="dot"></i>Berjalan lokal · offline</span><span>Konfigurasi SC777CE</span></div></header>
-<div class="shell"><aside class="library"><div class="eyebrow">LIBRARY PROGRAM</div><div class="libraryhead"><h2>Pilih template</h2><span class="countbadge" id="library-count">37 program</span></div><input class="search" id="program-search" placeholder="Cari nama / nomor program…" aria-label="Cari program"><div class="libraryactions"><button id="new-program">＋ Program baru</button><button id="import-prg">Buka file PRG</button></div><div class="programs" id="program-list"></div></aside>
-<main class="workspace"><div class="titlebar"><div><div class="eyebrow">SUSUN · ATUR PARAMETER · EKSPOR</div><h2 id="workspace-title">Editor program</h2><div class="subtitle" id="workspace-subtitle">Pilih template, ubah langkah dan parameter, lalu unduh PRG.</div></div><div class="actions"><button id="catalog-btn">Daftar fungsi CNF</button><button id="undo-btn" disabled>↶ Urungkan</button><button id="save-draft">Simpan draf</button><button class="primary" id="export-prg">↓ Ekspor PRG</button></div></div>
-<div class="draftbar" id="draftbar" hidden><span>Draf tersimpan di browser ini tersedia.</span><div><button id="restore-draft">Pulihkan draf</button> <button id="discard-draft" class="quiet">Abaikan</button></div></div>
-<section class="metadata"><div><label for="program-id">ID program</label><input id="program-id" type="number" min="1" max="9999" step="1"><small id="filename">M_0182.PRG</small></div><div><label for="program-title">Nama program</label><input id="program-title" maxlength="20"><small>Maks. 20 karakter ASCII · header mengikuti template</small></div><div class="stats"><div class="stat"><strong id="step-count">58</strong><span>LANGKAH</span></div><div class="stat"><strong id="record-count">191</strong><span>FUNGSI</span></div></div></section>
-<section class="editor"><nav class="stepspane"><div class="stepshead"><h3>Urutan langkah</h3><button id="add-step" class="linkbutton">＋ Tambah</button></div><div class="stepslist" id="step-list"></div></nav><div class="details" id="step-details"></div></section>
-<section class="validation" id="validation" aria-live="polite"></section>
-<div class="footer">File PRG dibuat di browser dan diunduh ke komputer Anda. Periksa hasil di editor Orgatex/SECOM yang sesuai sebelum digunakan pada mesin. Konfigurasi dan metadata berasal dari salinan HMI yang dianalisis. <button class="linkbutton" id="load-draft-btn">Buka draf JSON</button></div>
-</main></div><input type="file" id="file-prg" accept=".prg,.PRG" hidden><input type="file" id="file-draft" accept=".json" hidden><div class="toast" id="toast" role="status" hidden></div>
-<dialog id="catalog"><div class="dialogbar"><h2>Fungsi dari CNF mesin</h2><button id="close-catalog">Tutup</button></div><input id="catalog-search" placeholder="Cari fungsi / ID…" aria-label="Cari fungsi CNF"><p class="hint">Pilihan pada editor mengikuti resource yang ditetapkan CNF. Definisi lain tetap dapat ditinjau di sini.</p><div class="cataloglist"><table><thead><tr><th>ID</th><th>Fungsi</th><th>Resource</th><th>Parameter</th></tr></thead><tbody id="catalog-body"></tbody></table></div></dialog>
-<noscript><div class="noscript">Aktifkan JavaScript di browser untuk menggunakan editor.</div></noscript>
-<script>/*__ENGINE__*/</script><script>const EDITOR_DATA=/*__DATA__*/;</script><script>/*__APP__*/</script></body></html>
+<!doctype html>
+<html lang="id">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>PRG Studio — Editor program SETEX</title>
+    <style>
+        :root {
+            --bg: #eef2f5;
+            --paper: #fff;
+            --ink: #172f40;
+            --muted: #6a7e8e;
+            --line: #dce4e9;
+            --teal: #147d80;
+            --navy: #183b50;
+            --amber: #9b6515
+        }
+
+        * {
+            box-sizing: border-box
+        }
+
+        body {
+            margin: 0;
+            background: var(--bg);
+            color: var(--ink);
+            font: 14px 'Segoe UI', Arial, sans-serif
+        }
+
+        button,
+        input,
+        select,
+        textarea {
+            font: inherit
+        }
+
+        button {
+            cursor: pointer;
+            border: 1px solid var(--line);
+            background: white;
+            border-radius: 7px;
+            padding: 9px 13px;
+            color: var(--ink)
+        }
+
+        button:hover {
+            border-color: var(--teal);
+            background: #f0f8f8
+        }
+
+        button:disabled {
+            cursor: default;
+            opacity: .4
+        }
+
+        button.primary {
+            background: var(--teal);
+            color: white;
+            border-color: var(--teal)
+        }
+
+        button.primary:hover {
+            background: #106c70
+        }
+
+        button.quiet {
+            background: transparent
+        }
+
+        input,
+        select,
+        textarea {
+            width: 100%;
+            border: 1px solid #cbd7df;
+            border-radius: 6px;
+            background: white;
+            padding: 10px;
+            color: var(--ink)
+        }
+
+        input:focus,
+        select:focus,
+        textarea:focus {
+            outline: 2px solid #a0d8d7;
+            outline-offset: 1px
+        }
+
+        label {
+            display: block;
+            color: var(--muted);
+            font-size: 12px;
+            font-weight: 600;
+            margin-bottom: 6px
+        }
+
+        h1,
+        h2,
+        h3,
+        p {
+            margin-top: 0
+        }
+
+        header.top {
+            height: 76px;
+            background: var(--navy);
+            color: white;
+            padding: 0 26px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 14px
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px
+        }
+
+        .brandicon {
+            font-weight: 800;
+            letter-spacing: -1px;
+            border: 1px solid #598294;
+            border-radius: 9px;
+            padding: 10px 8px;
+            color: #a6e2dc
+        }
+
+        .brand h1 {
+            font-size: 21px;
+            margin: 0;
+            letter-spacing: .3px
+        }
+
+        .brand small {
+            display: block;
+            color: #b6cbd5;
+            margin-top: 3px
+        }
+
+        .topmeta {
+            font-size: 12px;
+            color: #c4d9e1;
+            display: flex;
+            gap: 15px;
+            align-items: center
+        }
+
+        .dot {
+            display: inline-block;
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: #8cd2c0;
+            margin-right: 6px
+        }
+
+        .shell {
+            display: grid;
+            grid-template-columns: 275px minmax(0, 1fr);
+            min-height: calc(100vh - 76px)
+        }
+
+        aside.library {
+            background: #f8fafb;
+            border-right: 1px solid var(--line);
+            padding: 21px 16px;
+            max-height: calc(100vh - 76px);
+            overflow: auto;
+            position: sticky;
+            top: 0
+        }
+
+        .eyebrow {
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 1.8px;
+            color: var(--muted);
+            margin-bottom: 9px
+        }
+
+        .libraryhead {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px
+        }
+
+        .library h2 {
+            font-size: 17px;
+            margin: 0
+        }
+
+        .countbadge {
+            background: #e5edef;
+            border-radius: 5px;
+            padding: 4px 7px;
+            font-size: 11px;
+            color: #4e6979
+        }
+
+        .search {
+            margin-bottom: 14px
+        }
+
+        .program {
+            display: block;
+            text-align: left;
+            width: 100%;
+            padding: 12px;
+            border: 1px solid transparent;
+            background: transparent;
+            margin-bottom: 5px
+        }
+
+        .program:hover {
+            background: #edf4f5
+        }
+
+        .program.active {
+            border-color: #a1cecd;
+            background: #e7f3f2
+        }
+
+        .program strong {
+            display: block;
+            font-size: 13px;
+            margin: 5px 0;
+            line-height: 1.35
+        }
+
+        .program small {
+            font-size: 11px;
+            color: var(--muted)
+        }
+
+        .programid {
+            font: 11px Consolas, monospace;
+            letter-spacing: .5px;
+            color: var(--teal)
+        }
+
+        .libraryactions {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 7px;
+            margin-bottom: 18px
+        }
+
+        .libraryactions button {
+            padding: 9px 4px;
+            font-size: 12px
+        }
+
+        .workspace {
+            padding: 24px;
+            min-width: 0
+        }
+
+        .titlebar {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 20px;
+            margin-bottom: 18px
+        }
+
+        .titlebar h2 {
+            font-size: 25px;
+            letter-spacing: -.5px;
+            margin-bottom: 7px
+        }
+
+        .subtitle {
+            color: var(--muted);
+            font-size: 13px
+        }
+
+        .actions {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            justify-content: flex-end
+        }
+
+        .metadata {
+            background: white;
+            border: 1px solid var(--line);
+            border-radius: 10px;
+            padding: 18px;
+            display: grid;
+            grid-template-columns: 130px minmax(180px, 1fr) auto;
+            gap: 16px;
+            align-items: end;
+            margin-bottom: 17px
+        }
+
+        .metadata small {
+            display: block;
+            color: var(--muted);
+            margin-top: 6px;
+            font-size: 11px
+        }
+
+        .stats {
+            display: flex;
+            gap: 22px;
+            padding: 0 12px 5px
+        }
+
+        .stat strong {
+            display: block;
+            font-size: 24px;
+            line-height: 1.1
+        }
+
+        .stat span {
+            font-size: 11px;
+            color: var(--muted)
+        }
+
+        .draftbar {
+            padding: 12px 16px;
+            background: #fff7e4;
+            border: 1px solid #ebd8ac;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px
+        }
+
+        .draftbar[hidden] {
+            display: none
+        }
+
+        .editor {
+            display: grid;
+            grid-template-columns: 240px minmax(0, 1fr);
+            border: 1px solid var(--line);
+            border-radius: 10px;
+            overflow: hidden;
+            background: white;
+            min-height: 520px
+        }
+
+        .stepspane {
+            background: #f8fafb;
+            border-right: 1px solid var(--line);
+            padding: 16px 12px
+        }
+
+        .stepshead {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 13px;
+            padding: 0 4px
+        }
+
+        .stepshead h3 {
+            font-size: 14px;
+            margin: 0
+        }
+
+        .stepslist {
+            max-height: 655px;
+            overflow: auto
+        }
+
+        .stepitem {
+            display: flex;
+            width: 100%;
+            text-align: left;
+            gap: 10px;
+            border: 1px solid transparent;
+            background: transparent;
+            padding: 11px 8px;
+            margin-bottom: 3px
+        }
+
+        .stepitem.active {
+            background: white;
+            border-color: #b8d6d5;
+            box-shadow: 0 2px 5px #16384b08
+        }
+
+        .stepnum {
+            min-width: 30px;
+            height: 29px;
+            background: #e6edef;
+            color: #6a7e8e;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 6px;
+            font: 12px Consolas, monospace
+        }
+
+        .active .stepnum {
+            background: var(--teal);
+            color: white
+        }
+
+        .steptext {
+            min-width: 0
+        }
+
+        .steptext strong {
+            display: block;
+            font-size: 12px
+        }
+
+        .steptext small {
+            display: block;
+            color: var(--muted);
+            font-size: 11px;
+            margin-top: 4px;
+            line-height: 1.4
+        }
+
+        .details {
+            padding: 23px;
+            min-width: 0
+        }
+
+        .stepbar {
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+            align-items: center;
+            margin-bottom: 17px
+        }
+
+        .stepbar h3 {
+            font-size: 19px;
+            margin: 0
+        }
+
+        .smallactions {
+            display: flex;
+            gap: 5px
+        }
+
+        .smallactions button {
+            font-size: 12px;
+            padding: 7px 9px
+        }
+
+        .comment {
+            margin-bottom: 19px
+        }
+
+        .resource {
+            border: 1px solid var(--line);
+            border-radius: 9px;
+            margin-bottom: 13px;
+            overflow: hidden
+        }
+
+        .resourcehead {
+            background: #f8fafb;
+            padding: 13px 15px;
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+            align-items: center
+        }
+
+        .resourcetitle strong {
+            display: block;
+            font-size: 13px
+        }
+
+        .resourcetitle small {
+            color: var(--muted);
+            font-size: 11px;
+            display: block;
+            margin-top: 3px
+        }
+
+        .functionbody {
+            padding: 15px
+        }
+
+        .functionselect {
+            margin-bottom: 14px
+        }
+
+        .fields {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 14px
+        }
+
+        .field .control {
+            display: flex;
+            align-items: stretch
+        }
+
+        .field .control input {
+            border-radius: 6px 0 0 6px;
+            min-width: 0
+        }
+
+        .unit {
+            background: #edf3f5;
+            border: 1px solid #cbd7df;
+            border-left: 0;
+            border-radius: 0 6px 6px 0;
+            padding: 10px 9px;
+            min-width: 42px;
+            white-space: nowrap;
+            color: #577181;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center
+        }
+
+        .hint {
+            font-size: 10px;
+            color: #7a8e9b;
+            margin-top: 5px;
+            line-height: 1.4
+        }
+
+        .emptyparams {
+            color: var(--muted);
+            font-size: 12px;
+            padding: 5px 0
+        }
+
+        .preserved {
+            background: #fff7e5;
+            border-left: 3px solid #d5a955;
+            padding: 10px 12px;
+            margin-top: 13px;
+            font-size: 12px;
+            line-height: 1.5
+        }
+
+        .addresource {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            margin-top: 17px
+        }
+
+        .addresource select {
+            max-width: 270px
+        }
+
+        .validation {
+            margin-top: 18px;
+            border: 1px solid var(--line);
+            border-radius: 9px;
+            background: white;
+            padding: 15px 18px;
+            font-size: 12px;
+            line-height: 1.65
+        }
+
+        .validation.good {
+            border-color: #bcded2
+        }
+
+        .validation.bad {
+            border-color: #e1b7ad;
+            background: #fff9f7
+        }
+
+        .validation strong {
+            display: block;
+            font-size: 13px
+        }
+
+        .validation ul {
+            margin: 8px 0 0;
+            padding-left: 18px
+        }
+
+        .footer {
+            color: var(--muted);
+            font-size: 11px;
+            line-height: 1.6;
+            margin-top: 15px
+        }
+
+        .linkbutton {
+            border: 0;
+            background: none;
+            color: var(--teal);
+            padding: 0;
+            font-size: 12px
+        }
+
+        .toast {
+            position: fixed;
+            right: 24px;
+            bottom: 24px;
+            background: #173b50;
+            color: white;
+            padding: 14px 19px;
+            border-radius: 9px;
+            max-width: 480px;
+            box-shadow: 0 10px 30px #0002;
+            z-index: 99
+        }
+
+        .toast[hidden] {
+            display: none
+        }
+
+        .danger {
+            color: #a34e36
+        }
+
+        dialog {
+            border: 1px solid var(--line);
+            border-radius: 12px;
+            width: min(700px, 95vw);
+            padding: 24px;
+            box-shadow: 0 16px 60px #142d4740
+        }
+
+        dialog::backdrop {
+            background: #10253566
+        }
+
+        dialog h2 {
+            font-size: 20px
+        }
+
+        dialog .cataloglist {
+            max-height: 55vh;
+            overflow: auto
+        }
+
+        dialog table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12px
+        }
+
+        dialog td,
+        dialog th {
+            text-align: left;
+            border-bottom: 1px solid var(--line);
+            padding: 9px
+        }
+
+        dialog .dialogbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px
+        }
+
+        .noscript {
+            padding: 30px;
+            color: #b00
+        }
+
+        a {
+            color: var(--teal)
+        }
+
+        @media(max-width:1120px) {
+            .shell {
+                grid-template-columns: 225px 1fr
+            }
+
+            .workspace {
+                padding: 18px
+            }
+
+            .editor {
+                grid-template-columns: 190px 1fr
+            }
+
+            .details {
+                padding: 17px
+            }
+
+            .metadata {
+                grid-template-columns: 105px 1fr
+            }
+
+            .stats {
+                grid-column: 1/-1;
+                padding: 0
+            }
+
+            .titlebar {
+                display: block
+            }
+
+            .actions {
+                justify-content: flex-start;
+                margin-top: 12px
+            }
+
+            .topmeta span:last-child {
+                display: none
+            }
+        }
+
+        @media(max-width:760px) {
+            header.top {
+                padding: 0 16px
+            }
+
+            .topmeta {
+                display: none
+            }
+
+            .shell {
+                display: block
+            }
+
+            aside.library {
+                max-height: 280px;
+                position: static;
+                border-bottom: 1px solid var(--line)
+            }
+
+            .programs {
+                display: flex;
+                overflow: auto;
+                gap: 6px
+            }
+
+            .program {
+                min-width: 185px;
+                max-width: 210px
+            }
+
+            .libraryactions {
+                max-width: 360px
+            }
+
+            .editor {
+                grid-template-columns: 1fr
+            }
+
+            .stepspane {
+                border-right: 0;
+                border-bottom: 1px solid var(--line)
+            }
+
+            .stepslist {
+                display: flex;
+                overflow: auto;
+                max-height: none
+            }
+
+            .stepitem {
+                min-width: 190px;
+                max-width: 220px
+            }
+
+            .metadata {
+                grid-template-columns: 90px 1fr
+            }
+
+            .stepbar {
+                align-items: flex-start;
+                flex-direction: column
+            }
+
+            .smallactions {
+                flex-wrap: wrap
+            }
+
+            .titlebar h2 {
+                font-size: 22px
+            }
+
+            .fields {
+                grid-template-columns: 1fr 1fr
+            }
+        }
+
+        @media print {
+
+            header.top,
+            .library,
+            .stepspane,
+            .actions,
+            .smallactions,
+            .addresource,
+            .draftbar,
+            .footer {
+                display: none
+            }
+
+            .shell,
+            .editor {
+                display: block
+            }
+
+            .workspace {
+                padding: 0
+            }
+
+            .resource {
+                break-inside: avoid
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <header class="top">
+        <div class="brand">
+            <div class="brandicon">PRG</div>
+            <div>
+                <h1>PRG Studio</h1><small>Editor program proses · SETEX / SECOM</small>
+            </div>
+        </div>
+        <div class="topmeta"><span><i class="dot"></i>Berjalan lokal · offline</span><span>Konfigurasi sc777ce</span>
+        </div>
+    </header>
+    <div class="shell">
+        <aside class="library">
+            <div class="eyebrow">LIBRARY PROGRAM</div>
+            <div class="libraryhead">
+                <h2>Pilih template</h2><span class="countbadge" id="library-count">37 program</span>
+            </div><input class="search" id="program-search" placeholder="Cari nama / nomor program…"
+                aria-label="Cari program">
+            <div class="libraryactions"><button id="new-program">＋ Program baru</button><button id="import-prg">Buka
+                    file PRG</button></div>
+            <div class="programs" id="program-list"></div>
+        </aside>
+        <main class="workspace">
+            <div class="titlebar">
+                <div>
+                    <div class="eyebrow">SUSUN · ATUR PARAMETER · EKSPOR</div>
+                    <h2 id="workspace-title">Editor program</h2>
+                    <div class="subtitle" id="workspace-subtitle">Pilih template, ubah langkah dan parameter, lalu unduh
+                        PRG.</div>
+                </div>
+                <div class="actions"><button id="catalog-btn">Daftar fungsi CNF</button><button id="undo-btn" disabled>↶
+                        Urungkan</button><button id="save-draft">Simpan draf</button><button class="primary"
+                        id="export-prg">↓ Ekspor PRG</button></div>
+            </div>
+            <div class="draftbar" id="draftbar" hidden><span>Draf tersimpan di browser ini tersedia.</span>
+                <div><button id="restore-draft">Pulihkan draf</button> <button id="discard-draft"
+                        class="quiet">Abaikan</button></div>
+            </div>
+            <section class="metadata">
+                <div><label for="program-id">ID program</label><input id="program-id" type="number" min="1" max="9999"
+                        step="1"><small id="filename">M_0182.PRG</small></div>
+                <div><label for="program-title">Nama program</label><input id="program-title"
+                        maxlength="20"><small>Maks. 20 karakter ASCII · header mengikuti template</small></div>
+                <div class="stats">
+                    <div class="stat"><strong id="step-count">58</strong><span>LANGKAH</span></div>
+                    <div class="stat"><strong id="record-count">191</strong><span>FUNGSI</span></div>
+                </div>
+            </section>
+            <section class="editor">
+                <nav class="stepspane">
+                    <div class="stepshead">
+                        <h3>Urutan langkah</h3><button id="add-step" class="linkbutton">＋ Tambah</button>
+                    </div>
+                    <div class="stepslist" id="step-list"></div>
+                </nav>
+                <div class="details" id="step-details"></div>
+            </section>
+            <section class="validation" id="validation" aria-live="polite"></section>
+            <div class="footer">File PRG dibuat di browser dan diunduh ke komputer Anda. Periksa hasil di editor
+                Orgatex/SECOM yang sesuai sebelum digunakan pada mesin. Konfigurasi dan metadata berasal dari salinan
+                HMI yang dianalisis. <button class="linkbutton" id="load-draft-btn">Buka draf JSON</button></div>
+        </main>
+    </div><input type="file" id="file-prg" accept=".prg,.PRG" hidden><input type="file" id="file-draft" accept=".json"
+        hidden>
+    <div class="toast" id="toast" role="status" hidden></div>
+    <dialog id="catalog">
+        <div class="dialogbar">
+            <h2>Fungsi dari CNF mesin</h2><button id="close-catalog">Tutup</button>
+        </div><input id="catalog-search" placeholder="Cari fungsi / ID…" aria-label="Cari fungsi CNF">
+        <p class="hint">Pilihan pada editor mengikuti resource yang ditetapkan CNF. Definisi lain tetap dapat ditinjau
+            di sini.</p>
+        <div class="cataloglist">
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Fungsi</th>
+                        <th>Resource</th>
+                        <th>Parameter</th>
+                    </tr>
+                </thead>
+                <tbody id="catalog-body"></tbody>
+            </table>
+        </div>
+    </dialog>
+    <noscript>
+        <div class="noscript">Aktifkan JavaScript di browser untuk menggunakan editor.</div>
+    </noscript>
+    <script>/*__ENGINE__*/</script>
+    <script>const EDITOR_DATA =/*__DATA__*/;</script>
+    <script>/*__APP__*/</script>
+</body>
+
+</html>

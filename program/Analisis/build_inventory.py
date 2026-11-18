@@ -11,7 +11,7 @@ specific = {
 'NK.BIN': ('Image OS yang ditunjuk BOOT.INI; isi image belum dibongkar.', 'Referensi konfigurasi'),
 'BLDR': ('Diduga bootloader penyimpanan; mekanisme internal belum dianalisis.', 'Nama/lokasi'),
 'SPLASH.BMX': ('Diduga gambar splash saat boot; format belum didekode.', 'Nama/lokasi'),
-'SC777CE.EXE': ('Aplikasi utama HMI SECOM777CE, PE x86 Windows CE; log runtime menyebut 2.24.', 'Header PE, imports dan log'),
+'sc777ce.EXE': ('Aplikasi utama HMI SECOM777CE, PE x86 Windows CE; log runtime menyebut 2.24.', 'Header PE, imports dan log'),
 'SecomCE_Loader_2d.exe': ('Loader aplikasi HMI; Loader.cfg menentukan executable tujuan. Pemicu boot belum diketahui.', 'Nama dan Loader.cfg'),
 'Loader.cfg': ('Menetapkan DESTPATH, REM_PATH dan EXEFNAME untuk loader.', 'Isi teks'),
 'PATH.CFG': ('Peta direktori lokal, USB dan host untuk konfigurasi, program, batch, report dan firmware.', 'Isi teks'),
@@ -155,7 +155,7 @@ Isi teks, header/exports/imports PE dan referensi konfigurasi adalah bukti langs
 
 ## Alur sistem
 
-BOOT.INI menunjuk image NK.BIN. Loader.cfg menunjuk SC777CE.EXE; penghubung otomatis boot ke loader belum tersedia dalam salinan ini. SC777CE menggunakan modul background, data, hardware, service, history dan process info. Background mengimpor modul TCP dan ARCNET. ARCNET.CFG mengatur node sendiri 1 dan PLC 2. PATH.CFG menghubungkan direktori lokal dengan direktori host Orgatex. Peran TCP tidak boleh disamakan dengan Modbus tanpa bukti protokol.
+BOOT.INI menunjuk image NK.BIN. Loader.cfg menunjuk sc777ce.EXE; penghubung otomatis boot ke loader belum tersedia dalam salinan ini. sc777ce menggunakan modul background, data, hardware, service, history dan process info. Background mengimpor modul TCP dan ARCNET. ARCNET.CFG mengatur node sendiri 1 dan PLC 2. PATH.CFG menghubungkan direktori lokal dengan direktori host Orgatex. Peran TCP tidak boleh disamakan dengan Modbus tanpa bukti protokol.
 
 ## Folder tingkat atas
 
@@ -170,7 +170,7 @@ BOOT.INI menunjuk image NK.BIN. Loader.cfg menunjuk SC777CE.EXE; penghubung otom
 | Temp | 8 ikon alarm dan 462 ikon proses bitmap | Regenerasi cache belum diuji |
 | Windows | Metadata folder dan shortcut bantuan | Bukan seluruh isi OS, sebagian OS dapat berada dalam image NK.BIN |
 
-## Folder runtime HMI: Storage/SC777CE
+## Folder runtime HMI: Storage/sc777ce
 
 | Folder | Fungsi |
 |---|---|
@@ -232,7 +232,7 @@ Perbandingan hash untuk semua file dengan nama sama antara konfigurasi HMI dan N
 | File | Hasil |
 |---|---|
 '''
-for p in sorted((ROOT/'Storage/SC777CE/Config').iterdir()):
+for p in sorted((ROOT/'Storage/sc777ce/Config').iterdir()):
     q=ROOT/'Network/F/Update/Config'/p.name
     report+=f'| `{p.name}` | '+('Identik byte-per-byte' if q.exists() and p.read_bytes()==q.read_bytes() else 'Berbeda' if q.exists() else 'Tidak ada di Update')+' |\n'
 report+='''

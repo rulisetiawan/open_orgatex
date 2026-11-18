@@ -1,6 +1,6 @@
 SETEX MONITOR — VERSI STATUS.ACT SAJA
 Jalankan Jalankan_Monitor.bat dengan Python 3 pada Windows.
-URL: ftp://172.16.120.113/Storage/SC777CE/
+URL: ftp://172.16.120.113/Storage/sc777ce/
 Isi username/password jika diperlukan; password tidak disimpan.
 Baca sekali mengambil satu snapshot; Mulai cyclic mengulang setelah interval; Stop menghentikan pembaca. FTP minimal 30 detik; timeout bawaan 60 detik.
 

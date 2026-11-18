@@ -267,8 +267,8 @@ VALUES
 ('TD12', 'Thies Eco-Soft 350kg #12', '192.168.1.102', 'SECOM777', 'WindowsCE', 350.0, 8.0, '/app/STATUS', 'ONLINE'),
 ('TD13', 'Thies Eco-Soft 500kg #13', '192.168.1.103', 'SECOM777', 'WindowsCE', 500.0, 8.0, '/app/STATUS', 'IDLE'),
 ('M01', 'Fong''s Superwin Jet 1000kg #01', '192.168.1.104', 'SECOM777', 'WindowsCE', 1000.0, 7.0, '/app/STATUS', 'IDLE'),
-('1A', 'SETEX 777CE Mesin 1A', '172.16.110.101', 'SECOM777', 'WindowsCE', 350.0, 8.0, '/Storage/SC777CE', 'ONLINE'),
-('A002', 'SETEX 777CE Mesin A002', '172.16.110.102', 'SECOM777', 'WindowsCE', 500.0, 8.0, '/Storage/SC777CE', 'ONLINE')
+('1A', 'SETEX 777CE Mesin 1A', '172.16.110.101', 'SECOM777', 'WindowsCE', 350.0, 8.0, '/Storage/sc777ce', 'ONLINE'),
+('A002', 'SETEX 777CE Mesin A002', '172.16.110.102', 'SECOM777', 'WindowsCE', 500.0, 8.0, '/Storage/sc777ce', 'ONLINE')
 ON CONFLICT (machine_no) DO UPDATE SET
     display_name = EXCLUDED.display_name,
     ip_address = EXCLUDED.ip_address,

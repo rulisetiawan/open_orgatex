@@ -3,6 +3,7 @@ import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 import { 
   Plus, 
   Download, 
+  Send,
   Clock, 
   Layers, 
   User, 
@@ -28,7 +29,7 @@ const COLUMN_DEFS = {
   COMPLETED: { name: 'Selesai (Completed)', color: 'border-slate-500/50 bg-slate-50/10 dark:bg-slate-900/30 text-slate-400' },
 };
 
-const MACHINE_OPTIONS = ['SEMUA', 'TD12', 'TD13', 'B012', 'E013', 'M01'];
+const MACHINE_OPTIONS = ['SEMUA', 'DA01', '10B', 'TD12', 'TD13', 'B012', 'E013', 'M01'];
 
 const KanbanView = () => {
   const [batches, setBatches] = useState([]);
@@ -56,6 +57,13 @@ const KanbanView = () => {
     fabric_weight_kg: 325.85,
     liquor_ratio: 8.0,
   });
+
+  // FTP Dispatch Batch Modal State
+  const [ftpDispatchModalOpen, setFtpDispatchModalOpen] = useState(false);
+  const [batchToDispatch, setBatchToDispatch] = useState(null);
+  const [dispatchIp, setDispatchIp] = useState('192.168.1.95');
+  const [dispatchModel, setDispatchModel] = useState('797');
+  const [isDispatching, setIsDispatching] = useState(false);
 
   const fetchBatches = async () => {
     setLoading(true);
@@ -164,6 +172,30 @@ const KanbanView = () => {
   const handleDownloadZip = (batchId, refNo, batchNo) => {
     // Direct browser download without touching network share
     window.location.href = `${API_BASE}/export-zip/${batchId}`;
+  };
+
+  // Dispatch Batch Directly to Controller via FTP
+  const handleExecuteDispatch = async () => {
+    if (!batchToDispatch) return;
+    setIsDispatching(true);
+    try {
+      const is797 = dispatchModel === '797' || dispatchIp.trim() === '192.168.1.95';
+      const targetDir = is797 ? '/Flashdisk/SC797CE/BATCH' : '/Storage/sc777ce/BATCH';
+      const res = await axios.post('/api/ftp/dispatch-batch', {
+        ip: dispatchIp.trim(),
+        port: 21,
+        batch_id: batchToDispatch.id,
+        controller_type: is797 ? '797' : '777',
+        target_dir: targetDir
+      });
+      alert(res.data.message || `Batch ${batchToDispatch.batch_no} berhasil dikirim ke Kontroler FTP!`);
+      setFtpDispatchModalOpen(false);
+      fetchBatches();
+    } catch (err) {
+      alert('Gagal mengirim batch via FTP: ' + (err.response?.data?.detail || err.message));
+    } finally {
+      setIsDispatching(false);
+    }
   };
 
   const totalWater = (form.fabric_weight_kg * form.liquor_ratio).toFixed(1);
@@ -341,15 +373,39 @@ const KanbanView = () => {
                               </div>
 
                               {/* Bottom Action Buttons */}
-                              <div className="flex items-center justify-between gap-2 pt-1">
+                              <div className="flex items-center justify-between gap-1.5 pt-1">
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    setBatchToDispatch(item);
+                                    const is797Target = item.machine_no === '797' || item.machine_no?.includes('797');
+                                    if (is797Target) {
+                                      setDispatchIp('192.168.1.95');
+                                      setDispatchModel('797');
+                                    } else if (item.machine_no === '10B') {
+                                      setDispatchIp('172.16.110.160');
+                                      setDispatchModel('777');
+                                    } else {
+                                      setDispatchIp('192.168.1.95');
+                                      setDispatchModel('797');
+                                    }
+                                    setFtpDispatchModalOpen(true);
+                                  }}
+                                  className="flex-1 flex items-center justify-center gap-1 py-1 px-1.5 rounded bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-[10px] font-bold border border-emerald-500/20 transition"
+                                  title="Kirim Batch langsung ke Kontroler FTP (192.168.1.95 / SETEX 797CE)"
+                                >
+                                  <Send className="h-3 w-3" />
+                                  <span>Kirim FTP</span>
+                                </button>
+
                                 <button
                                   type="button"
                                   onClick={() => handleDownloadZip(item.id, item.reference_no, item.batch_no)}
-                                  className="flex-1 flex items-center justify-center gap-1.5 py-1 px-2 rounded bg-primary/10 hover:bg-primary/20 text-primary text-[10px] font-bold border border-primary/20 transition"
+                                  className="flex-1 flex items-center justify-center gap-1 py-1 px-1.5 rounded bg-primary/10 hover:bg-primary/20 text-primary text-[10px] font-bold border border-primary/20 transition"
                                   title="Unduh Paket Biner BATCHREF.REF & M_xxxx.PRG (ZIP)"
                                 >
                                   <Download className="h-3 w-3" />
-                                  <span>Unduh ZIP</span>
+                                  <span>ZIP</span>
                                 </button>
 
                                 <button
@@ -576,6 +632,106 @@ const KanbanView = () => {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL: FTP DISPATCH BATCH DIRECT TO CONTROLLER */}
+      {ftpDispatchModalOpen && batchToDispatch && (
+        <div className="fixed inset-0 z-9999 flex items-center justify-center bg-black/75 p-4 backdrop-blur-sm animate-in fade-in">
+          <div className="bg-[#1c2434] border border-gray-700 rounded-lg w-full max-w-lg p-6 shadow-2xl space-y-4 text-xs">
+            <div className="flex items-center justify-between border-b border-gray-700 pb-3">
+              <h3 className="text-base font-bold text-white flex items-center gap-2">
+                <Send className="h-5 w-5 text-emerald-400" />
+                Kirim Batch ke Kontroler FTP (SETEX 797CE / 777)
+              </h3>
+              <button
+                onClick={() => setFtpDispatchModalOpen(false)}
+                className="text-gray-400 hover:text-white"
+              >
+                ✕
+              </button>
+            </div>
+
+            <div className="space-y-3">
+              <div className="bg-[#24303f] p-3 rounded border border-gray-700 space-y-1.5 font-mono">
+                <div className="flex justify-between">
+                  <span className="text-gray-400">Batch Target:</span>
+                  <strong className="text-white">#{batchToDispatch.batch_no} (Ref: {batchToDispatch.reference_no})</strong>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-400">Resep / Formula:</span>
+                  <span className="text-emerald-400">{batchToDispatch.recipe_name || 'Standard'}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-400">Nomor Program:</span>
+                  <span className="text-amber-400">M_{String(batchToDispatch.program_no || 1).padStart(4, '0')}.PRG</span>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3 bg-[#24303f] p-3 rounded border border-gray-700">
+                <div>
+                  <label className="block text-gray-300 font-medium mb-1">IP Kontroler Target:</label>
+                  <input
+                    type="text"
+                    value={dispatchIp}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      setDispatchIp(val);
+                      if (val.trim() === '192.168.1.95') {
+                        setDispatchModel('797');
+                      }
+                    }}
+                    placeholder="192.168.1.95"
+                    className="w-full bg-[#1c2434] border border-gray-600 text-emerald-400 font-mono font-bold rounded px-2.5 py-1.5 outline-none"
+                  />
+                  <span className="text-[10px] text-gray-400 block mt-1">Default 797CE: 192.168.1.95</span>
+                </div>
+
+                <div>
+                  <label className="block text-gray-300 font-medium mb-1">Tipe Kontroler / Folder:</label>
+                  <select
+                    value={dispatchModel}
+                    onChange={(e) => setDispatchModel(e.target.value)}
+                    className="w-full bg-[#1c2434] border border-gray-600 text-amber-300 font-bold rounded px-2.5 py-1.5 outline-none"
+                  >
+                    <option value="797">SETEX 797CE (/Flashdisk/SC797CE/BATCH)</option>
+                    <option value="777">SETEX 777 (/Storage/sc777ce/BATCH)</option>
+                  </select>
+                  <span className="text-[10px] text-gray-400 block mt-1">Auto-fallback aktif jika folder belum ada</span>
+                </div>
+              </div>
+
+              <div className="text-[11px] text-gray-400 bg-black/20 p-2.5 rounded border border-gray-800 space-y-1">
+                <span className="font-bold text-gray-300">File biner yang langsung diunggah:</span>
+                <ul className="list-disc list-inside text-slate-300">
+                  <li><code className="text-emerald-400">BATCHREF.REF</code> (762-byte Secom binary structure)</li>
+                  <li><code className="text-emerald-400">M_{String(batchToDispatch.program_no || 1).padStart(4, '0')}.PRG</code> (Biner program eksekusi mikro)</li>
+                </ul>
+                <div className="text-gray-400 pt-1 border-t border-gray-800">
+                  Path remote: <strong className="text-amber-300 font-mono">{dispatchModel === '797' ? '/Flashdisk/SC797CE/BATCH' : '/Storage/sc777ce/BATCH'}</strong>
+                </div>
+              </div>
+
+              <div className="flex justify-end gap-2 pt-3 border-t border-gray-700">
+                <button
+                  type="button"
+                  onClick={() => setFtpDispatchModalOpen(false)}
+                  className="bg-gray-700 text-white px-3 py-1.5 rounded"
+                >
+                  Batal
+                </button>
+                <button
+                  type="button"
+                  onClick={handleExecuteDispatch}
+                  disabled={isDispatching}
+                  className="bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 text-white font-semibold px-4 py-1.5 rounded flex items-center gap-1.5 shadow"
+                >
+                  <Send className={`h-3.5 w-3.5 ${isDispatching ? 'animate-spin' : ''}`} />
+                  <span>{isDispatching ? 'Mengirim ke FTP...' : `Kirim Batch ke ${dispatchIp}`}</span>
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       )}

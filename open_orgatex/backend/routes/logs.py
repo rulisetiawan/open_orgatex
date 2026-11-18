@@ -10,7 +10,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy import desc
 
 from ..database import get_db
-from ..models.schema_pg import Machine, DatalogCyclicRecord, DatalogAlarm, BatchHeader
+from ..models.schema_pg import Machine, DatalogCyclicRecord, DatalogAlarm, BatchHeader, OperatorIntervention
 from ..services.ingestion import LogIngestionService
 from ..services.reader import SetexFolderReader
 
@@ -35,7 +35,7 @@ def get_live_machine_telemetry(
             display_name=f"SETEX Controller {machine_no.upper()}",
             ip_address=ip or "172.16.110.101",
             ftp_port=21,
-            share_folder_path="/Storage/SC777CE",
+            share_folder_path="/Storage/sc777ce",
             status="ONLINE"
         )
         db.add(m)
@@ -220,3 +220,41 @@ def parse_direct_log_file(filepath: str):
     """Direct read-only parser for arbitrary log file paths."""
     pts = SetexFolderReader.read_cyclic_log_file(filepath)
     return {"total_records": len(pts), "records": pts}
+
+@router.get("/interventions/{machine_no}")
+def get_recorded_interventions(
+    machine_no: str,
+    batch_no: Optional[str] = None,
+    limit: int = Query(default=100, le=500),
+    db: Session = Depends(get_db)
+):
+    """
+    Mengambil data riwayat modifikasi parameter & intervensi operator
+    dari database PostgreSQL (tabel operator_interventions).
+    """
+    m_no = machine_no.upper()
+    query = db.query(OperatorIntervention).filter(OperatorIntervention.machine_no == m_no)
+    if batch_no:
+        query = query.filter(OperatorIntervention.batch_no == batch_no)
+
+    records = query.order_by(desc(OperatorIntervention.timestamp)).limit(limit).all()
+
+    return {
+        "machine_no": m_no,
+        "total_records": len(records),
+        "interventions": [
+            {
+                "id": r.id,
+                "timestamp": r.timestamp.strftime("%Y-%m-%d %H:%M:%S") if r.timestamp else "",
+                "batch_no": r.batch_no,
+                "step_no": r.step_no,
+                "parameter_name": r.parameter_name,
+                "unit": r.unit,
+                "value_before": float(r.value_before) if r.value_before else 0.0,
+                "value_after": float(r.value_after) if r.value_after else 0.0,
+                "delta": float(r.delta) if r.delta else 0.0,
+                "notes": r.notes
+            }
+            for r in records
+        ]
+    }

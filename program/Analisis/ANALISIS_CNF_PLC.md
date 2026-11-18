@@ -2,7 +2,7 @@
 
 # Pembacaan konfigurasi CNF dan kaitannya dengan PLC
 
-Pemeriksaan statis 28 Oktober 2026. Sumber di Storage/SC777CE tidak diubah dan tidak dijalankan. Ini pembacaan sebagian struktur dan teks, bukan decoding lengkap database Btrieve.
+Pemeriksaan statis 28 Oktober 2026. Sumber di Storage/sc777ce tidak diubah dan tidak dijalankan. Ini pembacaan sebagian struktur dan teks, bukan decoding lengkap database Btrieve.
 
 ## Hasil utama
 

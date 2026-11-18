@@ -14,7 +14,7 @@ Setiap mesin memiliki foldernya sendiri (misal `MESIN_1A`, `MESIN_A002`, `MESIN_
 WORKSPACE_PROGRAM_MESIN/
 │
 ├── _TEMPLATE_MESIN_BARU/                  <-- Template acuan untuk menambah mesin baru
-│   ├── 01_CONFIG_DARI_HMI/                <-- [PASTE DI SINI] File download dari HMI (\Storage\SC777CE\Config\)
+│   ├── 01_CONFIG_DARI_HMI/                <-- [PASTE DI SINI] File download dari HMI (\Storage\sc777ce\Config\)
 │   │   ├── TYPECONF.CNF                   <-- Kamus fungsi & parameter PLC
 │   │   ├── CONFTEXT.CNF                   <-- Label teks bahasa & teks alarm
 │   │   ├── MACHCONF.CNF                   <-- Konfigurasi kapasitas kg & tangki mesin
@@ -24,7 +24,7 @@ WORKSPACE_PROGRAM_MESIN/
 │   │   ├── conftext_aligned.json
 │   │   └── machine_profile.json
 │   ├── 03_CONTOH_PRG_DARI_HMI/            <-- Simpan copy program lama (M_xxxx.PRG) sebagai acuan/template
-│   └── 04_HASIL_PROGRAM_CELUP/            <-- Hasil compile program baru (.PRG) siap copy ke flashdisk/FTP
+│   └── 04_HASIL_PROGRAM_CELUP/            <-- Hasil compile program baru (.PRG) siap copy ke Storage/FTP
 │
 ├── MESIN_1A/                              <-- Workspace Mesin 1A (IP: 172.16.110.101)
 ├── MESIN_A002/                            <-- Workspace Mesin A002 (IP: 172.16.110.102)
@@ -41,13 +41,13 @@ WORKSPACE_PROGRAM_MESIN/
 ## 2. Alur Kerja Praktis (SOP)
 
 ### Langkah 1: Download File Konfigurasi dari HMI Mesin
-1. Di layar HMI mesin celup (SETEX / SECOM 777/737), tancapkan flashdisk USB.
-2. Buka folder: `\Storage\SC777CE\Config\` (atau `C:\SC777CE\Config\`).
+1. Di layar HMI mesin celup (SETEX / SECOM 777/737), tancapkan Storage USB.
+2. Buka folder: `\Storage\sc777ce\Config\` (atau `C:\sc777ce\Config\`).
 3. Copy 3 file utama:
    - `TYPECONF.CNF`
    - `CONFTEXT.CNF`
    - `MACHCONF.CNF` *(jika ada)*
-4. *(Opsional)* Ambil juga 1 contoh program yang sudah terbukti stabil di mesin tersebut dari `\Storage\SC777CE\Programs\` (misal `M_0001.PRG`).
+4. *(Opsional)* Ambil juga 1 contoh program yang sudah terbukti stabil di mesin tersebut dari `\Storage\sc777ce\Programs\` (misal `M_0001.PRG`).
 
 ### Langkah 2: Paste File ke Komputer Server
 1. Buka folder mesin tujuan di komputer ini, misal:
@@ -72,7 +72,7 @@ Sistem akan otomatis mengonversi file biner HMI menjadi JSON di folder `02_CONFI
 ### Langkah 5: Ambil File Program Hasil Kompilasi
 File biner `.PRG` yang telah dikompilasi akan langsung tersedia di:
 `WORKSPACE_PROGRAM_MESIN/MESIN_TD12/04_HASIL_PROGRAM_CELUP/M_xxxx.PRG`
-Anda tinggal menyalin file ini ke flashdisk untuk dimasukkan ke mesin, atau langsung dikirim via FTP.
+Anda tinggal menyalin file ini ke Storage untuk dimasukkan ke mesin, atau langsung dikirim via FTP.
 
 ---
 

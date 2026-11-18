@@ -1,22 +1,22 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { 
-  Server, 
-  Plus, 
-  Search, 
-  Trash2, 
-  CheckCircle2, 
-  AlertCircle, 
-  RefreshCw, 
-  Database, 
-  Activity, 
-  LineChart, 
-  Radar, 
-  Sliders, 
-  Network, 
-  Settings, 
-  FlaskConical, 
-  Check, 
+import {
+  Server,
+  Plus,
+  Search,
+  Trash2,
+  CheckCircle2,
+  AlertCircle,
+  RefreshCw,
+  Database,
+  Activity,
+  LineChart,
+  Radar,
+  Sliders,
+  Network,
+  Settings,
+  FlaskConical,
+  Check,
   ExternalLink,
   Edit,
   ShieldCheck,
@@ -29,7 +29,7 @@ const Machines = () => {
   const navigate = useNavigate();
   const [machines, setMachines] = useState([]);
   const [loading, setLoading] = useState(false);
-  
+
   // Modals
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [snifferModalOpen, setSnifferModalOpen] = useState(false);
@@ -44,6 +44,7 @@ const Machines = () => {
   // Diagnostics test state
   const [testingMachine, setTestingMachine] = useState(null);
   const [testResult, setTestResult] = useState(null);
+  const [fetchingConfig, setFetchingConfig] = useState(null);
 
   // Form State (Matches OrgaTEX UCMachineEdit & MachineContainer)
   const defaultForm = {
@@ -67,6 +68,7 @@ const Machines = () => {
     allow_proc_pic_edit: true,
     polling_interval_sec: 5,
     is_active: true,
+    auto_fetch_config: true,
   };
 
   const [form, setForm] = useState(defaultForm);
@@ -183,6 +185,28 @@ const Machines = () => {
     }
   };
 
+  // Fetch HMI config via FTP
+  const handleFetchConfig = async (machineNo) => {
+    setFetchingConfig(machineNo);
+    try {
+      const res = await fetch(`${API_BASE}/machines/${machineNo}/fetch-config`, { method: 'POST' });
+      const data = await res.json();
+      if (data.success) {
+        const fileNames = data.downloaded && data.downloaded.length > 0
+          ? data.downloaded.map(d => `• ${d.filename} (${(d.size_bytes / 1024).toFixed(1)} KB)`).join('\n')
+          : 'File .CNF';
+        alert(`[SUKSES] ${data.message}\n\nFile tersimpan & disinkronkan ke workspace:\n${fileNames}`);
+        fetchMachines();
+      } else {
+        alert(`[PERINGATAN] ${data.message || 'Gagal mengunduh file config dari HMI via FTP.'}\nStatus: ${data.status}`);
+      }
+    } catch (err) {
+      alert(`Gagal koneksi ke kontroler: ${err.message}`);
+    } finally {
+      setFetchingConfig(null);
+    }
+  };
+
   // Save Machine to PostgreSQL
   const handleSubmitMachine = async (e) => {
     e.preventDefault();
@@ -193,6 +217,13 @@ const Machines = () => {
         body: JSON.stringify(form),
       });
       if (res.ok) {
+        const data = await res.json();
+        if (data.config_fetch && data.config_fetch.success) {
+          const files = data.config_fetch.downloaded.map(d => d.filename).join(', ');
+          alert(`[SUKSES] ${data.message}\nFile HMI berhasil diunduh: ${files}`);
+        } else if (data.config_fetch && !data.config_fetch.success) {
+          alert(`[INFORMASI] ${data.message}`);
+        }
         setEditModalOpen(false);
         setForm(defaultForm);
         fetchMachines();
@@ -352,13 +383,12 @@ const Machines = () => {
                     <span className="text-[11px] text-gray-500">{m.display_name}</span>
                   </div>
                 </div>
-                <span className={`px-2.5 py-0.5 rounded text-xs font-bold ${
-                  m.status === 'RUNNING' 
-                    ? 'bg-meta-3 text-white' 
-                    : isOnline 
-                    ? 'bg-success/10 text-success' 
+                <span className={`px-2.5 py-0.5 rounded text-xs font-bold ${m.status === 'RUNNING'
+                  ? 'bg-meta-3 text-white'
+                  : isOnline
+                    ? 'bg-success/10 text-success'
                     : 'bg-gray-100 text-gray-500 dark:bg-meta-4'
-                }`}>
+                  }`}>
                   {m.status}
                 </span>
               </div>
@@ -385,23 +415,48 @@ const Machines = () => {
                   <span className="font-mono text-gray-600 dark:text-gray-400 truncate max-w-[160px]">{m.share_folder_path}</span>
                 </div>
 
+                <div className="flex justify-between items-center py-1.5 px-2 bg-gray-50 dark:bg-meta-4/20 rounded border border-stroke/50 dark:border-strokedark/50">
+                  <span className="text-gray-500 text-[11px]">Konfigurasi HMI:</span>
+                  {m.has_custom_hmi_config ? (
+                    <span className="text-success font-bold flex items-center gap-1 text-[11px]">
+                      <CheckCircle2 className="h-3.5 w-3.5 text-success" />
+                      HMI Ready (Asli)
+                    </span>
+                  ) : (
+                    <span className="text-amber-500 font-bold flex items-center gap-1 text-[11px]">
+                      <AlertCircle className="h-3.5 w-3.5 text-amber-500" />
+                      Baseline Standar
+                    </span>
+                  )}
+                </div>
+
                 {/* ACTION BUTTONS */}
-                <div className="pt-3 border-t border-stroke dark:border-strokedark flex items-center justify-between gap-2">
+                <div className="pt-3 border-t border-stroke dark:border-strokedark flex items-center justify-between gap-1.5">
+                  <button
+                    onClick={() => handleFetchConfig(m.machine_no)}
+                    disabled={fetchingConfig === m.machine_no}
+                    className="flex-1 flex items-center justify-center gap-1 py-1.5 px-2 bg-emerald-50 dark:bg-emerald-950/30 hover:bg-emerald-100 dark:hover:bg-emerald-900/40 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 rounded font-bold text-[11px] transition-colors"
+                    title="Tarik File Config (.CNF) dari HMI Kontroler via FTP"
+                  >
+                    <RefreshCw className={`h-3 w-3 ${fetchingConfig === m.machine_no ? 'animate-spin' : ''}`} />
+                    {fetchingConfig === m.machine_no ? 'Mengunduh...' : 'Tarik Config'}
+                  </button>
+
                   <button
                     onClick={() => handleTestConnection(m)}
                     disabled={testingMachine === m.machine_no}
-                    className="flex-1 flex items-center justify-center gap-1.5 py-1.5 px-2 bg-gray-100 dark:bg-meta-4 hover:bg-gray-200 text-black dark:text-white rounded font-medium text-[11px]"
+                    className="flex-1 flex items-center justify-center gap-1 py-1.5 px-2 bg-gray-100 dark:bg-meta-4 hover:bg-gray-200 text-black dark:text-white rounded font-medium text-[11px]"
                   >
-                    <Network className="h-3.5 w-3.5 text-primary" />
+                    <Network className="h-3 w-3 text-primary" />
                     {testingMachine === m.machine_no ? 'Menguji...' : 'Uji Koneksi'}
                   </button>
 
                   <button
                     onClick={() => navigate(`/process-analyser?machine=${m.machine_no}`)}
-                    className="flex-1 flex items-center justify-center gap-1.5 py-1.5 px-2 bg-primary/10 hover:bg-primary/20 text-primary rounded font-bold text-[11px]"
+                    className="flex-1 flex items-center justify-center gap-1 py-1.5 px-2 bg-primary/10 hover:bg-primary/20 text-primary rounded font-bold text-[11px]"
                   >
-                    <LineChart className="h-3.5 w-3.5" />
-                    Buka Grafik
+                    <LineChart className="h-3 w-3" />
+                    Grafik
                   </button>
 
                   <button
@@ -437,7 +492,7 @@ const Machines = () => {
                   Pindai Mesin Online (OrgaTEX SecomCESniffer Parity)
                 </h3>
               </div>
-              <button 
+              <button
                 onClick={() => setSnifferModalOpen(false)}
                 className="text-gray-400 hover:text-black dark:hover:text-white font-bold"
               >
@@ -561,7 +616,7 @@ const Machines = () => {
                   {isEditing ? `Edit Konfigurasi Mesin ${form.machine_no}` : 'Tambah Konfigurasi Mesin Baru (OrgaTEX Parity)'}
                 </h3>
               </div>
-              <button 
+              <button
                 onClick={() => setEditModalOpen(false)}
                 className="text-gray-400 hover:text-black dark:hover:text-white font-bold"
               >
@@ -574,55 +629,50 @@ const Machines = () => {
               <button
                 type="button"
                 onClick={() => setActiveTab('general')}
-                className={`py-2 px-4 text-xs font-bold border-b-2 transition-colors ${
-                  activeTab === 'general'
-                    ? 'border-primary text-primary'
-                    : 'border-transparent text-gray-500 hover:text-black dark:hover:text-white'
-                }`}
+                className={`py-2 px-4 text-xs font-bold border-b-2 transition-colors ${activeTab === 'general'
+                  ? 'border-primary text-primary'
+                  : 'border-transparent text-gray-500 hover:text-black dark:hover:text-white'
+                  }`}
               >
                 1. Data Umum (General)
               </button>
               <button
                 type="button"
                 onClick={() => setActiveTab('address')}
-                className={`py-2 px-4 text-xs font-bold border-b-2 transition-colors ${
-                  activeTab === 'address'
-                    ? 'border-primary text-primary'
-                    : 'border-transparent text-gray-500 hover:text-black dark:hover:text-white'
-                }`}
+                className={`py-2 px-4 text-xs font-bold border-b-2 transition-colors ${activeTab === 'address'
+                  ? 'border-primary text-primary'
+                  : 'border-transparent text-gray-500 hover:text-black dark:hover:text-white'
+                  }`}
               >
                 2. Jaringan & Komunikasi (Address)
               </button>
               <button
                 type="button"
                 onClick={() => setActiveTab('recipe')}
-                className={`py-2 px-4 text-xs font-bold border-b-2 transition-colors ${
-                  activeTab === 'recipe'
-                    ? 'border-primary text-primary'
-                    : 'border-transparent text-gray-500 hover:text-black dark:hover:text-white'
-                }`}
+                className={`py-2 px-4 text-xs font-bold border-b-2 transition-colors ${activeTab === 'recipe'
+                  ? 'border-primary text-primary'
+                  : 'border-transparent text-gray-500 hover:text-black dark:hover:text-white'
+                  }`}
               >
                 3. Resep & Kalkulasi (Recipe)
               </button>
               <button
                 type="button"
                 onClick={() => setActiveTab('tanks')}
-                className={`py-2 px-4 text-xs font-bold border-b-2 transition-colors ${
-                  activeTab === 'tanks'
-                    ? 'border-primary text-primary'
-                    : 'border-transparent text-gray-500 hover:text-black dark:hover:text-white'
-                }`}
+                className={`py-2 px-4 text-xs font-bold border-b-2 transition-colors ${activeTab === 'tanks'
+                  ? 'border-primary text-primary'
+                  : 'border-transparent text-gray-500 hover:text-black dark:hover:text-white'
+                  }`}
               >
                 4. Tangki & Dosing (Tanks)
               </button>
               <button
                 type="button"
                 onClick={() => setActiveTab('automation')}
-                className={`py-2 px-4 text-xs font-bold border-b-2 transition-colors ${
-                  activeTab === 'automation'
-                    ? 'border-primary text-primary'
-                    : 'border-transparent text-gray-500 hover:text-black dark:hover:text-white'
-                }`}
+                className={`py-2 px-4 text-xs font-bold border-b-2 transition-colors ${activeTab === 'automation'
+                  ? 'border-primary text-primary'
+                  : 'border-transparent text-gray-500 hover:text-black dark:hover:text-white'
+                  }`}
               >
                 5. Otomasi & Fitur
               </button>
@@ -779,7 +829,7 @@ const Machines = () => {
                       onChange={(e) => setForm({ ...form, share_folder_path: e.target.value })}
                       className="w-full text-xs font-mono p-2.5 rounded border border-stroke dark:border-strokedark bg-white dark:bg-boxdark text-black dark:text-white outline-none"
                     />
-                    <span className="text-[10px] text-gray-400">Contoh: /Network/F/OT/ atau /storage/SC777CE/STATUS/</span>
+                    <span className="text-[10px] text-gray-400">Contoh: /Network/F/OT/ atau /Storage/sc777ce/STATUS/</span>
                   </div>
                 </div>
               )}
@@ -907,6 +957,34 @@ const Machines = () => {
                   </div>
                 </div>
               )}
+
+              {/* AUTO-FETCH CONFIG HMI OPTION BANNER */}
+              <div className="p-3 bg-blue-50/70 dark:bg-meta-4/30 border border-primary/30 rounded-lg flex items-center justify-between gap-3">
+                <div className="flex items-start gap-2.5">
+                  <input
+                    type="checkbox"
+                    id="auto_fetch_config"
+                    checked={form.auto_fetch_config}
+                    onChange={(e) => setForm({ ...form, auto_fetch_config: e.target.checked })}
+                    className="mt-0.5 h-4 w-4 rounded text-primary focus:ring-primary cursor-pointer"
+                  />
+                  <div>
+                    <label htmlFor="auto_fetch_config" className="text-xs font-bold text-black dark:text-white cursor-pointer flex items-center gap-1.5">
+                      <RefreshCw className="h-3.5 w-3.5 text-primary" />
+                      Otomatis Unduh & Sinkronisasi File Config (.CNF) dari HMI via FTP
+                    </label>
+                    <span className="text-[11px] text-gray-500 dark:text-gray-400 block mt-0.5">
+                      Sistem akan langsung menghubungi IP kontroler ({form.ip_address || '...'}) di port 21 untuk mengunduh
+                      <span className="font-mono text-primary font-bold"> TYPECONF.CNF</span>,
+                      <span className="font-mono text-primary font-bold"> CONFTEXT.CNF</span>, dan
+                      <span className="font-mono text-primary font-bold"> MACHCONF.CNF</span> ke folder workspace mesin.
+                    </span>
+                  </div>
+                </div>
+                <span className="shrink-0 text-[10px] font-extrabold bg-success/15 text-success border border-success/30 px-2 py-0.5 rounded">
+                  DIREKOMENDASIKAN
+                </span>
+              </div>
 
               {/* FOOTER BUTTONS */}
               <div className="flex items-center justify-end gap-3 pt-4 border-t border-stroke dark:border-strokedark">

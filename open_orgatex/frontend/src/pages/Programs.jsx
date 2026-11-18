@@ -1,16 +1,16 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import axios from 'axios';
-import { 
-  Plus, 
-  Trash2, 
-  ArrowUp, 
-  ArrowDown, 
-  Save, 
-  FileCode, 
-  Search, 
-  Copy, 
-  RefreshCw, 
-  CheckCircle2, 
+import {
+  Plus,
+  Trash2,
+  ArrowUp,
+  ArrowDown,
+  Save,
+  FileCode,
+  Search,
+  Copy,
+  RefreshCw,
+  CheckCircle2,
   AlertCircle,
   Clock,
   Droplet,
@@ -26,7 +26,10 @@ import {
   Upload,
   X,
   ChevronDown,
-  ChevronUp
+  ChevronUp,
+  Cpu,
+  Server,
+  Send
 } from 'lucide-react';
 
 import TempCurveChart from '../components/Charts/TempCurveChart';
@@ -37,10 +40,10 @@ const ALL_FUNCTIONS = typeconfData.functions || {};
 const ALL_PARAMETERS = typeconfData.parameters || {};
 
 // Common function categories for colors
-const getFunctionMeta = (funcId) => {
-  const f = ALL_FUNCTIONS[String(funcId)];
-  const name = f?.name || `Fungsi #${funcId}`;
-  
+const getFunctionMeta = (funcId, funcsMap = ALL_FUNCTIONS) => {
+  const f = (funcsMap && funcsMap[String(funcId)]) || ALL_FUNCTIONS[String(funcId)];
+  const name = f?.name || f?.name_local || `Fungsi #${funcId}`;
+
   if (funcId === 1) {
     return { name: 'Program Start', code: 'F1', color: 'border-emerald-600 bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300', icon: FileCode };
   }
@@ -102,11 +105,38 @@ export default function Programs() {
   const [loadingList, setLoadingList] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterType, setFilterType] = useState('ALL');
+  // Active Selected Machine (Synchronized across OrgaTEX & SETEX Studio)
+  const [activeMachine, setActiveMachine] = useState(() => {
+    return localStorage.getItem('selected_dyeing_machine') || 'TD12';
+  });
+  const [controllerModel, setControllerModel] = useState(() => {
+    const savedM = localStorage.getItem('selected_dyeing_machine') || 'TD12';
+    return localStorage.getItem('controller_model_' + savedM) || '777';
+  });
+  const [filterMachineScope, setFilterMachineScope] = useState('ACTIVE'); // 'ACTIVE' (Hanya Mesin Terpilih) | 'ALL' (Semua Mesin)
+
+  // FTP Transfer Modal State
+  const [ftpTransferModal, setFtpTransferModal] = useState(null); // { program_number, program_name, machine_code }
+  const [isTransferringFtp, setIsTransferringFtp] = useState(false);
+
+  // Machines List State
+  const [machineList, setMachineList] = useState([]);
+
+  // Create New Program Modal State
+  const [showCreateModal, setShowCreateModal] = useState(false);
+  const [createProgramNo, setCreateProgramNo] = useState(1);
+  const [createProgramName, setCreateProgramName] = useState('PROGRAM RESEP BARU');
+  const [createMachineCode, setCreateMachineCode] = useState(() => {
+    return localStorage.getItem('selected_dyeing_machine') || 'TD12';
+  });
+  const [createTemplateType, setCreateTemplateType] = useState('STANDARD'); // 'STANDARD' | 'BLANK'
 
   // Editor State (Linear Step Studio)
   const [programNo, setProgramNo] = useState(182);
   const [programName, setProgramName] = useState('POLYESTER BLACK');
-  const [machineCode, setMachineCode] = useState('C012');
+  const [machineCode, setMachineCode] = useState(() => {
+    return localStorage.getItem('selected_dyeing_machine') || 'TD12';
+  });
   const [steps, setSteps] = useState([]);
   const [selectedStepIdx, setSelectedStepIdx] = useState(0);
   const [isSaving, setIsSaving] = useState(false);
@@ -142,10 +172,266 @@ export default function Programs() {
     }
   };
 
+  // 3. Fetch Registered Machines
+  const fetchMachines = async () => {
+    try {
+      const res = await axios.get('/api/machines/');
+      if (Array.isArray(res.data) && res.data.length > 0) {
+        setMachineList(res.data);
+      }
+    } catch (err) {
+      console.error('Gagal mengambil daftar mesin:', err);
+    }
+  };
+
   useEffect(() => {
     fetchProgramList();
     fetchCatalogTemplates();
+    fetchMachines();
   }, []);
+
+  // Machine-Specific Configuration State (from WORKSPACE_PROGRAM_MESIN/<NAMA_MESIN>/02_CONFIG_SIAP_PAKAI/)
+  const [machineFunctions, setMachineFunctions] = useState(ALL_FUNCTIONS);
+  const [machineParameters, setMachineParameters] = useState(ALL_PARAMETERS);
+  const [parallelOptions, setParallelOptions] = useState(POPULAR_PARALLEL_FUNCTIONS);
+
+  // Fetch machine-specific workspace configuration (TYPECONF.CNF & CONFTEXT.CNF per machine)
+  useEffect(() => {
+    const fetchMachineConfig = async () => {
+      try {
+        const cleanNo = activeMachine.trim().toUpperCase().replace('MESIN_', '');
+        const res = await axios.get(`/api/programs/machine-workspace/${cleanNo}/config`);
+        if (res.data?.functions && Object.keys(res.data.functions).length > 0) {
+          const funcs = res.data.functions;
+          const params = res.data.parameters || ALL_PARAMETERS;
+          setMachineFunctions(funcs);
+          setMachineParameters(params);
+
+          // Build dynamic parallel options based on this machine's actual downloaded functions!
+          const dynamicOptions = [];
+
+          // Slot 2: Pump (F404 / F401)
+          const pumpFn = funcs['404'] || funcs['401'];
+          if (pumpFn) {
+            dynamicOptions.push({ id: pumpFn.id, col: 2, name: `${pumpFn.name} (${pumpFn.name_local || 'Sirkulasi Pompa'})` });
+          } else {
+            dynamicOptions.push({ id: 404, col: 2, name: 'Dye Liquor Pump (Sirkulasi Pompa Utama %)' });
+          }
+
+          // Slot 3: Winch / Material Flow (F712)
+          const winchFn = funcs['712'];
+          if (winchFn) {
+            dynamicOptions.push({ id: winchFn.id, col: 3, name: `${winchFn.name} (${winchFn.name_local || 'Kecepatan Winch'})` });
+          } else {
+            dynamicOptions.push({ id: 712, col: 3, name: 'Material Flow / Winch Speed (Kecepatan Kain m/min)' });
+          }
+
+          // Slot 4: AT1 / Tangki 1 (F717 / F667)
+          const at1Fill = funcs['717'] || funcs['667'];
+          if (at1Fill) {
+            dynamicOptions.push({ id: at1Fill.id, col: 4, name: `${at1Fill.name} (${at1Fill.name_local || 'Pengisian AT1'})` });
+          } else {
+            dynamicOptions.push({ id: 717, col: 4, name: 'Filling AT1 Level (Pengisian Tangki Obat AT1)' });
+          }
+
+          // Slot 5: AT2 / Tangki 2 (F718 / F668)
+          const at2Fill = funcs['718'] || funcs['668'];
+          if (at2Fill) {
+            dynamicOptions.push({ id: at2Fill.id, col: 5, name: `${at2Fill.name} (${at2Fill.name_local || 'Pengisian AT2'})` });
+          } else {
+            dynamicOptions.push({ id: 718, col: 5, name: 'Filling AT2 Level (Pengisian Tangki Obat AT2)' });
+          }
+
+          // Slot 6: ST / Tangki Servis (F720 / F678)
+          const stFill = funcs['720'] || funcs['678'];
+          if (stFill) {
+            dynamicOptions.push({ id: stFill.id, col: 6, name: `${stFill.name} (${stFill.name_local || 'Pengisian Tangki Servis'})` });
+          } else {
+            dynamicOptions.push({ id: 720, col: 6, name: 'Fill Level ST (Pengisian Tangki Servis ST)' });
+          }
+
+          // Slot 7: Inject AT1 (F237 / F661)
+          const at1Inj = funcs['237'] || funcs['661'];
+          if (at1Inj) {
+            dynamicOptions.push({ id: at1Inj.id, col: 7, name: `${at1Inj.name} (${at1Inj.name_local || 'Injeksi AT1'})` });
+          } else {
+            dynamicOptions.push({ id: 237, col: 7, name: 'Inject AT1 (Injeksi Tangki Obat AT1 ke Mesin)' });
+          }
+
+          // Slot 8: Inject AT2 (F238 / F702)
+          const at2Inj = funcs['238'] || funcs['702'];
+          if (at2Inj) {
+            dynamicOptions.push({ id: at2Inj.id, col: 8, name: `${at2Inj.name} (${at2Inj.name_local || 'Injeksi AT2'})` });
+          } else {
+            dynamicOptions.push({ id: 238, col: 8, name: 'Inject AT2 (Injeksi Tangki Obat AT2 ke Mesin)' });
+          }
+
+          setParallelOptions(dynamicOptions);
+        } else {
+          setMachineFunctions(ALL_FUNCTIONS);
+          setMachineParameters(ALL_PARAMETERS);
+          setParallelOptions(POPULAR_PARALLEL_FUNCTIONS);
+        }
+      } catch (err) {
+        setMachineFunctions(ALL_FUNCTIONS);
+        setMachineParameters(ALL_PARAMETERS);
+        setParallelOptions(POPULAR_PARALLEL_FUNCTIONS);
+      }
+    };
+
+    fetchMachineConfig();
+  }, [activeMachine]);
+
+  // Available Machines (with fallback to default factory controllers)
+  const availableMachines = useMemo(() => {
+    const defaults = [
+      { machine_no: 'DA01', display_name: 'DA01 - SETEX 797CE Mesin DA01', ip_address: '192.168.1.95', ftp_port: 21, controller_type: '797' },
+      { machine_no: '797', display_name: '797 - SETEX 797CE Controller', ip_address: '192.168.1.95', ftp_port: 21, controller_type: '797' },
+      { machine_no: '10B', display_name: '10B - Mesin 10B (Novatech/SETEX)', ip_address: '172.16.110.160', ftp_port: 21, controller_type: '777' },
+      { machine_no: 'TD12', display_name: 'TD12 - SETEX Controller', ip_address: '172.16.110.101', ftp_port: 21, controller_type: '777' },
+      { machine_no: 'A002', display_name: 'A002 - Jet Dyeing Mesin 2', ip_address: '172.16.110.102', ftp_port: 21, controller_type: '777' },
+      { machine_no: 'A003', display_name: 'A003 - Jet Dyeing Mesin 3', ip_address: '172.16.110.103', ftp_port: 21, controller_type: '777' },
+      { machine_no: '1A', display_name: '1A - Jet Dyeing Mesin 1A', ip_address: '172.16.110.104', ftp_port: 21, controller_type: '777' },
+    ];
+    if (!machineList || machineList.length === 0) return defaults;
+    const existingNos = new Set(machineList.map(m => m.machine_no));
+    const merged = [...machineList];
+    defaults.forEach(d => {
+      if (!existingNos.has(d.machine_no)) merged.push(d);
+    });
+    return merged;
+  }, [machineList]);
+
+  // Active selected machine details
+  const selectedMachineObj = useMemo(() => {
+    return availableMachines.find(m => m.machine_no.toUpperCase() === activeMachine.toUpperCase()) || availableMachines[0];
+  }, [availableMachines, activeMachine]);
+
+  // Select Machine Handler (Persisted in localStorage)
+  const handleSelectMachine = (code) => {
+    const clean = code.trim().toUpperCase();
+    setActiveMachine(clean);
+    setMachineCode(clean);
+    localStorage.setItem('selected_dyeing_machine', clean);
+
+    const mObj = availableMachines.find(m => m.machine_no.toUpperCase() === clean);
+    const is797Machine = (mObj?.ip_address === '192.168.1.95') || clean.includes('797') || clean.startsWith('DA');
+    const savedModel = is797Machine ? '797' : (localStorage.getItem('controller_model_' + clean) || '777');
+    setControllerModel(savedModel);
+  };
+
+  const handleSelectControllerModel = (model) => {
+    setControllerModel(model);
+    localStorage.setItem('controller_model_' + activeMachine, model);
+  };
+
+  const currentRemoteDir = controllerModel === '797'
+    ? '/Flashdisk/SC797CE/Programs'
+    : '/Storage/sc777ce/Programs';
+
+  // Transfer Program to FTP Controller Handler
+  const handleTransferToFtp = async (pNo, mCode, customDir) => {
+    const targetM = (mCode || activeMachine).trim().toUpperCase();
+    const targetObj = availableMachines.find(m => m.machine_no.toUpperCase() === targetM) || selectedMachineObj;
+    setIsTransferringFtp(true);
+    try {
+      const res = await axios.post(`/api/programs/transfer-ftp/${pNo}`, {
+        machine_code: targetM,
+        ip_address: targetObj?.ip_address,
+        controller_type: controllerModel,
+        target_dir: customDir || currentRemoteDir,
+        timeout: 6.0
+      });
+      setNotification({
+        type: 'success',
+        title: 'Transfer FTP Berhasil!',
+        message: res.data.message
+      });
+      setFtpTransferModal(null);
+    } catch (err) {
+      setNotification({
+        type: 'error',
+        title: 'Gagal Menulis ke FTP',
+        message: err.response?.data?.detail || err.message
+      });
+    } finally {
+      setIsTransferringFtp(false);
+      setTimeout(() => setNotification(null), 6000);
+    }
+  };
+
+  // State & Handlers for Downloading / Uploading Programs to Machine
+  const [isFetchingFromMachine, setIsFetchingFromMachine] = useState(false);
+  const fileInputRef = useRef(null);
+
+  const handleFetchProgramsFromMachine = async () => {
+    setIsFetchingFromMachine(true);
+    try {
+      const res = await axios.post(`/api/programs/fetch-from-machine/${activeMachine}`, {
+        ip_address: selectedMachineObj?.ip_address,
+        controller_type: controllerModel,
+        remote_dir: currentRemoteDir,
+        timeout: 10.0
+      });
+      setNotification({
+        type: res.data.success ? 'success' : 'error',
+        title: res.data.success ? 'Unduh Program Berhasil!' : 'Pemberitahuan Unduh Program',
+        message: res.data.message || `Pemeriksaan program Mesin ${activeMachine} selesai.`
+      });
+      await fetchProgramList();
+      setFilterMachineScope('ACTIVE');
+    } catch (err) {
+      setNotification({
+        type: 'error',
+        title: 'Gagal Mengunduh Program',
+        message: err.response?.data?.detail || err.message
+      });
+    } finally {
+      setIsFetchingFromMachine(false);
+      setTimeout(() => setNotification(null), 6000);
+    }
+  };
+
+  const handleUploadPrg = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = async () => {
+      try {
+        const base64Content = reader.result.split(',')[1];
+        const res = await axios.post(`/api/programs/upload-prg?machine_code=${activeMachine}`, {
+          filename: file.name,
+          base64: base64Content,
+          machine_code: activeMachine
+        });
+        setNotification({
+          type: 'success',
+          title: 'Impor .PRG Berhasil!',
+          message: res.data.message || `File ${file.name} berhasil diimpor untuk Mesin ${activeMachine}!`
+        });
+        await fetchProgramList();
+        setFilterMachineScope('ACTIVE');
+        if (res.data.program) {
+          openEditorForProgram(res.data.program.program_no);
+        }
+      } catch (err) {
+        setNotification({
+          type: 'error',
+          title: 'Gagal Mengimpor .PRG',
+          message: err.response?.data?.detail || err.message
+        });
+      } finally {
+        setTimeout(() => setNotification(null), 5000);
+      }
+    };
+    reader.readAsDataURL(file);
+    e.target.value = '';
+  };
+
+  // Count programs for active machine
+  const activeMachineProgramsCount = useMemo(() => {
+    return programList.filter(p => (p.machine_code || 'TD12').toUpperCase() === activeMachine.toUpperCase()).length;
+  }, [programList, activeMachine]);
 
   // Filtered Programs
   const filteredPrograms = useMemo(() => {
@@ -153,14 +439,18 @@ export default function Programs() {
       const pNoStr = String(prg.program_number || '');
       const pName = (prg.program_name || '').toLowerCase();
       const pFile = (prg.filename || '').toLowerCase();
+      const pMach = (prg.machine_code || 'TD12').toUpperCase();
       const term = searchTerm.toLowerCase();
-      const matchSearch = pNoStr.includes(term) || pName.includes(term) || pFile.includes(term);
+      const matchSearch = pNoStr.includes(term) || pName.includes(term) || pFile.includes(term) || pMach.toLowerCase().includes(term);
 
+      if (filterMachineScope === 'ACTIVE' && pMach !== activeMachine.toUpperCase()) {
+        return false;
+      }
       if (filterType === 'CUSTOM') return matchSearch && prg.is_custom;
       if (filterType === 'MACHINE') return matchSearch && !prg.is_custom;
       return matchSearch;
     });
-  }, [programList, searchTerm, filterType]);
+  }, [programList, searchTerm, filterType, filterMachineScope, activeMachine]);
 
   // Open Editor for an Existing Program
   const openEditorForProgram = async (pNo) => {
@@ -169,7 +459,7 @@ export default function Programs() {
       const data = res.data;
       setProgramNo(data.program_no || pNo);
       setProgramName(data.program_name || `M_${String(pNo).padStart(4, '0')}`);
-      setMachineCode(data.machine_code || 'C012');
+      setMachineCode(data.machine_code || activeMachine);
 
       const rawSteps = data.steps || [];
       if (rawSteps.length === 0) {
@@ -194,20 +484,38 @@ export default function Programs() {
     }
   };
 
-  // Open Editor for New Program
-  const openEditorForNewProgram = () => {
+  // Open Modal for New Program
+  const handleOpenCreateModal = () => {
     const existingNos = programList.map(p => p.program_number).filter(n => Number.isInteger(n));
     const nextNo = existingNos.length > 0 ? Math.max(...existingNos) + 1 : 1;
-    setProgramNo(nextNo);
-    setProgramName('PROGRAM RESEP BARU');
-    setMachineCode('C012');
-    setSteps([
-      { step_no: 1, label: 'Mulai Siklus Mesin', functions: [{ function_id: 1, column: 1, flags: 0, params: [0, 0, 0, 0, 0, 0] }] },
-      { step_no: 2, label: 'Pengisian Air Awal', functions: [{ function_id: 713, column: 1, flags: 0, params: [1.0, 1800.0, 0, 0, 0, 0] }] },
-      { step_no: 3, label: 'Penaikan Suhu', functions: [{ function_id: 141, column: 1, flags: 0, params: [98.0, 2.5, 30.0, 0, 0, 0] }] },
-      { step_no: 4, label: 'Selesai Siklus', functions: [{ function_id: 2, column: 1, flags: 0, params: [0, 0, 0, 0, 0, 0] }] }
-    ]);
+    setCreateProgramNo(nextNo);
+    setCreateProgramName(`RESEP MESIN ${activeMachine}`);
+    setCreateMachineCode(activeMachine);
+    setCreateTemplateType('STANDARD');
+    setShowCreateModal(true);
+  };
+
+  // Confirm and Create New Program
+  const handleConfirmCreateProgram = () => {
+    setProgramNo(createProgramNo);
+    setProgramName(createProgramName.trim().toUpperCase() || `PROGRAM #${createProgramNo}`);
+    setMachineCode(createMachineCode);
+
+    if (createTemplateType === 'STANDARD') {
+      setSteps([
+        { step_no: 1, label: 'Mulai Siklus Mesin', functions: [{ function_id: 1, column: 1, flags: 0, params: [0, 0, 0, 0, 0, 0] }] },
+        { step_no: 2, label: 'Pengisian Air Awal', functions: [{ function_id: 713, column: 1, flags: 0, params: [1.0, 1800.0, 0, 0, 0, 0] }] },
+        { step_no: 3, label: 'Penaikan Suhu', functions: [{ function_id: 141, column: 1, flags: 0, params: [98.0, 2.5, 30.0, 0, 0, 0] }] },
+        { step_no: 4, label: 'Selesai Siklus', functions: [{ function_id: 2, column: 1, flags: 0, params: [0, 0, 0, 0, 0, 0] }] }
+      ]);
+    } else {
+      setSteps([
+        { step_no: 1, label: 'Program Start', functions: [{ function_id: 1, column: 1, flags: 0, params: [0, 0, 0, 0, 0, 0] }] },
+        { step_no: 2, label: 'Program End', functions: [{ function_id: 2, column: 1, flags: 0, params: [0, 0, 0, 0, 0, 0] }] }
+      ]);
+    }
     setSelectedStepIdx(1);
+    setShowCreateModal(false);
     setViewMode('EDITOR');
   };
 
@@ -263,41 +571,6 @@ export default function Programs() {
   // Download .PRG
   const handleDownloadPrg = (pNo) => {
     window.open(`/api/programs/download/${pNo}`, '_blank');
-  };
-
-  // Upload .PRG directly
-  const handleUploadPrg = async (e) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = async () => {
-      try {
-        const base64Data = String(reader.result).split(',')[1];
-        const res = await axios.post('/api/programs/upload-prg', {
-          filename: file.name,
-          base64: base64Data
-        });
-        setNotification({
-          type: 'success',
-          title: 'Impor Sukses!',
-          message: res.data.message || `Berkas ${file.name} berhasil diimpor.`
-        });
-        fetchProgramList();
-        if (res.data.program) {
-          openEditorForProgram(res.data.program.program_no);
-        }
-      } catch (err) {
-        setNotification({
-          type: 'error',
-          title: 'Gagal Impor PRG',
-          message: err.response?.data?.detail || err.message
-        });
-      } finally {
-        e.target.value = '';
-        setTimeout(() => setNotification(null), 5000);
-      }
-    };
-    reader.readAsDataURL(file);
   };
 
   // Apply Reverse-Engineered Template
@@ -394,7 +667,7 @@ export default function Programs() {
   const handleChangeMainFunction = (newFuncId) => {
     const updated = [...steps];
     const step = updated[selectedStepIdx];
-    const fDef = ALL_FUNCTIONS[String(newFuncId)];
+    const fDef = (machineFunctions && machineFunctions[String(newFuncId)]) || ALL_FUNCTIONS[String(newFuncId)];
     const defParams = [0, 0, 0, 0, 0, 0];
     if (fDef?.parameters) {
       fDef.parameters.forEach((p, i) => {
@@ -430,7 +703,7 @@ export default function Programs() {
       alert(`Resource slot ${col} sudah digunakan pada langkah ini.`);
       return;
     }
-    const fDef = ALL_FUNCTIONS[String(funcId)];
+    const fDef = (machineFunctions && machineFunctions[String(funcId)]) || ALL_FUNCTIONS[String(funcId)];
     const defParams = [0, 0, 0, 0, 0, 0];
     if (fDef?.parameters) {
       fDef.parameters.forEach((p, i) => {
@@ -516,11 +789,10 @@ export default function Programs() {
       <div className="space-y-6">
         {/* NOTIFICATION */}
         {notification && (
-          <div className={`flex items-center justify-between p-4 rounded-md border shadow-sm ${
-            notification.type === 'success' 
-              ? 'bg-emerald-50 dark:bg-emerald-950/40 border-emerald-500/30 text-emerald-800 dark:text-emerald-300' 
-              : 'bg-rose-50 dark:bg-rose-950/40 border-rose-500/30 text-rose-800 dark:text-rose-300'
-          }`}>
+          <div className={`flex items-center justify-between p-4 rounded-md border shadow-sm ${notification.type === 'success'
+            ? 'bg-emerald-50 dark:bg-emerald-950/40 border-emerald-500/30 text-emerald-800 dark:text-emerald-300'
+            : 'bg-rose-50 dark:bg-rose-950/40 border-rose-500/30 text-rose-800 dark:text-rose-300'
+            }`}>
             <div className="flex items-center gap-3">
               {notification.type === 'success' ? <CheckCircle2 className="h-5 w-5 text-emerald-600" /> : <AlertCircle className="h-5 w-5 text-rose-600" />}
               <div>
@@ -545,7 +817,7 @@ export default function Programs() {
               </span>
             </div>
             <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-              Editor linier langkah demi langkah kontroler SECOM 777/SC777CE dengan ekspor biner byte-exact.
+              Editor linier langkah demi langkah kontroler SECOM 777/sc777ce dengan ekspor biner byte-exact.
             </p>
           </div>
 
@@ -565,7 +837,7 @@ export default function Programs() {
             </label>
 
             <button
-              onClick={openEditorForNewProgram}
+              onClick={handleOpenCreateModal}
               className="flex items-center gap-2 px-4 py-2 text-xs font-bold uppercase tracking-wider text-white bg-primary hover:bg-primary/90 rounded shadow transition active:scale-95"
             >
               <Plus className="h-4 w-4" />
@@ -574,38 +846,172 @@ export default function Programs() {
           </div>
         </div>
 
+        {/* BILAH PILIHAN MESIN AKTIF & STATUS KONTROLER FTP */}
+        <div className="bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 text-white p-4 sm:p-5 rounded-xl border border-indigo-500/30 shadow-md flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div className="flex items-center gap-3.5">
+            <div className="p-3 bg-indigo-500/20 text-indigo-400 rounded-xl border border-indigo-500/30">
+              <Cpu className="h-6 w-6" />
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <span className="text-[11px] font-bold uppercase tracking-wider text-indigo-300">
+                  Mesin Kontroler Aktif Terpilih:
+                </span>
+                <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
+                  <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                  Siap FTP Port 21
+                </span>
+              </div>
+              <h3 className="text-lg font-black text-white flex items-center gap-2">
+                <span>Mesin {activeMachine}</span>
+                <span className="text-xs font-normal text-indigo-200">
+                  — {selectedMachineObj?.display_name || activeMachine}
+                </span>
+              </h3>
+              <div className="flex flex-wrap items-center gap-3 text-xs font-mono text-slate-300 mt-1">
+                <span>IP Host FTP: <strong className="text-emerald-400">{selectedMachineObj?.ip_address || '172.16.110.101'}:21</strong></span>
+                <span>•</span>
+                <span>Folder Remote: <strong className="text-indigo-300">{currentRemoteDir}</strong></span>
+                <span>•</span>
+                <span className="text-amber-300 font-semibold">Tipe: SECOM {controllerModel}</span>
+              </div>
+            </div>
+          </div>
+
+          <div className="flex flex-wrap items-center gap-3 bg-slate-800/80 p-2.5 rounded-xl border border-slate-700">
+            <div className="flex flex-col">
+              <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                Ganti Pilihan Mesin:
+              </label>
+              <select
+                value={activeMachine}
+                onChange={(e) => handleSelectMachine(e.target.value)}
+                className="text-xs font-bold font-mono bg-slate-900 border border-indigo-500/50 rounded px-2.5 py-1.5 text-indigo-300 outline-none cursor-pointer hover:border-indigo-400 transition"
+              >
+                {availableMachines.map((m) => (
+                  <option key={m.machine_no} value={m.machine_no} className="bg-boxdark text-white">
+                    Mesin {m.machine_no} ({m.ip_address})
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="flex flex-col">
+              <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                Model Kontroler / Folder:
+              </label>
+              <select
+                value={controllerModel}
+                onChange={(e) => handleSelectControllerModel(e.target.value)}
+                className="text-xs font-bold font-mono bg-slate-900 border border-emerald-500/50 rounded px-2.5 py-1.5 text-emerald-300 outline-none cursor-pointer hover:border-emerald-400 transition"
+                title="Pilih folder kontroler: SECOM 777 (/Storage/SC777CE) atau SECOM 797 (/Flashdisk/SC797CE)"
+              >
+                <option value="777" className="bg-boxdark text-white">
+                  SETEX 777 (/Storage/SC777CE)
+                </option>
+                <option value="797" className="bg-boxdark text-white">
+                  SETEX 797 (/Flashdisk/SC797CE)
+                </option>
+              </select>
+            </div>
+
+            <div className="flex items-center gap-2 pt-2 md:pt-0">
+              <button
+                onClick={handleFetchProgramsFromMachine}
+                disabled={isFetchingFromMachine}
+                className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold shadow-md transition disabled:opacity-50"
+                title={`Unduh seluruh file .PRG dari kontroler Mesin ${activeMachine} (${selectedMachineObj?.ip_address || ''}) via FTP`}
+              >
+                {isFetchingFromMachine ? (
+                  <>
+                    <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                    <span>Mengunduh...</span>
+                  </>
+                ) : (
+                  <>
+                    <Download className="w-3.5 h-3.5" />
+                    <span>Unduh Program Mesin {activeMachine} (FTP)</span>
+                  </>
+                )}
+              </button>
+
+              <button
+                onClick={() => fileInputRef.current?.click()}
+                className="flex items-center gap-1.5 px-2.5 py-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-slate-200 text-xs font-medium border border-slate-600 transition"
+                title={`Impor file biner .PRG dari Storage untuk Mesin ${activeMachine}`}
+              >
+                <Upload className="w-3.5 h-3.5 text-indigo-300" />
+                <span>Impor .PRG</span>
+              </button>
+              <input
+                type="file"
+                ref={fileInputRef}
+                onChange={handleUploadPrg}
+                accept=".prg,.PRG"
+                className="hidden"
+              />
+            </div>
+          </div>
+        </div>
+
         {/* SEARCH & FILTERS */}
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-3 bg-white dark:bg-boxdark p-3.5 rounded-lg border border-stroke dark:border-strokedark shadow-sm">
-          <div className="relative flex-1 w-full sm:w-auto">
+        <div className="flex flex-col md:flex-row items-center justify-between gap-3 bg-white dark:bg-boxdark p-3.5 rounded-lg border border-stroke dark:border-strokedark shadow-sm">
+          <div className="relative flex-1 w-full">
             <Search className="h-4 w-4 text-gray-400 absolute left-3 top-3" />
             <input
               type="text"
-              placeholder="Cari berdasarkan nomor program (contoh: 182), nama resep, atau nama file..."
+              placeholder={`Cari program mesin ${activeMachine} (contoh: 182), nama resep, atau nama file...`}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="w-full text-xs rounded border border-stroke bg-transparent py-2.5 pl-9 pr-4 text-black dark:text-white outline-none focus:border-primary transition"
             />
           </div>
 
-          <div className="flex items-center gap-1 bg-gray-100 dark:bg-meta-4 p-1 rounded border border-stroke dark:border-strokedark">
-            <button
-              onClick={() => setFilterType('ALL')}
-              className={`px-3 py-1 text-xs font-bold rounded transition ${filterType === 'ALL' ? 'bg-white dark:bg-boxdark text-primary shadow-sm' : 'text-gray-500'}`}
-            >
-              Semua ({programList.length})
-            </button>
-            <button
-              onClick={() => setFilterType('MACHINE')}
-              className={`px-3 py-1 text-xs font-bold rounded transition ${filterType === 'MACHINE' ? 'bg-white dark:bg-boxdark text-primary shadow-sm' : 'text-gray-500'}`}
-            >
-              Template Mesin
-            </button>
-            <button
-              onClick={() => setFilterType('CUSTOM')}
-              className={`px-3 py-1 text-xs font-bold rounded transition ${filterType === 'CUSTOM' ? 'bg-white dark:bg-boxdark text-primary shadow-sm' : 'text-gray-500'}`}
-            >
-              Resep Custom
-            </button>
+          <div className="flex flex-wrap items-center gap-2 w-full md:w-auto">
+            {/* Filter Lingkup Mesin */}
+            <div className="flex items-center gap-1 bg-gray-100 dark:bg-meta-4 p-1 rounded border border-stroke dark:border-strokedark">
+              <button
+                onClick={() => setFilterMachineScope('ACTIVE')}
+                className={`px-3 py-1 text-xs font-bold rounded transition flex items-center gap-1.5 ${filterMachineScope === 'ACTIVE'
+                  ? 'bg-primary text-white shadow-sm'
+                  : 'text-gray-600 dark:text-gray-300 hover:text-black dark:hover:text-white'
+                  }`}
+              >
+                <Cpu className="h-3 w-3" />
+                <span>Mesin {activeMachine} ({activeMachineProgramsCount})</span>
+              </button>
+              <button
+                onClick={() => setFilterMachineScope('ALL')}
+                className={`px-3 py-1 text-xs font-bold rounded transition ${filterMachineScope === 'ALL'
+                  ? 'bg-primary text-white shadow-sm'
+                  : 'text-gray-600 dark:text-gray-300 hover:text-black dark:hover:text-white'
+                  }`}
+              >
+                <span>Semua Mesin ({programList.length})</span>
+              </button>
+            </div>
+
+            {/* Filter Tipe Program */}
+            <div className="flex items-center gap-1 bg-gray-100 dark:bg-meta-4 p-1 rounded border border-stroke dark:border-strokedark">
+              <button
+                onClick={() => setFilterType('ALL')}
+                className={`px-3 py-1 text-xs font-bold rounded transition ${filterType === 'ALL' ? 'bg-white dark:bg-boxdark text-primary shadow-sm' : 'text-gray-500'}`}
+              >
+                Semua
+              </button>
+              <button
+                onClick={() => setFilterType('MACHINE')}
+                className={`px-3 py-1 text-xs font-bold rounded transition ${filterType === 'MACHINE' ? 'bg-white dark:bg-boxdark text-primary shadow-sm' : 'text-gray-500'}`}
+              >
+                Template
+              </button>
+              <button
+                onClick={() => setFilterType('CUSTOM')}
+                className={`px-3 py-1 text-xs font-bold rounded transition ${filterType === 'CUSTOM' ? 'bg-white dark:bg-boxdark text-primary shadow-sm' : 'text-gray-500'}`}
+              >
+                Custom
+              </button>
+            </div>
           </div>
         </div>
 
@@ -614,7 +1020,8 @@ export default function Programs() {
           <table className="w-full text-left text-xs text-gray-600 dark:text-gray-300">
             <thead className="bg-gray-50 dark:bg-meta-4 border-b border-stroke dark:border-strokedark text-black dark:text-white font-bold uppercase tracking-wider text-[11px]">
               <tr>
-                <th className="py-3 px-4 w-24">Nomor</th>
+                <th className="py-3 px-4 w-20">Nomor</th>
+                <th className="py-3 px-4 w-28">Mesin</th>
                 <th className="py-3 px-4">Nama Program / Resep</th>
                 <th className="py-3 px-4 w-36">Nama Berkas</th>
                 <th className="py-3 px-4 text-center w-28">Jumlah Langkah</th>
@@ -625,8 +1032,37 @@ export default function Programs() {
             <tbody className="divide-y divide-stroke dark:divide-strokedark font-medium">
               {filteredPrograms.length === 0 ? (
                 <tr>
-                  <td colSpan="6" className="py-8 text-center text-gray-400">
-                    Tidak ada program yang sesuai dengan kriteria pencarian.
+                  <td colSpan="7" className="py-8 text-center text-gray-400">
+                    <div className="max-w-md mx-auto space-y-3 py-2">
+                      <p className="text-slate-600 dark:text-slate-400 font-medium">
+                        {searchTerm
+                          ? `Tidak ada program yang sesuai dengan pencarian "${searchTerm}".`
+                          : `Belum ada program yang terdaftar untuk Mesin ${activeMachine}.`}
+                      </p>
+                      <div className="flex flex-wrap items-center justify-center gap-2.5 pt-1">
+                        <button
+                          onClick={handleFetchProgramsFromMachine}
+                          disabled={isFetchingFromMachine}
+                          className="flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold shadow-sm transition disabled:opacity-50"
+                        >
+                          <Download className="w-3.5 h-3.5" />
+                          <span>Unduh Program dari Mesin {activeMachine} (FTP)</span>
+                        </button>
+                        <button
+                          onClick={() => fileInputRef.current?.click()}
+                          className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 text-xs font-medium border border-stroke dark:border-strokedark transition"
+                        >
+                          <Upload className="w-3.5 h-3.5 text-indigo-500" />
+                          <span>Impor File .PRG</span>
+                        </button>
+                        <button
+                          onClick={() => setFilterMachineScope('ALL')}
+                          className="px-3 py-2 rounded-lg bg-blue-50 hover:bg-blue-100 dark:bg-blue-950/40 text-blue-600 dark:text-blue-300 text-xs font-medium transition"
+                        >
+                          Lihat Semua Program ({programList.length})
+                        </button>
+                      </div>
+                    </div>
                   </td>
                 </tr>
               ) : (
@@ -634,6 +1070,12 @@ export default function Programs() {
                   <tr key={prg.program_number} className="hover:bg-gray-50 dark:hover:bg-meta-4/40 transition">
                     <td className="py-3 px-4 font-mono font-bold text-primary">
                       #{String(prg.program_number).padStart(4, '0')}
+                    </td>
+                    <td className="py-3 px-4">
+                      <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded font-mono text-[11px] font-bold bg-blue-50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300 border border-blue-500/20">
+                        <Cpu className="h-3 w-3 text-blue-500" />
+                        {prg.machine_code || 'TD12'}
+                      </span>
                     </td>
                     <td className="py-3 px-4 font-bold text-black dark:text-white">
                       {prg.program_name}
@@ -651,6 +1093,14 @@ export default function Programs() {
                     </td>
                     <td className="py-3 px-4 text-right">
                       <div className="flex items-center justify-end gap-2">
+                        <button
+                          onClick={() => setFtpTransferModal(prg)}
+                          className="flex items-center gap-1 px-2.5 py-1 text-xs font-bold text-indigo-700 dark:text-indigo-300 bg-indigo-50 dark:bg-indigo-950/40 hover:bg-indigo-100 dark:hover:bg-indigo-900/40 rounded border border-indigo-300 dark:border-indigo-800 transition"
+                          title={`Tulis biner M_${String(prg.program_number).padStart(4, '0')}.PRG ke FTP Mesin ${prg.machine_code || activeMachine}`}
+                        >
+                          <Send className="h-3.5 w-3.5" />
+                          <span>Tulis FTP</span>
+                        </button>
                         <button
                           onClick={() => handleDownloadPrg(prg.program_number)}
                           className="flex items-center gap-1 px-2.5 py-1 text-xs font-semibold text-gray-700 dark:text-gray-200 bg-gray-100 dark:bg-meta-4 hover:bg-blue-50 dark:hover:bg-blue-900/30 hover:text-blue-600 rounded border border-stroke dark:border-strokedark transition"
@@ -674,6 +1124,232 @@ export default function Programs() {
             </tbody>
           </table>
         </div>
+
+        {/* MODAL BUAT PROGRAM BARU DENGAN PILIHAN MESIN */}
+        {showCreateModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+            <div className="bg-white dark:bg-boxdark rounded-lg border border-stroke dark:border-strokedark shadow-2xl max-w-lg w-full p-6 space-y-5 animate-in fade-in duration-200">
+              <div className="flex items-center justify-between border-b border-stroke dark:border-strokedark pb-3">
+                <div className="flex items-center gap-2.5">
+                  <div className="p-2 bg-primary/10 rounded text-primary">
+                    <Plus className="h-5 w-5" />
+                  </div>
+                  <div>
+                    <h3 className="text-sm font-bold uppercase tracking-wider text-black dark:text-white">
+                      Buat Program Resep Baru
+                    </h3>
+                    <p className="text-[11px] text-gray-500">Konfigurasi awal program dan penugasan mesin celup</p>
+                  </div>
+                </div>
+                <button
+                  onClick={() => setShowCreateModal(false)}
+                  className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition"
+                >
+                  <X className="h-5 w-5" />
+                </button>
+              </div>
+
+              <div className="space-y-4">
+                {/* PILIHAN MESIN */}
+                <div>
+                  <label className="block text-xs font-bold uppercase tracking-wider text-gray-700 dark:text-gray-300 mb-1.5 flex items-center gap-1.5">
+                    <Cpu className="h-3.5 w-3.5 text-primary" />
+                    <span>Pilih Mesin Target: <span className="text-rose-500">*</span></span>
+                  </label>
+                  <select
+                    value={createMachineCode}
+                    onChange={(e) => {
+                      const chosen = e.target.value;
+                      setCreateMachineCode(chosen);
+                      if (createProgramName.startsWith('RESEP MESIN')) {
+                        setCreateProgramName(`RESEP MESIN ${chosen}`);
+                      }
+                    }}
+                    className="w-full text-xs font-semibold rounded-lg border border-stroke dark:border-strokedark bg-gray-50 dark:bg-meta-4 py-2.5 px-3 text-black dark:text-white outline-none focus:border-primary focus:bg-white dark:focus:bg-boxdark transition"
+                  >
+                    {availableMachines.map((m) => (
+                      <option key={m.machine_no} value={m.machine_no} className="bg-white dark:bg-boxdark">
+                        {m.machine_no} — {m.display_name || m.machine_no} {m.ip_address ? `(${m.ip_address})` : ''}
+                      </option>
+                    ))}
+                  </select>
+                  <p className="text-[10px] text-gray-400 mt-1">
+                    Program akan dioptimalkan dan disinkronkan ke kontroler mesin ini.
+                  </p>
+                </div>
+
+                {/* NOMOR & NAMA PROGRAM */}
+                <div className="grid grid-cols-3 gap-3">
+                  <div className="col-span-1">
+                    <label className="block text-xs font-bold uppercase tracking-wider text-gray-700 dark:text-gray-300 mb-1.5">
+                      Nomor (ID):
+                    </label>
+                    <input
+                      type="number"
+                      min="1"
+                      max="9999"
+                      value={createProgramNo}
+                      onChange={(e) => setCreateProgramNo(parseInt(e.target.value) || 1)}
+                      className="w-full text-xs font-mono font-bold rounded-lg border border-stroke dark:border-strokedark bg-gray-50 dark:bg-meta-4 py-2.5 px-3 text-black dark:text-white outline-none focus:border-primary focus:bg-white dark:focus:bg-boxdark transition"
+                    />
+                  </div>
+                  <div className="col-span-2">
+                    <label className="block text-xs font-bold uppercase tracking-wider text-gray-700 dark:text-gray-300 mb-1.5">
+                      Nama Program / Resep:
+                    </label>
+                    <input
+                      type="text"
+                      maxLength={20}
+                      value={createProgramName}
+                      onChange={(e) => setCreateProgramName(e.target.value.toUpperCase())}
+                      placeholder="Contoh: POLYESTER DARK 130C"
+                      className="w-full text-xs font-semibold rounded-lg border border-stroke dark:border-strokedark bg-gray-50 dark:bg-meta-4 py-2.5 px-3 text-black dark:text-white uppercase outline-none focus:border-primary focus:bg-white dark:focus:bg-boxdark transition"
+                    />
+                  </div>
+                </div>
+
+                {/* TEMPLATE AWAL */}
+                <div>
+                  <label className="block text-xs font-bold uppercase tracking-wider text-gray-700 dark:text-gray-300 mb-2">
+                    Struktur Awal Langkah:
+                  </label>
+                  <div className="grid grid-cols-2 gap-2.5">
+                    <label className={`flex flex-col p-3 rounded-lg border cursor-pointer transition ${createTemplateType === 'STANDARD' ? 'border-primary bg-primary/5 dark:bg-primary/10' : 'border-stroke dark:border-strokedark hover:bg-gray-50 dark:hover:bg-meta-4/40'}`}>
+                      <div className="flex items-center justify-between mb-1">
+                        <span className="text-xs font-bold text-black dark:text-white">Standar 4-Langkah</span>
+                        <input
+                          type="radio"
+                          name="createTemplate"
+                          checked={createTemplateType === 'STANDARD'}
+                          onChange={() => setCreateTemplateType('STANDARD')}
+                          className="text-primary focus:ring-0"
+                        />
+                      </div>
+                      <span className="text-[10px] text-gray-400">Start (F1) → Isi Air (F713) → Panas 98°C (F141) → End (F2)</span>
+                    </label>
+
+                    <label className={`flex flex-col p-3 rounded-lg border cursor-pointer transition ${createTemplateType === 'BLANK' ? 'border-primary bg-primary/5 dark:bg-primary/10' : 'border-stroke dark:border-strokedark hover:bg-gray-50 dark:hover:bg-meta-4/40'}`}>
+                      <div className="flex items-center justify-between mb-1">
+                        <span className="text-xs font-bold text-black dark:text-white">Minimal Kosong</span>
+                        <input
+                          type="radio"
+                          name="createTemplate"
+                          checked={createTemplateType === 'BLANK'}
+                          onChange={() => setCreateTemplateType('BLANK')}
+                          className="text-primary focus:ring-0"
+                        />
+                      </div>
+                      <span className="text-[10px] text-gray-400">Hanya Program Start (F1) & Program End (F2)</span>
+                    </label>
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex items-center justify-end gap-2.5 pt-3 border-t border-stroke dark:border-strokedark">
+                <button
+                  type="button"
+                  onClick={() => setShowCreateModal(false)}
+                  className="px-4 py-2 text-xs font-semibold text-gray-600 dark:text-gray-300 bg-gray-100 dark:bg-meta-4 hover:bg-gray-200 dark:hover:bg-opacity-80 rounded-lg transition"
+                >
+                  Batal
+                </button>
+                <button
+                  type="button"
+                  onClick={handleConfirmCreateProgram}
+                  className="flex items-center gap-1.5 px-4 py-2 text-xs font-bold text-white bg-primary hover:bg-primary/90 rounded-lg shadow transition active:scale-95"
+                >
+                  <span>Buka Editor Program</span>
+                  <ChevronRight className="h-4 w-4" />
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* MODAL KONFIRMASI TRANSFER KE FTP KONTROLER */}
+        {ftpTransferModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+            <div className="bg-white dark:bg-boxdark rounded-xl border border-stroke dark:border-strokedark shadow-2xl max-w-md w-full p-6 space-y-4 animate-in fade-in">
+              <div className="flex items-center justify-between border-b border-stroke dark:border-strokedark pb-3">
+                <div className="flex items-center gap-2.5">
+                  <div className="p-2 bg-indigo-500/10 text-indigo-600 rounded-lg">
+                    <Send className="h-5 w-5" />
+                  </div>
+                  <div>
+                    <h3 className="text-sm font-bold uppercase tracking-wider text-black dark:text-white">
+                      Tulis Program ke FTP Kontroler
+                    </h3>
+                    <p className="text-[11px] text-gray-500">Kirim file biner .PRG langsung ke SETEX 777</p>
+                  </div>
+                </div>
+                <button onClick={() => setFtpTransferModal(null)} className="text-gray-400 hover:text-gray-600">
+                  <X className="h-5 w-5" />
+                </button>
+              </div>
+
+              <div className="bg-gray-50 dark:bg-meta-4/40 p-4 rounded-lg border border-stroke dark:border-strokedark space-y-2.5 text-xs">
+                <div className="flex justify-between items-center pb-2 border-b border-stroke dark:border-strokedark">
+                  <span className="text-gray-500 font-medium">Program Target:</span>
+                  <strong className="text-black dark:text-white font-mono">
+                    M_{String(ftpTransferModal.program_number).padStart(4, '0')}.PRG ({ftpTransferModal.program_name})
+                  </strong>
+                </div>
+                <div className="flex justify-between items-center pb-2 border-b border-stroke dark:border-strokedark">
+                  <span className="text-gray-500 font-medium">Mesin Target:</span>
+                  <span className="font-bold text-primary font-mono">
+                    Mesin {ftpTransferModal.machine_code || activeMachine}
+                  </span>
+                </div>
+                <div className="flex justify-between items-center pb-2 border-b border-stroke dark:border-strokedark">
+                  <span className="text-gray-500 font-medium">IP Controller:</span>
+                  <span className="font-mono font-bold text-emerald-600">
+                    {availableMachines.find(m => m.machine_no === (ftpTransferModal.machine_code || activeMachine))?.ip_address || '172.16.110.101'}:21
+                  </span>
+                </div>
+                <div className="flex justify-between items-center pb-2 border-b border-stroke dark:border-strokedark">
+                  <span className="text-gray-500 font-medium">Model HMI & Direktori:</span>
+                  <select
+                    value={controllerModel}
+                    onChange={(e) => handleSelectControllerModel(e.target.value)}
+                    className="font-mono text-xs font-bold text-indigo-700 dark:text-indigo-300 bg-white dark:bg-boxdark border border-stroke dark:border-strokedark rounded px-2 py-1 outline-none"
+                  >
+                    <option value="777">SECOM 777 (/Storage/sc777ce/Programs)</option>
+                    <option value="797">SECOM 797 (/Flashdisk/SC797CE/Programs)</option>
+                  </select>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-500 font-medium">Target Path FTP:</span>
+                  <span className="font-mono font-bold text-indigo-600 dark:text-indigo-400">
+                    {currentRemoteDir}
+                  </span>
+                </div>
+              </div>
+
+              <p className="text-[11px] text-gray-500">
+                File biner M_{String(ftpTransferModal.program_number).padStart(4, '0')}.PRG akan langsung disimpan ke storage kontroler mesin ini ({controllerModel === '797' ? 'SETEX 797' : 'SETEX 777'}) dan siap dijalankan oleh operator pada HMI. Sistem juga memiliki fitur auto-fallback jika folder 777/797 tidak ditemukan.
+              </p>
+
+              <div className="flex items-center justify-end gap-2.5 pt-2 border-t border-stroke dark:border-strokedark">
+                <button
+                  type="button"
+                  onClick={() => setFtpTransferModal(null)}
+                  className="px-4 py-2 text-xs font-semibold text-gray-600 dark:text-gray-300 bg-gray-100 dark:bg-meta-4 hover:bg-gray-200 rounded-lg transition"
+                >
+                  Batal
+                </button>
+                <button
+                  type="button"
+                  disabled={isTransferringFtp}
+                  onClick={() => handleTransferToFtp(ftpTransferModal.program_number, ftpTransferModal.machine_code || activeMachine)}
+                  className="flex items-center gap-1.5 px-4 py-2 text-xs font-bold text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg shadow transition active:scale-95 disabled:opacity-50"
+                >
+                  <Send className={`h-4 w-4 ${isTransferringFtp ? 'animate-spin' : ''}`} />
+                  <span>{isTransferringFtp ? 'Sedang Mentransfer...' : `Tulis Sekarang ke FTP Mesin ${ftpTransferModal.machine_code || activeMachine}`}</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     );
   }
@@ -682,19 +1358,18 @@ export default function Programs() {
   // RENDER VIEW 2: LINEAR STEP SEQUENCE EDITOR (PRG STUDIO)
   // =========================================================================
   const mainFn = currentStep?.functions?.find(f => f.column === 1);
-  const mainFnMeta = mainFn ? getFunctionMeta(mainFn.function_id) : null;
-  const fDef = mainFn ? ALL_FUNCTIONS[String(mainFn.function_id)] : null;
+  const mainFnMeta = mainFn ? getFunctionMeta(mainFn.function_id, machineFunctions) : null;
+  const fDef = mainFn ? ((machineFunctions && machineFunctions[String(mainFn.function_id)]) || ALL_FUNCTIONS[String(mainFn.function_id)]) : null;
   const parallelFns = currentStep?.functions?.filter(f => f.column > 1) || [];
 
   return (
     <div className="space-y-5">
       {/* NOTIFICATION */}
       {notification && (
-        <div className={`flex items-center justify-between p-4 rounded-md border shadow-sm ${
-          notification.type === 'success' 
-            ? 'bg-emerald-50 dark:bg-emerald-950/40 border-emerald-500/30 text-emerald-800 dark:text-emerald-300' 
-            : 'bg-rose-50 dark:bg-rose-950/40 border-rose-500/30 text-rose-800 dark:text-rose-300'
-        }`}>
+        <div className={`flex items-center justify-between p-4 rounded-md border shadow-sm ${notification.type === 'success'
+          ? 'bg-emerald-50 dark:bg-emerald-950/40 border-emerald-500/30 text-emerald-800 dark:text-emerald-300'
+          : 'bg-rose-50 dark:bg-rose-950/40 border-rose-500/30 text-rose-800 dark:text-rose-300'
+          }`}>
           <div className="flex items-center gap-3">
             {notification.type === 'success' ? <CheckCircle2 className="h-5 w-5 text-emerald-600" /> : <AlertCircle className="h-5 w-5 text-rose-600" />}
             <div>
@@ -717,7 +1392,7 @@ export default function Programs() {
             <ArrowLeft className="h-4 w-4" />
           </button>
 
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-3">
             <div className="flex flex-col">
               <div className="flex items-center gap-2">
                 <span className="text-xs font-bold font-mono px-2 py-0.5 bg-primary/10 text-primary border border-primary/20 rounded">
@@ -735,6 +1410,25 @@ export default function Programs() {
               <span className="text-[11px] text-gray-400 font-mono mt-0.5">
                 Target: M_{String(programNo).padStart(4, '0')}.PRG · {steps.length} Langkah
               </span>
+            </div>
+
+            {/* Pilihan Mesin pada Editor */}
+            <div className="flex items-center gap-2 bg-gray-50 dark:bg-meta-4/60 px-3 py-1.5 rounded-lg border border-stroke dark:border-strokedark shadow-xs">
+              <Cpu className="h-4 w-4 text-primary shrink-0" />
+              <div className="flex flex-col">
+                <span className="text-[9px] font-bold uppercase tracking-wider text-gray-400">Pilihan Mesin:</span>
+                <select
+                  value={machineCode}
+                  onChange={(e) => setMachineCode(e.target.value)}
+                  className="text-xs font-bold font-mono bg-transparent text-primary dark:text-emerald-400 outline-none cursor-pointer"
+                >
+                  {availableMachines.map((m) => (
+                    <option key={m.machine_no} value={m.machine_no} className="bg-white dark:bg-boxdark text-black dark:text-white">
+                      {m.machine_no} — {m.display_name || m.machine_no}
+                    </option>
+                  ))}
+                </select>
+              </div>
             </div>
           </div>
         </div>
@@ -767,6 +1461,16 @@ export default function Programs() {
           </button>
 
           <button
+            onClick={() => handleTransferToFtp(programNo, machineCode)}
+            disabled={isTransferringFtp}
+            className="flex items-center gap-1.5 px-3 py-2 text-xs font-bold text-white bg-indigo-600 hover:bg-indigo-700 rounded shadow-sm transition active:scale-95 disabled:opacity-50"
+            title={`Tulis biner M_${String(programNo).padStart(4, '0')}.PRG langsung ke FTP Kontroler Mesin ${machineCode}`}
+          >
+            <Send className={`h-3.5 w-3.5 ${isTransferringFtp ? 'animate-spin' : ''}`} />
+            <span>{isTransferringFtp ? 'Menulis ke FTP...' : `Tulis ke FTP Mesin (${machineCode})`}</span>
+          </button>
+
+          <button
             onClick={() => handleDownloadPrg(programNo)}
             className="flex items-center gap-1.5 px-3 py-2 text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 rounded shadow-sm transition"
             title="Unduh file biner M_xxxx.PRG untuk mesin atau USB"
@@ -779,7 +1483,7 @@ export default function Programs() {
 
       {/* PROCESS SUMMARY & CURVE ACCORDION */}
       <div className="bg-white dark:bg-boxdark rounded-lg border border-stroke dark:border-strokedark shadow-sm overflow-hidden">
-        <div 
+        <div
           onClick={() => setShowChart(!showChart)}
           className="px-4 py-3 bg-gray-50/80 dark:bg-meta-4/30 border-b border-stroke dark:border-strokedark flex items-center justify-between cursor-pointer select-none"
         >
@@ -808,7 +1512,7 @@ export default function Programs() {
 
       {/* MAIN TWO-COLUMN STEP STUDIO */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
-        
+
         {/* KOLOM KIRI: DAFTAR LANGKAH LINEAR (5 COLS) */}
         <div className="lg:col-span-5 bg-white dark:bg-boxdark rounded-lg border border-stroke dark:border-strokedark shadow-sm overflow-hidden">
           <div className="px-4 py-3 bg-gray-50 dark:bg-meta-4/30 border-b border-stroke dark:border-strokedark flex items-center justify-between">
@@ -843,16 +1547,14 @@ export default function Programs() {
                 <div
                   key={idx}
                   onClick={() => setSelectedStepIdx(idx)}
-                  className={`p-3 cursor-pointer transition flex items-center justify-between ${
-                    isSelected 
-                      ? 'bg-primary/10 border-l-4 border-primary' 
-                      : 'hover:bg-gray-50 dark:hover:bg-meta-4/30'
-                  }`}
+                  className={`p-3 cursor-pointer transition flex items-center justify-between ${isSelected
+                    ? 'bg-primary/10 border-l-4 border-primary'
+                    : 'hover:bg-gray-50 dark:hover:bg-meta-4/30'
+                    }`}
                 >
                   <div className="flex items-center gap-3">
-                    <span className={`w-6 h-6 rounded flex items-center justify-center font-mono text-xs font-bold ${
-                      isStart || isEnd ? 'bg-gray-200 dark:bg-meta-4 text-gray-700 dark:text-gray-300' : 'bg-primary text-white'
-                    }`}>
+                    <span className={`w-6 h-6 rounded flex items-center justify-center font-mono text-xs font-bold ${isStart || isEnd ? 'bg-gray-200 dark:bg-meta-4 text-gray-700 dark:text-gray-300' : 'bg-primary text-white'
+                      }`}>
                       {String(idx + 1).padStart(2, '0')}
                     </span>
 
@@ -993,7 +1695,7 @@ export default function Programs() {
                 {fDef && fDef.parameters && fDef.parameters.length > 0 ? (
                   <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 pt-2">
                     {fDef.parameters.slice(0, 6).map((pMeta, pIdx) => {
-                      const paramDef = ALL_PARAMETERS[String(pMeta.definition_id)];
+                      const paramDef = (machineParameters && machineParameters[String(pMeta.definition_id)]) || ALL_PARAMETERS[String(pMeta.definition_id)];
                       const pName = paramDef?.name || `Parameter ${pIdx + 1}`;
                       const pUnit = paramDef?.unit || '';
                       const curVal = mainFn?.params?.[pIdx] ?? 0;
@@ -1051,8 +1753,8 @@ export default function Programs() {
                         id="parallel-selector"
                         className="text-xs rounded border border-stroke bg-white dark:bg-boxdark py-1 px-2 text-black dark:text-white outline-none"
                       >
-                        {POPULAR_PARALLEL_FUNCTIONS.map(pf => (
-                          <option key={pf.id} value={`${pf.id},${pf.col}`}>
+                        {parallelOptions.map(pf => (
+                          <option key={`${pf.id}-${pf.col}`} value={`${pf.id},${pf.col}`}>
                             Slot {pf.col}: {pf.name}
                           </option>
                         ))}
@@ -1079,8 +1781,8 @@ export default function Programs() {
                     <div className="space-y-2 pt-1">
                       {parallelFns.map((fn, pFnIdx) => {
                         const actualIdx = currentStep.functions.findIndex(f => f.column === fn.column);
-                        const fMeta = getFunctionMeta(fn.function_id);
-                        const subDef = ALL_FUNCTIONS[String(fn.function_id)];
+                        const fMeta = getFunctionMeta(fn.function_id, machineFunctions);
+                        const subDef = (machineFunctions && machineFunctions[String(fn.function_id)]) || ALL_FUNCTIONS[String(fn.function_id)];
 
                         return (
                           <div key={fn.column} className="bg-white dark:bg-boxdark p-3 rounded border border-stroke dark:border-strokedark shadow-sm">
@@ -1099,7 +1801,7 @@ export default function Programs() {
                             {subDef?.parameters && subDef.parameters.length > 0 && (
                               <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 pt-2">
                                 {subDef.parameters.slice(0, 4).map((pMeta, pIdx) => {
-                                  const paramDef = ALL_PARAMETERS[String(pMeta.definition_id)];
+                                  const paramDef = (machineParameters && machineParameters[String(pMeta.definition_id)]) || ALL_PARAMETERS[String(pMeta.definition_id)];
                                   const pName = paramDef?.name || `P${pIdx + 1}`;
                                   const pUnit = paramDef?.unit || '';
                                   const curVal = fn.params?.[pIdx] ?? 0;
@@ -1131,11 +1833,10 @@ export default function Programs() {
               )}
 
               {/* VALIDATION BOX */}
-              <div className={`p-3.5 rounded-lg border text-xs ${
-                validationIssues.length === 0 
-                  ? 'bg-emerald-50 dark:bg-emerald-950/30 border-emerald-500/30 text-emerald-800 dark:text-emerald-300' 
-                  : 'bg-amber-50 dark:bg-amber-950/30 border-amber-500/30 text-amber-800 dark:text-amber-300'
-              }`}>
+              <div className={`p-3.5 rounded-lg border text-xs ${validationIssues.length === 0
+                ? 'bg-emerald-50 dark:bg-emerald-950/30 border-emerald-500/30 text-emerald-800 dark:text-emerald-300'
+                : 'bg-amber-50 dark:bg-amber-950/30 border-amber-500/30 text-amber-800 dark:text-amber-300'
+                }`}>
                 <div className="flex items-center gap-2 font-bold mb-1">
                   {validationIssues.length === 0 ? <CheckCircle2 className="h-4 w-4 text-emerald-600" /> : <AlertCircle className="h-4 w-4 text-amber-600" />}
                   <span>{validationIssues.length === 0 ? '✓ Struktur Program Valid (SETEX Secom 777 Ready)' : 'Perhatian Validasi SECOM:'}</span>

@@ -1,0 +1,6588 @@
+{
+  "functions": {
+    "678": {
+      "id": 678,
+      "name_local": "RK Mikt.Doldur",
+      "name": "Fill ST1 Quantity",
+      "ack": 3,
+      "type": 0,
+      "parameter_count": 5,
+      "parameters": [
+        {
+          "definition_id": 174,
+          "display_position": 1,
+          "minimum": 0.0,
+          "maximum": 0.0,
+          "default": 1.0,
+          "index_min": 0,
+          "index_max": 52,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 178,
+          "display_position": 2,
+          "minimum": 0.0,
+          "maximum": 1.0,
+          "default": 0.0,
+          "index_min": 0,
+          "index_max": 0,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 176,
+          "display_position": 3,
+          "minimum": 0.0,
+          "maximum": 0.0,
+          "default": 0.0,
+          "index_min": 0,
+          "index_max": 58,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 173,
+          "display_position": 4,
+          "minimum": 0.0,
+          "maximum": 9999.0,
+          "default": 0.0,
+          "index_min": 0,
+          "index_max": 51,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 177,
+          "display_position": 5,
+          "minimum": 0.0,
+          "maximum": 180.0,
+          "default": 0.0,
+          "index_min": 0,
+          "index_max": 0,
+          "attribute": 0,
+          "reserved": 0
+        }
+      ]
+    },
+    "668": {
+      "id": 668,
+      "name_local": "BK Doldur",
+      "name": "Filling AT2 Level",
+      "ack": 3,
+      "type": 0,
+      "parameter_count": 5,
+      "parameters": [
+        {
+          "definition_id": 154,
+          "display_position": 1,
+          "minimum": 1.0,
+          "maximum": 2.0,
+          "default": 1.0,
+          "index_min": 0,
+          "index_max": 42,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 158,
+          "display_position": 2,
+          "minimum": 0.0,
+          "maximum": 1.0,
+          "default": 0.0,
+          "index_min": 0,
+          "index_max": 0,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 155,
+          "display_position": 4,
+          "minimum": 0.0,
+          "maximum": 0.0,
+          "default": 0.0,
+          "index_min": 0,
+          "index_max": 47,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 156,
+          "display_position": 3,
+          "minimum": 0.0,
+          "maximum": 180.0,
+          "default": 0.0,
+          "index_min": 0,
+          "index_max": 48,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 157,
+          "display_position": 5,
+          "minimum": 0.0,
+          "maximum": 99.0,
+          "default": 0.0,
+          "index_min": 0,
+          "index_max": 0,
+          "attribute": 0,
+          "reserved": 0
+        }
+      ]
+    },
+    "401": {
+      "id": 401,
+      "name_local": "Pompa Hizi",
+      "name": "Pump Set Value",
+      "ack": 5,
+      "type": 0,
+      "parameter_count": 1,
+      "parameters": [
+        {
+          "definition_id": 73,
+          "display_position": 4,
+          "minimum": 0.0,
+          "maximum": 100.0,
+          "default": 80.0,
+          "index_min": 23,
+          "index_max": 0,
+          "attribute": 0,
+          "reserved": 0
+        }
+      ]
+    },
+    "262": {
+      "id": 262,
+      "name_local": "pH Kontrol Min-Max",
+      "name": "Check pH Min-Max",
+      "ack": 0,
+      "type": 5,
+      "parameter_count": 3,
+      "parameters": [
+        {
+          "definition_id": 36,
+          "display_position": 4,
+          "minimum": 0.0,
+          "maximum": 180.0,
+          "default": 10.0,
+          "index_min": 0,
+          "index_max": 0,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 271,
+          "display_position": 2,
+          "minimum": 0.0,
+          "maximum": 14.0,
+          "default": 0.0,
+          "index_min": 0,
+          "index_max": 0,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 272,
+          "display_position": 1,
+          "minimum": 0.0,
+          "maximum": 14.0,
+          "default": 0.0,
+          "index_min": 0,
+          "index_max": 0,
+          "attribute": 0,
+          "reserved": 0
+        }
+      ]
+    },
+    "661": {
+      "id": 661,
+      "name_local": "Boya/Kimyasal BK",
+      "name": "Dyes/Chemicals AT2",
+      "ack": 3,
+      "type": 5,
+      "parameter_count": 2,
+      "parameters": [
+        {
+          "definition_id": 161,
+          "display_position": 2,
+          "minimum": 0.0,
+          "maximum": 99.0,
+          "default": 0.0,
+          "index_min": 0,
+          "index_max": 0,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 167,
+          "display_position": 4,
+          "minimum": 0.0,
+          "maximum": 180.0,
+          "default": 0.0,
+          "index_min": 0,
+          "index_max": 0,
+          "attribute": 0,
+          "reserved": 0
+        }
+      ]
+    },
+    "671": {
+      "id": 671,
+      "name_local": "Dyes/Chemicals ST1",
+      "name": "Dyes/Chemicals ST1",
+      "ack": 3,
+      "type": 5,
+      "parameter_count": 2,
+      "parameters": [
+        {
+          "definition_id": 181,
+          "display_position": 2,
+          "minimum": 0.0,
+          "maximum": 99.0,
+          "default": 0.0,
+          "index_min": 0,
+          "index_max": 0,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 187,
+          "display_position": 4,
+          "minimum": 0.0,
+          "maximum": 180.0,
+          "default": 0.0,
+          "index_min": 0,
+          "index_max": 0,
+          "attribute": 0,
+          "reserved": 0
+        }
+      ]
+    },
+    "708": {
+      "id": 708,
+      "name_local": "Makine->ST",
+      "name": "Machine -> ST1",
+      "ack": 0,
+      "type": 0,
+      "parameter_count": 0,
+      "parameters": []
+    },
+    "709": {
+      "id": 709,
+      "name_local": "Yikama Hattan Duze",
+      "name": "Rinse Nozzle",
+      "ack": 0,
+      "type": 0,
+      "parameter_count": 3,
+      "parameters": [
+        {
+          "definition_id": 174,
+          "display_position": 3,
+          "minimum": 0.0,
+          "maximum": 0.0,
+          "default": 1.0,
+          "index_min": 0,
+          "index_max": 52,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 173,
+          "display_position": 5,
+          "minimum": 0.0,
+          "maximum": 9999.0,
+          "default": 0.0,
+          "index_min": 0,
+          "index_max": 51,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 13,
+          "display_position": 6,
+          "minimum": 0.0,
+          "maximum": 180.0,
+          "default": 5.0,
+          "index_min": 0,
+          "index_max": 0,
+          "attribute": 0,
+          "reserved": 0
+        }
+      ]
+    },
+    "713": {
+      "id": 713,
+      "name_local": "Seviye Doldur",
+      "name": "Fill Level",
+      "ack": 0,
+      "type": 0,
+      "parameter_count": 2,
+      "parameters": [
+        {
+          "definition_id": 7,
+          "display_position": 3,
+          "minimum": 1.0,
+          "maximum": 3.0,
+          "default": 2.0,
+          "index_min": 0,
+          "index_max": 0,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 9,
+          "display_position": 6,
+          "minimum": 0.0,
+          "maximum": 0.0,
+          "default": 0.0,
+          "index_min": 3,
+          "index_max": 4,
+          "attribute": 0,
+          "reserved": 0
+        }
+      ]
+    },
+    "702": {
+      "id": 702,
+      "name_local": "Sirk\u00fclasyon BK -> AK",
+      "name": "Circulate AT2 -> App",
+      "ack": 0,
+      "type": 0,
+      "parameter_count": 6,
+      "parameters": [
+        {
+          "definition_id": 60,
+          "display_position": 1,
+          "minimum": 0.0,
+          "maximum": 99.0,
+          "default": 0.0,
+          "index_min": 0,
+          "index_max": 0,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 158,
+          "display_position": 2,
+          "minimum": 0.0,
+          "maximum": 1.0,
+          "default": 0.0,
+          "index_min": 0,
+          "index_max": 0,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 5,
+          "display_position": 6,
+          "minimum": 0.0,
+          "maximum": 180.0,
+          "default": 5.0,
+          "index_min": 0,
+          "index_max": 0,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 298,
+          "display_position": 3,
+          "minimum": 0.0,
+          "maximum": 0.0,
+          "default": 1.0,
+          "index_min": 0,
+          "index_max": 39,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 3,
+          "display_position": 4,
+          "minimum": 0.0,
+          "maximum": 180.0,
+          "default": 0.0,
+          "index_min": 0,
+          "index_max": 15,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 4,
+          "display_position": 5,
+          "minimum": 0.0,
+          "maximum": 9.899999618530273,
+          "default": 0.0,
+          "index_min": 0,
+          "index_max": 13,
+          "attribute": 0,
+          "reserved": 0
+        }
+      ]
+    },
+    "2": {
+      "id": 2,
+      "name_local": "Program Son",
+      "name": "Program End",
+      "ack": 0,
+      "type": 7,
+      "parameter_count": 0,
+      "parameters": []
+    },
+    "3": {
+      "id": 3,
+      "name_local": "Islem Yok",
+      "name": "No Operation",
+      "ack": 0,
+      "type": 0,
+      "parameter_count": 0,
+      "parameters": []
+    },
+    "5": {
+      "id": 5,
+      "name_local": "Ilave Son",
+      "name": "Addition End",
+      "ack": 0,
+      "type": 9,
+      "parameter_count": 0,
+      "parameters": []
+    },
+    "4": {
+      "id": 4,
+      "name_local": "Ilave Basla",
+      "name": "Addition Start",
+      "ack": 0,
+      "type": 8,
+      "parameter_count": 0,
+      "parameters": []
+    },
+    "21": {
+      "id": 21,
+      "name_local": "F\u00fcllen auf Niveau",
+      "name": "Fill Level",
+      "ack": 0,
+      "type": 0,
+      "parameter_count": 2,
+      "parameters": [
+        {
+          "definition_id": 7,
+          "display_position": 1,
+          "minimum": 1.0,
+          "maximum": 100.0,
+          "default": 1.0,
+          "index_min": 0,
+          "index_max": 18,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 8,
+          "display_position": 4,
+          "minimum": 1.0,
+          "maximum": 100.0,
+          "default": 1.0,
+          "index_min": 0,
+          "index_max": 17,
+          "attribute": 0,
+          "reserved": 0
+        }
+      ]
+    },
+    "22": {
+      "id": 22,
+      "name_local": "Miktar Doldur",
+      "name": "Fill Quantity",
+      "ack": 0,
+      "type": 0,
+      "parameter_count": 2,
+      "parameters": [
+        {
+          "definition_id": 7,
+          "display_position": 1,
+          "minimum": 1.0,
+          "maximum": 100.0,
+          "default": 2.0,
+          "index_min": 0,
+          "index_max": 18,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 9,
+          "display_position": 4,
+          "minimum": 0.0,
+          "maximum": 65535.0,
+          "default": 0.0,
+          "index_min": 0,
+          "index_max": 4,
+          "attribute": 0,
+          "reserved": 0
+        }
+      ]
+    },
+    "23": {
+      "id": 23,
+      "name_local": "F\u00fcll Mischw. Niveau",
+      "name": "Fill Blendw. Level",
+      "ack": 0,
+      "type": 0,
+      "parameter_count": 2,
+      "parameters": [
+        {
+          "definition_id": 10,
+          "display_position": 1,
+          "minimum": 0.0,
+          "maximum": 0.0,
+          "default": 0.0,
+          "index_min": 142,
+          "index_max": 143,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 8,
+          "display_position": 4,
+          "minimum": 1.0,
+          "maximum": 0.0,
+          "default": 1.0,
+          "index_min": 0,
+          "index_max": 17,
+          "attribute": 0,
+          "reserved": 0
+        }
+      ]
+    },
+    "24": {
+      "id": 24,
+      "name_local": "F\u00fcll Mischw. Menge",
+      "name": "Fill Blendw. Quant.",
+      "ack": 0,
+      "type": 0,
+      "parameter_count": 2,
+      "parameters": [
+        {
+          "definition_id": 10,
+          "display_position": 1,
+          "minimum": 0.0,
+          "maximum": 0.0,
+          "default": 0.0,
+          "index_min": 142,
+          "index_max": 143,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 9,
+          "display_position": 4,
+          "minimum": 0.0,
+          "maximum": 65535.0,
+          "default": 0.0,
+          "index_min": 0,
+          "index_max": 4,
+          "attribute": 0,
+          "reserved": 0
+        }
+      ]
+    },
+    "719": {
+      "id": 719,
+      "name_local": "RK Mikt.Doldur",
+      "name": "Fill Quantity ST",
+      "ack": 6,
+      "type": 0,
+      "parameter_count": 5,
+      "parameters": [
+        {
+          "definition_id": 174,
+          "display_position": 1,
+          "minimum": 0.0,
+          "maximum": 0.0,
+          "default": 1.0,
+          "index_min": 0,
+          "index_max": 52,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 178,
+          "display_position": 2,
+          "minimum": 0.0,
+          "maximum": 1.0,
+          "default": 0.0,
+          "index_min": 0,
+          "index_max": 0,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 176,
+          "display_position": 3,
+          "minimum": 0.0,
+          "maximum": 0.0,
+          "default": 0.0,
+          "index_min": 0,
+          "index_max": 58,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 173,
+          "display_position": 4,
+          "minimum": 0.0,
+          "maximum": 9999.0,
+          "default": 0.0,
+          "index_min": 0,
+          "index_max": 51,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 177,
+          "display_position": 5,
+          "minimum": 0.0,
+          "maximum": 180.0,
+          "default": 0.0,
+          "index_min": 0,
+          "index_max": 0,
+          "attribute": 0,
+          "reserved": 0
+        }
+      ]
+    },
+    "716": {
+      "id": 716,
+      "name_local": "RK->Makine",
+      "name": "ST -> Machine",
+      "ack": 0,
+      "type": 0,
+      "parameter_count": 2,
+      "parameters": [
+        {
+          "definition_id": 60,
+          "display_position": 1,
+          "minimum": 0.0,
+          "maximum": 99.0,
+          "default": 0.0,
+          "index_min": 0,
+          "index_max": 0,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 9,
+          "display_position": 6,
+          "minimum": 1.0,
+          "maximum": 2.0,
+          "default": 0.0,
+          "index_min": 3,
+          "index_max": 4,
+          "attribute": 0,
+          "reserved": 0
+        }
+      ]
+    },
+    "126": {
+      "id": 126,
+      "name_local": "Kontrol",
+      "name": "Check",
+      "ack": 0,
+      "type": 2,
+      "parameter_count": 1,
+      "parameters": [
+        {
+          "definition_id": 36,
+          "display_position": 4,
+          "minimum": 0.0,
+          "maximum": 180.0,
+          "default": 0.0,
+          "index_min": 0,
+          "index_max": 0,
+          "attribute": 0,
+          "reserved": 0
+        }
+      ]
+    },
+    "123": {
+      "id": 123,
+      "name_local": "Numune",
+      "name": "Sample",
+      "ack": 0,
+      "type": 2,
+      "parameter_count": 1,
+      "parameters": [
+        {
+          "definition_id": 36,
+          "display_position": 2,
+          "minimum": 0.0,
+          "maximum": 180.0,
+          "default": 15.0,
+          "index_min": 0,
+          "index_max": 0,
+          "attribute": 0,
+          "reserved": 0
+        }
+      ]
+    },
+    "122": {
+      "id": 122,
+      "name_local": "Mal Bosalt",
+      "name": "Unload",
+      "ack": 0,
+      "type": 5,
+      "parameter_count": 1,
+      "parameters": [
+        {
+          "definition_id": 36,
+          "display_position": 1,
+          "minimum": 0.0,
+          "maximum": 180.0,
+          "default": 15.0,
+          "index_min": 0,
+          "index_max": 0,
+          "attribute": 0,
+          "reserved": 0
+        }
+      ]
+    },
+    "65": {
+      "id": 65,
+      "name_local": "HT-Ablassen",
+      "name": "HT-Drain",
+      "ack": 0,
+      "type": 0,
+      "parameter_count": 0,
+      "parameters": []
+    },
+    "127": {
+      "id": 127,
+      "name_local": "pH Kontrol",
+      "name": "Check pH",
+      "ack": 0,
+      "type": 2,
+      "parameter_count": 2,
+      "parameters": [
+        {
+          "definition_id": 36,
+          "display_position": 2,
+          "minimum": 0.0,
+          "maximum": 180.0,
+          "default": 10.0,
+          "index_min": 0,
+          "index_max": 0,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 201,
+          "display_position": 3,
+          "minimum": 0.0,
+          "maximum": 14.0,
+          "default": 0.0,
+          "index_min": 0,
+          "index_max": 0,
+          "attribute": 0,
+          "reserved": 0
+        }
+      ]
+    },
+    "141": {
+      "id": 141,
+      "name_local": "Sicaklik Kontrol",
+      "name": "Temperature Control",
+      "ack": 0,
+      "type": 0,
+      "parameter_count": 3,
+      "parameters": [
+        {
+          "definition_id": 3,
+          "display_position": 2,
+          "minimum": 0.0,
+          "maximum": 150.0,
+          "default": 0.0,
+          "index_min": 0,
+          "index_max": 14,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 4,
+          "display_position": 3,
+          "minimum": 0.0,
+          "maximum": 9.899999618530273,
+          "default": 0.0,
+          "index_min": 0,
+          "index_max": 13,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 5,
+          "display_position": 4,
+          "minimum": 0.0,
+          "maximum": 180.0,
+          "default": 0.0,
+          "index_min": 0,
+          "index_max": 0,
+          "attribute": 0,
+          "reserved": 0
+        }
+      ]
+    },
+    "145": {
+      "id": 145,
+      "name_local": "Isitma",
+      "name": "Heating",
+      "ack": 0,
+      "type": 0,
+      "parameter_count": 3,
+      "parameters": [
+        {
+          "definition_id": 3,
+          "display_position": 2,
+          "minimum": 0.0,
+          "maximum": 0.0,
+          "default": 0.0,
+          "index_min": 0,
+          "index_max": 14,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 4,
+          "display_position": 3,
+          "minimum": 0.0,
+          "maximum": 0.0,
+          "default": 0.0,
+          "index_min": 0,
+          "index_max": 13,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 5,
+          "display_position": 4,
+          "minimum": 0.0,
+          "maximum": 180.0,
+          "default": 0.0,
+          "index_min": 0,
+          "index_max": 0,
+          "attribute": 0,
+          "reserved": 0
+        }
+      ]
+    },
+    "144": {
+      "id": 144,
+      "name_local": "Sirkulasyon",
+      "name": "Runtime",
+      "ack": 0,
+      "type": 0,
+      "parameter_count": 1,
+      "parameters": [
+        {
+          "definition_id": 5,
+          "display_position": 3,
+          "minimum": 0.0,
+          "maximum": 180.0,
+          "default": 0.0,
+          "index_min": 0,
+          "index_max": 0,
+          "attribute": 0,
+          "reserved": 0
+        }
+      ]
+    },
+    "146": {
+      "id": 146,
+      "name_local": "Sogutma",
+      "name": "Cooling",
+      "ack": 0,
+      "type": 0,
+      "parameter_count": 3,
+      "parameters": [
+        {
+          "definition_id": 3,
+          "display_position": 2,
+          "minimum": 0.0,
+          "maximum": 0.0,
+          "default": 0.0,
+          "index_min": 0,
+          "index_max": 14,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 4,
+          "display_position": 3,
+          "minimum": 0.0,
+          "maximum": 0.0,
+          "default": 0.0,
+          "index_min": 0,
+          "index_max": 13,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 5,
+          "display_position": 4,
+          "minimum": 0.0,
+          "maximum": 180.0,
+          "default": 0.0,
+          "index_min": 0,
+          "index_max": 0,
+          "attribute": 0,
+          "reserved": 0
+        }
+      ]
+    },
+    "227": {
+      "id": 227,
+      "name_local": "Dozaj KK",
+      "name": "Dosing AT1",
+      "ack": 0,
+      "type": 0,
+      "parameter_count": 6,
+      "parameters": [
+        {
+          "definition_id": 60,
+          "display_position": 1,
+          "minimum": 0.0,
+          "maximum": 99.0,
+          "default": 0.0,
+          "index_min": 0,
+          "index_max": 0,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 3,
+          "display_position": 2,
+          "minimum": 0.0,
+          "maximum": 150.0,
+          "default": 0.0,
+          "index_min": 0,
+          "index_max": 14,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 4,
+          "display_position": 3,
+          "minimum": 0.0,
+          "maximum": 0.0,
+          "default": 0.0,
+          "index_min": 0,
+          "index_max": 13,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 296,
+          "display_position": 4,
+          "minimum": 0.0,
+          "maximum": 0.0,
+          "default": 1.0,
+          "index_min": 0,
+          "index_max": 39,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 53,
+          "display_position": 5,
+          "minimum": -100.0,
+          "maximum": 100.0,
+          "default": 0.0,
+          "index_min": 0,
+          "index_max": 0,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 22,
+          "display_position": 6,
+          "minimum": 0.0,
+          "maximum": 180.0,
+          "default": 0.0,
+          "index_min": 0,
+          "index_max": 0,
+          "attribute": 0,
+          "reserved": 0
+        }
+      ]
+    },
+    "653": {
+      "id": 653,
+      "name_local": "Wait AT1",
+      "name": "Wait AT1",
+      "ack": 6,
+      "type": 0,
+      "parameter_count": 0,
+      "parameters": []
+    },
+    "652": {
+      "id": 652,
+      "name_local": "Start batch +1 AT1",
+      "name": "Start batch +1 AT1",
+      "ack": 3,
+      "type": 21,
+      "parameter_count": 1,
+      "parameters": [
+        {
+          "definition_id": 148,
+          "display_position": 1,
+          "minimum": 0.0,
+          "maximum": 9999.0,
+          "default": 0.0,
+          "index_min": 0,
+          "index_max": 0,
+          "attribute": 0,
+          "reserved": 0
+        }
+      ]
+    },
+    "654": {
+      "id": 654,
+      "name_local": "Go AT1",
+      "name": "Go AT1",
+      "ack": 7,
+      "type": 0,
+      "parameter_count": 0,
+      "parameters": []
+    },
+    "655": {
+      "id": 655,
+      "name_local": "Prep. AT1->ST1 ok",
+      "name": "Prep. AT1->ST1 ok",
+      "ack": 3,
+      "type": 0,
+      "parameter_count": 1,
+      "parameters": [
+        {
+          "definition_id": 141,
+          "display_position": 1,
+          "minimum": 0.0,
+          "maximum": 99.0,
+          "default": 0.0,
+          "index_min": 0,
+          "index_max": 0,
+          "attribute": 0,
+          "reserved": 0
+        }
+      ]
+    },
+    "656": {
+      "id": 656,
+      "name_local": "Call Prep.AT1",
+      "name": "Call Prep.AT1",
+      "ack": 3,
+      "type": 14,
+      "parameter_count": 6,
+      "parameters": [
+        {
+          "definition_id": 141,
+          "display_position": 1,
+          "minimum": 1.0,
+          "maximum": 99.0,
+          "default": 1.0,
+          "index_min": 0,
+          "index_max": 0,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 143,
+          "display_position": 2,
+          "minimum": 1.0,
+          "maximum": 1.0,
+          "default": 1.0,
+          "index_min": 0,
+          "index_max": 0,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 140,
+          "display_position": 3,
+          "minimum": 0.0,
+          "maximum": 9999.0,
+          "default": 0.0,
+          "index_min": 0,
+          "index_max": 0,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 145,
+          "display_position": 4,
+          "minimum": 0.0,
+          "maximum": 9.0,
+          "default": 0.0,
+          "index_min": 0,
+          "index_max": 0,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 144,
+          "display_position": 5,
+          "minimum": 0.0,
+          "maximum": 300.0,
+          "default": 0.0,
+          "index_min": 0,
+          "index_max": 0,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 149,
+          "display_position": 6,
+          "minimum": 0.0,
+          "maximum": 180.0,
+          "default": 0.0,
+          "index_min": 0,
+          "index_max": 0,
+          "attribute": 0,
+          "reserved": 0
+        }
+      ]
+    },
+    "662": {
+      "id": 662,
+      "name_local": "Start batch +1 AT2",
+      "name": "Start batch +1 AT2",
+      "ack": 3,
+      "type": 21,
+      "parameter_count": 1,
+      "parameters": [
+        {
+          "definition_id": 168,
+          "display_position": 1,
+          "minimum": 0.0,
+          "maximum": 9999.0,
+          "default": 0.0,
+          "index_min": 0,
+          "index_max": 0,
+          "attribute": 0,
+          "reserved": 0
+        }
+      ]
+    },
+    "663": {
+      "id": 663,
+      "name_local": "Wait AT2",
+      "name": "Wait AT2",
+      "ack": 6,
+      "type": 0,
+      "parameter_count": 0,
+      "parameters": []
+    },
+    "664": {
+      "id": 664,
+      "name_local": "Go AT2",
+      "name": "Go AT2",
+      "ack": 7,
+      "type": 0,
+      "parameter_count": 0,
+      "parameters": []
+    },
+    "666": {
+      "id": 666,
+      "name_local": "Call Prep.AT2",
+      "name": "Call Prep.AT2",
+      "ack": 3,
+      "type": 14,
+      "parameter_count": 6,
+      "parameters": [
+        {
+          "definition_id": 161,
+          "display_position": 1,
+          "minimum": 1.0,
+          "maximum": 99.0,
+          "default": 1.0,
+          "index_min": 0,
+          "index_max": 0,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 163,
+          "display_position": 2,
+          "minimum": 2.0,
+          "maximum": 2.0,
+          "default": 2.0,
+          "index_min": 0,
+          "index_max": 0,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 160,
+          "display_position": 3,
+          "minimum": 0.0,
+          "maximum": 9999.0,
+          "default": 0.0,
+          "index_min": 0,
+          "index_max": 0,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 165,
+          "display_position": 4,
+          "minimum": 0.0,
+          "maximum": 9.0,
+          "default": 0.0,
+          "index_min": 0,
+          "index_max": 0,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 164,
+          "display_position": 5,
+          "minimum": 0.0,
+          "maximum": 300.0,
+          "default": 0.0,
+          "index_min": 0,
+          "index_max": 0,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 169,
+          "display_position": 6,
+          "minimum": 0.0,
+          "maximum": 180.0,
+          "default": 0.0,
+          "index_min": 0,
+          "index_max": 0,
+          "attribute": 0,
+          "reserved": 0
+        }
+      ]
+    },
+    "672": {
+      "id": 672,
+      "name_local": "Start batch +1 ST1",
+      "name": "Start batch +1 ST1",
+      "ack": 3,
+      "type": 21,
+      "parameter_count": 1,
+      "parameters": [
+        {
+          "definition_id": 188,
+          "display_position": 1,
+          "minimum": 0.0,
+          "maximum": 9999.0,
+          "default": 0.0,
+          "index_min": 0,
+          "index_max": 0,
+          "attribute": 0,
+          "reserved": 0
+        }
+      ]
+    },
+    "676": {
+      "id": 676,
+      "name_local": "Call Prep. ST1",
+      "name": "Call Prep. ST1",
+      "ack": 3,
+      "type": 14,
+      "parameter_count": 6,
+      "parameters": [
+        {
+          "definition_id": 181,
+          "display_position": 1,
+          "minimum": 1.0,
+          "maximum": 99.0,
+          "default": 1.0,
+          "index_min": 0,
+          "index_max": 0,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 183,
+          "display_position": 2,
+          "minimum": 3.0,
+          "maximum": 3.0,
+          "default": 3.0,
+          "index_min": 0,
+          "index_max": 0,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 180,
+          "display_position": 3,
+          "minimum": 0.0,
+          "maximum": 9999.0,
+          "default": 0.0,
+          "index_min": 0,
+          "index_max": 0,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 185,
+          "display_position": 4,
+          "minimum": 0.0,
+          "maximum": 9.0,
+          "default": 0.0,
+          "index_min": 0,
+          "index_max": 0,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 184,
+          "display_position": 5,
+          "minimum": 0.0,
+          "maximum": 300.0,
+          "default": 0.0,
+          "index_min": 0,
+          "index_max": 0,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 189,
+          "display_position": 6,
+          "minimum": 0.0,
+          "maximum": 180.0,
+          "default": 0.0,
+          "index_min": 0,
+          "index_max": 0,
+          "attribute": 0,
+          "reserved": 0
+        }
+      ]
+    },
+    "533": {
+      "id": 533,
+      "name_local": "BK Bosalt",
+      "name": "Drain AT2",
+      "ack": 3,
+      "type": 0,
+      "parameter_count": 0,
+      "parameters": []
+    },
+    "37": {
+      "id": 37,
+      "name_local": "Doldur Hafiza",
+      "name": "Fill Memo",
+      "ack": 0,
+      "type": 0,
+      "parameter_count": 1,
+      "parameters": [
+        {
+          "definition_id": 7,
+          "display_position": 1,
+          "minimum": 1.0,
+          "maximum": 3.0,
+          "default": 2.0,
+          "index_min": 0,
+          "index_max": 18,
+          "attribute": 0,
+          "reserved": 0
+        }
+      ]
+    },
+    "665": {
+      "id": 665,
+      "name_local": "Prep. AT2->ST1 ok",
+      "name": "Prep. AT2->ST1 ok",
+      "ack": 3,
+      "type": 0,
+      "parameter_count": 1,
+      "parameters": [
+        {
+          "definition_id": 161,
+          "display_position": 1,
+          "minimum": 0.0,
+          "maximum": 99.0,
+          "default": 0.0,
+          "index_min": 0,
+          "index_max": 0,
+          "attribute": 0,
+          "reserved": 0
+        }
+      ]
+    },
+    "38": {
+      "id": 38,
+      "name_local": "F\u00fcll Mischw. Memo",
+      "name": "Fill Blendw. Memo",
+      "ack": 0,
+      "type": 0,
+      "parameter_count": 1,
+      "parameters": [
+        {
+          "definition_id": 10,
+          "display_position": 1,
+          "minimum": 0.0,
+          "maximum": 85.0,
+          "default": 0.0,
+          "index_min": 142,
+          "index_max": 143,
+          "attribute": 0,
+          "reserved": 0
+        }
+      ]
+    },
+    "261": {
+      "id": 261,
+      "name_local": "Yukle",
+      "name": "Load",
+      "ack": 0,
+      "type": 5,
+      "parameter_count": 3,
+      "parameters": [
+        {
+          "definition_id": 36,
+          "display_position": 3,
+          "minimum": 0.0,
+          "maximum": 180.0,
+          "default": 20.0,
+          "index_min": 0,
+          "index_max": 0,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 3,
+          "display_position": 1,
+          "minimum": 0.0,
+          "maximum": 0.0,
+          "default": 60.0,
+          "index_min": 0,
+          "index_max": 15,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 4,
+          "display_position": 2,
+          "minimum": 0.0,
+          "maximum": 0.0,
+          "default": 0.0,
+          "index_min": 0,
+          "index_max": 13,
+          "attribute": 0,
+          "reserved": 0
+        }
+      ]
+    },
+    "119": {
+      "id": 119,
+      "name_local": "RK --> AK",
+      "name": "ST --> MA",
+      "ack": 0,
+      "type": 0,
+      "parameter_count": 2,
+      "parameters": [
+        {
+          "definition_id": 60,
+          "display_position": 1,
+          "minimum": 0.0,
+          "maximum": 99.0,
+          "default": 0.0,
+          "index_min": 0,
+          "index_max": 0,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 295,
+          "display_position": 2,
+          "minimum": 0.0,
+          "maximum": 9.0,
+          "default": 1.0,
+          "index_min": 0,
+          "index_max": 59,
+          "attribute": 0,
+          "reserved": 0
+        }
+      ]
+    },
+    "411": {
+      "id": 411,
+      "name_local": "Warenlauf",
+      "name": "Material Flow",
+      "ack": 5,
+      "type": 0,
+      "parameter_count": 1,
+      "parameters": [
+        {
+          "definition_id": 83,
+          "display_position": 4,
+          "minimum": 0.0,
+          "maximum": 1000.0,
+          "default": 0.0,
+          "index_min": 7,
+          "index_max": 8,
+          "attribute": 0,
+          "reserved": 0
+        }
+      ]
+    },
+    "513": {
+      "id": 513,
+      "name_local": "KK Bosalt",
+      "name": "Drain AT1",
+      "ack": 3,
+      "type": 0,
+      "parameter_count": 0,
+      "parameters": []
+    },
+    "130": {
+      "id": 130,
+      "name_local": "H2O2 Kontrol",
+      "name": "Check H2O2",
+      "ack": 0,
+      "type": 5,
+      "parameter_count": 1,
+      "parameters": [
+        {
+          "definition_id": 36,
+          "display_position": 2,
+          "minimum": 0.0,
+          "maximum": 180.0,
+          "default": 10.0,
+          "index_min": 0,
+          "index_max": 0,
+          "attribute": 0,
+          "reserved": 0
+        }
+      ]
+    },
+    "228": {
+      "id": 228,
+      "name_local": "Dozaj BK",
+      "name": "Dosing AT2",
+      "ack": 0,
+      "type": 0,
+      "parameter_count": 6,
+      "parameters": [
+        {
+          "definition_id": 60,
+          "display_position": 1,
+          "minimum": 0.0,
+          "maximum": 99.0,
+          "default": 0.0,
+          "index_min": 0,
+          "index_max": 0,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 3,
+          "display_position": 2,
+          "minimum": 0.0,
+          "maximum": 150.0,
+          "default": 0.0,
+          "index_min": 0,
+          "index_max": 14,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 4,
+          "display_position": 3,
+          "minimum": 0.0,
+          "maximum": 0.0,
+          "default": 0.0,
+          "index_min": 0,
+          "index_max": 13,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 298,
+          "display_position": 4,
+          "minimum": 0.0,
+          "maximum": 9.0,
+          "default": 1.0,
+          "index_min": 0,
+          "index_max": 49,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 53,
+          "display_position": 5,
+          "minimum": -100.0,
+          "maximum": 100.0,
+          "default": 0.0,
+          "index_min": 0,
+          "index_max": 0,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 22,
+          "display_position": 6,
+          "minimum": 0.0,
+          "maximum": 180.0,
+          "default": 0.0,
+          "index_min": 0,
+          "index_max": 0,
+          "attribute": 0,
+          "reserved": 0
+        }
+      ]
+    },
+    "231": {
+      "id": 231,
+      "name_local": "Salz Transfer -> App",
+      "name": "Salt Transfer -> MA",
+      "ack": 0,
+      "type": 0,
+      "parameter_count": 5,
+      "parameters": [
+        {
+          "definition_id": 60,
+          "display_position": 1,
+          "minimum": 0.0,
+          "maximum": 99.0,
+          "default": 0.0,
+          "index_min": 0,
+          "index_max": 0,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 5,
+          "display_position": 6,
+          "minimum": 0.0,
+          "maximum": 180.0,
+          "default": 5.0,
+          "index_min": 0,
+          "index_max": 0,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 296,
+          "display_position": 3,
+          "minimum": 0.0,
+          "maximum": 0.0,
+          "default": 1.0,
+          "index_min": 0,
+          "index_max": 39,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 3,
+          "display_position": 4,
+          "minimum": 0.0,
+          "maximum": 180.0,
+          "default": 0.0,
+          "index_min": 0,
+          "index_max": 15,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 4,
+          "display_position": 5,
+          "minimum": 0.0,
+          "maximum": 9.899999618530273,
+          "default": 0.0,
+          "index_min": 0,
+          "index_max": 13,
+          "attribute": 0,
+          "reserved": 0
+        }
+      ]
+    },
+    "239": {
+      "id": 239,
+      "name_local": "Einziehen Zeit AG1",
+      "name": "Inject Time AT1",
+      "ack": 0,
+      "type": 0,
+      "parameter_count": 6,
+      "parameters": [
+        {
+          "definition_id": 60,
+          "display_position": 1,
+          "minimum": 0.0,
+          "maximum": 99.0,
+          "default": 0.0,
+          "index_min": 0,
+          "index_max": 0,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 3,
+          "display_position": 5,
+          "minimum": 0.0,
+          "maximum": 150.0,
+          "default": 0.0,
+          "index_min": 0,
+          "index_max": 14,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 4,
+          "display_position": 6,
+          "minimum": 0.0,
+          "maximum": 0.0,
+          "default": 0.0,
+          "index_min": 0,
+          "index_max": 13,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 296,
+          "display_position": 2,
+          "minimum": 0.0,
+          "maximum": 0.0,
+          "default": 1.0,
+          "index_min": 0,
+          "index_max": 39,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 273,
+          "display_position": 3,
+          "minimum": 0.0,
+          "maximum": 99.0,
+          "default": 1.0,
+          "index_min": 0,
+          "index_max": 0,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 274,
+          "display_position": 4,
+          "minimum": 0.0,
+          "maximum": 99.0,
+          "default": 1.0,
+          "index_min": 0,
+          "index_max": 0,
+          "attribute": 0,
+          "reserved": 0
+        }
+      ]
+    },
+    "79": {
+      "id": 79,
+      "name_local": "Bosalt Doldur",
+      "name": "Drain/Fill",
+      "ack": 0,
+      "type": 0,
+      "parameter_count": 3,
+      "parameters": [
+        {
+          "definition_id": 60,
+          "display_position": 1,
+          "minimum": 0.0,
+          "maximum": 99.0,
+          "default": 0.0,
+          "index_min": 0,
+          "index_max": 0,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 295,
+          "display_position": 3,
+          "minimum": 0.0,
+          "maximum": 9.0,
+          "default": 1.0,
+          "index_min": 0,
+          "index_max": 59,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 16,
+          "display_position": 6,
+          "minimum": 1.0,
+          "maximum": 0.0,
+          "default": 1.0,
+          "index_min": 0,
+          "index_max": 19,
+          "attribute": 0,
+          "reserved": 0
+        }
+      ]
+    },
+    "237": {
+      "id": 237,
+      "name_local": "Transfer KK",
+      "name": "Inject AT1",
+      "ack": 0,
+      "type": 0,
+      "parameter_count": 4,
+      "parameters": [
+        {
+          "definition_id": 60,
+          "display_position": 1,
+          "minimum": 0.0,
+          "maximum": 99.0,
+          "default": 0.0,
+          "index_min": 0,
+          "index_max": 0,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 3,
+          "display_position": 3,
+          "minimum": 0.0,
+          "maximum": 150.0,
+          "default": 0.0,
+          "index_min": 0,
+          "index_max": 14,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 4,
+          "display_position": 4,
+          "minimum": 0.0,
+          "maximum": 0.0,
+          "default": 0.0,
+          "index_min": 0,
+          "index_max": 13,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 296,
+          "display_position": 2,
+          "minimum": 0.0,
+          "maximum": 9.0,
+          "default": 1.0,
+          "index_min": 0,
+          "index_max": 39,
+          "attribute": 0,
+          "reserved": 0
+        }
+      ]
+    },
+    "238": {
+      "id": 238,
+      "name_local": "Transfer BK",
+      "name": "Inject AT2",
+      "ack": 0,
+      "type": 0,
+      "parameter_count": 4,
+      "parameters": [
+        {
+          "definition_id": 60,
+          "display_position": 1,
+          "minimum": 0.0,
+          "maximum": 99.0,
+          "default": 0.0,
+          "index_min": 0,
+          "index_max": 0,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 3,
+          "display_position": 3,
+          "minimum": 0.0,
+          "maximum": 150.0,
+          "default": 0.0,
+          "index_min": 0,
+          "index_max": 14,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 4,
+          "display_position": 4,
+          "minimum": 0.0,
+          "maximum": 0.0,
+          "default": 0.0,
+          "index_min": 0,
+          "index_max": 13,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 298,
+          "display_position": 2,
+          "minimum": 0.0,
+          "maximum": 9.0,
+          "default": 1.0,
+          "index_min": 0,
+          "index_max": 49,
+          "attribute": 0,
+          "reserved": 0
+        }
+      ]
+    },
+    "240": {
+      "id": 240,
+      "name_local": "Einziehen Zeit AG2",
+      "name": "Inject Time AT2",
+      "ack": 0,
+      "type": 0,
+      "parameter_count": 6,
+      "parameters": [
+        {
+          "definition_id": 60,
+          "display_position": 1,
+          "minimum": 0.0,
+          "maximum": 99.0,
+          "default": 0.0,
+          "index_min": 0,
+          "index_max": 0,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 3,
+          "display_position": 5,
+          "minimum": 0.0,
+          "maximum": 150.0,
+          "default": 0.0,
+          "index_min": 0,
+          "index_max": 14,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 4,
+          "display_position": 6,
+          "minimum": 0.0,
+          "maximum": 0.0,
+          "default": 0.0,
+          "index_min": 0,
+          "index_max": 13,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 298,
+          "display_position": 2,
+          "minimum": 0.0,
+          "maximum": 9.0,
+          "default": 1.0,
+          "index_min": 0,
+          "index_max": 49,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 273,
+          "display_position": 3,
+          "minimum": 0.0,
+          "maximum": 99.0,
+          "default": 1.0,
+          "index_min": 0,
+          "index_max": 0,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 274,
+          "display_position": 4,
+          "minimum": 0.0,
+          "maximum": 99.0,
+          "default": 1.0,
+          "index_min": 0,
+          "index_max": 0,
+          "attribute": 0,
+          "reserved": 0
+        }
+      ]
+    },
+    "417": {
+      "id": 417,
+      "name_local": "Kule / D\u00fcze",
+      "name": "Material Flow Vario.",
+      "ack": 5,
+      "type": 0,
+      "parameter_count": 2,
+      "parameters": [
+        {
+          "definition_id": 83,
+          "display_position": 4,
+          "minimum": 0.0,
+          "maximum": 1000.0,
+          "default": 0.0,
+          "index_min": 7,
+          "index_max": 8,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 75,
+          "display_position": 2,
+          "minimum": 0.0,
+          "maximum": 100.0,
+          "default": 50.0,
+          "index_min": 0,
+          "index_max": 0,
+          "attribute": 0,
+          "reserved": 0
+        }
+      ]
+    },
+    "657": {
+      "id": 657,
+      "name_local": "KK Mikser",
+      "name": "Mixing AT1",
+      "ack": 3,
+      "type": 0,
+      "parameter_count": 2,
+      "parameters": [
+        {
+          "definition_id": 137,
+          "display_position": 2,
+          "minimum": 0.0,
+          "maximum": 180.0,
+          "default": 0.0,
+          "index_min": 0,
+          "index_max": 0,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 136,
+          "display_position": 4,
+          "minimum": 0.0,
+          "maximum": 0.0,
+          "default": 0.0,
+          "index_min": 0,
+          "index_max": 38,
+          "attribute": 0,
+          "reserved": 0
+        }
+      ]
+    },
+    "667": {
+      "id": 667,
+      "name_local": "BK Mikser",
+      "name": "Mixing AT2",
+      "ack": 3,
+      "type": 0,
+      "parameter_count": 2,
+      "parameters": [
+        {
+          "definition_id": 157,
+          "display_position": 2,
+          "minimum": 0.0,
+          "maximum": 180.0,
+          "default": 0.0,
+          "index_min": 0,
+          "index_max": 0,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 156,
+          "display_position": 4,
+          "minimum": 0.0,
+          "maximum": 0.0,
+          "default": 0.0,
+          "index_min": 0,
+          "index_max": 48,
+          "attribute": 0,
+          "reserved": 0
+        }
+      ]
+    },
+    "242": {
+      "id": 242,
+      "name_local": "Yikama Zamanli",
+      "name": "Rinse Time Mode",
+      "ack": 0,
+      "type": 0,
+      "parameter_count": 4,
+      "parameters": [
+        {
+          "definition_id": 7,
+          "display_position": 1,
+          "minimum": 1.0,
+          "maximum": 100.0,
+          "default": 1.0,
+          "index_min": 0,
+          "index_max": 18,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 16,
+          "display_position": 4,
+          "minimum": 1.0,
+          "maximum": 180.0,
+          "default": 1.0,
+          "index_min": 0,
+          "index_max": 19,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 13,
+          "display_position": 3,
+          "minimum": 0.0,
+          "maximum": 180.0,
+          "default": 0.0,
+          "index_min": 0,
+          "index_max": 0,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 11,
+          "display_position": 2,
+          "minimum": 1.0,
+          "maximum": 0.0,
+          "default": 1.0,
+          "index_min": 0,
+          "index_max": 30,
+          "attribute": 0,
+          "reserved": 0
+        }
+      ]
+    },
+    "243": {
+      "id": 243,
+      "name_local": "Yimama Miktarli",
+      "name": "Rinse Quantity Mode",
+      "ack": 0,
+      "type": 0,
+      "parameter_count": 4,
+      "parameters": [
+        {
+          "definition_id": 7,
+          "display_position": 1,
+          "minimum": 1.0,
+          "maximum": 100.0,
+          "default": 1.0,
+          "index_min": 0,
+          "index_max": 18,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 16,
+          "display_position": 4,
+          "minimum": 1.0,
+          "maximum": 65535.0,
+          "default": 1.0,
+          "index_min": 0,
+          "index_max": 19,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 14,
+          "display_position": 3,
+          "minimum": 0.0,
+          "maximum": 50000.0,
+          "default": 0.0,
+          "index_min": 0,
+          "index_max": 0,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 11,
+          "display_position": 2,
+          "minimum": 1.0,
+          "maximum": 0.0,
+          "default": 1.0,
+          "index_min": 0,
+          "index_max": 30,
+          "attribute": 0,
+          "reserved": 0
+        }
+      ]
+    },
+    "1": {
+      "id": 1,
+      "name_local": "Program Start",
+      "name": "Program Start",
+      "ack": 0,
+      "type": 6,
+      "parameter_count": 0,
+      "parameters": []
+    },
+    "722": {
+      "id": 722,
+      "name_local": "BK 2Soda Doldur",
+      "name": "Soda AT2 Quantity",
+      "ack": 6,
+      "type": 0,
+      "parameter_count": 1,
+      "parameters": [
+        {
+          "definition_id": 282,
+          "display_position": 3,
+          "minimum": 0.0,
+          "maximum": 999.0,
+          "default": 0.0,
+          "index_min": 0,
+          "index_max": 0,
+          "attribute": 0,
+          "reserved": 0
+        }
+      ]
+    },
+    "673": {
+      "id": 673,
+      "name_local": "Wait ST1",
+      "name": "Wait ST1",
+      "ack": 6,
+      "type": 0,
+      "parameter_count": 0,
+      "parameters": []
+    },
+    "241": {
+      "id": 241,
+      "name_local": "Yika / Sogut",
+      "name": "Rinsing / Cooling",
+      "ack": 0,
+      "type": 0,
+      "parameter_count": 2,
+      "parameters": [
+        {
+          "definition_id": 4,
+          "display_position": 1,
+          "minimum": 0.0,
+          "maximum": 0.0,
+          "default": 0.0,
+          "index_min": 0,
+          "index_max": 13,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 3,
+          "display_position": 2,
+          "minimum": 0.0,
+          "maximum": 150.0,
+          "default": 0.0,
+          "index_min": 0,
+          "index_max": 14,
+          "attribute": 0,
+          "reserved": 0
+        }
+      ]
+    },
+    "747": {
+      "id": 747,
+      "name_local": "Yika / Sogut",
+      "name": "Rinsing / Cooling",
+      "ack": 0,
+      "type": 0,
+      "parameter_count": 2,
+      "parameters": [
+        {
+          "definition_id": 4,
+          "display_position": 1,
+          "minimum": 0.0,
+          "maximum": 0.0,
+          "default": 0.0,
+          "index_min": 0,
+          "index_max": 13,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 3,
+          "display_position": 2,
+          "minimum": 0.0,
+          "maximum": 150.0,
+          "default": 0.0,
+          "index_min": 0,
+          "index_max": 14,
+          "attribute": 0,
+          "reserved": 0
+        }
+      ]
+    },
+    "938": {
+      "id": 938,
+      "name_local": "KK Dozaj",
+      "name": "Dosing Prpgression 1",
+      "ack": 0,
+      "type": 0,
+      "parameter_count": 5,
+      "parameters": [
+        {
+          "definition_id": 3,
+          "display_position": 1,
+          "minimum": 0.0,
+          "maximum": 100.0,
+          "default": 0.0,
+          "index_min": 0,
+          "index_max": 14,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 4,
+          "display_position": 2,
+          "minimum": 0.0,
+          "maximum": 180.0,
+          "default": 0.0,
+          "index_min": 0,
+          "index_max": 13,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 53,
+          "display_position": 3,
+          "minimum": -100.0,
+          "maximum": 100.0,
+          "default": 0.0,
+          "index_min": 0,
+          "index_max": 0,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 60,
+          "display_position": 5,
+          "minimum": 0.0,
+          "maximum": 99.0,
+          "default": 0.0,
+          "index_min": 0,
+          "index_max": 0,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 22,
+          "display_position": 6,
+          "minimum": 0.0,
+          "maximum": 180.0,
+          "default": 15.0,
+          "index_min": 0,
+          "index_max": 0,
+          "attribute": 0,
+          "reserved": 0
+        }
+      ]
+    },
+    "730": {
+      "id": 730,
+      "name_local": "Tekrar Hesaplamak",
+      "name": "Calculation",
+      "ack": 2,
+      "type": 0,
+      "parameter_count": 0,
+      "parameters": []
+    },
+    "723": {
+      "id": 723,
+      "name_local": "Soda Al",
+      "name": "Sodaash",
+      "ack": 3,
+      "type": 0,
+      "parameter_count": 2,
+      "parameters": [
+        {
+          "definition_id": 161,
+          "display_position": 1,
+          "minimum": 1.0,
+          "maximum": 99.0,
+          "default": 1.0,
+          "index_min": 0,
+          "index_max": 0,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 281,
+          "display_position": 2,
+          "minimum": 0.0,
+          "maximum": 0.0,
+          "default": 0.0,
+          "index_min": 0,
+          "index_max": 41,
+          "attribute": 0,
+          "reserved": 0
+        }
+      ]
+    },
+    "651": {
+      "id": 651,
+      "name_local": "Dyes/Chemicals AT1",
+      "name": "Dyes/Chemicals AT1",
+      "ack": 3,
+      "type": 5,
+      "parameter_count": 2,
+      "parameters": [
+        {
+          "definition_id": 141,
+          "display_position": 2,
+          "minimum": 0.0,
+          "maximum": 99.0,
+          "default": 0.0,
+          "index_min": 0,
+          "index_max": 0,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 147,
+          "display_position": 4,
+          "minimum": 0.0,
+          "maximum": 180.0,
+          "default": 5.0,
+          "index_min": 0,
+          "index_max": 0,
+          "attribute": 0,
+          "reserved": 0
+        }
+      ]
+    },
+    "718": {
+      "id": 718,
+      "name_local": "BK Doldur",
+      "name": "Filling AT2 Level",
+      "ack": 6,
+      "type": 0,
+      "parameter_count": 5,
+      "parameters": [
+        {
+          "definition_id": 154,
+          "display_position": 1,
+          "minimum": 1.0,
+          "maximum": 2.0,
+          "default": 1.0,
+          "index_min": 0,
+          "index_max": 42,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 158,
+          "display_position": 2,
+          "minimum": 0.0,
+          "maximum": 1.0,
+          "default": 1.0,
+          "index_min": 0,
+          "index_max": 0,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 155,
+          "display_position": 4,
+          "minimum": 0.0,
+          "maximum": 0.0,
+          "default": 0.0,
+          "index_min": 0,
+          "index_max": 47,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 156,
+          "display_position": 3,
+          "minimum": 0.0,
+          "maximum": 180.0,
+          "default": 0.0,
+          "index_min": 0,
+          "index_max": 48,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 157,
+          "display_position": 5,
+          "minimum": 0.0,
+          "maximum": 99.0,
+          "default": 0.0,
+          "index_min": 0,
+          "index_max": 0,
+          "attribute": 0,
+          "reserved": 0
+        }
+      ]
+    },
+    "717": {
+      "id": 717,
+      "name_local": "KK Doldur",
+      "name": "Filling AT1 Level",
+      "ack": 6,
+      "type": 0,
+      "parameter_count": 5,
+      "parameters": [
+        {
+          "definition_id": 134,
+          "display_position": 1,
+          "minimum": 1.0,
+          "maximum": 100.0,
+          "default": 1.0,
+          "index_min": 0,
+          "index_max": 32,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 138,
+          "display_position": 2,
+          "minimum": 0.0,
+          "maximum": 1.0,
+          "default": 1.0,
+          "index_min": 0,
+          "index_max": 0,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 135,
+          "display_position": 4,
+          "minimum": 0.0,
+          "maximum": 0.0,
+          "default": 20.0,
+          "index_min": 0,
+          "index_max": 37,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 136,
+          "display_position": 3,
+          "minimum": 0.0,
+          "maximum": 0.0,
+          "default": 0.0,
+          "index_min": 0,
+          "index_max": 38,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 137,
+          "display_position": 5,
+          "minimum": 0.0,
+          "maximum": 99.0,
+          "default": 0.0,
+          "index_min": 0,
+          "index_max": 0,
+          "attribute": 0,
+          "reserved": 0
+        }
+      ]
+    },
+    "720": {
+      "id": 720,
+      "name_local": "RK Seviye Doldur",
+      "name": "Fill Level ST",
+      "ack": 6,
+      "type": 0,
+      "parameter_count": 5,
+      "parameters": [
+        {
+          "definition_id": 174,
+          "display_position": 1,
+          "minimum": 0.0,
+          "maximum": 0.0,
+          "default": 1.0,
+          "index_min": 0,
+          "index_max": 52,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 178,
+          "display_position": 2,
+          "minimum": 0.0,
+          "maximum": 1.0,
+          "default": 0.0,
+          "index_min": 0,
+          "index_max": 0,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 176,
+          "display_position": 3,
+          "minimum": 0.0,
+          "maximum": 0.0,
+          "default": 0.0,
+          "index_min": 0,
+          "index_max": 58,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 175,
+          "display_position": 4,
+          "minimum": 0.0,
+          "maximum": 9999.0,
+          "default": 0.0,
+          "index_min": 0,
+          "index_max": 51,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 177,
+          "display_position": 5,
+          "minimum": 0.0,
+          "maximum": 180.0,
+          "default": 0.0,
+          "index_min": 0,
+          "index_max": 0,
+          "attribute": 0,
+          "reserved": 0
+        }
+      ]
+    },
+    "93": {
+      "id": 93,
+      "name_local": "KK-->ST Transfer",
+      "name": "Inject AT1-->ST",
+      "ack": 3,
+      "type": 0,
+      "parameter_count": 0,
+      "parameters": []
+    },
+    "710": {
+      "id": 710,
+      "name_local": "Yikama Zamanli",
+      "name": "Rinse Time Mode",
+      "ack": 0,
+      "type": 0,
+      "parameter_count": 4,
+      "parameters": [
+        {
+          "definition_id": 7,
+          "display_position": 1,
+          "minimum": 1.0,
+          "maximum": 100.0,
+          "default": 1.0,
+          "index_min": 0,
+          "index_max": 18,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 16,
+          "display_position": 4,
+          "minimum": 1.0,
+          "maximum": 180.0,
+          "default": 1.0,
+          "index_min": 0,
+          "index_max": 19,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 13,
+          "display_position": 3,
+          "minimum": 0.0,
+          "maximum": 180.0,
+          "default": 5.0,
+          "index_min": 0,
+          "index_max": 0,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 11,
+          "display_position": 2,
+          "minimum": 1.0,
+          "maximum": 2.0,
+          "default": 1.0,
+          "index_min": 0,
+          "index_max": 30,
+          "attribute": 0,
+          "reserved": 0
+        }
+      ]
+    },
+    "658": {
+      "id": 658,
+      "name_local": "KK Doldur",
+      "name": "Filling AT1 Level",
+      "ack": 3,
+      "type": 0,
+      "parameter_count": 5,
+      "parameters": [
+        {
+          "definition_id": 134,
+          "display_position": 1,
+          "minimum": 1.0,
+          "maximum": 100.0,
+          "default": 1.0,
+          "index_min": 0,
+          "index_max": 32,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 138,
+          "display_position": 2,
+          "minimum": 0.0,
+          "maximum": 1.0,
+          "default": 0.0,
+          "index_min": 0,
+          "index_max": 0,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 135,
+          "display_position": 4,
+          "minimum": 0.0,
+          "maximum": 0.0,
+          "default": 0.0,
+          "index_min": 0,
+          "index_max": 37,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 136,
+          "display_position": 3,
+          "minimum": 0.0,
+          "maximum": 180.0,
+          "default": 0.0,
+          "index_min": 0,
+          "index_max": 38,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 137,
+          "display_position": 5,
+          "minimum": 0.0,
+          "maximum": 99.0,
+          "default": 0.0,
+          "index_min": 0,
+          "index_max": 0,
+          "attribute": 0,
+          "reserved": 0
+        }
+      ]
+    },
+    "712": {
+      "id": 712,
+      "name_local": "Kule Hizi",
+      "name": "Material Flow",
+      "ack": 1,
+      "type": 0,
+      "parameter_count": 2,
+      "parameters": [
+        {
+          "definition_id": 84,
+          "display_position": 2,
+          "minimum": 0.0,
+          "maximum": 2.0,
+          "default": 0.0,
+          "index_min": 0,
+          "index_max": 0,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 83,
+          "display_position": 6,
+          "minimum": 0.0,
+          "maximum": 1000.0,
+          "default": 150.0,
+          "index_min": 7,
+          "index_max": 8,
+          "attribute": 0,
+          "reserved": 0
+        }
+      ]
+    },
+    "404": {
+      "id": 404,
+      "name_local": "Pompa Hiz",
+      "name": "Dye Liquor Pump",
+      "ack": 1,
+      "type": 0,
+      "parameter_count": 2,
+      "parameters": [
+        {
+          "definition_id": 75,
+          "display_position": 2,
+          "minimum": 0.0,
+          "maximum": 100.0,
+          "default": 100.0,
+          "index_min": 0,
+          "index_max": 0,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 73,
+          "display_position": 4,
+          "minimum": 0.0,
+          "maximum": 100.0,
+          "default": 80.0,
+          "index_min": 0,
+          "index_max": 0,
+          "attribute": 0,
+          "reserved": 0
+        }
+      ]
+    },
+    "139": {
+      "id": 139,
+      "name_local": "Bekle",
+      "name": "Stop",
+      "ack": 0,
+      "type": 5,
+      "parameter_count": 1,
+      "parameters": [
+        {
+          "definition_id": 36,
+          "display_position": 4,
+          "minimum": 0.0,
+          "maximum": 180.0,
+          "default": 10.0,
+          "index_min": 0,
+          "index_max": 0,
+          "attribute": 0,
+          "reserved": 0
+        }
+      ]
+    },
+    "680": {
+      "id": 680,
+      "name_local": "Transfer KK -> RK",
+      "name": "Transfer AT1 -> ST",
+      "ack": 3,
+      "type": 0,
+      "parameter_count": 2,
+      "parameters": [
+        {
+          "definition_id": 181,
+          "display_position": 1,
+          "minimum": 0.0,
+          "maximum": 99.0,
+          "default": 0.0,
+          "index_min": 0,
+          "index_max": 0,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 297,
+          "display_position": 2,
+          "minimum": 0.0,
+          "maximum": 9.0,
+          "default": 1.0,
+          "index_min": 0,
+          "index_max": 39,
+          "attribute": 0,
+          "reserved": 0
+        }
+      ]
+    },
+    "711": {
+      "id": 711,
+      "name_local": "Yikama Iletkenlikli",
+      "name": "Rinse Conductivity",
+      "ack": 0,
+      "type": 0,
+      "parameter_count": 5,
+      "parameters": [
+        {
+          "definition_id": 14,
+          "display_position": 2,
+          "minimum": 0.0,
+          "maximum": 5000.0,
+          "default": 0.0,
+          "index_min": 0,
+          "index_max": 0,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 7,
+          "display_position": 1,
+          "minimum": 1.0,
+          "maximum": 100.0,
+          "default": 1.0,
+          "index_min": 0,
+          "index_max": 18,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 284,
+          "display_position": 4,
+          "minimum": 0.0,
+          "maximum": 200.0,
+          "default": 5.0,
+          "index_min": 0,
+          "index_max": 0,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 11,
+          "display_position": 3,
+          "minimum": 1.0,
+          "maximum": 2.0,
+          "default": 2.0,
+          "index_min": 0,
+          "index_max": 30,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 16,
+          "display_position": 6,
+          "minimum": 1.0,
+          "maximum": 180.0,
+          "default": 1.0,
+          "index_min": 0,
+          "index_max": 19,
+          "attribute": 0,
+          "reserved": 0
+        }
+      ]
+    },
+    "244": {
+      "id": 244,
+      "name_local": "Sp\u00fclen Zeit MW Mode",
+      "name": "Rinse Time BW Mode",
+      "ack": 0,
+      "type": 0,
+      "parameter_count": 4,
+      "parameters": [
+        {
+          "definition_id": 10,
+          "display_position": 1,
+          "minimum": 0.0,
+          "maximum": 0.0,
+          "default": 0.0,
+          "index_min": 142,
+          "index_max": 143,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 16,
+          "display_position": 4,
+          "minimum": 1.0,
+          "maximum": 180.0,
+          "default": 1.0,
+          "index_min": 0,
+          "index_max": 19,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 13,
+          "display_position": 3,
+          "minimum": 0.0,
+          "maximum": 180.0,
+          "default": 0.0,
+          "index_min": 0,
+          "index_max": 0,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 11,
+          "display_position": 2,
+          "minimum": 1.0,
+          "maximum": 0.0,
+          "default": 1.0,
+          "index_min": 0,
+          "index_max": 30,
+          "attribute": 0,
+          "reserved": 0
+        }
+      ]
+    },
+    "71": {
+      "id": 71,
+      "name_local": "AK Bosaltma",
+      "name": "Drain Percent",
+      "ack": 0,
+      "type": 0,
+      "parameter_count": 3,
+      "parameters": [
+        {
+          "definition_id": 6,
+          "display_position": 3,
+          "minimum": 0.0,
+          "maximum": 100.0,
+          "default": 0.0,
+          "index_min": 0,
+          "index_max": 0,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 16,
+          "display_position": 4,
+          "minimum": 1.0,
+          "maximum": 100.0,
+          "default": 1.0,
+          "index_min": 0,
+          "index_max": 19,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 18,
+          "display_position": 1,
+          "minimum": 0.0,
+          "maximum": 180.0,
+          "default": 2.0,
+          "index_min": 0,
+          "index_max": 0,
+          "attribute": 0,
+          "reserved": 0
+        }
+      ]
+    },
+    "61": {
+      "id": 61,
+      "name_local": "Ablassen Niveau",
+      "name": "Drain Level",
+      "ack": 0,
+      "type": 0,
+      "parameter_count": 3,
+      "parameters": [
+        {
+          "definition_id": 8,
+          "display_position": 3,
+          "minimum": 0.0,
+          "maximum": 100.0,
+          "default": 0.0,
+          "index_min": 0,
+          "index_max": 17,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 16,
+          "display_position": 4,
+          "minimum": 1.0,
+          "maximum": 100.0,
+          "default": 1.0,
+          "index_min": 0,
+          "index_max": 19,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 18,
+          "display_position": 1,
+          "minimum": 0.0,
+          "maximum": 180.0,
+          "default": 0.0,
+          "index_min": 0,
+          "index_max": 0,
+          "attribute": 0,
+          "reserved": 0
+        }
+      ]
+    },
+    "516": {
+      "id": 516,
+      "name_local": "KK Hazirla",
+      "name": "Prep. AT1 ->MA ok",
+      "ack": 3,
+      "type": 0,
+      "parameter_count": 1,
+      "parameters": [
+        {
+          "definition_id": 141,
+          "display_position": 2,
+          "minimum": 0.0,
+          "maximum": 99.0,
+          "default": 0.0,
+          "index_min": 0,
+          "index_max": 0,
+          "attribute": 0,
+          "reserved": 0
+        }
+      ]
+    },
+    "551": {
+      "id": 551,
+      "name_local": "RK Bosalt",
+      "name": "Drain ST",
+      "ack": 3,
+      "type": 0,
+      "parameter_count": 0,
+      "parameters": []
+    },
+    "701": {
+      "id": 701,
+      "name_local": "Sirk\u00fclasyon KK -> AK",
+      "name": "Circulate AT1 -> MA",
+      "ack": 0,
+      "type": 0,
+      "parameter_count": 6,
+      "parameters": [
+        {
+          "definition_id": 60,
+          "display_position": 1,
+          "minimum": 0.0,
+          "maximum": 99.0,
+          "default": 0.0,
+          "index_min": 0,
+          "index_max": 0,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 138,
+          "display_position": 2,
+          "minimum": 0.0,
+          "maximum": 1.0,
+          "default": 0.0,
+          "index_min": 0,
+          "index_max": 0,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 5,
+          "display_position": 6,
+          "minimum": 0.0,
+          "maximum": 180.0,
+          "default": 5.0,
+          "index_min": 0,
+          "index_max": 0,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 296,
+          "display_position": 3,
+          "minimum": 0.0,
+          "maximum": 0.0,
+          "default": 1.0,
+          "index_min": 0,
+          "index_max": 39,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 3,
+          "display_position": 4,
+          "minimum": 0.0,
+          "maximum": 180.0,
+          "default": 0.0,
+          "index_min": 0,
+          "index_max": 15,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 4,
+          "display_position": 5,
+          "minimum": 0.0,
+          "maximum": 9.899999618530273,
+          "default": 0.0,
+          "index_min": 0,
+          "index_max": 13,
+          "attribute": 0,
+          "reserved": 0
+        }
+      ]
+    },
+    "681": {
+      "id": 681,
+      "name_local": "Transfer BK -> RK",
+      "name": "Transfer AT2 -> ST",
+      "ack": 3,
+      "type": 0,
+      "parameter_count": 2,
+      "parameters": [
+        {
+          "definition_id": 181,
+          "display_position": 1,
+          "minimum": 0.0,
+          "maximum": 99.0,
+          "default": 0.0,
+          "index_min": 0,
+          "index_max": 0,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 299,
+          "display_position": 2,
+          "minimum": 0.0,
+          "maximum": 9.0,
+          "default": 1.0,
+          "index_min": 0,
+          "index_max": 49,
+          "attribute": 0,
+          "reserved": 0
+        }
+      ]
+    },
+    "679": {
+      "id": 679,
+      "name_local": "RK Seviye Doldur",
+      "name": "Fill ST1 Level",
+      "ack": 3,
+      "type": 0,
+      "parameter_count": 5,
+      "parameters": [
+        {
+          "definition_id": 174,
+          "display_position": 1,
+          "minimum": 0.0,
+          "maximum": 0.0,
+          "default": 1.0,
+          "index_min": 0,
+          "index_max": 52,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 178,
+          "display_position": 2,
+          "minimum": 0.0,
+          "maximum": 1.0,
+          "default": 0.0,
+          "index_min": 0,
+          "index_max": 0,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 176,
+          "display_position": 3,
+          "minimum": 0.0,
+          "maximum": 0.0,
+          "default": 0.0,
+          "index_min": 0,
+          "index_max": 58,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 175,
+          "display_position": 4,
+          "minimum": 0.0,
+          "maximum": 0.0,
+          "default": 0.0,
+          "index_min": 0,
+          "index_max": 57,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 177,
+          "display_position": 5,
+          "minimum": 0.0,
+          "maximum": 180.0,
+          "default": 0.0,
+          "index_min": 0,
+          "index_max": 0,
+          "attribute": 0,
+          "reserved": 0
+        }
+      ]
+    },
+    "28": {
+      "id": 28,
+      "name_local": "F\u00fcll Mischw. Prozent",
+      "name": "Fill Blendw. Percent",
+      "ack": 0,
+      "type": 0,
+      "parameter_count": 2,
+      "parameters": [
+        {
+          "definition_id": 10,
+          "display_position": 1,
+          "minimum": 0.0,
+          "maximum": 0.0,
+          "default": 0.0,
+          "index_min": 142,
+          "index_max": 143,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 6,
+          "display_position": 4,
+          "minimum": 0.0,
+          "maximum": 100.0,
+          "default": 0.0,
+          "index_min": 0,
+          "index_max": 0,
+          "attribute": 0,
+          "reserved": 0
+        }
+      ]
+    },
+    "674": {
+      "id": 674,
+      "name_local": "Go ST1",
+      "name": "Go ST1",
+      "ack": 7,
+      "type": 0,
+      "parameter_count": 0,
+      "parameters": []
+    },
+    "245": {
+      "id": 245,
+      "name_local": "Sp\u00fclen Menge MW Mode",
+      "name": "Rinse Qua. BW Mode",
+      "ack": 0,
+      "type": 0,
+      "parameter_count": 4,
+      "parameters": [
+        {
+          "definition_id": 10,
+          "display_position": 1,
+          "minimum": 0.0,
+          "maximum": 0.0,
+          "default": 0.0,
+          "index_min": 142,
+          "index_max": 143,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 16,
+          "display_position": 4,
+          "minimum": 1.0,
+          "maximum": 65535.0,
+          "default": 1.0,
+          "index_min": 0,
+          "index_max": 19,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 14,
+          "display_position": 3,
+          "minimum": 0.0,
+          "maximum": 65535.0,
+          "default": 0.0,
+          "index_min": 0,
+          "index_max": 0,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 11,
+          "display_position": 2,
+          "minimum": 1.0,
+          "maximum": 0.0,
+          "default": 1.0,
+          "index_min": 0,
+          "index_max": 30,
+          "attribute": 0,
+          "reserved": 0
+        }
+      ]
+    },
+    "39": {
+      "id": 39,
+      "name_local": "Hafiza Seviye",
+      "name": "Memory level !",
+      "ack": 2,
+      "type": 0,
+      "parameter_count": 0,
+      "parameters": []
+    },
+    "536": {
+      "id": 536,
+      "name_local": "BK Hazirla",
+      "name": "Prep. AT2 ->MA ok",
+      "ack": 3,
+      "type": 0,
+      "parameter_count": 1,
+      "parameters": [
+        {
+          "definition_id": 161,
+          "display_position": 2,
+          "minimum": 0.0,
+          "maximum": 99.0,
+          "default": 0.0,
+          "index_min": 0,
+          "index_max": 0,
+          "attribute": 0,
+          "reserved": 0
+        }
+      ]
+    },
+    "27": {
+      "id": 27,
+      "name_local": "F\u00fcllen auf Prozent",
+      "name": "Fill Level Percent",
+      "ack": 0,
+      "type": 0,
+      "parameter_count": 2,
+      "parameters": [
+        {
+          "definition_id": 7,
+          "display_position": 1,
+          "minimum": 1.0,
+          "maximum": 100.0,
+          "default": 1.0,
+          "index_min": 0,
+          "index_max": 18,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 6,
+          "display_position": 4,
+          "minimum": 0.0,
+          "maximum": 100.0,
+          "default": 0.0,
+          "index_min": 0,
+          "index_max": 0,
+          "attribute": 0,
+          "reserved": 0
+        }
+      ]
+    },
+    "721": {
+      "id": 721,
+      "name_local": "Sirkulasyon RK<->KK",
+      "name": "Circulate ST<->AT1",
+      "ack": 3,
+      "type": 0,
+      "parameter_count": 2,
+      "parameters": [
+        {
+          "definition_id": 139,
+          "display_position": 2,
+          "minimum": 0.0,
+          "maximum": 180.0,
+          "default": 10.0,
+          "index_min": 0,
+          "index_max": 0,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 138,
+          "display_position": 3,
+          "minimum": 0.0,
+          "maximum": 1.0,
+          "default": 0.0,
+          "index_min": 0,
+          "index_max": 0,
+          "attribute": 0,
+          "reserved": 0
+        }
+      ]
+    },
+    "554": {
+      "id": 554,
+      "name_local": "ST Hazirla !",
+      "name": "Prep. ST1 ok !",
+      "ack": 3,
+      "type": 0,
+      "parameter_count": 1,
+      "parameters": [
+        {
+          "definition_id": 181,
+          "display_position": 2,
+          "minimum": 0.0,
+          "maximum": 99.0,
+          "default": 0.0,
+          "index_min": 0,
+          "index_max": 0,
+          "attribute": 0,
+          "reserved": 0
+        }
+      ]
+    },
+    "714": {
+      "id": 714,
+      "name_local": "Yikama Stok Tankdan",
+      "name": "Rinsing ST",
+      "ack": 0,
+      "type": 0,
+      "parameter_count": 4,
+      "parameters": [
+        {
+          "definition_id": 174,
+          "display_position": 3,
+          "minimum": 0.0,
+          "maximum": 0.0,
+          "default": 1.0,
+          "index_min": 0,
+          "index_max": 52,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 176,
+          "display_position": 4,
+          "minimum": 0.0,
+          "maximum": 0.0,
+          "default": 0.0,
+          "index_min": 0,
+          "index_max": 58,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 173,
+          "display_position": 5,
+          "minimum": 0.0,
+          "maximum": 9999.0,
+          "default": 0.0,
+          "index_min": 0,
+          "index_max": 51,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 13,
+          "display_position": 6,
+          "minimum": 0.0,
+          "maximum": 180.0,
+          "default": 5.0,
+          "index_min": 0,
+          "index_max": 0,
+          "attribute": 0,
+          "reserved": 0
+        }
+      ]
+    },
+    "803": {
+      "id": 803,
+      "name_local": "Basinc Bosalt",
+      "name": "Pressurize off",
+      "ack": 3,
+      "type": 0,
+      "parameter_count": 0,
+      "parameters": []
+    },
+    "715": {
+      "id": 715,
+      "name_local": "Dozaj BK->KK",
+      "name": "Dosing AT2->AT1",
+      "ack": 0,
+      "type": 0,
+      "parameter_count": 6,
+      "parameters": [
+        {
+          "definition_id": 60,
+          "display_position": 1,
+          "minimum": 0.0,
+          "maximum": 99.0,
+          "default": 0.0,
+          "index_min": 0,
+          "index_max": 0,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 3,
+          "display_position": 2,
+          "minimum": 0.0,
+          "maximum": 150.0,
+          "default": 0.0,
+          "index_min": 0,
+          "index_max": 14,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 4,
+          "display_position": 3,
+          "minimum": 0.0,
+          "maximum": 0.0,
+          "default": 0.0,
+          "index_min": 0,
+          "index_max": 13,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 298,
+          "display_position": 4,
+          "minimum": 0.0,
+          "maximum": 9.0,
+          "default": 1.0,
+          "index_min": 0,
+          "index_max": 49,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 53,
+          "display_position": 5,
+          "minimum": -100.0,
+          "maximum": 100.0,
+          "default": 0.0,
+          "index_min": 0,
+          "index_max": 0,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 22,
+          "display_position": 6,
+          "minimum": 0.0,
+          "maximum": 180.0,
+          "default": 15.0,
+          "index_min": 0,
+          "index_max": 0,
+          "attribute": 0,
+          "reserved": 0
+        }
+      ]
+    },
+    "800": {
+      "id": 800,
+      "name_local": "Ic Yikama Ac",
+      "name": "Machine Clear on",
+      "ack": 6,
+      "type": 0,
+      "parameter_count": 1,
+      "parameters": [
+        {
+          "definition_id": 283,
+          "display_position": 1,
+          "minimum": 0.0,
+          "maximum": 1.0,
+          "default": 0.0,
+          "index_min": 0,
+          "index_max": 0,
+          "attribute": 0,
+          "reserved": 0
+        }
+      ]
+    },
+    "802": {
+      "id": 802,
+      "name_local": "Basinc Al",
+      "name": "Pressurize on",
+      "ack": 3,
+      "type": 0,
+      "parameter_count": 0,
+      "parameters": []
+    },
+    "801": {
+      "id": 801,
+      "name_local": "Ic Yikama Kapa",
+      "name": "Machine Clear off",
+      "ack": 2,
+      "type": 0,
+      "parameter_count": 0,
+      "parameters": []
+    },
+    "939": {
+      "id": 939,
+      "name_local": "BK Dozaj",
+      "name": "Dosing Prpgression 2",
+      "ack": 0,
+      "type": 0,
+      "parameter_count": 5,
+      "parameters": [
+        {
+          "definition_id": 3,
+          "display_position": 1,
+          "minimum": 0.0,
+          "maximum": 100.0,
+          "default": 0.0,
+          "index_min": 0,
+          "index_max": 14,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 4,
+          "display_position": 2,
+          "minimum": 0.0,
+          "maximum": 180.0,
+          "default": 0.0,
+          "index_min": 0,
+          "index_max": 13,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 53,
+          "display_position": 3,
+          "minimum": -100.0,
+          "maximum": 100.0,
+          "default": 0.0,
+          "index_min": 0,
+          "index_max": 0,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 60,
+          "display_position": 5,
+          "minimum": 0.0,
+          "maximum": 99.0,
+          "default": 0.0,
+          "index_min": 0,
+          "index_max": 0,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 22,
+          "display_position": 6,
+          "minimum": 0.0,
+          "maximum": 180.0,
+          "default": 15.0,
+          "index_min": 0,
+          "index_max": 0,
+          "attribute": 0,
+          "reserved": 0
+        }
+      ]
+    }
+  },
+  "parameters": {
+    "6": {
+      "id": 6,
+      "name_local": "AK Seviye",
+      "name": "Level MA. Percent",
+      "unit_local": "%",
+      "unit": "%",
+      "scale": {
+        "digits_before": 3,
+        "digits_after": 0,
+        "factor": 1.0,
+        "offset": 0.0,
+        "x1": 0.0,
+        "x2": 100.0,
+        "y1": 0.0,
+        "y2": 100.0,
+        "mode": 0
+      },
+      "attribute": 0,
+      "scale2": {
+        "text_group": 0,
+        "basetype": 0,
+        "index_factor": 0,
+        "index_offset": 0,
+        "reserved1": 0,
+        "reserved2": 0
+      }
+    },
+    "1": {
+      "id": 1,
+      "name_local": "Set AK Zaman",
+      "name": "Set Time MA",
+      "unit_local": "dak",
+      "unit": "min",
+      "scale": {
+        "digits_before": 3,
+        "digits_after": 0,
+        "factor": 60.0,
+        "offset": 0.0,
+        "x1": 0.0,
+        "x2": 1.0,
+        "y1": 0.0,
+        "y2": 60.0,
+        "mode": 0
+      },
+      "attribute": 0,
+      "scale2": {
+        "text_group": 0,
+        "basetype": 0,
+        "index_factor": 0,
+        "index_offset": 0,
+        "reserved1": 0,
+        "reserved2": 0
+      }
+    },
+    "2": {
+      "id": 2,
+      "name_local": "AK Koruma Zaman",
+      "name": "Protect Time MA",
+      "unit_local": "dak",
+      "unit": "min",
+      "scale": {
+        "digits_before": 3,
+        "digits_after": 0,
+        "factor": 60.0,
+        "offset": 0.0,
+        "x1": 0.0,
+        "x2": 100.0,
+        "y1": 0.0,
+        "y2": 6000.0,
+        "mode": 0
+      },
+      "attribute": 0,
+      "scale2": {
+        "text_group": 0,
+        "basetype": 0,
+        "index_factor": 0,
+        "index_offset": 0,
+        "reserved1": 0,
+        "reserved2": 0
+      }
+    },
+    "3": {
+      "id": 3,
+      "name_local": "Sicaklik",
+      "name": "Temperature MA",
+      "unit_local": "\u00b0C",
+      "unit": "\u00b0C",
+      "scale": {
+        "digits_before": 3,
+        "digits_after": 0,
+        "factor": 66.66000366210938,
+        "offset": 0.0,
+        "x1": 0.0,
+        "x2": 100.0,
+        "y1": 0.0,
+        "y2": 6666.0,
+        "mode": 0
+      },
+      "attribute": 0,
+      "scale2": {
+        "text_group": 0,
+        "basetype": 0,
+        "index_factor": 0,
+        "index_offset": 0,
+        "reserved1": 0,
+        "reserved2": 0
+      }
+    },
+    "4": {
+      "id": 4,
+      "name_local": "Egim",
+      "name": "Gradient MA",
+      "unit_local": "\u00b0C/dak",
+      "unit": "\u00b0C/min",
+      "scale": {
+        "digits_before": 3,
+        "digits_after": 1,
+        "factor": 66.66000366210938,
+        "offset": 0.0,
+        "x1": 0.0,
+        "x2": 1.0,
+        "y1": 0.0,
+        "y2": 66.66000366210938,
+        "mode": 2
+      },
+      "attribute": 0,
+      "scale2": {
+        "text_group": 0,
+        "basetype": 0,
+        "index_factor": 0,
+        "index_offset": 0,
+        "reserved1": 0,
+        "reserved2": 0
+      }
+    },
+    "5": {
+      "id": 5,
+      "name_local": "AK Zaman",
+      "name": "Time MA",
+      "unit_local": "dak",
+      "unit": "min",
+      "scale": {
+        "digits_before": 3,
+        "digits_after": 0,
+        "factor": 60.0,
+        "offset": 0.0,
+        "x1": 0.0,
+        "x2": 100.0,
+        "y1": 0.0,
+        "y2": 6000.0,
+        "mode": 0
+      },
+      "attribute": 0,
+      "scale2": {
+        "text_group": 0,
+        "basetype": 0,
+        "index_factor": 0,
+        "index_offset": 0,
+        "reserved1": 0,
+        "reserved2": 0
+      }
+    },
+    "7": {
+      "id": 7,
+      "name_local": "AK Su Tipi",
+      "name": "water type MA",
+      "unit_local": "",
+      "unit": "",
+      "scale": {
+        "digits_before": 1,
+        "digits_after": 0,
+        "factor": 1.0,
+        "offset": 0.0,
+        "x1": 0.0,
+        "x2": 100.0,
+        "y1": 0.0,
+        "y2": 100.0,
+        "mode": 16
+      },
+      "attribute": 0,
+      "scale2": {
+        "text_group": 1,
+        "basetype": 0,
+        "index_factor": 0,
+        "index_offset": 0,
+        "reserved1": 0,
+        "reserved2": 0
+      }
+    },
+    "14": {
+      "id": 14,
+      "name_local": "Yikama Miktar",
+      "name": "Rinse quantity",
+      "unit_local": "Lt",
+      "unit": "L",
+      "scale": {
+        "digits_before": 4,
+        "digits_after": 0,
+        "factor": 1.0,
+        "offset": 0.0,
+        "x1": 0.0,
+        "x2": 100.0,
+        "y1": 0.0,
+        "y2": 100.0,
+        "mode": 0
+      },
+      "attribute": 0,
+      "scale2": {
+        "text_group": 0,
+        "basetype": 0,
+        "index_factor": 0,
+        "index_offset": 0,
+        "reserved1": 0,
+        "reserved2": 0
+      }
+    },
+    "9": {
+      "id": 9,
+      "name_local": "Miktar",
+      "name": "Fill quantity MC",
+      "unit_local": "Lt",
+      "unit": "L",
+      "scale": {
+        "digits_before": 4,
+        "digits_after": 0,
+        "factor": 1.0,
+        "offset": 0.0,
+        "x1": 0.0,
+        "x2": 100.0,
+        "y1": 0.0,
+        "y2": 100.0,
+        "mode": 0
+      },
+      "attribute": 0,
+      "scale2": {
+        "text_group": 0,
+        "basetype": 0,
+        "index_factor": 0,
+        "index_offset": 0,
+        "reserved1": 0,
+        "reserved2": 0
+      }
+    },
+    "8": {
+      "id": 8,
+      "name_local": "AK Seviye Dijital",
+      "name": "Level MAdig",
+      "unit_local": "",
+      "unit": "",
+      "scale": {
+        "digits_before": 1,
+        "digits_after": 0,
+        "factor": 1.0,
+        "offset": 0.0,
+        "x1": 0.0,
+        "x2": 100.0,
+        "y1": 0.0,
+        "y2": 100.0,
+        "mode": 0
+      },
+      "attribute": 0,
+      "scale2": {
+        "text_group": 0,
+        "basetype": 0,
+        "index_factor": 0,
+        "index_offset": 0,
+        "reserved1": 0,
+        "reserved2": 0
+      }
+    },
+    "13": {
+      "id": 13,
+      "name_local": "Yikama Zaman",
+      "name": "Rinse Time",
+      "unit_local": "dak",
+      "unit": "min",
+      "scale": {
+        "digits_before": 3,
+        "digits_after": 0,
+        "factor": 60.0,
+        "offset": 0.0,
+        "x1": 0.0,
+        "x2": 100.0,
+        "y1": 0.0,
+        "y2": 6000.0,
+        "mode": 0
+      },
+      "attribute": 0,
+      "scale2": {
+        "text_group": 0,
+        "basetype": 0,
+        "index_factor": 0,
+        "index_offset": 0,
+        "reserved1": 0,
+        "reserved2": 0
+      }
+    },
+    "10": {
+      "id": 10,
+      "name_local": "Hedef Sicaklik",
+      "name": "Blend water temp.",
+      "unit_local": "\u00b0C",
+      "unit": "\u00b0C",
+      "scale": {
+        "digits_before": 3,
+        "digits_after": 0,
+        "factor": 66.66000366210938,
+        "offset": 0.0,
+        "x1": 0.0,
+        "x2": 100.0,
+        "y1": 0.0,
+        "y2": 6666.0,
+        "mode": 0
+      },
+      "attribute": 0,
+      "scale2": {
+        "text_group": 0,
+        "basetype": 0,
+        "index_factor": 0,
+        "index_offset": 0,
+        "reserved1": 0,
+        "reserved2": 0
+      }
+    },
+    "12": {
+      "id": 12,
+      "name_local": "Gradient MW",
+      "name": "Gradient Blendwater",
+      "unit_local": "\u00b0C/min",
+      "unit": "\u00b0C/min",
+      "scale": {
+        "digits_before": 1,
+        "digits_after": 1,
+        "factor": 66.66000366210938,
+        "offset": 0.0,
+        "x1": 0.0,
+        "x2": 100.0,
+        "y1": 0.0,
+        "y2": 6666.0,
+        "mode": 0
+      },
+      "attribute": 0,
+      "scale2": {
+        "text_group": 0,
+        "basetype": 0,
+        "index_factor": 0,
+        "index_offset": 0,
+        "reserved1": 0,
+        "reserved2": 0
+      }
+    },
+    "158": {
+      "id": 158,
+      "name_local": "BK Mikser",
+      "name": "Stirrer AT2",
+      "unit_local": "",
+      "unit": "",
+      "scale": {
+        "digits_before": 1,
+        "digits_after": 0,
+        "factor": 1.0,
+        "offset": 0.0,
+        "x1": 0.0,
+        "x2": 100.0,
+        "y1": 0.0,
+        "y2": 100.0,
+        "mode": 0
+      },
+      "attribute": 0,
+      "scale2": {
+        "text_group": 0,
+        "basetype": 0,
+        "index_factor": 0,
+        "index_offset": 0,
+        "reserved1": 0,
+        "reserved2": 0
+      }
+    },
+    "157": {
+      "id": 157,
+      "name_local": "Mixer Zamani",
+      "name": "Dissolving time AT2",
+      "unit_local": "dak",
+      "unit": "min",
+      "scale": {
+        "digits_before": 2,
+        "digits_after": 1,
+        "factor": 60.0,
+        "offset": 0.0,
+        "x1": 0.0,
+        "x2": 100.0,
+        "y1": 0.0,
+        "y2": 6000.0,
+        "mode": 0
+      },
+      "attribute": 0,
+      "scale2": {
+        "text_group": 0,
+        "basetype": 0,
+        "index_factor": 0,
+        "index_offset": 0,
+        "reserved1": 0,
+        "reserved2": 0
+      }
+    },
+    "167": {
+      "id": 167,
+      "name_local": "Weckzeit Bed. AG2",
+      "name": "Alert Time op. AT2",
+      "unit_local": "min",
+      "unit": "min",
+      "scale": {
+        "digits_before": 3,
+        "digits_after": 0,
+        "factor": 60.0,
+        "offset": 0.0,
+        "x1": 0.0,
+        "x2": 100.0,
+        "y1": 0.0,
+        "y2": 6000.0,
+        "mode": 0
+      },
+      "attribute": 0,
+      "scale2": {
+        "text_group": 0,
+        "basetype": 0,
+        "index_factor": 0,
+        "index_offset": 0,
+        "reserved1": 0,
+        "reserved2": 0
+      }
+    },
+    "147": {
+      "id": 147,
+      "name_local": "Weckzeit Bed. AG1",
+      "name": "Alert Time op. AT1",
+      "unit_local": "min",
+      "unit": "min",
+      "scale": {
+        "digits_before": 3,
+        "digits_after": 0,
+        "factor": 60.0,
+        "offset": 0.0,
+        "x1": 0.0,
+        "x2": 100.0,
+        "y1": 0.0,
+        "y2": 6000.0,
+        "mode": 0
+      },
+      "attribute": 0,
+      "scale2": {
+        "text_group": 0,
+        "basetype": 0,
+        "index_factor": 0,
+        "index_offset": 0,
+        "reserved1": 0,
+        "reserved2": 0
+      }
+    },
+    "140": {
+      "id": 140,
+      "name_local": "KK Recete No",
+      "name": "Recipe number AT1",
+      "unit_local": "",
+      "unit": "",
+      "scale": {
+        "digits_before": 4,
+        "digits_after": 0,
+        "factor": 1.0,
+        "offset": 0.0,
+        "x1": 0.0,
+        "x2": 100.0,
+        "y1": 0.0,
+        "y2": 100.0,
+        "mode": 0
+      },
+      "attribute": 0,
+      "scale2": {
+        "text_group": 0,
+        "basetype": 0,
+        "index_factor": 0,
+        "index_offset": 0,
+        "reserved1": 0,
+        "reserved2": 0
+      }
+    },
+    "136": {
+      "id": 136,
+      "name_local": "KK Sicaklik",
+      "name": "Temperature AT1",
+      "unit_local": "\u00b0C",
+      "unit": "\u00b0C",
+      "scale": {
+        "digits_before": 3,
+        "digits_after": 0,
+        "factor": 66.66000366210938,
+        "offset": 0.0,
+        "x1": 0.0,
+        "x2": 100.0,
+        "y1": 0.0,
+        "y2": 6666.0,
+        "mode": 0
+      },
+      "attribute": 0,
+      "scale2": {
+        "text_group": 0,
+        "basetype": 0,
+        "index_factor": 0,
+        "index_offset": 0,
+        "reserved1": 0,
+        "reserved2": 0
+      }
+    },
+    "141": {
+      "id": 141,
+      "name_local": "KK Hazirlik No",
+      "name": "Preparation no AT1",
+      "unit_local": "",
+      "unit": "",
+      "scale": {
+        "digits_before": 2,
+        "digits_after": 0,
+        "factor": 1.0,
+        "offset": 0.0,
+        "x1": 0.0,
+        "x2": 100.0,
+        "y1": 0.0,
+        "y2": 100.0,
+        "mode": 0
+      },
+      "attribute": 0,
+      "scale2": {
+        "text_group": 0,
+        "basetype": 0,
+        "index_factor": 0,
+        "index_offset": 0,
+        "reserved1": 0,
+        "reserved2": 0
+      }
+    },
+    "138": {
+      "id": 138,
+      "name_local": "KK Mikser",
+      "name": "Stirrer AT1",
+      "unit_local": "",
+      "unit": "",
+      "scale": {
+        "digits_before": 1,
+        "digits_after": 0,
+        "factor": 1.0,
+        "offset": 0.0,
+        "x1": 0.0,
+        "x2": 100.0,
+        "y1": 0.0,
+        "y2": 100.0,
+        "mode": 0
+      },
+      "attribute": 0,
+      "scale2": {
+        "text_group": 0,
+        "basetype": 0,
+        "index_factor": 0,
+        "index_offset": 0,
+        "reserved1": 0,
+        "reserved2": 0
+      }
+    },
+    "159": {
+      "id": 159,
+      "name_local": "BK Sirk. Zamani",
+      "name": "Circulat. time ADD2",
+      "unit_local": "dak",
+      "unit": "min",
+      "scale": {
+        "digits_before": 3,
+        "digits_after": 0,
+        "factor": 60.0,
+        "offset": 0.0,
+        "x1": 0.0,
+        "x2": 100.0,
+        "y1": 0.0,
+        "y2": 6000.0,
+        "mode": 0
+      },
+      "attribute": 0,
+      "scale2": {
+        "text_group": 0,
+        "basetype": 0,
+        "index_factor": 0,
+        "index_offset": 0,
+        "reserved1": 0,
+        "reserved2": 0
+      }
+    },
+    "143": {
+      "id": 143,
+      "name_local": "KK Tank No",
+      "name": "Tank No. AT1",
+      "unit_local": "",
+      "unit": "",
+      "scale": {
+        "digits_before": 1,
+        "digits_after": 0,
+        "factor": 1.0,
+        "offset": 0.0,
+        "x1": 0.0,
+        "x2": 100.0,
+        "y1": 0.0,
+        "y2": 100.0,
+        "mode": 1
+      },
+      "attribute": 0,
+      "scale2": {
+        "text_group": 0,
+        "basetype": 0,
+        "index_factor": 0,
+        "index_offset": 0,
+        "reserved1": 0,
+        "reserved2": 0
+      }
+    },
+    "144": {
+      "id": 144,
+      "name_local": "KK Hazirlik Izini",
+      "name": "Prep. release AT1",
+      "unit_local": "",
+      "unit": "",
+      "scale": {
+        "digits_before": 3,
+        "digits_after": 0,
+        "factor": 1.0,
+        "offset": 0.0,
+        "x1": 0.0,
+        "x2": 100.0,
+        "y1": 0.0,
+        "y2": 100.0,
+        "mode": 1
+      },
+      "attribute": 0,
+      "scale2": {
+        "text_group": 0,
+        "basetype": 0,
+        "index_factor": 0,
+        "index_offset": 0,
+        "reserved1": 0,
+        "reserved2": 0
+      }
+    },
+    "145": {
+      "id": 145,
+      "name_local": "KK Dagitici No",
+      "name": "Station No. AT1",
+      "unit_local": "",
+      "unit": "",
+      "scale": {
+        "digits_before": 1,
+        "digits_after": 0,
+        "factor": 1.0,
+        "offset": 0.0,
+        "x1": 0.0,
+        "x2": 100.0,
+        "y1": 0.0,
+        "y2": 100.0,
+        "mode": 1
+      },
+      "attribute": 0,
+      "scale2": {
+        "text_group": 0,
+        "basetype": 0,
+        "index_factor": 0,
+        "index_offset": 0,
+        "reserved1": 0,
+        "reserved2": 0
+      }
+    },
+    "148": {
+      "id": 148,
+      "name_local": "Partie Freigabe AG1",
+      "name": "batch release AT1",
+      "unit_local": "",
+      "unit": "",
+      "scale": {
+        "digits_before": 3,
+        "digits_after": 0,
+        "factor": 1.0,
+        "offset": 0.0,
+        "x1": 0.0,
+        "x2": 100.0,
+        "y1": 0.0,
+        "y2": 100.0,
+        "mode": 1
+      },
+      "attribute": 0,
+      "scale2": {
+        "text_group": 0,
+        "basetype": 0,
+        "index_factor": 0,
+        "index_offset": 0,
+        "reserved1": 0,
+        "reserved2": 0
+      }
+    },
+    "149": {
+      "id": 149,
+      "name_local": "Ben\u00f6tigt im AG1",
+      "name": "needed for AT1 in",
+      "unit_local": "min",
+      "unit": "min",
+      "scale": {
+        "digits_before": 3,
+        "digits_after": 0,
+        "factor": 1.0,
+        "offset": 0.0,
+        "x1": 0.0,
+        "x2": 100.0,
+        "y1": 0.0,
+        "y2": 100.0,
+        "mode": 3
+      },
+      "attribute": 0,
+      "scale2": {
+        "text_group": 0,
+        "basetype": 0,
+        "index_factor": 0,
+        "index_offset": 0,
+        "reserved1": 0,
+        "reserved2": 0
+      }
+    },
+    "151": {
+      "id": 151,
+      "name_local": "BK Zaman",
+      "name": "Set time AT2",
+      "unit_local": "dak",
+      "unit": "min",
+      "scale": {
+        "digits_before": 3,
+        "digits_after": 0,
+        "factor": 60.0,
+        "offset": 0.0,
+        "x1": 0.0,
+        "x2": 100.0,
+        "y1": 0.0,
+        "y2": 6000.0,
+        "mode": 0
+      },
+      "attribute": 0,
+      "scale2": {
+        "text_group": 0,
+        "basetype": 0,
+        "index_factor": 0,
+        "index_offset": 0,
+        "reserved1": 0,
+        "reserved2": 0
+      }
+    },
+    "156": {
+      "id": 156,
+      "name_local": "BK Sicaklik",
+      "name": "Temperature AT2",
+      "unit_local": "\u00b0C",
+      "unit": "\u00b0C",
+      "scale": {
+        "digits_before": 3,
+        "digits_after": 0,
+        "factor": 66.66000366210938,
+        "offset": 0.0,
+        "x1": 0.0,
+        "x2": 100.0,
+        "y1": 0.0,
+        "y2": 6666.0,
+        "mode": 0
+      },
+      "attribute": 0,
+      "scale2": {
+        "text_group": 0,
+        "basetype": 0,
+        "index_factor": 0,
+        "index_offset": 0,
+        "reserved1": 0,
+        "reserved2": 0
+      }
+    },
+    "287": {
+      "id": 287,
+      "name_local": "Seviye",
+      "name": "Level",
+      "unit_local": "",
+      "unit": "",
+      "scale": {
+        "digits_before": 5,
+        "digits_after": 0,
+        "factor": 1.0,
+        "offset": 0.0,
+        "x1": 0.0,
+        "x2": 100.0,
+        "y1": 0.0,
+        "y2": 100.0,
+        "mode": 0
+      },
+      "attribute": 0,
+      "scale2": {
+        "text_group": 0,
+        "basetype": 0,
+        "index_factor": 0,
+        "index_offset": 0,
+        "reserved1": 0,
+        "reserved2": 0
+      }
+    },
+    "160": {
+      "id": 160,
+      "name_local": "BK Recete No",
+      "name": "Recipe number AT2",
+      "unit_local": "",
+      "unit": "",
+      "scale": {
+        "digits_before": 4,
+        "digits_after": 0,
+        "factor": 1.0,
+        "offset": 0.0,
+        "x1": 0.0,
+        "x2": 100.0,
+        "y1": 0.0,
+        "y2": 100.0,
+        "mode": 0
+      },
+      "attribute": 0,
+      "scale2": {
+        "text_group": 0,
+        "basetype": 0,
+        "index_factor": 0,
+        "index_offset": 0,
+        "reserved1": 0,
+        "reserved2": 0
+      }
+    },
+    "161": {
+      "id": 161,
+      "name_local": "BK Hazirlik No",
+      "name": "Preparation no AT2",
+      "unit_local": "",
+      "unit": "",
+      "scale": {
+        "digits_before": 2,
+        "digits_after": 0,
+        "factor": 1.0,
+        "offset": 0.0,
+        "x1": 0.0,
+        "x2": 100.0,
+        "y1": 0.0,
+        "y2": 100.0,
+        "mode": 0
+      },
+      "attribute": 0,
+      "scale2": {
+        "text_group": 0,
+        "basetype": 0,
+        "index_factor": 0,
+        "index_offset": 0,
+        "reserved1": 0,
+        "reserved2": 0
+      }
+    },
+    "163": {
+      "id": 163,
+      "name_local": "BK Tank No",
+      "name": "Tank no. AT2",
+      "unit_local": "",
+      "unit": "",
+      "scale": {
+        "digits_before": 1,
+        "digits_after": 0,
+        "factor": 1.0,
+        "offset": 0.0,
+        "x1": 0.0,
+        "x2": 100.0,
+        "y1": 0.0,
+        "y2": 100.0,
+        "mode": 1
+      },
+      "attribute": 0,
+      "scale2": {
+        "text_group": 0,
+        "basetype": 0,
+        "index_factor": 0,
+        "index_offset": 0,
+        "reserved1": 0,
+        "reserved2": 0
+      }
+    },
+    "164": {
+      "id": 164,
+      "name_local": "BK Hazirlik Izni",
+      "name": "Prep. release AT2",
+      "unit_local": "",
+      "unit": "",
+      "scale": {
+        "digits_before": 3,
+        "digits_after": 0,
+        "factor": 1.0,
+        "offset": 0.0,
+        "x1": 0.0,
+        "x2": 100.0,
+        "y1": 0.0,
+        "y2": 100.0,
+        "mode": 1
+      },
+      "attribute": 0,
+      "scale2": {
+        "text_group": 0,
+        "basetype": 0,
+        "index_factor": 0,
+        "index_offset": 0,
+        "reserved1": 0,
+        "reserved2": 0
+      }
+    },
+    "165": {
+      "id": 165,
+      "name_local": "BK Dagitici No",
+      "name": "Station No AT2",
+      "unit_local": "",
+      "unit": "",
+      "scale": {
+        "digits_before": 1,
+        "digits_after": 0,
+        "factor": 1.0,
+        "offset": 0.0,
+        "x1": 0.0,
+        "x2": 100.0,
+        "y1": 0.0,
+        "y2": 100.0,
+        "mode": 1
+      },
+      "attribute": 0,
+      "scale2": {
+        "text_group": 0,
+        "basetype": 0,
+        "index_factor": 0,
+        "index_offset": 0,
+        "reserved1": 0,
+        "reserved2": 0
+      }
+    },
+    "155": {
+      "id": 155,
+      "name_local": "BK Seviye",
+      "name": "Level AT2",
+      "unit_local": "%",
+      "unit": "%",
+      "scale": {
+        "digits_before": 1,
+        "digits_after": 0,
+        "factor": 1.0,
+        "offset": 0.0,
+        "x1": 0.0,
+        "x2": 100.0,
+        "y1": 0.0,
+        "y2": 100.0,
+        "mode": 0
+      },
+      "attribute": 0,
+      "scale2": {
+        "text_group": 0,
+        "basetype": 0,
+        "index_factor": 0,
+        "index_offset": 0,
+        "reserved1": 0,
+        "reserved2": 0
+      }
+    },
+    "169": {
+      "id": 169,
+      "name_local": "Ben\u00f6tigt im AG2",
+      "name": "Needed for AT2 in",
+      "unit_local": "min",
+      "unit": "min",
+      "scale": {
+        "digits_before": 3,
+        "digits_after": 0,
+        "factor": 1.0,
+        "offset": 0.0,
+        "x1": 0.0,
+        "x2": 100.0,
+        "y1": 0.0,
+        "y2": 100.0,
+        "mode": 3
+      },
+      "attribute": 0,
+      "scale2": {
+        "text_group": 0,
+        "basetype": 0,
+        "index_factor": 0,
+        "index_offset": 0,
+        "reserved1": 0,
+        "reserved2": 0
+      }
+    },
+    "168": {
+      "id": 168,
+      "name_local": "Partie Freigabe AG2",
+      "name": "Batch release AT2",
+      "unit_local": "",
+      "unit": "",
+      "scale": {
+        "digits_before": 3,
+        "digits_after": 0,
+        "factor": 1.0,
+        "offset": 0.0,
+        "x1": 0.0,
+        "x2": 100.0,
+        "y1": 0.0,
+        "y2": 100.0,
+        "mode": 1
+      },
+      "attribute": 0,
+      "scale2": {
+        "text_group": 0,
+        "basetype": 0,
+        "index_factor": 0,
+        "index_offset": 0,
+        "reserved1": 0,
+        "reserved2": 0
+      }
+    },
+    "27": {
+      "id": 27,
+      "name_local": "Dozaj Zamani",
+      "name": "Dosing Time ADD2",
+      "unit_local": "dak",
+      "unit": "min",
+      "scale": {
+        "digits_before": 3,
+        "digits_after": 0,
+        "factor": 60.0,
+        "offset": 0.0,
+        "x1": 0.0,
+        "x2": 100.0,
+        "y1": 0.0,
+        "y2": 6000.0,
+        "mode": 0
+      },
+      "attribute": 0,
+      "scale2": {
+        "text_group": 0,
+        "basetype": 0,
+        "index_factor": 0,
+        "index_offset": 0,
+        "reserved1": 0,
+        "reserved2": 0
+      }
+    },
+    "173": {
+      "id": 173,
+      "name_local": "RK Miktar",
+      "name": "Fill Quantity ST",
+      "unit_local": "Lt",
+      "unit": "L",
+      "scale": {
+        "digits_before": 4,
+        "digits_after": 0,
+        "factor": 1.0,
+        "offset": 0.0,
+        "x1": 0.0,
+        "x2": 100.0,
+        "y1": 0.0,
+        "y2": 100.0,
+        "mode": 0
+      },
+      "attribute": 0,
+      "scale2": {
+        "text_group": 0,
+        "basetype": 0,
+        "index_factor": 0,
+        "index_offset": 0,
+        "reserved1": 0,
+        "reserved2": 0
+      }
+    },
+    "174": {
+      "id": 174,
+      "name_local": "RK Su Tipi",
+      "name": "Valve ST",
+      "unit_local": "",
+      "unit": "",
+      "scale": {
+        "digits_before": 1,
+        "digits_after": 0,
+        "factor": 1.0,
+        "offset": 0.0,
+        "x1": 0.0,
+        "x2": 100.0,
+        "y1": 0.0,
+        "y2": 100.0,
+        "mode": 16
+      },
+      "attribute": 0,
+      "scale2": {
+        "text_group": 2,
+        "basetype": 0,
+        "index_factor": 0,
+        "index_offset": 0,
+        "reserved1": 0,
+        "reserved2": 0
+      }
+    },
+    "175": {
+      "id": 175,
+      "name_local": "RK Seviye",
+      "name": "Level ST",
+      "unit_local": "Lt",
+      "unit": "L",
+      "scale": {
+        "digits_before": 4,
+        "digits_after": 0,
+        "factor": 1.0,
+        "offset": 0.0,
+        "x1": 0.0,
+        "x2": 100.0,
+        "y1": 0.0,
+        "y2": 100.0,
+        "mode": 0
+      },
+      "attribute": 0,
+      "scale2": {
+        "text_group": 0,
+        "basetype": 0,
+        "index_factor": 0,
+        "index_offset": 0,
+        "reserved1": 0,
+        "reserved2": 0
+      }
+    },
+    "176": {
+      "id": 176,
+      "name_local": "RK Sicaklik",
+      "name": "Temperature ST",
+      "unit_local": "\u00b0C",
+      "unit": "\u00b0C",
+      "scale": {
+        "digits_before": 2,
+        "digits_after": 0,
+        "factor": 66.66000366210938,
+        "offset": 0.0,
+        "x1": 0.0,
+        "x2": 100.0,
+        "y1": 0.0,
+        "y2": 6666.0,
+        "mode": 0
+      },
+      "attribute": 0,
+      "scale2": {
+        "text_group": 0,
+        "basetype": 0,
+        "index_factor": 0,
+        "index_offset": 0,
+        "reserved1": 0,
+        "reserved2": 0
+      }
+    },
+    "177": {
+      "id": 177,
+      "name_local": "Mixer Zamani",
+      "name": "Dissolving Time ST",
+      "unit_local": "min",
+      "unit": "min",
+      "scale": {
+        "digits_before": 2,
+        "digits_after": 1,
+        "factor": 60.0,
+        "offset": 0.0,
+        "x1": 0.0,
+        "x2": 100.0,
+        "y1": 0.0,
+        "y2": 6000.0,
+        "mode": 0
+      },
+      "attribute": 0,
+      "scale2": {
+        "text_group": 0,
+        "basetype": 0,
+        "index_factor": 0,
+        "index_offset": 0,
+        "reserved1": 0,
+        "reserved2": 0
+      }
+    },
+    "178": {
+      "id": 178,
+      "name_local": "RK Mikser",
+      "name": "Stirrer ST",
+      "unit_local": "",
+      "unit": "",
+      "scale": {
+        "digits_before": 1,
+        "digits_after": 0,
+        "factor": 1.0,
+        "offset": 0.0,
+        "x1": 0.0,
+        "x2": 100.0,
+        "y1": 0.0,
+        "y2": 100.0,
+        "mode": 0
+      },
+      "attribute": 0,
+      "scale2": {
+        "text_group": 0,
+        "basetype": 0,
+        "index_factor": 0,
+        "index_offset": 0,
+        "reserved1": 0,
+        "reserved2": 0
+      }
+    },
+    "57": {
+      "id": 57,
+      "name_local": "Progression 2,",
+      "name": "Progression 2,",
+      "unit_local": "%",
+      "unit": "%",
+      "scale": {
+        "digits_before": 3,
+        "digits_after": 0,
+        "factor": 1.0,
+        "offset": 0.0,
+        "x1": 0.0,
+        "x2": 100.0,
+        "y1": 0.0,
+        "y2": 100.0,
+        "mode": 3
+      },
+      "attribute": 0,
+      "scale2": {
+        "text_group": 0,
+        "basetype": 0,
+        "index_factor": 0,
+        "index_offset": 0,
+        "reserved1": 0,
+        "reserved2": 0
+      }
+    },
+    "273": {
+      "id": 273,
+      "name_local": "Acma Zamani",
+      "name": "On Time",
+      "unit_local": "sn.",
+      "unit": "Sec.",
+      "scale": {
+        "digits_before": 2,
+        "digits_after": 0,
+        "factor": 10.0,
+        "offset": 0.0,
+        "x1": 0.0,
+        "x2": 100.0,
+        "y1": 0.0,
+        "y2": 1000.0,
+        "mode": 1
+      },
+      "attribute": 0,
+      "scale2": {
+        "text_group": 0,
+        "basetype": 0,
+        "index_factor": 0,
+        "index_offset": 0,
+        "reserved1": 0,
+        "reserved2": 0
+      }
+    },
+    "274": {
+      "id": 274,
+      "name_local": "Kapatma Zamani",
+      "name": "Off Time",
+      "unit_local": "sn.",
+      "unit": "Sec.",
+      "scale": {
+        "digits_before": 2,
+        "digits_after": 0,
+        "factor": 10.0,
+        "offset": 0.0,
+        "x1": 0.0,
+        "x2": 100.0,
+        "y1": 0.0,
+        "y2": 1000.0,
+        "mode": 1
+      },
+      "attribute": 0,
+      "scale2": {
+        "text_group": 0,
+        "basetype": 0,
+        "index_factor": 0,
+        "index_offset": 0,
+        "reserved1": 0,
+        "reserved2": 0
+      }
+    },
+    "282": {
+      "id": 282,
+      "name_local": "Miktar",
+      "name": "Fill quantity AT2",
+      "unit_local": "Lt",
+      "unit": "L",
+      "scale": {
+        "digits_before": 3,
+        "digits_after": 0,
+        "factor": 1.0,
+        "offset": 0.0,
+        "x1": 0.0,
+        "x2": 100.0,
+        "y1": 0.0,
+        "y2": 100.0,
+        "mode": 0
+      },
+      "attribute": 0,
+      "scale2": {
+        "text_group": 0,
+        "basetype": 0,
+        "index_factor": 0,
+        "index_offset": 0,
+        "reserved1": 0,
+        "reserved2": 0
+      }
+    },
+    "72": {
+      "id": 72,
+      "name_local": "Pompa Koruma Zamani",
+      "name": "Protect Time Pump",
+      "unit_local": "dak",
+      "unit": "min",
+      "scale": {
+        "digits_before": 3,
+        "digits_after": 0,
+        "factor": 60.0,
+        "offset": 0.0,
+        "x1": 0.0,
+        "x2": 100.0,
+        "y1": 0.0,
+        "y2": 6000.0,
+        "mode": 0
+      },
+      "attribute": 0,
+      "scale2": {
+        "text_group": 0,
+        "basetype": 0,
+        "index_factor": 0,
+        "index_offset": 0,
+        "reserved1": 0,
+        "reserved2": 0
+      }
+    },
+    "71": {
+      "id": 71,
+      "name_local": "Set Pompa Zamani",
+      "name": "Set Time Pump",
+      "unit_local": "dak",
+      "unit": "min",
+      "scale": {
+        "digits_before": 3,
+        "digits_after": 0,
+        "factor": 60.0,
+        "offset": 0.0,
+        "x1": 0.0,
+        "x2": 100.0,
+        "y1": 0.0,
+        "y2": 6000.0,
+        "mode": 0
+      },
+      "attribute": 0,
+      "scale2": {
+        "text_group": 0,
+        "basetype": 0,
+        "index_factor": 0,
+        "index_offset": 0,
+        "reserved1": 0,
+        "reserved2": 0
+      }
+    },
+    "11": {
+      "id": 11,
+      "name_local": "Yikama",
+      "name": "Rinse Mode",
+      "unit_local": "",
+      "unit": "",
+      "scale": {
+        "digits_before": 1,
+        "digits_after": 0,
+        "factor": 1.0,
+        "offset": 0.0,
+        "x1": 0.0,
+        "x2": 100.0,
+        "y1": 0.0,
+        "y2": 100.0,
+        "mode": 16
+      },
+      "attribute": 0,
+      "scale2": {
+        "text_group": 5,
+        "basetype": 0,
+        "index_factor": 0,
+        "index_offset": 0,
+        "reserved1": 0,
+        "reserved2": 0
+      }
+    },
+    "17": {
+      "id": 17,
+      "name_local": "Akis Lt/dak.",
+      "name": "Akis Lt/dak.",
+      "unit_local": "Lt/dak.",
+      "unit": "Lt/min.",
+      "scale": {
+        "digits_before": 4,
+        "digits_after": 0,
+        "factor": 1.0,
+        "offset": 0.0,
+        "x1": 0.0,
+        "x2": 100.0,
+        "y1": 0.0,
+        "y2": 100.0,
+        "mode": 0
+      },
+      "attribute": 0,
+      "scale2": {
+        "text_group": 0,
+        "basetype": 0,
+        "index_factor": 0,
+        "index_offset": 0,
+        "reserved1": 0,
+        "reserved2": 0
+      }
+    },
+    "60": {
+      "id": 60,
+      "name_local": "Hazirlik Numarasi",
+      "name": "Check prep. number",
+      "unit_local": "",
+      "unit": "",
+      "scale": {
+        "digits_before": 2,
+        "digits_after": 0,
+        "factor": 1.0,
+        "offset": 0.0,
+        "x1": 0.0,
+        "x2": 100.0,
+        "y1": 0.0,
+        "y2": 100.0,
+        "mode": 0
+      },
+      "attribute": 0,
+      "scale2": {
+        "text_group": 0,
+        "basetype": 0,
+        "index_factor": 0,
+        "index_offset": 0,
+        "reserved1": 0,
+        "reserved2": 0
+      }
+    },
+    "36": {
+      "id": 36,
+      "name_local": "Alarm Zamani",
+      "name": "Alert Time operator",
+      "unit_local": "dak",
+      "unit": "min",
+      "scale": {
+        "digits_before": 3,
+        "digits_after": 0,
+        "factor": 60.0,
+        "offset": 0.0,
+        "x1": 0.0,
+        "x2": 100.0,
+        "y1": 0.0,
+        "y2": 6000.0,
+        "mode": 0
+      },
+      "attribute": 0,
+      "scale2": {
+        "text_group": 0,
+        "basetype": 0,
+        "index_factor": 0,
+        "index_offset": 0,
+        "reserved1": 0,
+        "reserved2": 0
+      }
+    },
+    "75": {
+      "id": 75,
+      "name_local": "D\u00fcze",
+      "name": "Set value variojet",
+      "unit_local": "%",
+      "unit": "%",
+      "scale": {
+        "digits_before": 3,
+        "digits_after": 0,
+        "factor": 1.0,
+        "offset": 0.0,
+        "x1": 0.0,
+        "x2": 100.0,
+        "y1": 0.0,
+        "y2": 100.0,
+        "mode": 0
+      },
+      "attribute": 0,
+      "scale2": {
+        "text_group": 0,
+        "basetype": 0,
+        "index_factor": 0,
+        "index_offset": 0,
+        "reserved1": 0,
+        "reserved2": 0
+      }
+    },
+    "272": {
+      "id": 272,
+      "name_local": "pH max",
+      "name": "pH max",
+      "unit_local": "",
+      "unit": "",
+      "scale": {
+        "digits_before": 2,
+        "digits_after": 3,
+        "factor": 1.0,
+        "offset": 0.0,
+        "x1": 0.0,
+        "x2": 100.0,
+        "y1": 0.0,
+        "y2": 100.0,
+        "mode": 1
+      },
+      "attribute": 0,
+      "scale2": {
+        "text_group": 0,
+        "basetype": 0,
+        "index_factor": 0,
+        "index_offset": 0,
+        "reserved1": 0,
+        "reserved2": 0
+      }
+    },
+    "201": {
+      "id": 201,
+      "name_local": "pH Value",
+      "name": "pH Value",
+      "unit_local": "",
+      "unit": "",
+      "scale": {
+        "digits_before": 2,
+        "digits_after": 2,
+        "factor": 100.0,
+        "offset": 0.0,
+        "x1": 0.0,
+        "x2": 1.0,
+        "y1": 0.0,
+        "y2": 100.0,
+        "mode": 0
+      },
+      "attribute": 0,
+      "scale2": {
+        "text_group": 0,
+        "basetype": 0,
+        "index_factor": 0,
+        "index_offset": 0,
+        "reserved1": 0,
+        "reserved2": 0
+      }
+    },
+    "283": {
+      "id": 283,
+      "name_local": "On/Off",
+      "name": "On/Off",
+      "unit_local": "",
+      "unit": "",
+      "scale": {
+        "digits_before": 1,
+        "digits_after": 0,
+        "factor": 1.0,
+        "offset": 0.0,
+        "x1": 0.0,
+        "x2": 100.0,
+        "y1": 0.0,
+        "y2": 100.0,
+        "mode": 0
+      },
+      "attribute": 0,
+      "scale2": {
+        "text_group": 0,
+        "basetype": 0,
+        "index_factor": 0,
+        "index_offset": 0,
+        "reserved1": 0,
+        "reserved2": 0
+      }
+    },
+    "298": {
+      "id": 298,
+      "name_local": "BK Yikama Sayisi",
+      "name": "Clean cycl AT2->MA",
+      "unit_local": "",
+      "unit": "",
+      "scale": {
+        "digits_before": 1,
+        "digits_after": 0,
+        "factor": 1.0,
+        "offset": 0.0,
+        "x1": 0.0,
+        "x2": 100.0,
+        "y1": 0.0,
+        "y2": 100.0,
+        "mode": 1
+      },
+      "attribute": 0,
+      "scale2": {
+        "text_group": 0,
+        "basetype": 0,
+        "index_factor": 0,
+        "index_offset": 0,
+        "reserved1": 0,
+        "reserved2": 0
+      }
+    },
+    "296": {
+      "id": 296,
+      "name_local": "KK Yikama Sayisi",
+      "name": "Clean cycl AT1->MA",
+      "unit_local": "",
+      "unit": "",
+      "scale": {
+        "digits_before": 1,
+        "digits_after": 0,
+        "factor": 1.0,
+        "offset": 0.0,
+        "x1": 0.0,
+        "x2": 100.0,
+        "y1": 0.0,
+        "y2": 100.0,
+        "mode": 1
+      },
+      "attribute": 0,
+      "scale2": {
+        "text_group": 0,
+        "basetype": 0,
+        "index_factor": 0,
+        "index_offset": 0,
+        "reserved1": 0,
+        "reserved2": 0
+      }
+    },
+    "297": {
+      "id": 297,
+      "name_local": "KK Yikama Sayisi",
+      "name": "Clean cycl AT1->ST",
+      "unit_local": "",
+      "unit": "",
+      "scale": {
+        "digits_before": 1,
+        "digits_after": 0,
+        "factor": 1.0,
+        "offset": 0.0,
+        "x1": 0.0,
+        "x2": 100.0,
+        "y1": 0.0,
+        "y2": 100.0,
+        "mode": 1
+      },
+      "attribute": 0,
+      "scale2": {
+        "text_group": 0,
+        "basetype": 0,
+        "index_factor": 0,
+        "index_offset": 0,
+        "reserved1": 0,
+        "reserved2": 0
+      }
+    },
+    "295": {
+      "id": 295,
+      "name_local": "RK Yikama Sayisi",
+      "name": "Clean cycles ST",
+      "unit_local": "",
+      "unit": "",
+      "scale": {
+        "digits_before": 1,
+        "digits_after": 0,
+        "factor": 1.0,
+        "offset": 0.0,
+        "x1": 0.0,
+        "x2": 100.0,
+        "y1": 0.0,
+        "y2": 100.0,
+        "mode": 1
+      },
+      "attribute": 0,
+      "scale2": {
+        "text_group": 0,
+        "basetype": 0,
+        "index_factor": 0,
+        "index_offset": 0,
+        "reserved1": 0,
+        "reserved2": 0
+      }
+    },
+    "299": {
+      "id": 299,
+      "name_local": "BK Yikama Sayisi",
+      "name": "Clean cycl AT2->ST",
+      "unit_local": "",
+      "unit": "",
+      "scale": {
+        "digits_before": 1,
+        "digits_after": 0,
+        "factor": 1.0,
+        "offset": 0.0,
+        "x1": 0.0,
+        "x2": 100.0,
+        "y1": 0.0,
+        "y2": 100.0,
+        "mode": 1
+      },
+      "attribute": 0,
+      "scale2": {
+        "text_group": 0,
+        "basetype": 0,
+        "index_factor": 0,
+        "index_offset": 0,
+        "reserved1": 0,
+        "reserved2": 0
+      }
+    },
+    "18": {
+      "id": 18,
+      "name_local": "Bekleme Zamani",
+      "name": "Remain Time",
+      "unit_local": "dak",
+      "unit": "min",
+      "scale": {
+        "digits_before": 2,
+        "digits_after": 1,
+        "factor": 60.0,
+        "offset": 0.0,
+        "x1": 0.0,
+        "x2": 100.0,
+        "y1": 0.0,
+        "y2": 6000.0,
+        "mode": 0
+      },
+      "attribute": 0,
+      "scale2": {
+        "text_group": 0,
+        "basetype": 0,
+        "index_factor": 0,
+        "index_offset": 0,
+        "reserved1": 0,
+        "reserved2": 0
+      }
+    },
+    "16": {
+      "id": 16,
+      "name_local": "Bosaltma",
+      "name": "Drain",
+      "unit_local": "",
+      "unit": "",
+      "scale": {
+        "digits_before": 1,
+        "digits_after": 0,
+        "factor": 1.0,
+        "offset": 0.0,
+        "x1": 0.0,
+        "x2": 100.0,
+        "y1": 0.0,
+        "y2": 100.0,
+        "mode": 16
+      },
+      "attribute": 0,
+      "scale2": {
+        "text_group": 10,
+        "basetype": 0,
+        "index_factor": 0,
+        "index_offset": 0,
+        "reserved1": 0,
+        "reserved2": 0
+      }
+    },
+    "22": {
+      "id": 22,
+      "name_local": "Dozaj Zamani",
+      "name": "Dosing Time",
+      "unit_local": "dak",
+      "unit": "min",
+      "scale": {
+        "digits_before": 3,
+        "digits_after": 0,
+        "factor": 60.0,
+        "offset": 0.0,
+        "x1": 0.0,
+        "x2": 100.0,
+        "y1": 0.0,
+        "y2": 6000.0,
+        "mode": 0
+      },
+      "attribute": 0,
+      "scale2": {
+        "text_group": 0,
+        "basetype": 0,
+        "index_factor": 0,
+        "index_offset": 0,
+        "reserved1": 0,
+        "reserved2": 0
+      }
+    },
+    "53": {
+      "id": 53,
+      "name_local": "Progression",
+      "name": "Progression",
+      "unit_local": "%",
+      "unit": "%",
+      "scale": {
+        "digits_before": 3,
+        "digits_after": 0,
+        "factor": 1.0,
+        "offset": 0.0,
+        "x1": 0.0,
+        "x2": 100.0,
+        "y1": 0.0,
+        "y2": 100.0,
+        "mode": 3
+      },
+      "attribute": 0,
+      "scale2": {
+        "text_group": 0,
+        "basetype": 0,
+        "index_factor": 0,
+        "index_offset": 0,
+        "reserved1": 0,
+        "reserved2": 0
+      }
+    },
+    "137": {
+      "id": 137,
+      "name_local": "Mixer Zamani",
+      "name": "Dissolving time AT1",
+      "unit_local": "dak",
+      "unit": "min",
+      "scale": {
+        "digits_before": 2,
+        "digits_after": 1,
+        "factor": 60.0,
+        "offset": 0.0,
+        "x1": 0.0,
+        "x2": 100.0,
+        "y1": 0.0,
+        "y2": 6000.0,
+        "mode": 0
+      },
+      "attribute": 0,
+      "scale2": {
+        "text_group": 0,
+        "basetype": 0,
+        "index_factor": 0,
+        "index_offset": 0,
+        "reserved1": 0,
+        "reserved2": 0
+      }
+    },
+    "181": {
+      "id": 181,
+      "name_local": "ST1 On Hazirlik No",
+      "name": "Preparation no ST",
+      "unit_local": "",
+      "unit": "",
+      "scale": {
+        "digits_before": 2,
+        "digits_after": 0,
+        "factor": 1.0,
+        "offset": 0.0,
+        "x1": 0.0,
+        "x2": 100.0,
+        "y1": 0.0,
+        "y2": 100.0,
+        "mode": 0
+      },
+      "attribute": 0,
+      "scale2": {
+        "text_group": 0,
+        "basetype": 0,
+        "index_factor": 0,
+        "index_offset": 0,
+        "reserved1": 0,
+        "reserved2": 0
+      }
+    },
+    "281": {
+      "id": 281,
+      "name_local": "Soda Miktari",
+      "name": "Sodaash Quantity",
+      "unit_local": "Lt",
+      "unit": "L",
+      "scale": {
+        "digits_before": 3,
+        "digits_after": 0,
+        "factor": 1.0,
+        "offset": 0.0,
+        "x1": 0.0,
+        "x2": 100.0,
+        "y1": 0.0,
+        "y2": 100.0,
+        "mode": 1
+      },
+      "attribute": 0,
+      "scale2": {
+        "text_group": 0,
+        "basetype": 0,
+        "index_factor": 0,
+        "index_offset": 0,
+        "reserved1": 0,
+        "reserved2": 0
+      }
+    },
+    "184": {
+      "id": 184,
+      "name_local": "ST Hazirlik Izni",
+      "name": "Prep. release ST",
+      "unit_local": "",
+      "unit": "",
+      "scale": {
+        "digits_before": 3,
+        "digits_after": 0,
+        "factor": 1.0,
+        "offset": 0.0,
+        "x1": 0.0,
+        "x2": 100.0,
+        "y1": 0.0,
+        "y2": 100.0,
+        "mode": 1
+      },
+      "attribute": 0,
+      "scale2": {
+        "text_group": 0,
+        "basetype": 0,
+        "index_factor": 0,
+        "index_offset": 0,
+        "reserved1": 0,
+        "reserved2": 0
+      }
+    },
+    "84": {
+      "id": 84,
+      "name_local": "Cycle cont. on",
+      "name": "Restarts",
+      "unit_local": "",
+      "unit": "",
+      "scale": {
+        "digits_before": 1,
+        "digits_after": 0,
+        "factor": 1.0,
+        "offset": 0.0,
+        "x1": 0.0,
+        "x2": 100.0,
+        "y1": 0.0,
+        "y2": 100.0,
+        "mode": 16
+      },
+      "attribute": 0,
+      "scale2": {
+        "text_group": 200,
+        "basetype": 0,
+        "index_factor": 0,
+        "index_offset": 0,
+        "reserved1": 0,
+        "reserved2": 0
+      }
+    },
+    "284": {
+      "id": 284,
+      "name_local": "Conductivity Value",
+      "name": "Conductivity Value",
+      "unit_local": "ms",
+      "unit": "ms",
+      "scale": {
+        "digits_before": 3,
+        "digits_after": 0,
+        "factor": 1.0,
+        "offset": 0.0,
+        "x1": 0.0,
+        "x2": 100.0,
+        "y1": 0.0,
+        "y2": 100.0,
+        "mode": 0
+      },
+      "attribute": 0,
+      "scale2": {
+        "text_group": 0,
+        "basetype": 0,
+        "index_factor": 0,
+        "index_offset": 0,
+        "reserved1": 0,
+        "reserved2": 0
+      }
+    },
+    "172": {
+      "id": 172,
+      "name_local": "RK Koruma Zamani",
+      "name": "Protect time ST",
+      "unit_local": "dak",
+      "unit": "min",
+      "scale": {
+        "digits_before": 3,
+        "digits_after": 0,
+        "factor": 60.0,
+        "offset": 0.0,
+        "x1": 0.0,
+        "x2": 100.0,
+        "y1": 0.0,
+        "y2": 6000.0,
+        "mode": 0
+      },
+      "attribute": 0,
+      "scale2": {
+        "text_group": 0,
+        "basetype": 0,
+        "index_factor": 0,
+        "index_offset": 0,
+        "reserved1": 0,
+        "reserved2": 0
+      }
+    },
+    "187": {
+      "id": 187,
+      "name_local": "Weckzeit Bed. NB1",
+      "name": "Alert Time op. ST",
+      "unit_local": "min",
+      "unit": "min",
+      "scale": {
+        "digits_before": 3,
+        "digits_after": 0,
+        "factor": 60.0,
+        "offset": 0.0,
+        "x1": 0.0,
+        "x2": 100.0,
+        "y1": 0.0,
+        "y2": 6000.0,
+        "mode": 0
+      },
+      "attribute": 0,
+      "scale2": {
+        "text_group": 0,
+        "basetype": 0,
+        "index_factor": 0,
+        "index_offset": 0,
+        "reserved1": 0,
+        "reserved2": 0
+      }
+    },
+    "81": {
+      "id": 81,
+      "name_local": "Set Hiz Zamani",
+      "name": "Set Time Speed",
+      "unit_local": "dak",
+      "unit": "min",
+      "scale": {
+        "digits_before": 3,
+        "digits_after": 0,
+        "factor": 60.0,
+        "offset": 0.0,
+        "x1": 0.0,
+        "x2": 100.0,
+        "y1": 0.0,
+        "y2": 6000.0,
+        "mode": 0
+      },
+      "attribute": 0,
+      "scale2": {
+        "text_group": 0,
+        "basetype": 0,
+        "index_factor": 0,
+        "index_offset": 0,
+        "reserved1": 0,
+        "reserved2": 0
+      }
+    },
+    "152": {
+      "id": 152,
+      "name_local": "BK Koruma Zamani",
+      "name": "Protect time AT2",
+      "unit_local": "dak",
+      "unit": "min",
+      "scale": {
+        "digits_before": 3,
+        "digits_after": 0,
+        "factor": 60.0,
+        "offset": 0.0,
+        "x1": 0.0,
+        "x2": 100.0,
+        "y1": 0.0,
+        "y2": 6000.0,
+        "mode": 0
+      },
+      "attribute": 0,
+      "scale2": {
+        "text_group": 0,
+        "basetype": 0,
+        "index_factor": 0,
+        "index_offset": 0,
+        "reserved1": 0,
+        "reserved2": 0
+      }
+    },
+    "132": {
+      "id": 132,
+      "name_local": "KK Koruma Zamani",
+      "name": "Protect time AT1",
+      "unit_local": "dak",
+      "unit": "min",
+      "scale": {
+        "digits_before": 3,
+        "digits_after": 0,
+        "factor": 60.0,
+        "offset": 0.0,
+        "x1": 0.0,
+        "x2": 100.0,
+        "y1": 0.0,
+        "y2": 6000.0,
+        "mode": 0
+      },
+      "attribute": 0,
+      "scale2": {
+        "text_group": 0,
+        "basetype": 0,
+        "index_factor": 0,
+        "index_offset": 0,
+        "reserved1": 0,
+        "reserved2": 0
+      }
+    },
+    "74": {
+      "id": 74,
+      "name_local": "D\u00fcze Basinci",
+      "name": "Nozzle pressure",
+      "unit_local": "bar",
+      "unit": "bar",
+      "scale": {
+        "digits_before": 1,
+        "digits_after": 1,
+        "factor": 1000.0,
+        "offset": 0.0,
+        "x1": 0.0,
+        "x2": 10.0,
+        "y1": 0.0,
+        "y2": 10000.0,
+        "mode": 0
+      },
+      "attribute": 0,
+      "scale2": {
+        "text_group": 0,
+        "basetype": 0,
+        "index_factor": 0,
+        "index_offset": 0,
+        "reserved1": 0,
+        "reserved2": 0
+      }
+    },
+    "139": {
+      "id": 139,
+      "name_local": "KK Sirk. Zamani",
+      "name": "Circulat. time AT1",
+      "unit_local": "dak",
+      "unit": "min",
+      "scale": {
+        "digits_before": 3,
+        "digits_after": 0,
+        "factor": 60.0,
+        "offset": 0.0,
+        "x1": 0.0,
+        "x2": 100.0,
+        "y1": 0.0,
+        "y2": 6000.0,
+        "mode": 0
+      },
+      "attribute": 0,
+      "scale2": {
+        "text_group": 0,
+        "basetype": 0,
+        "index_factor": 0,
+        "index_offset": 0,
+        "reserved1": 0,
+        "reserved2": 0
+      }
+    },
+    "183": {
+      "id": 183,
+      "name_local": "ST Tank No",
+      "name": "Tank No. ST",
+      "unit_local": "",
+      "unit": "",
+      "scale": {
+        "digits_before": 1,
+        "digits_after": 0,
+        "factor": 1.0,
+        "offset": 0.0,
+        "x1": 0.0,
+        "x2": 100.0,
+        "y1": 0.0,
+        "y2": 100.0,
+        "mode": 1
+      },
+      "attribute": 0,
+      "scale2": {
+        "text_group": 0,
+        "basetype": 0,
+        "index_factor": 0,
+        "index_offset": 0,
+        "reserved1": 0,
+        "reserved2": 0
+      }
+    },
+    "171": {
+      "id": 171,
+      "name_local": "RK Zaman",
+      "name": "Set time ST",
+      "unit_local": "dak",
+      "unit": "min",
+      "scale": {
+        "digits_before": 3,
+        "digits_after": 0,
+        "factor": 60.0,
+        "offset": 0.0,
+        "x1": 0.0,
+        "x2": 100.0,
+        "y1": 0.0,
+        "y2": 6000.0,
+        "mode": 0
+      },
+      "attribute": 0,
+      "scale2": {
+        "text_group": 0,
+        "basetype": 0,
+        "index_factor": 0,
+        "index_offset": 0,
+        "reserved1": 0,
+        "reserved2": 0
+      }
+    },
+    "278": {
+      "id": 278,
+      "name_local": "Kule H\u0131z\u0131 4",
+      "name": "Winch speed 4",
+      "unit_local": "m/dak",
+      "unit": "m/min",
+      "scale": {
+        "digits_before": 3,
+        "digits_after": 0,
+        "factor": 1.0,
+        "offset": 0.0,
+        "x1": 0.0,
+        "x2": 10000.0,
+        "y1": 0.0,
+        "y2": 10000.0,
+        "mode": 0
+      },
+      "attribute": 0,
+      "scale2": {
+        "text_group": 0,
+        "basetype": 0,
+        "index_factor": 0,
+        "index_offset": 0,
+        "reserved1": 0,
+        "reserved2": 0
+      }
+    },
+    "69": {
+      "id": 69,
+      "name_local": "Parameter 3",
+      "name": "Parameter 3",
+      "unit_local": "",
+      "unit": "",
+      "scale": {
+        "digits_before": 3,
+        "digits_after": 1,
+        "factor": 1.0,
+        "offset": 0.0,
+        "x1": 0.0,
+        "x2": 100.0,
+        "y1": 0.0,
+        "y2": 100.0,
+        "mode": 0
+      },
+      "attribute": 0,
+      "scale2": {
+        "text_group": 0,
+        "basetype": 0,
+        "index_factor": 0,
+        "index_offset": 0,
+        "reserved1": 0,
+        "reserved2": 0
+      }
+    },
+    "68": {
+      "id": 68,
+      "name_local": "Parameter 2",
+      "name": "Parameter 2",
+      "unit_local": "",
+      "unit": "",
+      "scale": {
+        "digits_before": 3,
+        "digits_after": 1,
+        "factor": 1.0,
+        "offset": 0.0,
+        "x1": 0.0,
+        "x2": 100.0,
+        "y1": 0.0,
+        "y2": 100.0,
+        "mode": 0
+      },
+      "attribute": 0,
+      "scale2": {
+        "text_group": 0,
+        "basetype": 0,
+        "index_factor": 0,
+        "index_offset": 0,
+        "reserved1": 0,
+        "reserved2": 0
+      }
+    },
+    "67": {
+      "id": 67,
+      "name_local": "Parameter 1",
+      "name": "Parameter 1",
+      "unit_local": "",
+      "unit": "",
+      "scale": {
+        "digits_before": 3,
+        "digits_after": 1,
+        "factor": 1.0,
+        "offset": 0.0,
+        "x1": 0.0,
+        "x2": 100.0,
+        "y1": 0.0,
+        "y2": 100.0,
+        "mode": 0
+      },
+      "attribute": 0,
+      "scale2": {
+        "text_group": 0,
+        "basetype": 0,
+        "index_factor": 0,
+        "index_offset": 0,
+        "reserved1": 0,
+        "reserved2": 0
+      }
+    },
+    "73": {
+      "id": 73,
+      "name_local": "Pompa Hizi",
+      "name": "Speed pump",
+      "unit_local": "%",
+      "unit": "%",
+      "scale": {
+        "digits_before": 3,
+        "digits_after": 0,
+        "factor": 100.0,
+        "offset": 0.0,
+        "x1": 0.0,
+        "x2": 100.0,
+        "y1": 0.0,
+        "y2": 10000.0,
+        "mode": 1
+      },
+      "attribute": 0,
+      "scale2": {
+        "text_group": 0,
+        "basetype": 0,
+        "index_factor": 0,
+        "index_offset": 0,
+        "reserved1": 0,
+        "reserved2": 0
+      }
+    },
+    "70": {
+      "id": 70,
+      "name_local": "Parameter 4",
+      "name": "Parameter 4",
+      "unit_local": "",
+      "unit": "",
+      "scale": {
+        "digits_before": 3,
+        "digits_after": 1,
+        "factor": 1.0,
+        "offset": 0.0,
+        "x1": 0.0,
+        "x2": 100.0,
+        "y1": 0.0,
+        "y2": 100.0,
+        "mode": 0
+      },
+      "attribute": 0,
+      "scale2": {
+        "text_group": 0,
+        "basetype": 0,
+        "index_factor": 0,
+        "index_offset": 0,
+        "reserved1": 0,
+        "reserved2": 0
+      }
+    },
+    "154": {
+      "id": 154,
+      "name_local": "BK Su Tipi",
+      "name": "Valve AT2",
+      "unit_local": "",
+      "unit": "",
+      "scale": {
+        "digits_before": 1,
+        "digits_after": 0,
+        "factor": 1.0,
+        "offset": 0.0,
+        "x1": 0.0,
+        "x2": 100.0,
+        "y1": 0.0,
+        "y2": 100.0,
+        "mode": 16
+      },
+      "attribute": 0,
+      "scale2": {
+        "text_group": 4,
+        "basetype": 0,
+        "index_factor": 0,
+        "index_offset": 0,
+        "reserved1": 0,
+        "reserved2": 0
+      }
+    },
+    "134": {
+      "id": 134,
+      "name_local": "KK Su Tipi",
+      "name": "Valve AT1",
+      "unit_local": "",
+      "unit": "",
+      "scale": {
+        "digits_before": 1,
+        "digits_after": 0,
+        "factor": 1.0,
+        "offset": 0.0,
+        "x1": 0.0,
+        "x2": 100.0,
+        "y1": 0.0,
+        "y2": 100.0,
+        "mode": 16
+      },
+      "attribute": 0,
+      "scale2": {
+        "text_group": 3,
+        "basetype": 0,
+        "index_factor": 0,
+        "index_offset": 0,
+        "reserved1": 0,
+        "reserved2": 0
+      }
+    },
+    "135": {
+      "id": 135,
+      "name_local": "KK Seviye",
+      "name": "Level AT1",
+      "unit_local": "%",
+      "unit": "%",
+      "scale": {
+        "digits_before": 4,
+        "digits_after": 0,
+        "factor": 1.0,
+        "offset": 0.0,
+        "x1": 0.0,
+        "x2": 100.0,
+        "y1": 0.0,
+        "y2": 100.0,
+        "mode": 0
+      },
+      "attribute": 0,
+      "scale2": {
+        "text_group": 0,
+        "basetype": 0,
+        "index_factor": 0,
+        "index_offset": 0,
+        "reserved1": 0,
+        "reserved2": 0
+      }
+    },
+    "131": {
+      "id": 131,
+      "name_local": "KK Zaman",
+      "name": "Set time AT1",
+      "unit_local": "dak",
+      "unit": "min",
+      "scale": {
+        "digits_before": 3,
+        "digits_after": 0,
+        "factor": 60.0,
+        "offset": 0.0,
+        "x1": 0.0,
+        "x2": 100.0,
+        "y1": 0.0,
+        "y2": 6000.0,
+        "mode": 0
+      },
+      "attribute": 0,
+      "scale2": {
+        "text_group": 0,
+        "basetype": 0,
+        "index_factor": 0,
+        "index_offset": 0,
+        "reserved1": 0,
+        "reserved2": 0
+      }
+    },
+    "180": {
+      "id": 180,
+      "name_local": "Recete No",
+      "name": "Rezept Nummer NB1",
+      "unit_local": "",
+      "unit": "",
+      "scale": {
+        "digits_before": 4,
+        "digits_after": 0,
+        "factor": 1.0,
+        "offset": 0.0,
+        "x1": 0.0,
+        "x2": 100.0,
+        "y1": 0.0,
+        "y2": 100.0,
+        "mode": 0
+      },
+      "attribute": 0,
+      "scale2": {
+        "text_group": 0,
+        "basetype": 0,
+        "index_factor": 0,
+        "index_offset": 0,
+        "reserved1": 0,
+        "reserved2": 0
+      }
+    },
+    "83": {
+      "id": 83,
+      "name_local": "Kule Hizi",
+      "name": "Winch speed",
+      "unit_local": "m/dak",
+      "unit": "m/min",
+      "scale": {
+        "digits_before": 3,
+        "digits_after": 0,
+        "factor": 1.0,
+        "offset": 0.0,
+        "x1": 0.0,
+        "x2": 10000.0,
+        "y1": 0.0,
+        "y2": 10000.0,
+        "mode": 0
+      },
+      "attribute": 0,
+      "scale2": {
+        "text_group": 0,
+        "basetype": 0,
+        "index_factor": 0,
+        "index_offset": 0,
+        "reserved1": 0,
+        "reserved2": 0
+      }
+    },
+    "82": {
+      "id": 82,
+      "name_local": "Hiz Koruma Zamani",
+      "name": "Protect Time Speed",
+      "unit_local": "dak",
+      "unit": "min",
+      "scale": {
+        "digits_before": 3,
+        "digits_after": 0,
+        "factor": 60.0,
+        "offset": 0.0,
+        "x1": 0.0,
+        "x2": 100.0,
+        "y1": 0.0,
+        "y2": 6000.0,
+        "mode": 0
+      },
+      "attribute": 0,
+      "scale2": {
+        "text_group": 0,
+        "basetype": 0,
+        "index_factor": 0,
+        "index_offset": 0,
+        "reserved1": 0,
+        "reserved2": 0
+      }
+    },
+    "271": {
+      "id": 271,
+      "name_local": "pH min",
+      "name": "pH min",
+      "unit_local": "",
+      "unit": "",
+      "scale": {
+        "digits_before": 2,
+        "digits_after": 3,
+        "factor": 1.0,
+        "offset": 0.0,
+        "x1": 0.0,
+        "x2": 100.0,
+        "y1": 0.0,
+        "y2": 100.0,
+        "mode": 1
+      },
+      "attribute": 0,
+      "scale2": {
+        "text_group": 0,
+        "basetype": 0,
+        "index_factor": 0,
+        "index_offset": 0,
+        "reserved1": 0,
+        "reserved2": 0
+      }
+    },
+    "276": {
+      "id": 276,
+      "name_local": "Kule H\u0131z\u0131 2",
+      "name": "Winch speed 2",
+      "unit_local": "m/dak",
+      "unit": "m/min",
+      "scale": {
+        "digits_before": 3,
+        "digits_after": 0,
+        "factor": 1.0,
+        "offset": 0.0,
+        "x1": 0.0,
+        "x2": 10000.0,
+        "y1": 0.0,
+        "y2": 10000.0,
+        "mode": 0
+      },
+      "attribute": 0,
+      "scale2": {
+        "text_group": 0,
+        "basetype": 0,
+        "index_factor": 0,
+        "index_offset": 0,
+        "reserved1": 0,
+        "reserved2": 0
+      }
+    },
+    "279": {
+      "id": 279,
+      "name_local": "Kule H\u0131z\u0131 5",
+      "name": "Winch speed 5",
+      "unit_local": "m/dak",
+      "unit": "m/min",
+      "scale": {
+        "digits_before": 3,
+        "digits_after": 0,
+        "factor": 1.0,
+        "offset": 0.0,
+        "x1": 0.0,
+        "x2": 10000.0,
+        "y1": 0.0,
+        "y2": 10000.0,
+        "mode": 0
+      },
+      "attribute": 0,
+      "scale2": {
+        "text_group": 0,
+        "basetype": 0,
+        "index_factor": 0,
+        "index_offset": 0,
+        "reserved1": 0,
+        "reserved2": 0
+      }
+    },
+    "277": {
+      "id": 277,
+      "name_local": "Kule H\u0131z\u0131 3",
+      "name": "Winch speed 3",
+      "unit_local": "m/dak",
+      "unit": "m/min",
+      "scale": {
+        "digits_before": 3,
+        "digits_after": 0,
+        "factor": 1.0,
+        "offset": 0.0,
+        "x1": 0.0,
+        "x2": 10000.0,
+        "y1": 0.0,
+        "y2": 10000.0,
+        "mode": 0
+      },
+      "attribute": 0,
+      "scale2": {
+        "text_group": 0,
+        "basetype": 0,
+        "index_factor": 0,
+        "index_offset": 0,
+        "reserved1": 0,
+        "reserved2": 0
+      }
+    },
+    "275": {
+      "id": 275,
+      "name_local": "Kule H\u0131z\u0131 1",
+      "name": "Winch speed 1",
+      "unit_local": "m/dak",
+      "unit": "m/min",
+      "scale": {
+        "digits_before": 3,
+        "digits_after": 0,
+        "factor": 1.0,
+        "offset": 0.0,
+        "x1": 0.0,
+        "x2": 10000.0,
+        "y1": 0.0,
+        "y2": 10000.0,
+        "mode": 0
+      },
+      "attribute": 0,
+      "scale2": {
+        "text_group": 0,
+        "basetype": 0,
+        "index_factor": 0,
+        "index_offset": 0,
+        "reserved1": 0,
+        "reserved2": 0
+      }
+    },
+    "280": {
+      "id": 280,
+      "name_local": "Kule H\u0131z\u0131 6",
+      "name": "Winch speed 6",
+      "unit_local": "m/dak",
+      "unit": "m/min",
+      "scale": {
+        "digits_before": 3,
+        "digits_after": 0,
+        "factor": 1.0,
+        "offset": 0.0,
+        "x1": 0.0,
+        "x2": 10000.0,
+        "y1": 0.0,
+        "y2": 10000.0,
+        "mode": 0
+      },
+      "attribute": 0,
+      "scale2": {
+        "text_group": 0,
+        "basetype": 0,
+        "index_factor": 0,
+        "index_offset": 0,
+        "reserved1": 0,
+        "reserved2": 0
+      }
+    },
+    "189": {
+      "id": 189,
+      "name_local": "Ben\u00f6tigt im NB1",
+      "name": "Needed for ST in",
+      "unit_local": "min",
+      "unit": "min",
+      "scale": {
+        "digits_before": 3,
+        "digits_after": 0,
+        "factor": 1.0,
+        "offset": 0.0,
+        "x1": 0.0,
+        "x2": 100.0,
+        "y1": 0.0,
+        "y2": 100.0,
+        "mode": 3
+      },
+      "attribute": 0,
+      "scale2": {
+        "text_group": 0,
+        "basetype": 0,
+        "index_factor": 0,
+        "index_offset": 0,
+        "reserved1": 0,
+        "reserved2": 0
+      }
+    },
+    "185": {
+      "id": 185,
+      "name_local": "ST Dagitici No",
+      "name": "Station No ST",
+      "unit_local": "",
+      "unit": "",
+      "scale": {
+        "digits_before": 1,
+        "digits_after": 0,
+        "factor": 1.0,
+        "offset": 0.0,
+        "x1": 0.0,
+        "x2": 100.0,
+        "y1": 0.0,
+        "y2": 100.0,
+        "mode": 1
+      },
+      "attribute": 0,
+      "scale2": {
+        "text_group": 0,
+        "basetype": 0,
+        "index_factor": 0,
+        "index_offset": 0,
+        "reserved1": 0,
+        "reserved2": 0
+      }
+    },
+    "188": {
+      "id": 188,
+      "name_local": "Partie Freigabe NB1",
+      "name": "Batch release ST",
+      "unit_local": "",
+      "unit": "",
+      "scale": {
+        "digits_before": 3,
+        "digits_after": 0,
+        "factor": 1.0,
+        "offset": 0.0,
+        "x1": 0.0,
+        "x2": 100.0,
+        "y1": 0.0,
+        "y2": 100.0,
+        "mode": 1
+      },
+      "attribute": 0,
+      "scale2": {
+        "text_group": 0,
+        "basetype": 0,
+        "index_factor": 0,
+        "index_offset": 0,
+        "reserved1": 0,
+        "reserved2": 0
+      }
+    }
+  },
+  "source": "TYPECONF.CNF",
+  "generated_at": "2026-11-17T08:58:25.110259"
+}

@@ -50,4 +50,4 @@ Untuk menuntaskan pemetaan instalasi diperlukan request R2 pasangan, data resep/
 - D:/ORGATEX/OrgaTEX/analysis/decompiled/CommunicationServiceTasks/SetexCommunication.VirtualController.Modules/Dosing.cs
 - D:/File HMI/Network/F/OT/BIN/dosedemo.sql (contoh, tidak dijalankan)
 - D:/File HMI/Network/F/OT/CFG/ORGATEX.INI
-- D:/File HMI/Storage/SC777CE/PATH.CFG: DRHSTDOS = \\OT\\DOSING
+- D:/File HMI/Storage/sc777ce/PATH.CFG: DRHSTDOS = \\OT\\DOSING
