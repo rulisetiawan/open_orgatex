@@ -197465,8 +197465,8 @@
   "30": {
     "program_no": 30,
     "program_name": "RESEP MESIN DA01",
-    "machine_code": "DA01",
-    "sub_programs": [],
+    "total_steps": 5,
+    "file_size": 1034,
     "steps": [
       {
         "step_no": 1,
@@ -197474,7 +197474,6 @@
         "functions": [
           {
             "function_id": 1,
-            "name": "",
             "column": 1,
             "flags": 0,
             "params": [
@@ -197488,10 +197487,10 @@
           }
         ],
         "summary_temp": null,
-        "summary_time_min": 0,
+        "summary_time_min": 0.0,
         "summary_pump_pct": 85.0,
         "summary_reel_speed": 200.0,
-        "summary_water_l": 0
+        "summary_water_l": 0.0
       },
       {
         "step_no": 2,
@@ -197499,7 +197498,6 @@
         "functions": [
           {
             "function_id": 713,
-            "name": "",
             "column": 1,
             "flags": 0,
             "params": [
@@ -197513,10 +197511,10 @@
           }
         ],
         "summary_temp": null,
-        "summary_time_min": 0,
+        "summary_time_min": 0.0,
         "summary_pump_pct": 85.0,
         "summary_reel_speed": 200.0,
-        "summary_water_l": 0
+        "summary_water_l": 1800.0
       },
       {
         "step_no": 3,
@@ -197524,7 +197522,6 @@
         "functions": [
           {
             "function_id": 141,
-            "name": "",
             "column": 1,
             "flags": 0,
             "params": [
@@ -197537,11 +197534,11 @@
             ]
           }
         ],
-        "summary_temp": null,
-        "summary_time_min": 0,
+        "summary_temp": 98.0,
+        "summary_time_min": 30.0,
         "summary_pump_pct": 85.0,
         "summary_reel_speed": 200.0,
-        "summary_water_l": 0
+        "summary_water_l": 0.0
       },
       {
         "step_no": 4,
@@ -197549,7 +197546,6 @@
         "functions": [
           {
             "function_id": 141,
-            "name": "",
             "column": 1,
             "flags": 0,
             "params": [
@@ -197562,11 +197558,11 @@
             ]
           }
         ],
-        "summary_temp": null,
-        "summary_time_min": 0,
+        "summary_temp": 60.0,
+        "summary_time_min": 20.0,
         "summary_pump_pct": 85.0,
         "summary_reel_speed": 200.0,
-        "summary_water_l": 0
+        "summary_water_l": 0.0
       },
       {
         "step_no": 5,
@@ -197574,7 +197570,6 @@
         "functions": [
           {
             "function_id": 2,
-            "name": "",
             "column": 1,
             "flags": 0,
             "params": [
@@ -197588,19 +197583,21 @@
           }
         ],
         "summary_temp": null,
-        "summary_time_min": 0,
+        "summary_time_min": 0.0,
         "summary_pump_pct": 85.0,
         "summary_reel_speed": 200.0,
-        "summary_water_l": 0
+        "summary_water_l": 0.0
       }
     ],
-    "filename": "M_0030.PRG"
+    "machine_code": "DA01",
+    "filename": "M_0030.PRG",
+    "source": "FTP_HMI"
   },
   "1111": {
     "program_no": 1111,
     "program_name": "RESEP MESIN DA01",
-    "machine_code": "DA01",
-    "sub_programs": [],
+    "total_steps": 4,
+    "file_size": 904,
     "steps": [
       {
         "step_no": 1,
@@ -197608,7 +197605,6 @@
         "functions": [
           {
             "function_id": 1,
-            "name": "",
             "column": 1,
             "flags": 0,
             "params": [
@@ -197622,10 +197618,10 @@
           }
         ],
         "summary_temp": null,
-        "summary_time_min": 0,
+        "summary_time_min": 0.0,
         "summary_pump_pct": 85.0,
         "summary_reel_speed": 200.0,
-        "summary_water_l": 0
+        "summary_water_l": 0.0
       },
       {
         "step_no": 2,
@@ -197633,7 +197629,6 @@
         "functions": [
           {
             "function_id": 713,
-            "name": "",
             "column": 1,
             "flags": 0,
             "params": [
@@ -197647,10 +197642,10 @@
           }
         ],
         "summary_temp": null,
-        "summary_time_min": 0,
+        "summary_time_min": 0.0,
         "summary_pump_pct": 85.0,
         "summary_reel_speed": 200.0,
-        "summary_water_l": 0
+        "summary_water_l": 1800.0
       },
       {
         "step_no": 3,
@@ -197658,7 +197653,6 @@
         "functions": [
           {
             "function_id": 141,
-            "name": "",
             "column": 1,
             "flags": 0,
             "params": [
@@ -197671,11 +197665,11 @@
             ]
           }
         ],
-        "summary_temp": null,
-        "summary_time_min": 0,
+        "summary_temp": 98.0,
+        "summary_time_min": 30.0,
         "summary_pump_pct": 85.0,
         "summary_reel_speed": 200.0,
-        "summary_water_l": 0
+        "summary_water_l": 0.0
       },
       {
         "step_no": 4,
@@ -197683,7 +197677,6 @@
         "functions": [
           {
             "function_id": 2,
-            "name": "",
             "column": 1,
             "flags": 0,
             "params": [
@@ -197697,11 +197690,145 @@
           }
         ],
         "summary_temp": null,
-        "summary_time_min": 0,
+        "summary_time_min": 0.0,
         "summary_pump_pct": 85.0,
         "summary_reel_speed": 200.0,
-        "summary_water_l": 0
+        "summary_water_l": 0.0
       }
-    ]
+    ],
+    "machine_code": "DA01",
+    "filename": "M_1111.PRG",
+    "source": "FTP_HMI"
+  },
+  "1112": {
+    "program_no": 1112,
+    "program_name": "RESEP MESIN DA01",
+    "total_steps": 5,
+    "file_size": 1034,
+    "steps": [
+      {
+        "step_no": 1,
+        "label": "Program Start",
+        "functions": [
+          {
+            "function_id": 1,
+            "column": 1,
+            "flags": 0,
+            "params": [
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ]
+          }
+        ],
+        "summary_temp": null,
+        "summary_time_min": 0.0,
+        "summary_pump_pct": 85.0,
+        "summary_reel_speed": 200.0,
+        "summary_water_l": 0.0
+      },
+      {
+        "step_no": 2,
+        "label": "Langkah Proses Baru",
+        "functions": [
+          {
+            "function_id": 141,
+            "column": 1,
+            "flags": 0,
+            "params": [
+              60.0,
+              2.0,
+              20.0,
+              0.0,
+              0.0,
+              0.0
+            ]
+          }
+        ],
+        "summary_temp": 60.0,
+        "summary_time_min": 20.0,
+        "summary_pump_pct": 85.0,
+        "summary_reel_speed": 200.0,
+        "summary_water_l": 0.0
+      },
+      {
+        "step_no": 3,
+        "label": "Langkah Proses Baru",
+        "functions": [
+          {
+            "function_id": 144,
+            "column": 1,
+            "flags": 0,
+            "params": [
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ]
+          }
+        ],
+        "summary_temp": null,
+        "summary_time_min": 0.0,
+        "summary_pump_pct": 85.0,
+        "summary_reel_speed": 200.0,
+        "summary_water_l": 0.0
+      },
+      {
+        "step_no": 4,
+        "label": "Langkah Proses Baru",
+        "functions": [
+          {
+            "function_id": 141,
+            "column": 1,
+            "flags": 0,
+            "params": [
+              60.0,
+              2.0,
+              20.0,
+              0.0,
+              0.0,
+              0.0
+            ]
+          }
+        ],
+        "summary_temp": 60.0,
+        "summary_time_min": 20.0,
+        "summary_pump_pct": 85.0,
+        "summary_reel_speed": 200.0,
+        "summary_water_l": 0.0
+      },
+      {
+        "step_no": 5,
+        "label": "Program End",
+        "functions": [
+          {
+            "function_id": 2,
+            "column": 1,
+            "flags": 0,
+            "params": [
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ]
+          }
+        ],
+        "summary_temp": null,
+        "summary_time_min": 0.0,
+        "summary_pump_pct": 85.0,
+        "summary_reel_speed": 200.0,
+        "summary_water_l": 0.0
+      }
+    ],
+    "machine_code": "DA01",
+    "filename": "M_1112.PRG",
+    "source": "FTP_HMI"
   }
 }

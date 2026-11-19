@@ -358,80 +358,23 @@ def build_minimal_prg(program_id: int, title: str = "OpenOrgaTEX PRG") -> bytes:
     return serialize_prg_binary(p_id, title, steps)
 
 
-def generate_queue_btd(records_759: List[bytes], machine_no: str) -> Optional[bytes]:
+def generate_queue_btd(records_759: List[bytes], machine_no: str = "DA01", base_btd: Optional[bytes] = None) -> Optional[bytes]:
     """
-    Generates a native 12,288-byte Btrieve QUEUE.BTD database using QueueTool.exe.
-    Verifies all 5 indexes (Key 0-4).
+    Generates a valid 12,288..62,464 byte Btrieve QUEUE.BTD database in pure Python.
+    Tidak bergantung pada QueueTool.exe maupun Windows 32-bit subsystem.
     """
-    if not os.path.exists(QUEUE_TOOL_PATH) or not os.path.exists(QUEUE_TEMPLATE_PATH):
-        return None
-
-    tool_dir = os.path.dirname(QUEUE_TOOL_PATH)
-    try:
-        # Note: QueueTool requires all paths to be located within tool_dir
-        with tempfile.TemporaryDirectory(prefix="btr_q_", dir=tool_dir) as tmpdir:
-            payload_bin = os.path.join(tmpdir, "payload.bin")
-            out_btd = os.path.join(tmpdir, "output.BTD")
-
-            with open(payload_bin, "wb") as f:
-                for rec in records_759:
-                    f.write(rec[:759])
-
-            # Run QueueTool with cwd set to tool_dir so it finds BtrieveInterface.dll
-            res = subprocess.run(
-                [QUEUE_TOOL_PATH, QUEUE_TEMPLATE_PATH, payload_bin, out_btd],
-                capture_output=True,
-                text=True,
-                timeout=30,
-                cwd=tool_dir,
-                creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0)
-            )
-
-            if res.returncode == 0 and os.path.exists(out_btd):
-                with open(out_btd, "rb") as f:
-                    return f.read()
-            else:
-                print(f"QueueTool error (code {res.returncode}): {res.stderr.strip() or res.stdout.strip()}")
-    except Exception as e:
-        print(f"Warning: QueueTool.exe failed ({e}); falling back without QUEUE.BTD")
-
-    return None
+    from .btd_codec import build_queue_btd_python
+    return build_queue_btd_python(records_759, machine_no, base_btd)
 
 
 def inspect_btd_refs(btd_bytes: bytes) -> List[str]:
     """
-    Inspects a Btrieve QUEUE.BTD binary buffer using QueueTool.exe and returns
+    Inspects a Btrieve QUEUE.BTD binary buffer using pure Python and returns
     the ordered list of 6-digit reference numbers present in the file.
     """
-    if not btd_bytes or len(btd_bytes) < 1024 or not os.path.exists(QUEUE_TOOL_PATH):
-        return []
-
-    tool_dir = os.path.dirname(QUEUE_TOOL_PATH)
     try:
-        with tempfile.NamedTemporaryFile(suffix=".BTD", dir=tool_dir, delete=False) as tf:
-            tf.write(btd_bytes)
-            tf_name = tf.name
-
-        try:
-            res = subprocess.run(
-                [QUEUE_TOOL_PATH, "inspect", tf_name],
-                capture_output=True,
-                text=True,
-                timeout=15,
-                cwd=tool_dir,
-                creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0)
-            )
-            for line in res.stdout.splitlines():
-                if line.startswith("key=0 refs="):
-                    raw_refs = line.split("key=0 refs=")[1].strip()
-                    if raw_refs:
-                        return [r.strip() for r in raw_refs.split(",") if r.strip()]
-            return []
-        finally:
-            try:
-                os.unlink(tf_name)
-            except Exception:
-                pass
+        from .btd_codec import inspect_btd_refs as _py_inspect
+        return _py_inspect(btd_bytes)
     except Exception as e:
         print(f"Warning: inspect_btd_refs error: {e}")
         return []

@@ -193,13 +193,17 @@ class LogIngestionService:
             machine.current_temp = status_info.get("temp_pv")
 
         try:
-            # 4.1 Upsert Batch Header
+            # 4.1 Upsert Batch Header with live program information
+            real_prog_no = status_info.get("prog_no") or 1
+            real_recipe_name = status_info.get("program_name") or f"Program {real_prog_no}"
             existing_batch = db.query(BatchHeader).filter(BatchHeader.batch_ref_no == batch_no).first()
             if not existing_batch:
                 b_stmt = insert(BatchHeader).values(
                     batch_ref_no=batch_no,
+                    batch_no=batch_no if batch_no.startswith("LOT-") else f"LOT-{batch_no}",
                     machine_no=machine.machine_no,
-                    program_no=1,
+                    program_no=real_prog_no,
+                    recipe_name=real_recipe_name,
                     status="RUNNING",
                     fabric_weight_kg=float(machine.capacity_kg) if machine.capacity_kg else 350.0,
                     liquor_ratio=float(machine.default_liquor_ratio) if machine.default_liquor_ratio else 8.0,
@@ -207,6 +211,16 @@ class LogIngestionService:
                 ).on_conflict_do_nothing(index_elements=['batch_ref_no'])
                 db.execute(b_stmt)
                 db.commit()
+            else:
+                needs_update = False
+                if real_prog_no and existing_batch.program_no != real_prog_no:
+                    existing_batch.program_no = real_prog_no
+                    needs_update = True
+                if real_recipe_name and existing_batch.recipe_name != real_recipe_name:
+                    existing_batch.recipe_name = real_recipe_name
+                    needs_update = True
+                if needs_update:
+                    db.commit()
 
             # 4.2 Bulk Upsert Telemetry Records with ON CONFLICT DO NOTHING
             if unique_telemetry:
@@ -317,16 +331,56 @@ class LogIngestionService:
         # 5. Extract program recipe step names (parity with SETEX Secom 777 HMI step list)
         recipe_steps = []
         try:
+            catalog = SetexFolderReader.get_function_catalog()
             if ftp_bundle and ftp_bundle.get("prg_bytes"):
-                catalog = SetexFolderReader.get_function_catalog()
                 recipe_steps = SetexFolderReader.parse_prg_steps(ftp_bundle["prg_bytes"], catalog)
             if not recipe_steps:
                 recipe_steps = SetexFolderReader.get_recipe_steps(
                     ip=machine.ip_address,
                     ftp_port=machine.ftp_port or 21,
                     batch_no=batch_no,
-                    folder_path=target_folder
+                    folder_path=target_folder,
+                    prog_no=status_info.get("prog_no")
                 )
+
+            # AUTOMATIC PARITY VERIFICATION & SELF-HEALING:
+            # Compare recipe's active step with the ground-truth function_code from HMI STATUS.ACT.
+            curr_step_no = machine.current_step or status_info.get("current_step") or 1
+            live_func_code = status_info.get("function_code") or 0
+
+            if recipe_steps and live_func_code > 0:
+                active_st = next((s for s in recipe_steps if s.get("no") == curr_step_no), None)
+                if active_st and active_st.get("func_id") and active_st["func_id"] != live_func_code:
+                    logger.warning(
+                        f"[AUTOMATIC SELF-HEALING] Recipe mismatch on Machine {machine.machine_no} Step #{curr_step_no}: "
+                        f"Recipe has func_id {active_st['func_id']} ({active_st.get('name')}), but HMI STATUS.ACT "
+                        f"reports live function_code {live_func_code}! Purging cache and force-reloading PRG..."
+                    )
+                    SetexFolderReader.invalidate_recipe_cache(batch_no, status_info.get("prog_no"))
+                    fresh_steps = SetexFolderReader.get_recipe_steps(
+                        ip=machine.ip_address,
+                        ftp_port=machine.ftp_port or 21,
+                        batch_no=batch_no,
+                        folder_path=target_folder,
+                        prog_no=status_info.get("prog_no"),
+                        force_reload=True
+                    )
+                    if fresh_steps:
+                        recipe_steps = fresh_steps
+                        active_st = next((s for s in recipe_steps if s.get("no") == curr_step_no), None)
+
+                    # Fail-safe auto-align so user NEVER sees the wrong process name
+                    if active_st and active_st.get("func_id") != live_func_code:
+                        correct_name = SetexFolderReader.get_fallback_function_name(live_func_code)
+                        logger.warning(
+                            f"[AUTO-ALIGN] Aligning active step #{curr_step_no} to ground truth: {correct_name} [F{live_func_code}]"
+                        )
+                        active_st["func_id"] = live_func_code
+                        active_st["icon"] = str(live_func_code)
+                        active_st["name"] = correct_name
+                        if active_st.get("sub_steps") and len(active_st["sub_steps"]) > 0:
+                            active_st["sub_steps"][0]["name"] = correct_name
+                            active_st["sub_steps"][0]["func_id"] = live_func_code
         except Exception as e:
             logger.warning(f"Gagal mengekstrak langkah resep batch {batch_no}: {e}")
 
@@ -422,8 +476,9 @@ class LogIngestionService:
             "hmi_ip": machine.ip_address,
             "hmi_port": machine.ftp_port or 21,
             "batch_no": batch_no,
-            "program_code": status_info.get("program_code", "PKI103"),
-            "program_name": status_info.get("program_name", "PROGRAM 30 VINYL RC"),
+            "prog_no": status_info.get("prog_no", 0),
+            "program_code": status_info.get("program_code") or (f"M_{status_info.get('prog_no', 4):04d}" if status_info.get("prog_no") else "M_0004"),
+            "program_name": status_info.get("program_name") or "PROGRAM VINIL",
             "current_step": machine.current_step,
             "function_code": status_info.get("function_code", 0),
             "current_temp": machine.current_temp,

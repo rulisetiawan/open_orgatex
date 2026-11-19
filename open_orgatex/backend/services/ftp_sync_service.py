@@ -15,7 +15,7 @@ import io
 import struct
 import ftplib
 import logging
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Optional
 
 from ..database import get_db
 from ..models.schema_pg import BatchHeader, MachineQueue
@@ -30,6 +30,35 @@ FTP_BASE_BATCH_DIR = "/Network/F/OT/BATCH"
 LOCAL_DATA_DIR = os.path.abspath("./open_orgatex/backend/data")
 LOCAL_BATCH_DIR = os.path.join(LOCAL_DATA_DIR, "OT", "BATCH")
 USERCONF_TEMPLATE_SRC = os.path.abspath("./open_orgatex/backend/data/USERCONF.CNF")
+
+
+def _safe_write_file(path: str, data: bytes) -> bool:
+    """
+    Menulis file biner secara aman ke filesystem.
+    Mencegah error [Errno 22] Invalid argument pada Docker volume mount di Windows host
+    dengan mengecek isi konten yang sudah ada sebelum menimpa dan retry loop bertahap.
+    """
+    if os.path.exists(path):
+        try:
+            with open(path, "rb") as cur_f:
+                if cur_f.read() == data:
+                    return True
+        except Exception:
+            pass
+
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    import time
+    for attempt in range(3):
+        try:
+            with open(path, "wb") as f_out:
+                f_out.write(data)
+            return True
+        except Exception as we:
+            if attempt == 2:
+                logger.warning(f"Gagal menulis file lokal {path}: {we}")
+                return False
+            time.sleep(0.05)
+    return False
 
 
 def sync_userconf_to_ftp(ftp: Optional[ftplib.FTP]):
@@ -65,14 +94,10 @@ def sync_userconf_to_ftp(ftp: Optional[ftplib.FTP]):
     # 1. Simpan cermin lokal
     for sub in ["100", "001", "002"]:
         local_pdir = os.path.join(LOCAL_DATA_DIR, "OT", "PROCEDUR", sub)
-        os.makedirs(local_pdir, exist_ok=True)
-        with open(os.path.join(local_pdir, "USERCONF.CNF"), "wb") as f_u:
-            f_u.write(userconf_bytes)
+        _safe_write_file(os.path.join(local_pdir, "USERCONF.CNF"), userconf_bytes)
 
     local_cfg_user = os.path.join(LOCAL_DATA_DIR, "OT", "CFG", "USER")
-    os.makedirs(local_cfg_user, exist_ok=True)
-    with open(os.path.join(local_cfg_user, "USERCONF.CNF"), "wb") as f_u:
-        f_u.write(userconf_bytes)
+    _safe_write_file(os.path.join(local_cfg_user, "USERCONF.CNF"), userconf_bytes)
 
     # 2. Upload ke FTP jika terhubung
     if not ftp:
@@ -190,11 +215,8 @@ def sync_all_batches_to_ftp(ftp_host: str = FTP_HOST, ftp_port: int = FTP_PORT) 
 
         # 3A. Simpan ke mirror LOKAL: open_orgatex/backend/data/OT/BATCH/<ref_no>/
         local_target_folder = os.path.join(LOCAL_BATCH_DIR, ref_no)
-        os.makedirs(local_target_folder, exist_ok=True)
-        with open(os.path.join(local_target_folder, "BATCHREF.REF"), "wb") as f_ref:
-            f_ref.write(batchref_bytes)
-        with open(os.path.join(local_target_folder, prg_name), "wb") as f_prg:
-            f_prg.write(prg_bytes)
+        _safe_write_file(os.path.join(local_target_folder, "BATCHREF.REF"), batchref_bytes)
+        _safe_write_file(os.path.join(local_target_folder, prg_name), prg_bytes)
 
         status_item = {
             "batch_ref_no": ref_no,
@@ -307,9 +329,7 @@ def sync_all_batches_to_ftp(ftp_host: str = FTP_HOST, ftp_port: int = FTP_PORT) 
         if q_bytes:
             # Simpan cermin lokal
             local_mach_dir = os.path.join(LOCAL_DATA_DIR, "OT", "MACHINES", mach_code, "BATCHES")
-            os.makedirs(local_mach_dir, exist_ok=True)
-            with open(os.path.join(local_mach_dir, "QUEUE.BTD"), "wb") as f_q:
-                f_q.write(q_bytes)
+            _safe_write_file(os.path.join(local_mach_dir, "QUEUE.BTD"), q_bytes)
 
             # Upload ke FTP Controller - HANYA UNTUK MESIN DA01
             if ftp and mach_code == "DA01":

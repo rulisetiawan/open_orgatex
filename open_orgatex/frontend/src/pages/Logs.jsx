@@ -212,17 +212,27 @@ const Logs = () => {
   };
 
   const FUNCTION_MAP = {
-    1: { name: 'Start Program', type: 'START', icon: '1' },
-    2: { name: 'End Program', type: 'END', icon: '2' },
-    713: { name: 'Fill / Isi Air', type: 'FILL', icon: '713' },
-    85: { name: 'Dosing Bahan Kimia', type: 'DOSE', icon: '85' },
-    86: { name: 'Dosing Bahan Kimia', type: 'DOSE', icon: '86' },
-    141: { name: 'Heating / Pemanasan', type: 'HEAT', icon: '141' },
-    121: { name: 'Holding / Penahanan Suhu', type: 'HOLD', icon: '121' },
-    131: { name: 'Cooling / Pendinginan', type: 'COOL', icon: '131' },
-    61: { name: 'Drain / Buang Larutan', type: 'DRAIN', icon: '61' },
-    71: { name: 'Drain / Buang Larutan', type: 'DRAIN', icon: '71' },
-    714: { name: 'Washing / Bilas', type: 'WASH', icon: '714' },
+    1: { name: 'Program Start', type: 'START', icon: '1' },
+    2: { name: 'Fill', type: 'FILL', icon: '2' },
+    713: { name: 'Fill Level', type: 'FILL', icon: '713' },
+    85: { name: 'Dosing', type: 'DOSE', icon: '85' },
+    86: { name: 'Dosing Chemical', type: 'DOSE', icon: '86' },
+    126: { name: 'Check', type: 'CHECK', icon: '126' },
+    127: { name: 'Check pH', type: 'CHECK', icon: '127' },
+    141: { name: 'Temperature Control', type: 'HEAT', icon: '141' },
+    121: { name: 'Holding', type: 'HOLD', icon: '121' },
+    122: { name: 'Unload', type: 'UNLOAD', icon: '122' },
+    131: { name: 'Cooling', type: 'COOL', icon: '131' },
+    61: { name: 'Drain', type: 'DRAIN', icon: '61' },
+    71: { name: 'Drain Percent', type: 'DRAIN', icon: '71' },
+    144: { name: 'Runtime', type: 'RUNTIME', icon: '144' },
+    237: { name: 'Inject AT1', type: 'INJECT', icon: '237' },
+    238: { name: 'Inject AT2', type: 'INJECT', icon: '238' },
+    261: { name: 'Load', type: 'LOAD', icon: '261' },
+    710: { name: 'Rinse Time Mode', type: 'WASH', icon: '710' },
+    714: { name: 'Washing', type: 'WASH', icon: '714' },
+    938: { name: 'Dosing Progression 1', type: 'DOSE', icon: '938' },
+    939: { name: 'Dosing Progression 2', type: 'DOSE', icon: '939' },
     106: { name: 'Call-Off Operator', type: 'OP', icon: '106' },
   };
 
@@ -242,15 +252,26 @@ const Logs = () => {
   const currentStepNo = liveData?.current_step || 1;
   const rawSteps = liveData?.steps && liveData.steps.length > 0 ? liveData.steps : null;
 
-  const stepsList = rawSteps || Array.from({ length: Math.max(7, currentStepNo) }, (_, i) => {
-    const sNo = i + 1;
-    if (sNo === currentStepNo && liveData?.function_code && FUNCTION_MAP[liveData.function_code]) {
-      return { no: sNo, ...FUNCTION_MAP[liveData.function_code] };
-    }
-    const def = defaultCycleSteps.find(s => s.no === sNo);
-    if (def) return def;
-    return { no: sNo, name: `Langkah #${sNo}`, type: 'PROCESS', icon: '121' };
-  });
+  const stepsList = rawSteps
+    ? rawSteps.map(s => {
+        // Real-time parity guarantee: if active step's func_id differs from live HMI function_code, auto-align
+        if (s.no === currentStepNo && liveData?.function_code && s.func_id && Number(s.func_id) !== Number(liveData.function_code)) {
+          const match = FUNCTION_MAP[liveData.function_code];
+          if (match) {
+            return { ...s, name: match.name, type: match.type, icon: String(liveData.function_code), func_id: liveData.function_code };
+          }
+        }
+        return s;
+      })
+    : Array.from({ length: Math.max(7, currentStepNo) }, (_, i) => {
+        const sNo = i + 1;
+        if (sNo === currentStepNo && liveData?.function_code && FUNCTION_MAP[liveData.function_code]) {
+          return { no: sNo, ...FUNCTION_MAP[liveData.function_code] };
+        }
+        const def = defaultCycleSteps.find(s => s.no === sNo);
+        if (def) return def;
+        return { no: sNo, name: `Langkah #${sNo}`, type: 'PROCESS', icon: '121' };
+      });
 
   const is797 =
     hmiIp?.trim() === '192.168.1.95' ||

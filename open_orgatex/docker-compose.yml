@@ -21,7 +21,7 @@ services:
       - ../plain_export:/app/plain_export
       - ..:/app/sc777ce_root
       - C:/:/host_c
-      - D:/:/host_d
+      # - D:/:/host_d
     networks:
       - orgatex_net
 

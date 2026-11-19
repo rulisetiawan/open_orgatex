@@ -257,9 +257,10 @@ class SetexFolderReader:
             except Exception:
                 pass
 
-            # Detect batch number from status bytes
+            # Detect batch number and prog_no from status bytes
             batch_no = batch_no_hint
-            if not batch_no and result["status_bytes"]:
+            prog_no = 0
+            if result["status_bytes"]:
                 sb = result["status_bytes"]
                 if len(sb) >= 48:
                     raw_b = sb[36:48].split(b'\0')[0].decode('latin1', errors='ignore').strip()
@@ -269,6 +270,10 @@ class SetexFolderReader:
                     batches = sorted(list(set(m.group(0).decode('latin1') for m in re.finditer(rb'\b\d{6}\b', sb))))
                     if batches:
                         batch_no = batches[-1]
+                if len(sb) >= 0x15E:
+                    p_val = struct.unpack_from("<H", sb, 0x15C)[0]
+                    if 1 <= p_val <= 9999:
+                        prog_no = p_val
 
             # In the SAME session, retrieve active batch PR*.LOG
             candidate_pr_paths = []
@@ -297,28 +302,77 @@ class SetexFolderReader:
                 except Exception:
                     continue
 
-            # Also retrieve active recipe PRG in same session if available
-            candidate_prg_paths = []
+            # Also retrieve active recipe PRG in same session
+            candidate_prg_targets = []
             if is_797:
-                candidate_prg_paths.append("/Flashdisk/SC797CE/BATCH/000001/M_0004.PRG")
-                candidate_prg_paths.append("/Flashdisk/SC797CE/BATCH/M_0001.PRG")
-                candidate_prg_paths.append("/Flashdisk/SC797CE/BATCH/M_0006.PRG")
+                if batch_no:
+                    if prog_no:
+                        candidate_prg_targets.append(f"/Flashdisk/SC797CE/BATCH/{batch_no}/M_{prog_no:04d}.PRG")
+                    candidate_prg_targets.append(f"/Flashdisk/SC797CE/BATCH/{batch_no}")
+                if prog_no:
+                    candidate_prg_targets.append(f"/Flashdisk/SC797CE/Programs/M_{prog_no:04d}.PRG")
+                candidate_prg_targets.append("/Flashdisk/SC797CE/Programs")
+                candidate_prg_targets.append("/Flashdisk/SC797CE/BATCH")
             else:
                 if batch_no:
-                    candidate_prg_paths.append(f"/Storage/sc777ce/BATCH/{batch_no}/M_0342.PRG")
+                    if prog_no:
+                        candidate_prg_targets.append(f"/Storage/sc777ce/BATCH/{batch_no}/M_{prog_no:04d}.PRG")
+                    candidate_prg_targets.append(f"/Storage/sc777ce/BATCH/{batch_no}")
+                    candidate_prg_targets.append(f"/Storage/sc777ce/BATCH/{batch_no}/M_0342.PRG")
+                if prog_no:
+                    candidate_prg_targets.append(f"/Storage/sc777ce/Programs/M_{prog_no:04d}.PRG")
+                candidate_prg_targets.append("/Storage/sc777ce/Programs")
+                candidate_prg_targets.append("/Storage/sc777ce/BATCH")
 
-            for prg_path in candidate_prg_paths:
+            for target in candidate_prg_targets:
                 try:
-                    dir_part, file_part = prg_path.rsplit("/", 1)
-                    ftp.cwd(dir_part)
-                    bio_prg = io.BytesIO()
-                    ftp.retrbinary(f"RETR {file_part}", bio_prg.write)
-                    prg_b = bio_prg.getvalue()
-                    if prg_b and len(prg_b) > 0:
-                        result["prg_bytes"] = prg_b
-                        break
+                    if target.upper().endswith(".PRG"):
+                        dir_part, file_part = target.rsplit("/", 1)
+                        ftp.cwd(dir_part)
+                        bio_prg = io.BytesIO()
+                        ftp.retrbinary(f"RETR {file_part}", bio_prg.write)
+                        prg_b = bio_prg.getvalue()
+                        if prg_b and len(prg_b) > 0:
+                            result["prg_bytes"] = prg_b
+                            logger.info(f"Berhasil membaca PRG recipe via FTP: {target} ({len(prg_b)} bytes)")
+                            break
+                    else:
+                        # Directory target - scan for *.PRG files
+                        ftp.cwd(target)
+                        files = ftp.nlst()
+                        prg_files = [f for f in files if f.upper().endswith(".PRG")]
+                        chosen_file = None
+                        if prog_no:
+                            p_match = f"M_{prog_no:04d}.PRG".upper()
+                            chosen_file = next((f for f in prg_files if f.upper() == p_match), None)
+                        if not chosen_file and prg_files:
+                            chosen_file = prg_files[0]
+                        if chosen_file:
+                            bio_prg = io.BytesIO()
+                            ftp.retrbinary(f"RETR {chosen_file}", bio_prg.write)
+                            prg_b = bio_prg.getvalue()
+                            if prg_b and len(prg_b) > 0:
+                                result["prg_bytes"] = prg_b
+                                logger.info(f"Berhasil membaca PRG recipe via FTP: {target}/{chosen_file} ({len(prg_b)} bytes)")
+                                break
                 except Exception:
                     continue
+
+            # Cache retrieved PRG locally for offline parity
+            if result.get("prg_bytes") and (prog_no or batch_no):
+                try:
+                    save_name = f"M_{prog_no:04d}.PRG" if prog_no else "active.PRG"
+                    local_compiled = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "data", "compiled_prg"))
+                    os.makedirs(local_compiled, exist_ok=True)
+                    with open(os.path.join(local_compiled, save_name), "wb") as f_save:
+                        f_save.write(result["prg_bytes"])
+                    if batch_no:
+                        local_batch_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "data", "OT", "BATCH", batch_no))
+                        os.makedirs(local_batch_dir, exist_ok=True)
+                        with open(os.path.join(local_batch_dir, save_name), "wb") as f_save:
+                            f_save.write(result["prg_bytes"])
+                except Exception:
+                    pass
 
             try:
                 ftp.quit()
@@ -447,25 +501,43 @@ class SetexFolderReader:
             program_code = ""
             if size >= 64:
                 raw_p = data[52:64].split(b'\0')[0].decode('latin1', errors='ignore').strip()
-                if raw_p:
+                if raw_p and any(c.isalnum() for c in raw_p):
                     program_code = raw_p
 
             # Program Name at offset 75
             program_name = ""
             if size >= 100:
                 raw_pn = data[75:100].split(b'\0')[0].decode('latin1', errors='ignore').strip()
+                raw_pn = re.sub(r'#.*$', '', raw_pn).strip()
                 if raw_pn:
                     program_name = raw_pn
 
-            # Step number: SETEX Secom 777 format (10104 bytes -> offset 0x15C, 10188 bytes -> offset 0x15E)
-            step_offset = 0x15E if size == 10188 else 0x15C
+            # Step number, Program number, and Function code
+            prog_no = 0
             step_no = 1
             function_code = 0
+
+            # Program number at 0x15C (SETEX 797CE / 777)
+            if size >= 0x15E:
+                p_val = struct.unpack_from("<H", data, 0x15C)[0]
+                if 1 <= p_val <= 9999:
+                    prog_no = p_val
+                    if not program_code:
+                        program_code = f"M_{prog_no:04d}"
+
+            # Step number: SETEX Secom 777 format (10104 bytes -> offset 0x15C, 10188 bytes -> offset 0x15E)
+            step_offset = 0x15E if size == 10188 else 0x15C
             if size >= step_offset + 2:
                 s_val = struct.unpack_from("<H", data, step_offset)[0]
                 if 1 <= s_val <= 200:
                     step_no = s_val
-            if size >= step_offset:
+
+            # Function code: 797CE (size 10188) has active func_id at 0x166
+            if size == 10188 and size >= 0x168:
+                fn_val = struct.unpack_from("<H", data, 0x166)[0]
+                if 1 <= fn_val <= 2000:
+                    function_code = fn_val
+            elif size >= step_offset and step_offset > 2:
                 fn_val = struct.unpack_from("<H", data, step_offset - 2)[0]
                 if 1 <= fn_val <= 2000:
                     function_code = fn_val
@@ -496,7 +568,8 @@ class SetexFolderReader:
                 "status": "RUNNING" if current_batch != "UNKNOWN" else "ONLINE",
                 "machine_id": machine_id,
                 "current_batch": current_batch,
-                "program_code": program_code,
+                "prog_no": prog_no,
+                "program_code": program_code or (f"M_{prog_no:04d}" if prog_no else ""),
                 "program_name": program_name,
                 "current_step": step_no,
                 "function_code": function_code,
@@ -895,8 +968,84 @@ class SetexFolderReader:
                         found.append(os.path.join(root, f))
         return found
 
-    _PRG_STEPS_CACHE: Dict[str, List[Dict[str, Any]]] = {}
+    _PRG_STEPS_CACHE: Dict[str, Dict[str, Any]] = {}
     _FUNCTION_CATALOG: Optional[Dict[str, Any]] = None
+
+    FALLBACK_FUNCTION_NAMES: Dict[int, str] = {
+        1: "Program Start",
+        2: "Fill",
+        5: "Addition End",
+        30: "Runtime",
+        31: "Inject AT2",
+        61: "Drain",
+        71: "Drain Percent",
+        85: "Dosing",
+        86: "Dosing Chemical",
+        106: "Call-Off Operator",
+        121: "Holding",
+        122: "Unload",
+        126: "Check",
+        127: "Check pH",
+        131: "Cooling",
+        141: "Temperature Control",
+        144: "Runtime",
+        227: "Dosing AT1",
+        228: "Dosing AT2",
+        237: "Inject AT1",
+        238: "Inject AT2",
+        241: "Rinsing / Cooling",
+        261: "Load",
+        401: "Pump Set Value",
+        404: "Dye Liquor Pump",
+        668: "Filling AT2 Level",
+        678: "Fill ST1 Quantity",
+        708: "Machine -> ST1",
+        709: "Rinse Nozzle",
+        710: "Rinse Time Mode",
+        712: "Material Flow",
+        713: "Fill Level",
+        714: "Washing",
+        715: "Dosing AT2->AT1",
+        716: "ST -> Machine",
+        717: "Filling AT1 Level",
+        720: "Fill Level ST",
+        747: "Rinsing / Cooling",
+        938: "Dosing Progression 1",
+        939: "Dosing Progression 2",
+    }
+
+    @classmethod
+    def get_fallback_function_name(cls, func_id: int) -> str:
+        """Returns localized function name from catalog or built-in standard SETEX function names."""
+        catalog = cls.get_function_catalog()
+        if str(func_id) in catalog:
+            return catalog[str(func_id)].get("name") or cls.FALLBACK_FUNCTION_NAMES.get(func_id, f"Func {func_id}")
+        return cls.FALLBACK_FUNCTION_NAMES.get(func_id, f"Func {func_id}")
+
+    @classmethod
+    def invalidate_recipe_cache(cls, batch_no: Optional[str] = None, prog_no: Optional[int] = None):
+        """Invalidates in-memory recipe steps cache for a batch, program, or entirely."""
+        if not batch_no and not prog_no:
+            cls._PRG_STEPS_CACHE.clear()
+            _FTP_BUNDLE_CACHE.clear()
+            logger.info("Cleared all PRG steps and FTP bundle caches.")
+            return
+
+        keys_to_del = []
+        for k in list(cls._PRG_STEPS_CACHE.keys()):
+            if batch_no and str(batch_no) in k:
+                keys_to_del.append(k)
+            elif prog_no and str(prog_no) in k:
+                keys_to_del.append(k)
+
+        for k in keys_to_del:
+            cls._PRG_STEPS_CACHE.pop(k, None)
+
+        for k in list(_FTP_BUNDLE_CACHE.keys()):
+            _FTP_BUNDLE_CACHE.pop(k, None)
+
+        if keys_to_del:
+            logger.info(f"Invalidated recipe cache keys: {keys_to_del}")
 
     @classmethod
     def get_function_catalog(cls) -> Dict[str, Any]:
@@ -1111,14 +1260,21 @@ class SetexFolderReader:
         return steps
 
     @classmethod
-    def get_recipe_steps(cls, ip: Optional[str] = None, ftp_port: int = 21, batch_no: Optional[str] = None, folder_path: Optional[str] = None) -> List[Dict[str, Any]]:
+    def get_recipe_steps(cls, ip: Optional[str] = None, ftp_port: int = 21, batch_no: Optional[str] = None, folder_path: Optional[str] = None, prog_no: Optional[int] = None, force_reload: bool = False) -> List[Dict[str, Any]]:
         """
         Retrieves and caches recipe steps for the active batch.
-        Tries FTP BATCH directory first, then local folders.
+        Tries FTP active BATCH directory and specific program first, then local folders.
+        Includes TTL caching and force_reload support.
         """
-        cache_key = f"{ip or 'local'}_{batch_no or 'default'}"
-        if cache_key in cls._PRG_STEPS_CACHE:
-            return cls._PRG_STEPS_CACHE[cache_key]
+        cache_key = f"{ip or 'local'}_{batch_no or 'default'}_{prog_no or 0}"
+        now = time.time()
+        if not force_reload and cache_key in cls._PRG_STEPS_CACHE:
+            entry = cls._PRG_STEPS_CACHE[cache_key]
+            if isinstance(entry, dict) and "ts" in entry:
+                if (now - entry["ts"]) < 25.0:
+                    return entry["steps"]
+            elif isinstance(entry, list):
+                return entry
 
         catalog = cls.get_function_catalog()
         prg_bytes = None
@@ -1127,15 +1283,18 @@ class SetexFolderReader:
         if ip:
             is_797 = (ip.strip() == "192.168.1.95")
             candidate_dirs = [
-                "/Flashdisk/SC797CE/BATCH/000001",
                 f"/Flashdisk/SC797CE/BATCH/{batch_no}" if batch_no else None,
+                "/Flashdisk/SC797CE/Programs",
                 "/Flashdisk/SC797CE/BATCH",
                 f"/Storage/sc777ce/BATCH/{batch_no}" if batch_no else None,
-                "/Storage/sc777ce/BATCH"
+                "/Storage/sc777ce/Programs",
+                "/Storage/sc777ce/BATCH",
             ] if is_797 else [
                 f"/Storage/sc777ce/BATCH/{batch_no}" if batch_no else None,
+                "/Storage/sc777ce/Programs",
                 "/Storage/sc777ce/BATCH",
-                "/Flashdisk/SC797CE/BATCH/000001"
+                f"/Flashdisk/SC797CE/BATCH/{batch_no}" if batch_no else None,
+                "/Flashdisk/SC797CE/Programs",
             ]
 
             lock = _get_host_lock(ip)
@@ -1150,9 +1309,15 @@ class SetexFolderReader:
                             ftp.cwd(b_dir)
                             files = ftp.nlst()
                             prg_candidates = [f for f in files if f.upper().endswith(".PRG")]
-                            if prg_candidates:
+                            target_file = None
+                            if prog_no:
+                                match_name = f"M_{prog_no:04d}.PRG".upper()
+                                target_file = next((f for f in prg_candidates if f.upper() == match_name), None)
+                            if not target_file and prg_candidates:
+                                target_file = prg_candidates[0]
+                            if target_file:
                                 bio = io.BytesIO()
-                                ftp.retrbinary(f"RETR {prg_candidates[0]}", bio.write)
+                                ftp.retrbinary(f"RETR {target_file}", bio.write)
                                 prg_bytes = bio.getvalue()
                                 if prg_bytes:
                                     break
@@ -1175,12 +1340,21 @@ class SetexFolderReader:
 
         # 2. Try fallback to local files if FTP didn't get PRG
         if not prg_bytes:
-            local_candidates = [
+            local_candidates = []
+            if batch_no:
+                local_candidates.append(os.path.join(os.path.dirname(__file__), "..", "data", "OT", "BATCH", batch_no, f"M_{prog_no:04d}.PRG" if prog_no else "M_0004.PRG"))
+                local_candidates.append(os.path.join(folder_path or "", f"M_{prog_no:04d}.PRG" if prog_no else "M_0004.PRG"))
+            if prog_no:
+                local_candidates.append(os.path.join(os.path.dirname(__file__), "..", "data", "compiled_prg", f"M_{prog_no:04d}.PRG"))
+                local_candidates.append(os.path.join(os.path.dirname(__file__), "..", "data", f"M_{prog_no:04d}.PRG"))
+            local_candidates.extend([
+                os.path.join(os.path.dirname(__file__), "..", "data", "M_0004.PRG"),
+                os.path.join(os.path.dirname(__file__), "..", "data", "compiled_prg", "M_0004.PRG"),
                 os.path.join(folder_path or "", "M_0342.PRG"),
                 os.path.join(os.path.dirname(__file__), "..", "data", "M_0342.PRG"),
-                "/app/open_orgatex/backend/data/M_0342.PRG",
-                "./data/M_0342.PRG"
-            ]
+                "/app/open_orgatex/backend/data/M_0004.PRG",
+                "./data/M_0004.PRG"
+            ])
             for lp in local_candidates:
                 if lp and os.path.exists(lp):
                     try:
@@ -1194,7 +1368,7 @@ class SetexFolderReader:
         if prg_bytes:
             steps = cls.parse_prg_steps(prg_bytes, catalog)
             if steps:
-                cls._PRG_STEPS_CACHE[cache_key] = steps
+                cls._PRG_STEPS_CACHE[cache_key] = {"ts": time.time(), "steps": steps}
                 logger.info(f"Successfully parsed and cached {len(steps)} steps for batch {batch_no} (key: {cache_key})")
                 return steps
 

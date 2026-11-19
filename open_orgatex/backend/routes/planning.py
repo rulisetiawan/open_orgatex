@@ -359,6 +359,14 @@ def create_batch(req: CreateBatchRequest, db: Session = Depends(get_db)):
     all_batches = [_batch_to_dict(b) for b in db.query(BatchHeader).order_by(BatchHeader.created_at.desc()).all()]
     _sync_planning_json(all_batches)
 
+    # Sinkronisasi otomatis ke FTP Controller OrgaTEX (192.168.1.95) untuk mesin DA01
+    if mach == "DA01" and (req.status or "QUEUED").upper() in ("QUEUED", "WAITING_LA", "RUNNING"):
+        try:
+            from ..services.ftp_sync_service import sync_all_batches_to_ftp
+            sync_all_batches_to_ftp()
+        except Exception as fe:
+            print(f"Warning: background FTP sync on create_batch skipped: {fe}")
+
     batch_dict = _batch_to_dict(new_batch)
     return {
         "status": "success",
@@ -477,6 +485,14 @@ def reorder_machine_queue(req: ReorderRequest, db: Session = Depends(get_db)):
     all_batches = [_batch_to_dict(b) for b in db.query(BatchHeader).all()]
     _sync_planning_json(all_batches)
 
+    # Sinkronisasi antrean ke FTP Controller untuk mesin DA01
+    if mach == "DA01":
+        try:
+            from ..services.ftp_sync_service import sync_all_batches_to_ftp
+            sync_all_batches_to_ftp()
+        except Exception as fe:
+            print(f"Warning: background FTP sync on reorder skipped: {fe}")
+
     return {"status": "success", "message": f"Urutan antrean mesin {mach} berhasil diperbarui di database."}
 
 @router.get("/queue/{machine_no}")
@@ -577,7 +593,10 @@ def export_machine_queue_btd(machine_no: str, db: Session = Depends(get_db)):
 
     q_bytes = generate_queue_btd(q_records, mach)
     if not q_bytes:
-        raise HTTPException(status_code=500, detail="Gagal mengompilasi berkas QUEUE.BTD dengan QueueTool.")
+        raise HTTPException(
+            status_code=500,
+            detail="Gagal mengompilasi berkas QUEUE.BTD dengan QueueTool.exe. Pastikan backend dijalankan di lingkungan Windows (native) karena QueueTool & BtrieveInterface.dll memerlukan subsistem Windows 32-bit."
+        )
 
     return Response(
         content=q_bytes,
@@ -646,6 +665,15 @@ def dispatch_to_machine(batch_no: str, db: Session = Depends(get_db)):
 
     all_batches = [_batch_to_dict(b) for b in db.query(BatchHeader).all()]
     _sync_planning_json(all_batches)
+
+    # Sinkronisasi ke FTP Controller untuk mesin DA01
+    mach_code = str(target.machine_no or "DA01").strip().upper()
+    if mach_code == "DA01":
+        try:
+            from ..services.ftp_sync_service import sync_all_batches_to_ftp
+            sync_all_batches_to_ftp()
+        except Exception as fe:
+            print(f"Warning: background FTP sync on dispatch skipped: {fe}")
 
     b_dict = _batch_to_dict(target)
     return {

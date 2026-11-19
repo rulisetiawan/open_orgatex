@@ -17,7 +17,7 @@ import sys
 import shutil
 import json
 import argparse
-from typing import Dict, List, Any
+from typing import Dict, List, Any, Optional
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 TEMPLATE_DIR = os.path.join(BASE_DIR, "_TEMPLATE_MESIN_BARU")
