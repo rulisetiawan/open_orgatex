@@ -475,6 +475,25 @@
     "created_at": "2026-11-18 02:45:23"
   },
   {
+    "id": "b-001199",
+    "db_id": 141,
+    "reference_no": "001199",
+    "batch_no": "LOT-001199",
+    "machine_no": "M_95",
+    "program_no": 1,
+    "recipe_name": "Reactive Dyeing Standard",
+    "customer": "PT. SMM JETFLOW",
+    "article": "-",
+    "color_code": "-",
+    "color_name": "-",
+    "fabric_weight_kg": 350.0,
+    "liquor_ratio": 8.0,
+    "total_water_l": 2800.0,
+    "status": "RUNNING",
+    "position": 1,
+    "created_at": "2026-11-18 02:19:59"
+  },
+  {
     "id": "b-001198",
     "db_id": 136,
     "reference_no": "001198",
@@ -2261,25 +2280,6 @@
     "created_at": "2026-11-18 03:37:59"
   },
   {
-    "id": "b-537488",
-    "db_id": 20,
-    "reference_no": "537488",
-    "batch_no": "PTDA02",
-    "machine_no": "DA01",
-    "program_no": 19,
-    "recipe_name": "PUTIH NETRAL",
-    "customer": "PT. SMM JETFLOW",
-    "article": "CM 30S RIB 100% Cotton",
-    "color_code": "1650159",
-    "color_name": "UNGU TUA",
-    "fabric_weight_kg": 350.0,
-    "liquor_ratio": 8.0,
-    "total_water_l": 2800.0,
-    "status": "WAITING_LA",
-    "position": 3,
-    "created_at": "2026-11-18 07:07:15"
-  },
-  {
     "id": "b-537487",
     "db_id": 19,
     "reference_no": "537487",
@@ -2335,6 +2335,25 @@
     "status": "WAITING_LA",
     "position": 4,
     "created_at": "2026-11-19 03:01:13"
+  },
+  {
+    "id": "b-537488",
+    "db_id": 20,
+    "reference_no": "537488",
+    "batch_no": "PTDA02",
+    "machine_no": "DA01",
+    "program_no": 19,
+    "recipe_name": "PUTIH NETRAL",
+    "customer": "PT. SMM JETFLOW",
+    "article": "CM 30S RIB 100% Cotton",
+    "color_code": "1650159",
+    "color_name": "UNGU TUA",
+    "fabric_weight_kg": 350.0,
+    "liquor_ratio": 8.0,
+    "total_water_l": 2800.0,
+    "status": "WAITING_LA",
+    "position": 4,
+    "created_at": "2026-11-18 07:07:15"
   },
   {
     "id": "b-537484",
@@ -2411,5 +2430,24 @@
     "status": "QUEUED",
     "position": 6,
     "created_at": "2026-11-18 06:41:13"
+  },
+  {
+    "id": "b-537492",
+    "db_id": 142,
+    "reference_no": "537492",
+    "batch_no": "CEK-BATCH",
+    "machine_no": "DA01",
+    "program_no": 14,
+    "recipe_name": "PUTIHAN 37",
+    "customer": "PT. SMM JETFLOW",
+    "article": "CM 30S RIB 100% Cotton",
+    "color_code": "1650159",
+    "color_name": "UNGU TUA",
+    "fabric_weight_kg": 350.0,
+    "liquor_ratio": 8.0,
+    "total_water_l": 2800.0,
+    "status": "QUEUED",
+    "position": 8,
+    "created_at": "2026-11-18 08:10:31"
   }
 ]

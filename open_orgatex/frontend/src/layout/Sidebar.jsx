@@ -74,14 +74,16 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
       ]
     },
     {
-      groupTitle: 'EDITOR & PROCEDURES (EDX300)',
+      groupTitle: 'EDITOR & PROCEDURES',
       items: [
+        /* Disembunyikan sementara agar tidak membingungkan:
         { 
           name: 'Program OrgaTEX (EDX300)', 
           sub: 'Modular Procedure & Treatments', 
           path: '/programs-edx', 
           icon: Layers 
         },
+        */
         { 
           name: 'Program SECOM Studio', 
           sub: 'Linear Step-by-Step 65B PRG', 

@@ -29,10 +29,18 @@ import {
   ChevronUp,
   Cpu,
   Server,
-  Send
+  Send,
+  Wand2,
+  ListTree,
+  List,
+  Layers,
+  BookOpen
 } from 'lucide-react';
 
 import TempCurveChart from '../components/Charts/TempCurveChart';
+import ProcessPipelineBar from '../components/Programs/ProcessPipelineBar';
+import SubProgramDrawer from '../components/Programs/SubProgramDrawer';
+import SmartRecipeWizardModal from '../components/Programs/SmartRecipeWizardModal';
 import typeconfData from '../data/typeconf_functions.json';
 
 // Helper function definitions from TYPECONF
@@ -131,7 +139,7 @@ export default function Programs() {
   });
   const [createTemplateType, setCreateTemplateType] = useState('STANDARD'); // 'STANDARD' | 'BLANK'
 
-  // Editor State (Linear Step Studio)
+  // Editor State (Linear Step Studio & Hierarchical Sub-Program Model)
   const [programNo, setProgramNo] = useState(182);
   const [programName, setProgramName] = useState('POLYESTER BLACK');
   const [machineCode, setMachineCode] = useState(() => {
@@ -141,6 +149,125 @@ export default function Programs() {
   const [selectedStepIdx, setSelectedStepIdx] = useState(0);
   const [isSaving, setIsSaving] = useState(false);
   const [showChart, setShowChart] = useState(true);
+
+  // Sub-Program & Fasa Architecture State
+  const [subPrograms, setSubPrograms] = useState([]);
+  const [isGroupedView, setIsGroupedView] = useState(true);
+  const [expandedSubIds, setExpandedSubIds] = useState(new Set([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]));
+  const [showSubProgramDrawer, setShowSubProgramDrawer] = useState(false);
+  const [showWizardModal, setShowWizardModal] = useState(false);
+  const [activeSubIdx, setActiveSubIdx] = useState(0);
+
+  // Intelligent Sub-Program / Fasa Partitioning
+  const autoPartitionStepsToSubPrograms = (rawSteps) => {
+    if (!rawSteps || rawSteps.length === 0) return [];
+
+    const intermediate = rawSteps.filter((s, idx) => {
+      if (idx === 0 && s.functions?.some(f => f.column === 1 && f.function_id === 1)) return false;
+      if (idx === rawSteps.length - 1 && s.functions?.some(f => f.column === 1 && f.function_id === 2)) return false;
+      return true;
+    });
+
+    if (intermediate.length === 0) {
+      return [
+        {
+          id: 1,
+          position: 1,
+          treatment_number: 'TR-MAIN',
+          treatment_name: 'Siklus Proses Utama',
+          category: 'General',
+          parameters: {},
+          steps: []
+        }
+      ];
+    }
+
+    const groups = [];
+    let curGroup = null;
+
+    intermediate.forEach((step) => {
+      const fId = step.functions?.find(f => f.column === 1)?.function_id || 0;
+      const label = (step.label || '').toLowerCase();
+
+      let cat = 'General';
+      let phaseName = 'Modul Proses';
+      let code = 'TR-MOD';
+
+      if (fId === 713 || fId === 261 || label.includes('isi') || label.includes('muat') || label.includes('load') || label.includes('scour')) {
+        cat = 'Pretreatment';
+        phaseName = 'Prapengolahan / Persiapan';
+        code = 'TR-PRE';
+      } else if (fId === 141 || fId === 121 || fId === 85 || fId === 86 || fId === 938 || label.includes('celup') || label.includes('dye') || label.includes('suhu') || label.includes('reaktif') || label.includes('disperse')) {
+        cat = 'Dyeing';
+        phaseName = 'Pencelupan Utama';
+        code = 'TR-DYE';
+      } else if (fId === 127 || fId === 747 || label.includes('bilas') || label.includes('rinse')) {
+        cat = 'Rinse';
+        phaseName = 'Pembilasan';
+        code = 'TR-RINSE';
+      } else if (fId === 71 || fId === 122 || label.includes('drain') || label.includes('sabun') || label.includes('soap') || label.includes('cuci')) {
+        cat = 'Washing';
+        phaseName = 'Pencucian / Pembuangan';
+        code = 'TR-WASH';
+      }
+
+      if (!curGroup || (curGroup.category !== cat && curGroup.steps.length >= 2)) {
+        curGroup = {
+          id: groups.length + 1,
+          position: groups.length + 1,
+          treatment_number: `${code}-${groups.length + 1}`,
+          treatment_name: phaseName,
+          category: cat,
+          parameters: {},
+          steps: [step]
+        };
+        groups.push(curGroup);
+      } else {
+        curGroup.steps.push(step);
+        if (curGroup.category === 'General' && cat !== 'General') {
+          curGroup.category = cat;
+          curGroup.treatment_name = phaseName;
+        }
+      }
+    });
+
+    return groups.length > 0 ? groups : [
+      {
+        id: 1,
+        position: 1,
+        treatment_number: 'TR-MAIN',
+        treatment_name: 'Siklus Proses Utama',
+        category: 'General',
+        parameters: {},
+        steps: intermediate
+      }
+    ];
+  };
+
+  const flattenSubProgramsToSteps = (subProgs, existingSteps = []) => {
+    const startStep = (existingSteps.length > 0 && existingSteps[0].functions?.some(f => f.column === 1 && f.function_id === 1))
+      ? existingSteps[0]
+      : { step_no: 1, label: 'Program Start (Mulai Siklus Mesin)', functions: [{ function_id: 1, column: 1, flags: 0, params: [0, 0, 0, 0, 0, 0] }] };
+
+    const endStep = (existingSteps.length > 0 && existingSteps[existingSteps.length - 1].functions?.some(f => f.column === 1 && f.function_id === 2))
+      ? existingSteps[existingSteps.length - 1]
+      : { step_no: 99, label: 'Program End (Selesai Siklus)', functions: [{ function_id: 2, column: 1, flags: 0, params: [0, 0, 0, 0, 0, 0] }] };
+
+    const flattened = [{ ...startStep, step_no: 1 }];
+    let counter = 2;
+
+    (subProgs || []).forEach(sub => {
+      (sub.steps || []).forEach(st => {
+        flattened.push({
+          ...st,
+          step_no: counter++
+        });
+      });
+    });
+
+    flattened.push({ ...endStep, step_no: counter });
+    return flattened;
+  };
 
   // Template Modal State
   const [showTemplateModal, setShowTemplateModal] = useState(false);
@@ -489,15 +616,23 @@ export default function Programs() {
       const rawSteps = data.steps || [];
       if (rawSteps.length === 0) {
         // Build basic Start -> End template
-        setSteps([
+        const baseSteps = [
           { step_no: 1, label: 'Program Start', functions: [{ function_id: 1, column: 1, flags: 0, params: [0, 0, 0, 0, 0, 0] }] },
           { step_no: 2, label: 'Program End', functions: [{ function_id: 2, column: 1, flags: 0, params: [0, 0, 0, 0, 0, 0] }] }
-        ]);
+        ];
+        setSteps(baseSteps);
+        setSubPrograms([]);
       } else {
         setSteps(rawSteps);
+        if (data.sub_programs && data.sub_programs.length > 0) {
+          setSubPrograms(data.sub_programs);
+        } else {
+          setSubPrograms(autoPartitionStepsToSubPrograms(rawSteps));
+        }
       }
 
       setSelectedStepIdx(0);
+      setActiveSubIdx(0);
       setViewMode('EDITOR');
     } catch (err) {
       setNotification({
@@ -534,19 +669,24 @@ export default function Programs() {
     setMachineCode(createMachineCode);
 
     if (createTemplateType === 'STANDARD') {
-      setSteps([
+      const stdSteps = [
         { step_no: 1, label: 'Mulai Siklus Mesin', functions: [{ function_id: 1, column: 1, flags: 0, params: [0, 0, 0, 0, 0, 0] }] },
         { step_no: 2, label: 'Pengisian Air Awal', functions: [{ function_id: 713, column: 1, flags: 0, params: [1.0, 1800.0, 0, 0, 0, 0] }] },
         { step_no: 3, label: 'Penaikan Suhu', functions: [{ function_id: 141, column: 1, flags: 0, params: [98.0, 2.5, 30.0, 0, 0, 0] }] },
         { step_no: 4, label: 'Selesai Siklus', functions: [{ function_id: 2, column: 1, flags: 0, params: [0, 0, 0, 0, 0, 0] }] }
-      ]);
+      ];
+      setSteps(stdSteps);
+      setSubPrograms(autoPartitionStepsToSubPrograms(stdSteps));
     } else {
-      setSteps([
+      const blankSteps = [
         { step_no: 1, label: 'Program Start', functions: [{ function_id: 1, column: 1, flags: 0, params: [0, 0, 0, 0, 0, 0] }] },
         { step_no: 2, label: 'Program End', functions: [{ function_id: 2, column: 1, flags: 0, params: [0, 0, 0, 0, 0, 0] }] }
-      ]);
+      ];
+      setSteps(blankSteps);
+      setSubPrograms([]);
     }
     setSelectedStepIdx(1);
+    setActiveSubIdx(0);
     setShowCreateModal(false);
     setViewMode('EDITOR');
   };
@@ -568,6 +708,7 @@ export default function Programs() {
         program_no: pNo,
         program_name: programName.trim().toUpperCase(),
         machine_code: machineCode,
+        sub_programs: subPrograms,
         steps: steps
       };
       const res = await axios.post('/api/programs/', payload);
@@ -587,6 +728,144 @@ export default function Programs() {
       setIsSaving(false);
       setTimeout(() => setNotification(null), 4000);
     }
+  };
+
+  // Sub-Program & Fasa Operations
+  const handleMoveSubProgram = (subIdx, direction) => {
+    if (direction === 'LEFT' || direction === 'UP') {
+      if (subIdx <= 0) return;
+      const updated = [...subPrograms];
+      const temp = updated[subIdx - 1];
+      updated[subIdx - 1] = updated[subIdx];
+      updated[subIdx] = temp;
+      updated.forEach((s, i) => { s.position = i + 1; });
+      setSubPrograms(updated);
+      const newSteps = flattenSubProgramsToSteps(updated, steps);
+      setSteps(newSteps);
+      setActiveSubIdx(subIdx - 1);
+    } else {
+      if (subIdx >= subPrograms.length - 1) return;
+      const updated = [...subPrograms];
+      const temp = updated[subIdx + 1];
+      updated[subIdx + 1] = updated[subIdx];
+      updated[subIdx] = temp;
+      updated.forEach((s, i) => { s.position = i + 1; });
+      setSubPrograms(updated);
+      const newSteps = flattenSubProgramsToSteps(updated, steps);
+      setSteps(newSteps);
+      setActiveSubIdx(subIdx + 1);
+    }
+  };
+
+  const handleDuplicateSubProgram = (subIdx) => {
+    const target = subPrograms[subIdx];
+    if (!target) return;
+    const cloned = JSON.parse(JSON.stringify(target));
+    cloned.id = Date.now();
+    cloned.treatment_name = `${cloned.treatment_name || cloned.name} (Salinan)`;
+    const updated = [...subPrograms];
+    updated.splice(subIdx + 1, 0, cloned);
+    updated.forEach((s, i) => { s.position = i + 1; });
+    setSubPrograms(updated);
+    const newSteps = flattenSubProgramsToSteps(updated, steps);
+    setSteps(newSteps);
+    setActiveSubIdx(subIdx + 1);
+    setExpandedSubIds(prev => new Set([...prev, cloned.id]));
+    setNotification({
+      type: 'success',
+      title: 'Sub-Program Diduplikasi',
+      message: `Modul "${cloned.treatment_name}" berhasil digandakan ke dalam resep!`
+    });
+    setTimeout(() => setNotification(null), 3500);
+  };
+
+  const handleDeleteSubProgram = (subIdx) => {
+    if (subPrograms.length <= 1) {
+      alert("Resep harus memiliki minimal 1 sub-program / fasa proses.");
+      return;
+    }
+    const removedName = subPrograms[subIdx]?.treatment_name || `Fasa #${subIdx + 1}`;
+    const updated = subPrograms.filter((_, idx) => idx !== subIdx);
+    updated.forEach((s, i) => { s.position = i + 1; });
+    setSubPrograms(updated);
+    const newSteps = flattenSubProgramsToSteps(updated, steps);
+    setSteps(newSteps);
+    setActiveSubIdx(Math.max(0, subIdx - 1));
+    setNotification({
+      type: 'success',
+      title: 'Sub-Program Dihapus',
+      message: `Modul "${removedName}" telah dihapus dari urutan proses.`
+    });
+    setTimeout(() => setNotification(null), 3500);
+  };
+
+  const handleInsertSubProgramFromDrawer = (treatment) => {
+    const newSub = {
+      id: Date.now(),
+      position: subPrograms.length + 1,
+      treatment_number: treatment.number,
+      treatment_name: treatment.name,
+      category: treatment.category || 'General',
+      parameters: treatment.parameters || {},
+      steps: treatment.steps || []
+    };
+    const updated = [...subPrograms, newSub];
+    setSubPrograms(updated);
+    const newSteps = flattenSubProgramsToSteps(updated, steps);
+    setSteps(newSteps);
+    setActiveSubIdx(updated.length - 1);
+    setExpandedSubIds(prev => new Set([...prev, newSub.id]));
+    setNotification({
+      type: 'success',
+      title: 'Fasa Berhasil Disisipkan!',
+      message: `Modul "${treatment.name}" (${treatment.steps?.length || 0} langkah) ditambahkan ke program.`
+    });
+    setTimeout(() => setNotification(null), 4000);
+  };
+
+  const handleAddStepToSubProgram = (subIdx) => {
+    const updatedSubs = [...subPrograms];
+    const sub = updatedSubs[subIdx];
+    if (!sub) return;
+
+    const newMicroStep = {
+      step_no: (sub.steps?.length || 0) + 1,
+      label: `Langkah Baru (${sub.treatment_name || 'Fasa'})`,
+      functions: [{ function_id: 141, column: 1, flags: 0, params: [60.0, 2.0, 15.0, 0, 0, 0] }]
+    };
+
+    if (!sub.steps) sub.steps = [];
+    sub.steps.push(newMicroStep);
+
+    setSubPrograms(updatedSubs);
+    const newSteps = flattenSubProgramsToSteps(updatedSubs, steps);
+    setSteps(newSteps);
+
+    let globalIdx = 1;
+    for (let i = 0; i <= subIdx; i++) {
+      if (i < subIdx) {
+        globalIdx += updatedSubs[i].steps?.length || 0;
+      } else {
+        globalIdx += updatedSubs[i].steps?.length - 1;
+      }
+    }
+    setSelectedStepIdx(globalIdx);
+  };
+
+  const handleApplyWizardRecipe = (wizardData) => {
+    setProgramNo(wizardData.program_no);
+    setProgramName(wizardData.program_name);
+    setMachineCode(wizardData.machine_code);
+    setSubPrograms(wizardData.sub_programs || []);
+    setSteps(wizardData.steps || []);
+    setSelectedStepIdx(1);
+    setActiveSubIdx(0);
+    setNotification({
+      type: 'success',
+      title: 'Resep Otomatis Terbentuk!',
+      message: `Program "${wizardData.program_name}" (${wizardData.sub_programs?.length || 0} Fasa, ${wizardData.steps?.length || 0} Langkah) siap digunakan!`
+    });
+    setTimeout(() => setNotification(null), 5000);
   };
 
   // Compile Binary
@@ -1519,11 +1798,29 @@ export default function Programs() {
         {/* ACTIONS */}
         <div className="flex flex-wrap items-center gap-2">
           <button
+            onClick={() => setShowWizardModal(true)}
+            className="flex items-center gap-1.5 px-3 py-2 text-xs font-bold bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white rounded shadow-sm transition active:scale-95"
+            title="Buka Wizard Cepat untuk menyusun resep komplit beserta seluruh sub-programnya"
+          >
+            <Wand2 className="h-3.5 w-3.5" />
+            <span>Wizard Cepat</span>
+          </button>
+
+          <button
+            onClick={() => setShowSubProgramDrawer(true)}
+            className="flex items-center gap-1.5 px-3 py-2 text-xs font-bold bg-indigo-50 dark:bg-indigo-950/40 text-indigo-700 dark:text-indigo-300 border border-indigo-500/30 rounded shadow-sm hover:bg-indigo-100 transition active:scale-95"
+            title="Pilih dan sisipkan modul fasa / sub-program dari katalog"
+          >
+            <BookOpen className="h-3.5 w-3.5 text-indigo-500" />
+            <span>+ Tambah Fasa (Sub)</span>
+          </button>
+
+          <button
             onClick={() => setShowTemplateModal(true)}
             className="flex items-center gap-1.5 px-3 py-2 text-xs font-semibold bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 border border-amber-500/30 rounded shadow-sm hover:bg-amber-100 transition"
           >
             <Sparkles className="h-3.5 w-3.5 text-amber-500" />
-            <span>Pilih Template Mesin</span>
+            <span>Template Mesin</span>
           </button>
 
           <button
@@ -1564,6 +1861,33 @@ export default function Programs() {
         </div>
       </div>
 
+      {/* PROCESS PIPELINE BAR (HORIZONTAL SUB-PROGRAM VIEW) */}
+      <ProcessPipelineBar
+        subPrograms={subPrograms}
+        activeSubIdx={activeSubIdx}
+        onSelectSub={(subIdx) => {
+          setActiveSubIdx(subIdx);
+          let targetStep = 1;
+          for (let i = 0; i < subIdx; i++) {
+            targetStep += subPrograms[i].steps?.length || 0;
+          }
+          if (targetStep < steps.length) {
+            setSelectedStepIdx(targetStep);
+          }
+          const targetSub = subPrograms[subIdx];
+          if (targetSub) {
+            setExpandedSubIds(prev => new Set([...prev, targetSub.id || subIdx]));
+          }
+        }}
+        onMoveSub={handleMoveSubProgram}
+        onDuplicateSub={handleDuplicateSubProgram}
+        onDeleteSub={handleDeleteSubProgram}
+        onOpenDrawer={() => setShowSubProgramDrawer(true)}
+        onOpenWizard={() => setShowWizardModal(true)}
+        isGroupedView={isGroupedView}
+        onToggleGroupedView={(val) => setIsGroupedView(val)}
+      />
+
       {/* PROCESS SUMMARY & CURVE ACCORDION */}
       <div className="bg-white dark:bg-boxdark rounded-lg border border-stroke dark:border-strokedark shadow-sm overflow-hidden">
         <div
@@ -1596,75 +1920,334 @@ export default function Programs() {
       {/* MAIN TWO-COLUMN STEP STUDIO */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
 
-        {/* KOLOM KIRI: DAFTAR LANGKAH LINEAR (5 COLS) */}
+        {/* KOLOM KIRI: DAFTAR LANGKAH LINEAR ATAU GRUP FASA (5 COLS) */}
         <div className="lg:col-span-5 bg-white dark:bg-boxdark rounded-lg border border-stroke dark:border-strokedark shadow-sm overflow-hidden">
           <div className="px-4 py-3 bg-gray-50 dark:bg-meta-4/30 border-b border-stroke dark:border-strokedark flex items-center justify-between">
-            <span className="text-xs font-bold uppercase tracking-wider text-black dark:text-white flex items-center gap-1.5">
-              <Boxes className="h-4 w-4 text-primary" />
-              Urutan Langkah ({steps.length})
-            </span>
-            <button
-              onClick={handleAddStep}
-              className="flex items-center gap-1 px-2.5 py-1 text-xs font-bold bg-primary hover:bg-primary/90 text-white rounded shadow-sm transition"
-            >
-              <Plus className="h-3 w-3" />
-              <span>Tambah Langkah</span>
-            </button>
+            <div>
+              <span className="text-xs font-bold uppercase tracking-wider text-black dark:text-white flex items-center gap-1.5">
+                <Boxes className="h-4 w-4 text-primary" />
+                Urutan Langkah ({steps.length})
+                {isGroupedView && (
+                  <span className="text-[10px] font-mono text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-950/60 px-1.5 py-0.2 rounded border border-indigo-200 dark:border-indigo-800">
+                    {subPrograms.length} Fasa
+                  </span>
+                )}
+              </span>
+            </div>
+            
+            <div className="flex items-center gap-1.5">
+              <button
+                onClick={() => setShowSubProgramDrawer(true)}
+                className="flex items-center gap-1 px-2 py-1 text-xs font-bold bg-indigo-50 dark:bg-indigo-950/50 hover:bg-indigo-100 text-indigo-700 dark:text-indigo-300 rounded border border-indigo-200 dark:border-indigo-800 transition"
+                title="Sisipkan modul fasa baru"
+              >
+                <Plus className="h-3 w-3" />
+                <span>+ Fasa</span>
+              </button>
+
+              <button
+                onClick={handleAddStep}
+                className="flex items-center gap-1 px-2.5 py-1 text-xs font-bold bg-primary hover:bg-primary/90 text-white rounded shadow-sm transition"
+              >
+                <Plus className="h-3 w-3" />
+                <span>+ Langkah</span>
+              </button>
+            </div>
           </div>
 
-          <div className="divide-y divide-stroke dark:divide-strokedark max-h-[600px] overflow-y-auto">
-            {steps.map((s, idx) => {
-              const mFn = s.functions?.find(f => f.column === 1);
-              const meta = mFn ? getFunctionMeta(mFn.function_id) : null;
-              const isSelected = selectedStepIdx === idx;
-              const isStart = idx === 0;
-              const isEnd = idx === steps.length - 1;
-              const params = mFn?.params || [];
-
-              let badgeText = '';
-              if (mFn?.function_id === 141) badgeText = `${params[0] || 0} °C · ${params[2] || 0} min`;
-              else if (mFn?.function_id === 713) badgeText = `${params[1] || 0} L`;
-              else if (mFn?.function_id === 71) badgeText = `Drain ${params[0] || 0}%`;
-
-              return (
+          {/* VIEW MODE: GROUPED HIERARCHICAL ACCORDION */}
+          {isGroupedView ? (
+            <div className="divide-y divide-stroke dark:divide-strokedark max-h-[650px] overflow-y-auto p-2 space-y-2">
+              {/* STEP 1: PROGRAM START (PINNED) */}
+              {steps.length > 0 && (
                 <div
-                  key={idx}
-                  onClick={() => setSelectedStepIdx(idx)}
-                  className={`p-3 cursor-pointer transition flex items-center justify-between ${isSelected
-                    ? 'bg-primary/10 border-l-4 border-primary'
-                    : 'hover:bg-gray-50 dark:hover:bg-meta-4/30'
-                    }`}
+                  onClick={() => setSelectedStepIdx(0)}
+                  className={`p-2.5 rounded-lg border transition cursor-pointer flex items-center justify-between ${
+                    selectedStepIdx === 0
+                      ? 'border-emerald-500 bg-emerald-50/80 dark:bg-emerald-950/40 ring-1 ring-emerald-500'
+                      : 'border-stroke dark:border-strokedark bg-slate-50/60 dark:bg-meta-4/20 hover:bg-slate-100 dark:hover:bg-meta-4/50'
+                  }`}
                 >
-                  <div className="flex items-center gap-3">
-                    <span className={`w-6 h-6 rounded flex items-center justify-center font-mono text-xs font-bold ${isStart || isEnd ? 'bg-gray-200 dark:bg-meta-4 text-gray-700 dark:text-gray-300' : 'bg-primary text-white'
-                      }`}>
-                      {String(idx + 1).padStart(2, '0')}
+                  <div className="flex items-center gap-2.5">
+                    <span className="w-5 h-5 rounded-full bg-emerald-100 text-emerald-800 dark:bg-emerald-900/60 dark:text-emerald-300 font-mono text-[10px] font-bold flex items-center justify-center">
+                      01
                     </span>
-
                     <div>
-                      <div className="flex items-center gap-1.5">
-                        <span className="text-xs font-bold text-black dark:text-white">
-                          {meta?.name || `Langkah ${idx + 1}`}
-                        </span>
-                        {badgeText && (
-                          <span className="text-[10px] font-mono font-bold px-1.5 py-0.2 bg-blue-50 text-blue-700 dark:bg-blue-950/50 dark:text-blue-300 rounded border border-blue-500/20">
-                            {badgeText}
-                          </span>
-                        )}
-                      </div>
-                      <p className="text-[11px] text-gray-400 truncate max-w-[200px]">
-                        {s.label || 'Tanpa komentar'}
-                      </p>
+                      <span className="text-xs font-bold text-black dark:text-white flex items-center gap-1.5">
+                        <FileCode className="h-3.5 w-3.5 text-emerald-600" />
+                        Program Start (Mulai Siklus Mesin)
+                      </span>
+                      <p className="text-[10px] text-gray-400 font-mono">F1 · Pengunci awal siklus SECOM</p>
                     </div>
                   </div>
-
-                  <div className="flex items-center gap-1">
-                    <ChevronRight className={`h-4 w-4 ${isSelected ? 'text-primary' : 'text-gray-300'}`} />
-                  </div>
+                  <ChevronRight className={`h-3.5 w-3.5 ${selectedStepIdx === 0 ? 'text-emerald-600' : 'text-gray-300'}`} />
                 </div>
-              );
-            })}
-          </div>
+              )}
+
+              {/* SUB-PROGRAM ACCORDION CARDS */}
+              {subPrograms.map((sub, sIdx) => {
+                const isExpanded = expandedSubIds.has(sub.id || sIdx);
+                const isSubActive = activeSubIdx === sIdx;
+                const catClass = (sub.category === 'Pretreatment') ? 'border-amber-300 dark:border-amber-700 bg-amber-50/50 dark:bg-amber-950/20'
+                  : (sub.category === 'Dyeing') ? 'border-indigo-300 dark:border-indigo-700 bg-indigo-50/50 dark:bg-indigo-950/20'
+                  : (sub.category === 'Washing') ? 'border-rose-300 dark:border-rose-700 bg-rose-50/50 dark:bg-rose-950/20'
+                  : (sub.category === 'Rinse') ? 'border-cyan-300 dark:border-cyan-700 bg-cyan-50/50 dark:bg-cyan-950/20'
+                  : 'border-stroke dark:border-strokedark bg-gray-50/50 dark:bg-meta-4/20';
+
+                return (
+                  <div
+                    key={sub.id || `${sub.treatment_number}-${sIdx}`}
+                    className={`rounded-xl border transition-all overflow-hidden ${catClass} ${
+                      isSubActive ? 'ring-2 ring-primary/80 shadow-xs' : ''
+                    }`}
+                  >
+                    {/* SUB-PROGRAM ACCORDION HEADER */}
+                    <div
+                      onClick={() => {
+                        setActiveSubIdx(sIdx);
+                        setExpandedSubIds(prev => {
+                          const next = new Set(prev);
+                          if (next.has(sub.id || sIdx)) next.delete(sub.id || sIdx);
+                          else next.add(sub.id || sIdx);
+                          return next;
+                        });
+                      }}
+                      className="p-3 cursor-pointer flex items-center justify-between select-none hover:bg-black/5 dark:hover:bg-white/5 transition"
+                    >
+                      <div className="flex items-center gap-2 min-w-0">
+                        <button
+                          type="button"
+                          className="text-gray-400 hover:text-black dark:hover:text-white p-0.5"
+                        >
+                          {isExpanded ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
+                        </button>
+                        <span className="w-5 h-5 rounded-full bg-slate-200 dark:bg-slate-700 text-slate-800 dark:text-slate-200 text-[10px] font-mono font-bold flex items-center justify-center shrink-0">
+                          {sIdx + 1}
+                        </span>
+                        <div className="min-w-0">
+                          <div className="flex items-center gap-2">
+                            <span className="text-xs font-bold text-black dark:text-white truncate">
+                              {sub.treatment_name || sub.name}
+                            </span>
+                            <span className="text-[9px] font-bold px-1.5 py-0.2 rounded-full border bg-white dark:bg-boxdark border-stroke dark:border-strokedark text-gray-600 dark:text-gray-300 shrink-0">
+                              {sub.category || 'Process'}
+                            </span>
+                          </div>
+                          <span className="text-[10px] text-gray-400 font-mono block">
+                            {sub.steps ? sub.steps.length : 0} Langkah Mikro
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Header Actions */}
+                      <div className="flex items-center gap-1 shrink-0" onClick={(e) => e.stopPropagation()}>
+                        <button
+                          type="button"
+                          disabled={sIdx === 0}
+                          onClick={() => handleMoveSubProgram(sIdx, 'UP')}
+                          className="p-1 text-gray-400 hover:text-black dark:hover:text-white disabled:opacity-20"
+                          title="Geser Fasa Naik"
+                        >
+                          <ArrowUp className="h-3 w-3" />
+                        </button>
+                        <button
+                          type="button"
+                          disabled={sIdx === subPrograms.length - 1}
+                          onClick={() => handleMoveSubProgram(sIdx, 'DOWN')}
+                          className="p-1 text-gray-400 hover:text-black dark:hover:text-white disabled:opacity-20"
+                          title="Geser Fasa Turun"
+                        >
+                          <ArrowDown className="h-3 w-3" />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handleDuplicateSubProgram(sIdx)}
+                          className="p-1 text-blue-500 hover:text-blue-700"
+                          title="Duplikasi Fasa Ini"
+                        >
+                          <Copy className="h-3 w-3" />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handleDeleteSubProgram(sIdx)}
+                          className="p-1 text-rose-500 hover:text-rose-700"
+                          title="Hapus Fasa Ini"
+                        >
+                          <Trash2 className="h-3 w-3" />
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* SUB-PROGRAM MICRO STEPS (INSIDE ACCORDION) */}
+                    {isExpanded && (
+                      <div className="p-2 space-y-1.5 bg-white/70 dark:bg-boxdark/70 border-t border-stroke/70 dark:border-strokedark/70">
+                        {(sub.steps || []).map((st, stepInSubIdx) => {
+                          // Compute matching global step index
+                          let globalStepIdx = 1;
+                          for (let i = 0; i < sIdx; i++) {
+                            globalStepIdx += subPrograms[i].steps?.length || 0;
+                          }
+                          globalStepIdx += stepInSubIdx;
+
+                          const matchingStep = steps[globalStepIdx] || st;
+                          const mFn = matchingStep.functions?.find(f => f.column === 1);
+                          const meta = mFn ? getFunctionMeta(mFn.function_id) : null;
+                          const isSelected = selectedStepIdx === globalStepIdx;
+                          const params = mFn?.params || [];
+
+                          let badgeText = '';
+                          if (mFn?.function_id === 141) badgeText = `${params[0] || 0} °C · ${params[2] || 0}m`;
+                          else if (mFn?.function_id === 713) badgeText = `${params[1] || 0} L`;
+                          else if (mFn?.function_id === 71) badgeText = `Drain ${params[0] || 0}%`;
+
+                          return (
+                            <div
+                              key={stepInSubIdx}
+                              onClick={() => {
+                                setSelectedStepIdx(globalStepIdx);
+                                setActiveSubIdx(sIdx);
+                              }}
+                              className={`p-2 rounded-lg border transition cursor-pointer flex items-center justify-between text-xs ${
+                                isSelected
+                                  ? 'bg-primary/10 border-primary text-primary font-bold shadow-xs'
+                                  : 'bg-white dark:bg-boxdark border-stroke dark:border-strokedark hover:bg-gray-50 dark:hover:bg-meta-4/40 text-black dark:text-white'
+                              }`}
+                            >
+                              <div className="flex items-center gap-2 min-w-0">
+                                <span className="w-5 h-5 rounded bg-gray-100 dark:bg-meta-4 text-gray-700 dark:text-gray-300 font-mono text-[10px] font-bold flex items-center justify-center shrink-0">
+                                  {String(globalStepIdx + 1).padStart(2, '0')}
+                                </span>
+                                <div className="min-w-0">
+                                  <div className="flex items-center gap-1.5">
+                                    <span className="truncate">
+                                      {meta?.name || matchingStep.label || `Langkah ${globalStepIdx + 1}`}
+                                    </span>
+                                    {badgeText && (
+                                      <span className="text-[9px] font-mono font-bold px-1 py-0.2 bg-blue-50 text-blue-700 dark:bg-blue-950/50 dark:text-blue-300 rounded border border-blue-500/20 shrink-0">
+                                        {badgeText}
+                                      </span>
+                                    )}
+                                  </div>
+                                  <p className="text-[10px] text-gray-400 truncate max-w-[190px]">
+                                    {matchingStep.label || 'Tanpa komentar'}
+                                  </p>
+                                </div>
+                              </div>
+
+                              <ChevronRight className={`h-3.5 w-3.5 shrink-0 ${isSelected ? 'text-primary' : 'text-gray-300'}`} />
+                            </div>
+                          );
+                        })}
+
+                        {/* Add Step directly in this Sub-Program */}
+                        <button
+                          type="button"
+                          onClick={() => handleAddStepToSubProgram(sIdx)}
+                          className="w-full mt-1.5 py-1 px-2 text-[11px] font-semibold text-primary dark:text-blue-400 hover:bg-primary/5 rounded border border-dashed border-primary/30 flex items-center justify-center gap-1 transition"
+                        >
+                          <Plus className="h-3 w-3" />
+                          <span>Tambah Langkah di {sub.treatment_name || 'Fasa Ini'}</span>
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+
+              {/* STEP END (PINNED AT BOTTOM) */}
+              {steps.length > 1 && (
+                <div
+                  onClick={() => setSelectedStepIdx(steps.length - 1)}
+                  className={`p-2.5 rounded-lg border transition cursor-pointer flex items-center justify-between ${
+                    selectedStepIdx === steps.length - 1
+                      ? 'border-slate-500 bg-slate-50/80 dark:bg-slate-900/60 ring-1 ring-slate-500'
+                      : 'border-stroke dark:border-strokedark bg-slate-50/60 dark:bg-meta-4/20 hover:bg-slate-100 dark:hover:bg-meta-4/50'
+                  }`}
+                >
+                  <div className="flex items-center gap-2.5">
+                    <span className="w-5 h-5 rounded-full bg-slate-200 text-slate-800 dark:bg-slate-800 dark:text-slate-300 font-mono text-[10px] font-bold flex items-center justify-center">
+                      {String(steps.length).padStart(2, '0')}
+                    </span>
+                    <div>
+                      <span className="text-xs font-bold text-black dark:text-white flex items-center gap-1.5">
+                        <FileCode className="h-3.5 w-3.5 text-slate-600" />
+                        Program End (Selesai Siklus)
+                      </span>
+                      <p className="text-[10px] text-gray-400 font-mono">F2 · Pengunci akhir siklus SECOM</p>
+                    </div>
+                  </div>
+                  <ChevronRight className={`h-3.5 w-3.5 ${selectedStepIdx === steps.length - 1 ? 'text-slate-600' : 'text-gray-300'}`} />
+                </div>
+              )}
+
+              {/* Bottom Quick Insert Sub-Program Button */}
+              <div className="pt-2">
+                <button
+                  type="button"
+                  onClick={() => setShowSubProgramDrawer(true)}
+                  className="w-full py-2 px-3 rounded-lg bg-indigo-50 dark:bg-indigo-950/40 hover:bg-indigo-100 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800 text-xs font-bold flex items-center justify-center gap-1.5 shadow-xs transition"
+                >
+                  <Plus className="h-3.5 w-3.5" />
+                  <span>+ Sisipkan Modul Fasa / Sub-Program Baru</span>
+                </button>
+              </div>
+            </div>
+          ) : (
+            /* VIEW MODE: FLAT LINEAR LIST (ORIGINAL VIEW) */
+            <div className="divide-y divide-stroke dark:divide-strokedark max-h-[600px] overflow-y-auto">
+              {steps.map((s, idx) => {
+                const mFn = s.functions?.find(f => f.column === 1);
+                const meta = mFn ? getFunctionMeta(mFn.function_id) : null;
+                const isSelected = selectedStepIdx === idx;
+                const isStart = idx === 0;
+                const isEnd = idx === steps.length - 1;
+                const params = mFn?.params || [];
+
+                let badgeText = '';
+                if (mFn?.function_id === 141) badgeText = `${params[0] || 0} °C · ${params[2] || 0} min`;
+                else if (mFn?.function_id === 713) badgeText = `${params[1] || 0} L`;
+                else if (mFn?.function_id === 71) badgeText = `Drain ${params[0] || 0}%`;
+
+                return (
+                  <div
+                    key={idx}
+                    onClick={() => setSelectedStepIdx(idx)}
+                    className={`p-3 cursor-pointer transition flex items-center justify-between ${isSelected
+                      ? 'bg-primary/10 border-l-4 border-primary'
+                      : 'hover:bg-gray-50 dark:hover:bg-meta-4/30'
+                      }`}
+                  >
+                    <div className="flex items-center gap-3">
+                      <span className={`w-6 h-6 rounded flex items-center justify-center font-mono text-xs font-bold ${isStart || isEnd ? 'bg-gray-200 dark:bg-meta-4 text-gray-700 dark:text-gray-300' : 'bg-primary text-white'
+                        }`}>
+                        {String(idx + 1).padStart(2, '0')}
+                      </span>
+
+                      <div>
+                        <div className="flex items-center gap-1.5">
+                          <span className="text-xs font-bold text-black dark:text-white">
+                            {meta?.name || `Langkah ${idx + 1}`}
+                          </span>
+                          {badgeText && (
+                            <span className="text-[10px] font-mono font-bold px-1.5 py-0.2 bg-blue-50 text-blue-700 dark:bg-blue-950/50 dark:text-blue-300 rounded border border-blue-500/20">
+                              {badgeText}
+                            </span>
+                          )}
+                        </div>
+                        <p className="text-[11px] text-gray-400 truncate max-w-[200px]">
+                          {s.label || 'Tanpa komentar'}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-1">
+                      <ChevronRight className={`h-4 w-4 ${isSelected ? 'text-primary' : 'text-gray-300'}`} />
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
         </div>
 
         {/* KOLOM KANAN: DETAIL & PARAMETER LANGKAH AKTIF (7 COLS) */}
@@ -1997,6 +2580,23 @@ export default function Programs() {
           </div>
         </div>
       )}
+
+      {/* SUB-PROGRAM READY-TO-USE DRAWER */}
+      <SubProgramDrawer
+        isOpen={showSubProgramDrawer}
+        onClose={() => setShowSubProgramDrawer(false)}
+        onInsertSubProgram={handleInsertSubProgramFromDrawer}
+        subProgramsCount={subPrograms.length}
+      />
+
+      {/* SMART RECIPE WIZARD MODAL */}
+      <SmartRecipeWizardModal
+        isOpen={showWizardModal}
+        onClose={() => setShowWizardModal(false)}
+        onApplyRecipe={handleApplyWizardRecipe}
+        availableMachines={availableMachines}
+        activeMachine={activeMachine}
+      />
     </div>
   );
 }

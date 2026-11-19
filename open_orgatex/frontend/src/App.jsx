@@ -23,7 +23,8 @@ function App() {
           <Route path="/machines" element={<Machines />} />
           <Route path="/recipes" element={<Recipes />} />
           <Route path="/programs" element={<Programs />} />
-          <Route path="/programs-edx" element={<OrgatexEdxProgram />} />
+          {/* Sementara dialihkan ke /programs agar tidak bingung */}
+          <Route path="/programs-edx" element={<Navigate to="/programs" replace />} />
           <Route path="/planning" element={<Navigate to="/planning/list" replace />} />
           <Route path="/planning/list" element={<BatchListView />} />
           <Route path="/planning/kanban" element={<KanbanView />} />
