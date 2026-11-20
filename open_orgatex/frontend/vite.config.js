@@ -11,6 +11,8 @@ export default defineConfig({
         target: 'http://localhost:8743',
         changeOrigin: true,
         autoRewrite: true,
+        timeout: 120000,
+        proxyTimeout: 120000,
       },
     },
   },

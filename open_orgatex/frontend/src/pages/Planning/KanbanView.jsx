@@ -24,11 +24,11 @@ import axios from 'axios';
 const API_BASE = '/api/planning';
 
 const COLUMN_DEFS = {
-  PLANNING: { name: 'Perencanaan (Planning)', color: 'border-purple-500/50 bg-purple-50/10 dark:bg-purple-950/20 text-purple-400' },
-  QUEUED: { name: 'Antrean Produksi (Queued)', color: 'border-amber-500/50 bg-amber-50/10 dark:bg-amber-950/20 text-amber-500' },
-  WAITING_LA: { name: 'Menunggu Dosing LA', color: 'border-blue-500/50 bg-blue-50/10 dark:bg-blue-950/20 text-blue-500' },
-  RUNNING: { name: 'Sedang Proses Celup (Running)', color: 'border-emerald-500/50 bg-emerald-50/10 dark:bg-emerald-950/20 text-emerald-500' },
-  COMPLETED: { name: 'Selesai (Completed)', color: 'border-slate-500/50 bg-slate-50/10 dark:bg-slate-900/30 text-slate-400' },
+  PLANNING: { name: 'Perencanaan (Planning)', color: 'border-purple-500/50 bg-purple-50/20 dark:bg-purple-950/20 text-purple-600 dark:text-purple-400' },
+  QUEUED: { name: 'Antrean Produksi (Queued)', color: 'border-amber-500/50 bg-amber-50/20 dark:bg-amber-950/20 text-amber-600 dark:text-amber-500' },
+  WAITING_LA: { name: 'Menunggu Dosing LA', color: 'border-blue-500/50 bg-blue-50/20 dark:bg-blue-950/20 text-blue-600 dark:text-blue-500' },
+  RUNNING: { name: 'Sedang Proses Celup (Running)', color: 'border-emerald-500/50 bg-emerald-50/20 dark:bg-emerald-950/20 text-emerald-600 dark:text-emerald-500' },
+  COMPLETED: { name: 'Selesai (Completed)', color: 'border-slate-500/50 bg-slate-50/20 dark:bg-slate-900/30 text-slate-600 dark:text-slate-400' },
 };
 
 const KanbanView = () => {

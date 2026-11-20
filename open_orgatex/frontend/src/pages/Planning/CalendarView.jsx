@@ -11,36 +11,39 @@ const CalendarView = () => {
       title: 'TD12: #061118 (Reactive Cotton)',
       start: new Date().toISOString().split('T')[0] + 'T08:00:00',
       end: new Date().toISOString().split('T')[0] + 'T10:15:00',
-      backgroundColor: '#3C50E0',
+      backgroundColor: '#465fff',
+      borderColor: '#465fff',
     },
     {
       id: '2',
       title: 'TD12: #061119 (Direct Black)',
       start: new Date().toISOString().split('T')[0] + 'T10:30:00',
       end: new Date().toISOString().split('T')[0] + 'T12:30:00',
-      backgroundColor: '#F0950C',
+      backgroundColor: '#f59e0b',
+      borderColor: '#f59e0b',
     },
     {
       id: '3',
       title: 'TD13: #061120 (Scouring)',
       start: new Date().toISOString().split('T')[0] + 'T09:00:00',
       end: new Date().toISOString().split('T')[0] + 'T10:30:00',
-      backgroundColor: '#10B981',
+      backgroundColor: '#10b981',
+      borderColor: '#10b981',
     },
   ];
 
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-title-md2 font-bold text-black dark:text-white">
+        <h2 className="text-xl md:text-2xl font-extrabold tracking-tight text-black dark:text-white">
           Kalender Jadwal Produksi Pencelupan
         </h2>
-        <p className="text-sm font-medium text-body">
+        <p className="text-xs text-body dark:text-bodydark mt-1 font-medium">
           Rencana alokasi waktu mesin celup per shift dan hari kerja
         </p>
       </div>
 
-      <div className="rounded-sm border border-stroke bg-white p-5 shadow-default dark:border-strokedark dark:bg-boxdark">
+      <div className="rounded-xl border border-stroke bg-white p-5 shadow-sm dark:border-strokedark dark:bg-boxdark">
         <FullCalendar
           plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
           initialView="timeGridDay"

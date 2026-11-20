@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import TempCurveChart from '../components/Charts/TempCurveChart';
 import {
@@ -25,16 +25,19 @@ import {
   X,
   ArrowUpDown,
   ArrowUp,
-  ArrowDown
+  ArrowDown,
+  ArrowLeft,
+  Search
 } from 'lucide-react';
 
 const API_BASE = '/api';
 
-const Logs = () => {
+const Logs = ({ defaultTab = 'active' }) => {
   const location = useLocation();
   const navigate = useNavigate();
   const searchParams = new URLSearchParams(location.search);
   const initialMachineFromUrl = searchParams.get('machine');
+  const tabFromUrl = searchParams.get('tab') || defaultTab;
   const isInitial797 = initialMachineFromUrl === 'DA01' || initialMachineFromUrl === 'M_95' || initialMachineFromUrl?.toUpperCase().includes('797');
 
   const [selectedMachine, setSelectedMachine] = useState(initialMachineFromUrl || '1A');
@@ -42,7 +45,7 @@ const Logs = () => {
   const [rawMachines, setRawMachines] = useState([]);
   const [hmiIp, setHmiIp] = useState(isInitial797 ? '192.168.1.95' : '172.16.110.101');
   const [refreshInterval, setRefreshInterval] = useState(3000); // 3 detik default realtime
-  const [activeTab, setActiveTab] = useState('active'); // 'active' or 'archive'
+  const [activeTab, setActiveTab] = useState(tabFromUrl === 'archive' ? 'archive' : 'active');
   const [loading, setLoading] = useState(false);
   const [syncing, setSyncing] = useState(false);
   const [liveData, setLiveData] = useState(null);
@@ -52,6 +55,14 @@ const Logs = () => {
   const [lastUpdated, setLastUpdated] = useState('');
   const [selectedStepDetail, setSelectedStepDetail] = useState(null);
 
+  // State Riwayat Batch Selesai (Archive)
+  const [archiveBatches, setArchiveBatches] = useState([]);
+  const [archiveLoading, setArchiveLoading] = useState(false);
+  const [archiveSearch, setArchiveSearch] = useState('');
+  const [archiveFilterMach, setArchiveFilterMach] = useState('SEMUA');
+  const [selectedArchiveBatch, setSelectedArchiveBatch] = useState(null);
+  const [archiveDetailLoading, setArchiveDetailLoading] = useState(false);
+
   const isFetchingRef = useRef(false);
 
   // Filter Alarms & Intervensi HMI berdasarkan tanggal & Order By Date Time
@@ -60,6 +71,15 @@ const Logs = () => {
   const [alarmSortOrder, setAlarmSortOrder] = useState('desc'); // 'desc' (terbaru ke terlama) atau 'asc' (terlama ke terbaru)
   const [availableAlarmDates, setAvailableAlarmDates] = useState([]);
   const [alarmsLoading, setAlarmsLoading] = useState(false);
+  const [currentTick, setCurrentTick] = useState(Date.now());
+
+  // 1-second interval to drive live "Sudah Berjalan Berapa Lama" timer
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentTick(Date.now());
+    }, 1000);
+    return () => clearInterval(timer);
+  }, []);
 
   // Fetch real machines from PostgreSQL
   useEffect(() => {
@@ -183,13 +203,65 @@ const Logs = () => {
     fetchAlarms(selectedMachine, selectedAlarmDate, alarmFilterCategory, alarmSortOrder);
   }, [selectedMachine, selectedAlarmDate, alarmFilterCategory, alarmSortOrder]);
 
-  useEffect(() => {
-    fetchLiveLog();
-    if (refreshInterval > 0) {
-      const interval = setInterval(fetchLiveLog, refreshInterval);
-      return () => clearInterval(interval);
+  // Fetch Riwayat Batch yang sudah dikerjakan
+  const fetchArchiveBatches = async (mach = archiveFilterMach, search = archiveSearch) => {
+    setArchiveLoading(true);
+    try {
+      const q = new URLSearchParams();
+      if (mach && mach !== 'SEMUA') q.append('machine_no', mach);
+      if (search && search.trim()) q.append('search', search.trim());
+      const res = await fetch(`${API_BASE}/logs/batch-history?${q.toString()}`);
+      if (res.ok) {
+        const data = await res.json();
+        setArchiveBatches(data.batches || []);
+      }
+    } catch (err) {
+      console.error('Gagal mengambil riwayat batch:', err);
+    } finally {
+      setArchiveLoading(false);
     }
-  }, [selectedMachine, hmiIp, refreshInterval]);
+  };
+
+  // Pilih dan buka analisis batch riwayat (tampilan identik dengan active batch)
+  const handleSelectArchiveBatch = async (batchItem) => {
+    setArchiveDetailLoading(true);
+    try {
+      const res = await fetch(`${API_BASE}/logs/batch-detail/${batchItem.machine_no}/${batchItem.batch_ref_no}`);
+      if (res.ok) {
+        const detail = await res.json();
+        setSelectedArchiveBatch(detail);
+      } else {
+        alert('Gagal memuat detail data riwayat batch.');
+      }
+    } catch (err) {
+      console.error('Gagal mengambil detail riwayat batch:', err);
+      alert('Terjadi kesalahan saat memuat detail batch.');
+    } finally {
+      setArchiveDetailLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (activeTab === 'archive') {
+      fetchArchiveBatches(archiveFilterMach, archiveSearch);
+    }
+  }, [activeTab, archiveFilterMach]);
+
+  useEffect(() => {
+    if (tabFromUrl === 'archive') {
+      setActiveTab('archive');
+    }
+  }, [tabFromUrl]);
+
+  useEffect(() => {
+    if (activeTab === 'active') {
+      fetchLiveLog();
+      if (refreshInterval > 0) {
+        const interval = setInterval(fetchLiveLog, refreshInterval);
+        return () => clearInterval(interval);
+      }
+    }
+  }, [selectedMachine, hmiIp, refreshInterval, activeTab]);
 
   // Trigger manual sync
   const handleSyncNow = async () => {
@@ -249,37 +321,220 @@ const Logs = () => {
     { no: 10, name: 'Drain / Buang Larutan', type: 'DRAIN', icon: '61' },
   ];
 
-  const currentStepNo = liveData?.current_step || 1;
-  const rawSteps = liveData?.steps && liveData.steps.length > 0 ? liveData.steps : null;
+  const formatStepTime = (ts) => {
+    if (!ts) return null;
+    const s = String(ts).trim();
+    const parts = s.split(' ');
+    if (parts.length > 1) {
+      return parts[1];
+    }
+    if (s.includes('T')) {
+      return s.split('T')[1].substring(0, 8);
+    }
+    return s;
+  };
+
+  // Calculates live "Sudah berjalan berapa lama" in real-time
+  const getElapsedDuration = (startTimeStr) => {
+    if (!startTimeStr) return null;
+    try {
+      let startMs = 0;
+      const str = String(startTimeStr).trim();
+      if (str.includes(' ') || str.includes('T')) {
+        startMs = new Date(str.replace(' ', 'T')).getTime();
+      } else {
+        const parts = str.split(':').map(Number);
+        const d = new Date();
+        d.setHours(parts[0] || 0, parts[1] || 0, parts[2] || 0, 0);
+        startMs = d.getTime();
+      }
+      if (isNaN(startMs)) return null;
+      const diffSec = Math.max(0, Math.floor((Date.now() - startMs) / 1000));
+      if (diffSec > 86400) return null;
+
+      if (diffSec < 60) return `${diffSec} dtk`;
+      const mins = Math.floor(diffSec / 60);
+      const secs = diffSec % 60;
+      if (mins < 60) {
+        return secs > 0 ? `${mins} mnt ${secs} dtk` : `${mins} mnt`;
+      }
+      const hrs = Math.floor(mins / 60);
+      const remMins = mins % 60;
+      return `${hrs} jam ${remMins} mnt`;
+    } catch {
+      return null;
+    }
+  };
+
+  // Computes dynamic real-time remaining or overtime label for active step
+  const getLiveRemainingText = (startTimeStr, targetMin) => {
+    if (!startTimeStr || !targetMin) return null;
+    try {
+      let startMs = 0;
+      const str = String(startTimeStr).trim();
+      if (str.includes(' ') || str.includes('T')) {
+        startMs = new Date(str.replace(' ', 'T')).getTime();
+      } else {
+        const parts = str.split(':').map(Number);
+        const d = new Date();
+        d.setHours(parts[0] || 0, parts[1] || 0, parts[2] || 0, 0);
+        startMs = d.getTime();
+      }
+      if (isNaN(startMs)) return null;
+      const elapsedSec = Math.max(0, Math.floor((Date.now() - startMs) / 1000));
+      const targetSec = Number(targetMin) * 60;
+      if (elapsedSec > targetSec + 30) {
+        const overMin = Math.floor((elapsedSec - targetSec) / 60);
+        return { isOvertime: true, text: `⚠️ Molor +${overMin} mnt` };
+      } else {
+        const remSec = targetSec - elapsedSec;
+        const remMin = Math.max(0, Math.ceil(remSec / 60));
+        return { isOvertime: false, text: `⏱ Sisa ~${remMin} mnt` };
+      }
+    } catch {
+      return null;
+    }
+  };
+
+  const isArchiveMode = activeTab === 'archive' && Boolean(selectedArchiveBatch);
+  const effectiveData = isArchiveMode ? selectedArchiveBatch : liveData;
+  const effectiveMachine = isArchiveMode ? selectedArchiveBatch.machine_no : selectedMachine;
+  const currentStepNo = isArchiveMode 
+    ? (selectedArchiveBatch.current_step || selectedArchiveBatch.steps?.length || 1)
+    : (liveData?.current_step || 1);
+
+  // Derive telemetry timings from curve for extra resilience
+  const curveSource = isArchiveMode ? (selectedArchiveBatch?.curve || []) : (liveData?.curve || []);
+  const curveTimings = useMemo(() => {
+    if (!curveSource || !Array.isArray(curveSource)) return {};
+    const map = {};
+    for (const pt of curveSource) {
+      if (pt.step_no && pt.timestamp) {
+        const sNo = Number(pt.step_no);
+        if (!map[sNo]) {
+          map[sNo] = { start: pt.timestamp, end: pt.timestamp };
+        } else {
+          if (pt.timestamp < map[sNo].start) map[sNo].start = pt.timestamp;
+          if (pt.timestamp > map[sNo].end) map[sNo].end = pt.timestamp;
+        }
+      }
+    }
+    return map;
+  }, [curveSource]);
+
+  const rawSteps = effectiveData?.steps && effectiveData.steps.length > 0 ? effectiveData.steps : null;
 
   const stepsList = rawSteps
     ? rawSteps.map(s => {
-        // Real-time parity guarantee: if active step's func_id differs from live HMI function_code, auto-align
-        if (s.no === currentStepNo && liveData?.function_code && s.func_id && Number(s.func_id) !== Number(liveData.function_code)) {
-          const match = FUNCTION_MAP[liveData.function_code];
-          if (match) {
-            return { ...s, name: match.name, type: match.type, icon: String(liveData.function_code), func_id: liveData.function_code };
+        let stepObj = { ...s };
+
+        // Extract planned duration in minutes if not already set
+        let targetMin = stepObj.target_min || null;
+        if (!targetMin) {
+          for (const p of [stepObj.p3, stepObj.p1, stepObj.p2]) {
+            if (p) {
+              const m = String(p).match(/(\d+)\s*(?:min|dak|mnt)/i);
+              if (m && Number(m[1]) > 0) {
+                targetMin = Number(m[1]);
+                break;
+              }
+            }
           }
         }
-        return s;
+        stepObj.target_min = targetMin;
+
+        if (isArchiveMode) {
+          stepObj.time_status = 'ON_TRACK';
+          if (!stepObj.delta_text) stepObj.delta_text = '✓ Selesai';
+        } else {
+          // If step is in the future (WAITING), STRICTLY prevent any stale timing leaks
+          if (s.no > currentStepNo) {
+            stepObj.start_time = null;
+            stepObj.end_time = null;
+            stepObj.duration_text = null;
+            stepObj.time_status = 'WAITING';
+            stepObj.delta_text = targetMin ? `Target: ${targetMin} min` : 'Variabel';
+          } else {
+            // Fallback timing from curve only for active or past steps
+            const cTiming = curveTimings[s.no];
+            if (!stepObj.start_time && cTiming?.start) {
+              stepObj.start_time = cTiming.start;
+              if (s.no < currentStepNo && cTiming.end) {
+                stepObj.end_time = cTiming.end;
+              }
+            }
+          }
+
+          // Real-time parity guarantee: if active step's func_id differs from live HMI function_code, auto-align
+          if (s.no === currentStepNo && liveData?.function_code && s.func_id && Number(s.func_id) !== Number(liveData.function_code)) {
+            const match = FUNCTION_MAP[liveData.function_code];
+            if (match) {
+              stepObj = { ...stepObj, name: match.name, type: match.type, icon: String(liveData.function_code), func_id: liveData.function_code };
+            }
+          }
+        }
+        return stepObj;
       })
     : Array.from({ length: Math.max(7, currentStepNo) }, (_, i) => {
         const sNo = i + 1;
-        if (sNo === currentStepNo && liveData?.function_code && FUNCTION_MAP[liveData.function_code]) {
-          return { no: sNo, ...FUNCTION_MAP[liveData.function_code] };
+        const cTiming = sNo <= currentStepNo ? curveTimings[sNo] : null;
+        let base = {
+          no: sNo,
+          start_time: sNo <= currentStepNo ? (cTiming?.start || null) : null,
+          end_time: sNo < currentStepNo ? (cTiming?.end || null) : null,
+          time_status: isArchiveMode ? 'COMPLETED' : (sNo === currentStepNo ? 'RUNNING' : (sNo < currentStepNo ? 'COMPLETED' : 'WAITING')),
+          delta_text: isArchiveMode ? '✓ Selesai' : undefined
+        };
+        if (!isArchiveMode && sNo === currentStepNo && liveData?.function_code && FUNCTION_MAP[liveData.function_code]) {
+          return { ...base, ...FUNCTION_MAP[liveData.function_code] };
         }
         const def = defaultCycleSteps.find(s => s.no === sNo);
-        if (def) return def;
-        return { no: sNo, name: `Langkah #${sNo}`, type: 'PROCESS', icon: '121' };
+        if (def) return { ...base, ...def };
+        return { ...base, name: `Langkah #${sNo}`, type: 'PROCESS', icon: '121' };
       });
+
+  const activeStep = stepsList.find(s => s.no === currentStepNo);
+  const activeStepElapsed = (!isArchiveMode && activeStep?.start_time) ? getElapsedDuration(activeStep.start_time) : null;
+  const firstStepWithStart = stepsList.find(s => s.start_time);
+  const batchTotalElapsed = isArchiveMode 
+    ? (selectedArchiveBatch?.duration_text || null)
+    : (firstStepWithStart?.start_time ? getElapsedDuration(firstStepWithStart.start_time) : null);
+
+  const displayChartCategories = useMemo(() => {
+    if (isArchiveMode && selectedArchiveBatch?.curve) {
+      return selectedArchiveBatch.curve.map((pt) => {
+        const parts = pt.timestamp.split(' ');
+        return parts[1] || pt.timestamp;
+      });
+    }
+    return chartCategories;
+  }, [isArchiveMode, selectedArchiveBatch?.curve, chartCategories]);
+
+  const displayChartSeries = useMemo(() => {
+    if (isArchiveMode && selectedArchiveBatch?.curve) {
+      return [
+        { name: 'Suhu Aktual Bejana (PV °C)', data: selectedArchiveBatch.curve.map(pt => pt.temp_pv) },
+        { name: 'Setpoint Suhu (SP °C)', data: selectedArchiveBatch.curve.map(pt => pt.temp_sp) },
+        { name: 'Sensor PT100 Tambahan (T2 °C)', data: selectedArchiveBatch.curve.map(pt => pt.temp_pt100_t2) }
+      ];
+    }
+    return chartSeries;
+  }, [isArchiveMode, selectedArchiveBatch?.curve, chartSeries]);
+
+  const displayAlarms = useMemo(() => {
+    if (isArchiveMode && selectedArchiveBatch?.alarms) {
+      return selectedArchiveBatch.alarms;
+    }
+    return alarms;
+  }, [isArchiveMode, selectedArchiveBatch?.alarms, alarms]);
 
   const is797 =
     hmiIp?.trim() === '192.168.1.95' ||
-    selectedMachine === 'DA01' ||
-    selectedMachine === 'M_95' ||
-    selectedMachine?.toUpperCase().includes('797') ||
-    liveData?.controller_type?.includes('797') ||
-    rawMachines.find((m) => m.machine_no === selectedMachine)?.controller_type?.includes('797');
+    effectiveMachine === 'DA01' ||
+    effectiveMachine === 'M_95' ||
+    effectiveMachine?.toUpperCase().includes('797') ||
+    effectiveData?.controller_type?.includes('797') ||
+    rawMachines.find((m) => m.machine_no === effectiveMachine)?.controller_type?.includes('797');
 
   const controllerName = is797 ? 'SETEX Secom 797CE' : 'SETEX Secom 777';
   const controllerFolder = is797
@@ -408,7 +663,10 @@ const Logs = () => {
       {/* TABS: ACTIVE BATCH VS ARCHIVE (ORGATEX WORKPLACE PARITY) */}
       <div className="flex border-b border-stroke dark:border-strokedark">
         <button
-          onClick={() => setActiveTab('active')}
+          onClick={() => {
+            setActiveTab('active');
+            setSelectedArchiveBatch(null);
+          }}
           className={`flex items-center gap-2 py-2 px-5 text-xs font-bold border-b-2 transition-colors ${activeTab === 'active'
             ? 'border-primary text-primary'
             : 'border-transparent text-gray-500 hover:text-black dark:hover:text-white'
@@ -418,78 +676,334 @@ const Logs = () => {
           Active Batch (Live Kurva Mesin {selectedMachine})
         </button>
         <button
-          onClick={() => setActiveTab('archive')}
+          onClick={() => {
+            setActiveTab('archive');
+            if (archiveBatches.length === 0) {
+              fetchArchiveBatches(archiveFilterMach, archiveSearch);
+            }
+          }}
           className={`flex items-center gap-2 py-2 px-5 text-xs font-bold border-b-2 transition-colors ${activeTab === 'archive'
             ? 'border-primary text-primary'
             : 'border-transparent text-gray-500 hover:text-black dark:hover:text-white'
             }`}
         >
           <Clock className="h-4 w-4" />
-          Archive (Riwayat Batch Sebelumnya)
+          Riwayat Batch (Daftar Batch yang Sudah Dikerjakan)
+          {archiveBatches.length > 0 && (
+            <span className="text-[10px] px-1.5 py-0.2 rounded-full bg-primary/10 text-primary border border-primary/20 font-mono font-bold ml-1">
+              {archiveBatches.length}
+            </span>
+          )}
         </button>
       </div>
 
-      {/* METRIC CARDS RIBBON */}
-      <div className="grid grid-cols-2 md:grid-cols-5 gap-3.5">
-        <div className="rounded border border-stroke bg-white p-3.5 shadow-sm dark:border-strokedark dark:bg-boxdark">
-          <div className="flex items-center justify-between text-gray-500 text-[11px]">
-            <span>Suhu Aktual Bejana (PV)</span>
-            <Flame className="h-4 w-4 text-danger" />
-          </div>
-          <h3 className="mt-1.5 text-xl font-extrabold text-danger font-mono">
-            {liveData?.current_temp !== undefined ? `${liveData.current_temp} °C` : '-'}
-          </h3>
-          <span className="text-[10px] text-gray-400">Sensor Bejana Utama</span>
-        </div>
+      {/* RIWAYAT BATCH (LIST OF COMPLETED BATCHES) */}
+      {activeTab === 'archive' && !selectedArchiveBatch && (
+        <div className="space-y-4">
+          {/* SEARCH & FILTER CONTROLS */}
+          <div className="rounded-xl border border-stroke bg-white p-4.5 shadow-sm dark:border-strokedark dark:bg-boxdark">
+            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3.5">
+              <div>
+                <h3 className="text-base font-extrabold text-black dark:text-white flex items-center gap-2">
+                  <Clock className="h-5 w-5 text-primary" />
+                  Daftar Batch yang Sudah Dikerjakan
+                  <span className="text-xs bg-primary/10 text-primary border border-primary/20 px-2.5 py-0.5 rounded-full font-bold">
+                    {archiveBatches.length} Batch Tersimpan
+                  </span>
+                </h3>
+                <p className="text-xs text-body dark:text-bodydark mt-1 font-medium">
+                  Riwayat pengerjaan batch produksi pencelupan yang telah selesai beserta rekaman kurva telemetri dan log alarm di PostgreSQL TimescaleDB. Klik pada batch untuk melihat analisis lengkap.
+                </p>
+              </div>
 
-        <div className="rounded border border-stroke bg-white p-3.5 shadow-sm dark:border-strokedark dark:bg-boxdark">
-          <div className="flex items-center justify-between text-gray-500 text-[11px]">
-            <span>Setpoint Suhu (SP)</span>
-            <Clock className="h-4 w-4 text-primary" />
-          </div>
-          <h3 className="mt-1.5 text-xl font-extrabold text-primary font-mono">
-            {chartSeries[1]?.data?.slice(-1)[0] !== undefined ? `${chartSeries[1].data.slice(-1)[0]} °C` : '90.0 °C'}
-          </h3>
-          <span className="text-[10px] text-gray-400">Target Resep Saat Ini</span>
-        </div>
+              <div className="flex flex-wrap items-center gap-2.5">
+                {/* Filter Mesin */}
+                <div className="flex items-center gap-2 bg-gray dark:bg-meta-4/60 px-3 py-1.5 rounded-lg border border-stroke dark:border-strokedark">
+                  <Filter className="h-3.5 w-3.5 text-body" />
+                  <span className="text-xs font-semibold text-body dark:text-bodydark">Mesin:</span>
+                  <select
+                    value={archiveFilterMach}
+                    onChange={(e) => {
+                      setArchiveFilterMach(e.target.value);
+                      fetchArchiveBatches(e.target.value, archiveSearch);
+                    }}
+                    className="bg-transparent text-xs font-bold text-black dark:text-white outline-none cursor-pointer"
+                  >
+                    <option value="SEMUA" className="dark:bg-boxdark">Semua Mesin</option>
+                    {machines.map((m) => (
+                      <option key={m} value={m} className="dark:bg-boxdark">Mesin {m}</option>
+                    ))}
+                  </select>
+                </div>
 
-        <div className="rounded border border-stroke bg-white p-3.5 shadow-sm dark:border-strokedark dark:bg-boxdark">
-          <div className="flex items-center justify-between text-gray-500 text-[11px]">
-            <span>Batch & Program</span>
-            <Play className="h-4 w-4 text-meta-3" />
-          </div>
-          <h3 className="mt-1.5 text-lg font-bold text-black dark:text-white font-mono truncate">
-            #{liveData?.batch_no || '-'}
-          </h3>
-          <span className="text-[10px] text-meta-5 font-semibold truncate block">
-            {liveData?.program_code ? `${liveData.program_code} (${liveData.program_name || ''})` : 'Program Standar'}
-          </span>
-        </div>
+                {/* Search Bar */}
+                <div className="relative min-w-[240px]">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-body" />
+                  <input
+                    type="text"
+                    placeholder="Cari Batch, Resep, Customer..."
+                    value={archiveSearch}
+                    onChange={(e) => {
+                      setArchiveSearch(e.target.value);
+                      fetchArchiveBatches(archiveFilterMach, e.target.value);
+                    }}
+                    className="w-full pl-8.5 pr-8 py-1.5 text-xs bg-gray dark:bg-meta-4/60 border border-stroke dark:border-strokedark rounded-lg text-black dark:text-white outline-none focus:border-primary"
+                  />
+                  {archiveSearch && (
+                    <button
+                      onClick={() => {
+                        setArchiveSearch('');
+                        fetchArchiveBatches(archiveFilterMach, '');
+                      }}
+                      className="absolute right-2.5 top-1/2 -translate-y-1/2 text-body hover:text-black dark:hover:text-white"
+                    >
+                      <X className="h-3.5 w-3.5" />
+                    </button>
+                  )}
+                </div>
 
-        <div className="rounded border border-stroke bg-white p-3.5 shadow-sm dark:border-strokedark dark:bg-boxdark">
-          <div className="flex items-center justify-between text-gray-500 text-[11px]">
-            <span>Status Alarm HMI</span>
-            <ShieldAlert className={`h-4 w-4 ${liveData?.is_alarm_active ? 'text-danger' : 'text-success'}`} />
+                {/* Refresh Button */}
+                <button
+                  onClick={() => fetchArchiveBatches(archiveFilterMach, archiveSearch)}
+                  disabled={archiveLoading}
+                  className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold bg-white dark:bg-boxdark border border-stroke dark:border-strokedark rounded-lg hover:bg-gray-100 dark:hover:bg-meta-4 text-black dark:text-white shadow-sm transition-colors"
+                >
+                  <RefreshCw className={`h-3.5 w-3.5 ${archiveLoading ? 'animate-spin' : ''}`} />
+                  Segarkan
+                </button>
+              </div>
+            </div>
           </div>
-          <h3 className={`mt-1.5 text-sm font-bold ${liveData?.is_alarm_active ? 'text-danger' : 'text-success'}`}>
-            {liveData?.is_alarm_active ? 'ALARM AKTIF!' : 'NORMAL / NO ALARM'}
-          </h3>
-          <span className="text-[10px] text-gray-400">
-            {liveData?.is_alarm_active ? 'Periksa sensor atau intervensi' : 'Semua sensor normal'}
-          </span>
-        </div>
 
-        <div className="rounded border border-stroke bg-white p-3.5 shadow-sm dark:border-strokedark dark:bg-boxdark col-span-2 md:col-span-1">
-          <div className="flex items-center justify-between text-gray-500 text-[11px]">
-            <span>{liveData?.database_mode === 'POSTGRES' ? 'TimescaleDB Points' : 'Poin Database Lokal'}</span>
-            <Database className="h-4 w-4 text-meta-5" />
+          {/* LIST TABLE */}
+          <div className="rounded-xl border border-stroke bg-white shadow-sm dark:border-strokedark dark:bg-boxdark overflow-hidden">
+            {archiveLoading ? (
+              <div className="py-16 text-center text-body">
+                <RefreshCw className="h-8 w-8 mx-auto animate-spin text-primary mb-2" />
+                <p className="text-sm font-semibold text-black dark:text-white">Memuat daftar riwayat batch...</p>
+                <p className="text-xs text-body mt-0.5">Mengambil data dari PostgreSQL TimescaleDB</p>
+              </div>
+            ) : archiveBatches.length === 0 ? (
+              <div className="py-16 text-center text-body">
+                <Clock className="h-10 w-10 mx-auto text-body/40 mb-2" />
+                <p className="text-sm font-bold text-black dark:text-white">Tidak ada riwayat batch ditemukan.</p>
+                <p className="text-xs text-body mt-1">Coba ubah kata kunci pencarian atau filter mesin.</p>
+              </div>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="w-full text-left border-collapse text-xs">
+                  <thead>
+                    <tr className="border-b border-stroke dark:border-strokedark bg-gray-50 dark:bg-meta-4/40 text-[11px] font-bold text-body dark:text-bodydark uppercase tracking-wider">
+                      <th className="py-3 px-4">Nomor Batch / Lot</th>
+                      <th className="py-3 px-4">Mesin</th>
+                      <th className="py-3 px-4">Resep / Program</th>
+                      <th className="py-3 px-4">Customer & Artikel</th>
+                      <th className="py-3 px-4">Waktu Pengerjaan</th>
+                      <th className="py-3 px-4 text-center">Durasi & Telemetri</th>
+                      <th className="py-3 px-4 text-center">Suhu Max</th>
+                      <th className="py-3 px-4 text-center">Status</th>
+                      <th className="py-3 px-4 text-center">Aksi</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-stroke dark:divide-strokedark">
+                    {archiveBatches.map((b, idx) => (
+                      <tr
+                        key={`${b.machine_no}_${b.batch_ref_no}_${idx}`}
+                        onClick={() => handleSelectArchiveBatch(b)}
+                        className="hover:bg-primary/5 dark:hover:bg-primary/10 transition-colors cursor-pointer group"
+                      >
+                        <td className="py-3 px-4 font-mono">
+                          <span className="font-extrabold text-sm text-black dark:text-white block">
+                            {b.batch_no}
+                          </span>
+                          <span className="text-[10px] text-body dark:text-bodydark block">
+                            Ref #{b.batch_ref_no}
+                          </span>
+                        </td>
+                        <td className="py-3 px-4">
+                          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-bold bg-primary/10 text-primary dark:bg-primary/20 dark:text-secondary border border-primary/20">
+                            Mesin {b.machine_no}
+                          </span>
+                        </td>
+                        <td className="py-3 px-4">
+                          <span className="font-bold text-black dark:text-white block truncate max-w-[200px]" title={b.recipe_name}>
+                            {b.recipe_name}
+                          </span>
+                          <span className="text-[10px] text-body dark:text-bodydark font-mono block">
+                            {b.program_code}
+                          </span>
+                        </td>
+                        <td className="py-3 px-4">
+                          <span className="font-medium text-black dark:text-white block truncate max-w-[180px]">
+                            {b.customer}
+                          </span>
+                          <span className="text-[10px] text-body dark:text-bodydark block truncate max-w-[180px]">
+                            {b.article !== '-' ? b.article : (b.color_name !== '-' ? b.color_name : '100% Cotton')}
+                          </span>
+                        </td>
+                        <td className="py-3 px-4 font-mono text-[11px] text-body dark:text-bodydark whitespace-nowrap">
+                          <div className="flex items-center gap-1">
+                            <span className="text-gray-400">Mulai:</span>
+                            <span className="text-black dark:text-white font-medium">{b.start_time}</span>
+                          </div>
+                          <div className="flex items-center gap-1 mt-0.5">
+                            <span className="text-gray-400">Selesai:</span>
+                            <span className="text-black dark:text-white font-medium">{b.end_time}</span>
+                          </div>
+                        </td>
+                        <td className="py-3 px-4 text-center font-mono">
+                          <span className="font-bold text-emerald-600 dark:text-emerald-400 block text-xs">
+                            {b.duration_text}
+                          </span>
+                          <span className="text-[10px] text-body block">
+                            {b.total_points.toLocaleString()} Titik
+                          </span>
+                        </td>
+                        <td className="py-3 px-4 text-center font-mono">
+                          <span className="font-bold text-rose-600 dark:text-rose-400 inline-flex items-center gap-1">
+                            <Flame className="h-3 w-3" />
+                            {b.max_temp} °C
+                          </span>
+                        </td>
+                        <td className="py-3 px-4 text-center">
+                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30">
+                            <CheckCircle2 className="h-3 w-3" />
+                            Selesai
+                          </span>
+                        </td>
+                        <td className="py-3 px-4 text-center">
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleSelectArchiveBatch(b);
+                            }}
+                            className="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-bold text-white bg-primary hover:bg-primary/90 rounded-lg shadow-sm group-hover:scale-105 transition-all"
+                          >
+                            Buka Analisis
+                            <ChevronRight className="h-3.5 w-3.5" />
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
           </div>
-          <h3 className="mt-1.5 text-xl font-bold text-black dark:text-white font-mono">
-            {chartCategories.length} Titik
-          </h3>
-          <span className="text-[10px] text-success font-semibold">Tersimpan Permanen</span>
         </div>
-      </div>
+      )}
+
+      {/* LOADING SPINNER WHEN FETCHING ARCHIVE BATCH DETAIL */}
+      {activeTab === 'archive' && archiveDetailLoading && (
+        <div className="py-24 text-center rounded-xl border border-stroke bg-white shadow-sm dark:border-strokedark dark:bg-boxdark">
+          <RefreshCw className="h-10 w-10 mx-auto animate-spin text-primary mb-3" />
+          <h3 className="text-base font-bold text-black dark:text-white">Memuat Data Analisis & Kurva Batch...</h3>
+          <p className="text-xs text-body dark:text-bodydark mt-1">Mengambil telemetri, langkah resep, dan log alarm dari PostgreSQL TimescaleDB</p>
+        </div>
+      )}
+
+      {/* ACTIVE BATCH VIEW OR SELECTED ARCHIVE BATCH DETAIL VIEW */}
+      {(activeTab === 'active' || (activeTab === 'archive' && selectedArchiveBatch && !archiveDetailLoading)) && (
+        <>
+          {isArchiveMode && (
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-4 bg-primary/10 border border-primary/20 rounded-xl">
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={() => setSelectedArchiveBatch(null)}
+                  className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold bg-white dark:bg-boxdark border border-stroke dark:border-strokedark rounded-lg hover:bg-gray-100 dark:hover:bg-meta-4 text-black dark:text-white shadow-sm transition-all"
+                >
+                  <ArrowLeft className="h-4 w-4 text-primary" />
+                  Kembali ke Daftar Riwayat Batch
+                </button>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs font-extrabold text-primary dark:text-secondary uppercase tracking-wider">
+                      Arsip Batch Selesai
+                    </span>
+                    <span className="text-xs font-bold font-mono px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30">
+                      {selectedArchiveBatch.batch_no}
+                    </span>
+                    <span className="text-xs text-body dark:text-bodydark font-semibold">
+                      (Mesin {selectedArchiveBatch.machine_no})
+                    </span>
+                  </div>
+                  <p className="text-[11px] text-body dark:text-bodydark mt-0.5 font-medium">
+                    Mulai: <span className="font-mono text-black dark:text-white">{selectedArchiveBatch.start_time}</span> • Selesai: <span className="font-mono text-black dark:text-white">{selectedArchiveBatch.end_time}</span> • Durasi: <span className="font-mono font-bold text-emerald-600">{selectedArchiveBatch.duration_text}</span>
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-bold px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-700/50 flex items-center gap-1">
+                  <CheckCircle2 className="h-3.5 w-3.5" />
+                  SELESAI (COMPLETED)
+                </span>
+              </div>
+            </div>
+          )}
+
+          {/* METRIC CARDS RIBBON */}
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-3.5">
+            <div className="rounded border border-stroke bg-white p-3.5 shadow-sm dark:border-strokedark dark:bg-boxdark">
+              <div className="flex items-center justify-between text-gray-500 text-[11px]">
+                <span>Suhu Aktual Bejana (PV)</span>
+                <Flame className="h-4 w-4 text-danger" />
+              </div>
+              <h3 className="mt-1.5 text-xl font-extrabold text-danger font-mono">
+                {effectiveData?.current_temp !== undefined ? `${effectiveData.current_temp} °C` : '-'}
+              </h3>
+              <span className="text-[10px] text-gray-400">{isArchiveMode ? 'Suhu Puncak / Akhir' : 'Sensor Bejana Utama'}</span>
+            </div>
+
+            <div className="rounded border border-stroke bg-white p-3.5 shadow-sm dark:border-strokedark dark:bg-boxdark">
+              <div className="flex items-center justify-between text-gray-500 text-[11px]">
+                <span>Setpoint Suhu (SP)</span>
+                <Clock className="h-4 w-4 text-primary" />
+              </div>
+              <h3 className="mt-1.5 text-xl font-extrabold text-primary font-mono">
+                {effectiveData?.current_sp !== undefined ? `${effectiveData.current_sp} °C` : (displayChartSeries[1]?.data?.slice(-1)[0] !== undefined ? `${displayChartSeries[1].data.slice(-1)[0]} °C` : '90.0 °C')}
+              </h3>
+              <span className="text-[10px] text-gray-400">Target Resep Saat Ini</span>
+            </div>
+
+            <div className="rounded border border-stroke bg-white p-3.5 shadow-sm dark:border-strokedark dark:bg-boxdark">
+              <div className="flex items-center justify-between text-gray-500 text-[11px]">
+                <span>Batch & Program</span>
+                <Play className="h-4 w-4 text-meta-3" />
+              </div>
+              <h3 className="mt-1.5 text-lg font-bold text-black dark:text-white font-mono truncate">
+                #{effectiveData?.batch_no || '-'}
+              </h3>
+              <span className="text-[10px] text-meta-5 font-semibold truncate block">
+                {effectiveData?.program_code ? `${effectiveData.program_code} (${effectiveData.program_name || effectiveData.recipe_name || ''})` : 'Program Standar'}
+              </span>
+            </div>
+
+            <div className="rounded border border-stroke bg-white p-3.5 shadow-sm dark:border-strokedark dark:bg-boxdark">
+              <div className="flex items-center justify-between text-gray-500 text-[11px]">
+                <span>Status Alarm HMI</span>
+                <ShieldAlert className={`h-4 w-4 ${isArchiveMode ? 'text-success' : (effectiveData?.is_alarm_active ? 'text-danger' : 'text-success')}`} />
+              </div>
+              <h3 className={`mt-1.5 text-sm font-bold ${isArchiveMode ? 'text-success' : (effectiveData?.is_alarm_active ? 'text-danger' : 'text-success')}`}>
+                {isArchiveMode ? 'NORMAL / SELESAI' : (effectiveData?.is_alarm_active ? 'ALARM AKTIF!' : 'NORMAL / NO ALARM')}
+              </h3>
+              <span className="text-[10px] text-gray-400">
+                {isArchiveMode ? `${displayAlarms.length} Alarm Tercatat Selama Proses` : (effectiveData?.is_alarm_active ? 'Periksa sensor atau intervensi' : 'Semua sensor normal')}
+              </span>
+            </div>
+
+            <div className="rounded border border-stroke bg-white p-3.5 shadow-sm dark:border-strokedark dark:bg-boxdark col-span-2 md:col-span-1">
+              <div className="flex items-center justify-between text-gray-500 text-[11px]">
+                <span>{effectiveData?.database_mode === 'POSTGRES' ? 'TimescaleDB Points' : 'Poin Database Lokal'}</span>
+                <Database className="h-4 w-4 text-meta-5" />
+              </div>
+              <h3 className="mt-1.5 text-xl font-bold text-black dark:text-white font-mono">
+                {effectiveData?.total_points || displayChartCategories.length} Titik
+              </h3>
+              <span className="text-[10px] text-success font-semibold">
+                {isArchiveMode ? 'Arsip Selesai' : 'Tersimpan Permanen'}
+              </span>
+            </div>
+          </div>
 
       {/* TRACK 1: STEP TIMELINE BAR (UCStepState SETEX PARITY) */}
       <div className="rounded border border-stroke bg-white p-4 shadow-sm dark:border-strokedark dark:bg-boxdark space-y-2">
@@ -504,6 +1018,18 @@ const Logs = () => {
             <span className="text-xs font-bold text-primary font-mono bg-primary/10 px-2 py-0.5 rounded border border-primary/20">
               Langkah Aktif: #{currentStepNo} ({stepsList.find(s => s.no === currentStepNo)?.name || 'Proses'})
             </span>
+            {activeStepElapsed && (
+              <span className="text-xs font-bold text-blue-700 dark:text-blue-300 font-mono bg-blue-500/10 px-2.5 py-0.5 rounded border border-blue-500/20 flex items-center gap-1.5" title="Durasi langkah aktif yang sedang berjalan saat ini">
+                <span className="w-2 h-2 rounded-full bg-blue-500 animate-ping"></span>
+                Sudah Berjalan: {activeStepElapsed}
+              </span>
+            )}
+            {batchTotalElapsed && (
+              <span className="text-xs font-bold text-emerald-700 dark:text-emerald-300 font-mono bg-emerald-500/10 px-2.5 py-0.5 rounded border border-emerald-500/20 flex items-center gap-1" title="Total durasi proses batch sejak awal langkah">
+                <Clock className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
+                Total Batch: {batchTotalElapsed}
+              </span>
+            )}
             <button
               onClick={() => {
                 const active = stepsList.find(s => s.no === currentStepNo) || stepsList[0];
@@ -518,7 +1044,7 @@ const Logs = () => {
         </div>
 
         {/* Step Blocks */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-7 lg:grid-cols-8 gap-2 pt-1 max-h-56 overflow-y-auto pr-1">
+        <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-7 lg:grid-cols-8 gap-2 pt-1 max-h-80 overflow-y-auto pr-1">
           {stepsList.map((st) => {
             const isActive = st.no === currentStepNo;
             const isCompleted = st.no < currentStepNo;
@@ -527,7 +1053,7 @@ const Logs = () => {
                 key={st.no}
                 id={`step-card-${st.no}`}
                 onClick={() => setSelectedStepDetail(st)}
-                className={`p-2.5 rounded border text-center transition-all cursor-pointer hover:shadow-md hover:border-primary/80 group ${isActive
+                className={`p-2 rounded border text-center transition-all cursor-pointer hover:shadow-md hover:border-primary/80 group ${isActive
                   ? 'border-primary bg-primary/15 text-primary shadow-md font-bold ring-2 ring-primary/40 scale-[1.02]'
                   : isCompleted
                     ? 'border-success/40 bg-success/5 text-success font-medium'
@@ -537,6 +1063,11 @@ const Logs = () => {
               >
                 <div className="text-[10px] font-mono uppercase">Step #{st.no} [F{st.icon}]</div>
                 <div className="text-xs font-semibold truncate mt-0.5" title={st.name}>{st.name}</div>
+                {st.comment && (
+                  <div className="text-[9px] font-mono font-bold text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/40 rounded px-1 truncate mt-0.5" title={st.comment}>
+                    📝 {st.comment}
+                  </div>
+                )}
                 {st.p1 && (
                   <div className="text-[10px] font-mono text-primary/80 truncate mt-0.5">
                     {st.p1} {st.p3 ? `• ${st.p3}` : ''}
@@ -551,6 +1082,86 @@ const Logs = () => {
                   <span>{isActive ? '● SEDANG JALAN' : isCompleted ? '✓ SELESAI' : 'MENUNGGU'}</span>
                   <span className="opacity-0 group-hover:opacity-100 text-[10px] transition-opacity">🔍</span>
                 </div>
+
+                {/* Execution Timing & Target Comparison */}
+                <div className="mt-1.5 pt-1 border-t border-dashed border-gray-200 dark:border-strokedark text-[8.5px] font-mono text-left space-y-0.5">
+                  <div className="flex items-center justify-between">
+                    <span className="text-gray-400">Mulai:</span>
+                    <span className="font-semibold text-gray-700 dark:text-gray-200">
+                      {formatStepTime(st.start_time) || '-'}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-gray-400">Selesai:</span>
+                    <span className="font-semibold text-gray-700 dark:text-gray-200">
+                      {isActive ? (
+                        <span className="text-primary animate-pulse font-bold">Jalan...</span>
+                      ) : (
+                        formatStepTime(st.end_time) || '-'
+                      )}
+                    </span>
+                  </div>
+                  {isActive ? (
+                    <div className="flex items-center justify-between text-[8.5px] bg-primary/10 px-1 py-0.5 rounded border border-primary/20">
+                      <span className="text-primary font-bold">Sudah Jalan:</span>
+                      <span className="font-mono font-extrabold text-primary">
+                        {getElapsedDuration(st.start_time) || st.duration_text || 'Berjalan...'}
+                      </span>
+                    </div>
+                  ) : st.duration_text ? (
+                    <div className="flex items-center justify-between text-[8px] text-gray-400 dark:text-gray-500">
+                      <span>Aktual:</span>
+                      <span className="font-semibold text-gray-700 dark:text-gray-200">
+                        {st.duration_text}
+                      </span>
+                    </div>
+                  ) : null}
+
+                  {/* Target vs Actual Deviation Badge */}
+                  {isActive ? (
+                    <div className="pt-0.5 text-center">
+                      {(() => {
+                        const liveRem = getLiveRemainingText(st.start_time, st.target_min);
+                        if (liveRem) {
+                          return (
+                            <span className={`inline-block w-full px-1 py-0.5 rounded font-bold text-[8px] truncate border ${
+                              liveRem.isOvertime
+                                ? 'bg-rose-500/20 text-rose-700 dark:text-rose-300 border-rose-500/40 animate-pulse'
+                                : 'bg-primary/15 text-primary dark:text-blue-300 border-primary/30'
+                            }`}>
+                              {liveRem.text}
+                            </span>
+                          );
+                        }
+                        return (
+                          <span className="inline-block w-full px-1 py-0.5 rounded bg-primary/10 border border-primary/20 text-primary dark:text-blue-300 font-bold text-[8px] truncate">
+                            ⏱ {st.delta_text || (st.target_min ? `Target: ${st.target_min} min` : 'Sedang Berjalan')}
+                          </span>
+                        );
+                      })()}
+                    </div>
+                  ) : st.delta_text ? (
+                    <div className="pt-0.5 text-center">
+                      {st.time_status === 'SLOWER' || st.time_status === 'OVERTIME' ? (
+                        <span className="inline-block w-full px-1 py-0.5 rounded bg-rose-500/15 border border-rose-500/30 text-rose-700 dark:text-rose-300 font-bold text-[8px] truncate" title="Proses lebih lambat / molor dari target resep">
+                          ⚠️ {st.delta_text}
+                        </span>
+                      ) : st.time_status === 'FASTER' ? (
+                        <span className="inline-block w-full px-1 py-0.5 rounded bg-emerald-500/15 border border-emerald-500/30 text-emerald-700 dark:text-emerald-300 font-bold text-[8px] truncate" title="Proses lebih cepat dari target resep">
+                          ⚡ {st.delta_text}
+                        </span>
+                      ) : st.time_status === 'ON_TRACK' ? (
+                        <span className="inline-block w-full px-1 py-0.5 rounded bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-medium text-[8px] truncate">
+                          ✓ Sesuai Target
+                        </span>
+                      ) : (
+                        <span className="inline-block w-full text-gray-400 dark:text-gray-500 text-[8px] truncate">
+                          {st.delta_text}
+                        </span>
+                      )}
+                    </div>
+                  ) : null}
+                </div>
               </div>
             );
           })}
@@ -562,22 +1173,22 @@ const Logs = () => {
         <div className="flex items-center justify-between mb-4">
           <div>
             <h4 className="text-sm font-bold text-black dark:text-white uppercase tracking-wider">
-              Profil Kurva Proses: Mesin {selectedMachine} {is797 ? '(SETEX 797CE)' : '(SETEX 777)'} (Batch #{liveData?.batch_no || '-'})
+              Profil Kurva Proses: Mesin {effectiveMachine} {is797 ? '(SETEX 797CE)' : '(SETEX 777)'} (Batch #{effectiveData?.batch_no || '-'})
             </h4>
             <span className="text-xs text-gray-500">
-              Sinkronisasi waktu nyata: Suhu PV, Setpoint SP, dan Sensor T2 (°C)
+              {isArchiveMode ? 'Arsip rekaman kurva tersimpan di PostgreSQL TimescaleDB' : 'Sinkronisasi waktu nyata: Suhu PV, Setpoint SP, dan Sensor T2 (°C)'}
             </span>
           </div>
           <span className="text-xs text-gray-500 font-mono">
-            Terakhir diperbarui: {lastUpdated}
+            {isArchiveMode ? `Total: ${effectiveData?.total_points || displayChartCategories.length} Titik Telemetri` : `Terakhir diperbarui: ${lastUpdated}`}
           </span>
         </div>
 
-        {chartSeries.length > 0 ? (
+        {displayChartSeries.length > 0 && displayChartCategories.length > 0 ? (
           <TempCurveChart
-            series={chartSeries}
-            categories={chartCategories}
-            title={`Kurva Telemetri Kontroler ${controllerName} - Batch #${liveData?.batch_no || ''}`}
+            series={displayChartSeries}
+            categories={displayChartCategories}
+            title={`Kurva Telemetri Kontroler ${controllerName} - Batch #${effectiveData?.batch_no || ''}`}
           />
         ) : (
           <div className="flex flex-col items-center justify-center h-64 text-gray-400">
@@ -595,7 +1206,7 @@ const Logs = () => {
             <div className="flex flex-wrap items-center gap-2">
               <AlertTriangle className="h-4 w-4 text-warning" />
               <h4 className="text-sm font-bold text-black dark:text-white uppercase tracking-wider">
-                Riwayat Alarm & Intervensi HMI Mesin {selectedMachine}
+                Riwayat Alarm & Intervensi HMI Mesin {effectiveMachine} {isArchiveMode ? `(Batch #${effectiveData?.batch_no})` : ''}
               </h4>
               {selectedAlarmDate ? (
                 <span className="text-[11px] bg-primary/10 text-primary font-bold px-2 py-0.5 rounded border border-primary/20 flex items-center gap-1">
@@ -697,7 +1308,7 @@ const Logs = () => {
                 : 'bg-white dark:bg-boxdark border border-stroke dark:border-strokedark text-gray-600 dark:text-gray-400 hover:text-black dark:hover:text-white'
                 }`}
             >
-              Semua ({alarms.length})
+              Semua ({displayAlarms.length})
             </button>
             <button
               onClick={() => setAlarmFilterCategory('ALARM')}
@@ -706,7 +1317,7 @@ const Logs = () => {
                 : 'bg-white dark:bg-boxdark border border-stroke dark:border-strokedark text-gray-600 dark:text-gray-400 hover:text-black dark:hover:text-white'
                 }`}
             >
-              Alarm Sistem ({alarms.filter(a => !(a.is_intervention || ['0', '20', '256', '5899'].includes(String(a.alarm_code)))).length})
+              Alarm Sistem ({displayAlarms.filter(a => !(a.is_intervention || ['0', '20', '256', '5899'].includes(String(a.alarm_code)))).length})
             </button>
             <button
               onClick={() => setAlarmFilterCategory('INTERVENTION')}
@@ -715,7 +1326,7 @@ const Logs = () => {
                 : 'bg-white dark:bg-boxdark border border-stroke dark:border-strokedark text-gray-600 dark:text-gray-400 hover:text-black dark:hover:text-white'
                 }`}
             >
-              Intervensi Operator ({alarms.filter(a => a.is_intervention || ['0', '20', '256', '5899'].includes(String(a.alarm_code))).length})
+              Intervensi Operator ({displayAlarms.filter(a => a.is_intervention || ['0', '20', '256', '5899'].includes(String(a.alarm_code))).length})
             </button>
           </div>
 
@@ -744,12 +1355,12 @@ const Logs = () => {
 
         {/* TABEL DATA (STRICT ORDER BY DATE TIME) */}
         <div className="p-4 overflow-x-auto">
-          {alarms.length > 0 || (liveData?.interventions && liveData.interventions.length > 0) ? (
+          {displayAlarms.length > 0 || (effectiveData?.interventions && effectiveData.interventions.length > 0) ? (
             (() => {
               // Merge alarms with recorded operator parameter interventions
               const rawEvents = [
-                ...alarms,
-                ...(liveData?.interventions || []).map(inv => ({
+                ...displayAlarms,
+                ...(effectiveData?.interventions || []).map(inv => ({
                   id: `inv-${inv.id}`,
                   timestamp: inv.timestamp,
                   alarm_code: 'SET-MOD',
@@ -876,7 +1487,7 @@ const Logs = () => {
                     <div className="flex flex-wrap items-center gap-2">
                       <span>
                         Menampilkan <strong className="text-black dark:text-white">{sortedAlarms.length}</strong> catatan
-                        {selectedAlarmDate ? ` pada tanggal ${selectedAlarmDate}` : ' dari seluruh arsip'} untuk Mesin {selectedMachine}.
+                        {selectedAlarmDate ? ` pada tanggal ${selectedAlarmDate}` : ' dari seluruh arsip'} untuk Mesin {effectiveMachine}.
                       </span>
                       <span className="inline-flex items-center gap-1 text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-primary/10 text-primary border border-primary/20">
                         ORDER BY: DATETIME ({alarmSortOrder.toUpperCase()})
@@ -899,8 +1510,8 @@ const Logs = () => {
               <CheckCircle2 className="h-8 w-8 text-success mx-auto mb-2" />
               <p className="text-xs font-semibold text-gray-700 dark:text-gray-300">
                 {selectedAlarmDate
-                  ? `Tidak ada riwayat alarm atau intervensi HMI Mesin ${selectedMachine} pada tanggal ${selectedAlarmDate}.`
-                  : `Tidak ada catatan alarm aktif pada Mesin ${selectedMachine}.`}
+                  ? `Tidak ada riwayat alarm atau intervensi HMI Mesin ${effectiveMachine} pada tanggal ${selectedAlarmDate}.`
+                  : `Tidak ada catatan alarm aktif pada Mesin ${effectiveMachine}.`}
               </p>
               {selectedAlarmDate && (
                 <button
@@ -914,37 +1525,72 @@ const Logs = () => {
           )}
         </div>
       </div>
+      </>
+      )}
 
       {/* MODAL POPUP: SETEX SECOM PROGRAM LIST & SUB-STEP DETAIL (PARITY WITH HMI POPUP) */}
       {selectedStepDetail && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4 animate-in fade-in duration-200">
-          <div className="bg-[#e4e7eb] dark:bg-boxdark border-2 border-[#b0b8c1] dark:border-strokedark rounded-lg shadow-2xl w-full max-w-2xl overflow-hidden font-sans">
+          <div className="bg-white dark:bg-boxdark border border-stroke dark:border-strokedark rounded-xl shadow-2xl w-full max-w-4xl max-h-[92vh] flex flex-col overflow-hidden font-sans">
 
             {/* HMI Classic Window Header */}
-            <div className="bg-gradient-to-r from-[#d2d8e0] via-[#e5e9f0] to-[#c8d0dc] dark:from-meta-4 dark:to-boxdark border-b border-[#a0a8b4] px-4 py-2.5 flex items-center justify-between shadow-inner">
-              <div className="flex items-center gap-2">
-                <span className="text-sm font-bold font-mono text-[#2c3e50] dark:text-white tracking-wide">
-                  Program List {liveData?.program_code || '0342'} {liveData?.program_name || 'PROGRAM 30 MCT F'}
+            <div className="bg-gray-100 dark:bg-meta-4 border-b border-stroke dark:border-strokedark px-4 py-3 flex items-center justify-between shrink-0">
+              <div className="flex items-center gap-2 flex-wrap">
+                <span className="text-sm font-bold font-mono text-black dark:text-white tracking-wide">
+                  Program List {effectiveData?.program_code || '0342'} {effectiveData?.program_name || effectiveData?.recipe_name || 'PROGRAM 30 MCT F'}
                 </span>
-                <span className="text-xs bg-primary/20 text-primary border border-primary/30 font-bold px-2 py-0.5 rounded font-mono">
+                <span className="text-xs bg-primary/10 text-primary dark:bg-primary/20 dark:text-secondary border border-primary/20 font-bold px-2 py-0.5 rounded-full font-mono">
                   Step #{String(selectedStepDetail.no).padStart(3, '0')}
+                </span>
+                <span className="text-[11px] bg-gray-200 dark:bg-boxdark font-bold font-mono px-2 py-0.5 rounded text-gray-700 dark:text-gray-300">
+                  Kategori: {selectedStepDetail.type || 'PROCESS'} [F{selectedStepDetail.icon}]
+                </span>
+                <span className={`text-[11px] font-bold font-mono px-2 py-0.5 rounded ${
+                  selectedStepDetail.no === currentStepNo
+                    ? 'bg-primary/15 text-primary border border-primary/30 animate-pulse'
+                    : selectedStepDetail.no < currentStepNo
+                      ? 'bg-success/15 text-success border border-success/30'
+                      : 'bg-gray-100 text-gray-500'
+                }`}>
+                  {selectedStepDetail.no === currentStepNo ? 'SEDANG JALAN' : selectedStepDetail.no < currentStepNo ? 'SELESAI' : 'MENUNGGU'}
                 </span>
               </div>
               <button
                 onClick={() => setSelectedStepDetail(null)}
-                className="w-7 h-7 bg-red-600 hover:bg-red-700 active:scale-95 text-white font-bold rounded flex items-center justify-center shadow-md transition-all cursor-pointer"
+                className="w-7 h-7 bg-rose-600 hover:bg-rose-700 active:scale-95 text-white font-bold rounded-lg flex items-center justify-center shadow-sm transition-all cursor-pointer shrink-0"
                 title="Tutup Popup"
               >
                 <X className="w-4 h-4" />
               </button>
             </div>
 
-            {/* Table Content (SETEX HMI Parity) */}
-            <div className="p-4 bg-white dark:bg-boxdark">
+            {/* Scrollable Modal Content */}
+            <div className="flex-1 overflow-y-auto p-4 space-y-3.5">
+              {/* Comment / Remark (Slot 0) from PRG Recipe */}
+              {selectedStepDetail.comment && (
+                <div className="p-3 rounded-lg bg-blue-50 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-800 flex items-center justify-between text-xs text-blue-950 dark:text-blue-100 shadow-2xs">
+                  <div className="flex items-center gap-2.5">
+                    <span className="text-lg">📝</span>
+                    <div>
+                      <div className="text-[10px] uppercase font-bold text-blue-600 dark:text-blue-400 tracking-wider">
+                        Catatan / Komentar Resep (Slot 0):
+                      </div>
+                      <div className="font-mono font-extrabold text-sm text-blue-950 dark:text-blue-100 mt-0.5">
+                        {selectedStepDetail.comment}
+                      </div>
+                    </div>
+                  </div>
+                  <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-blue-100 dark:bg-blue-900/60 text-blue-800 dark:text-blue-300 font-bold border border-blue-300 dark:border-blue-700">
+                    INSTRUCTION REMARK
+                  </span>
+                </div>
+              )}
+
+              {/* Operator Intervention Alert */}
               {selectedStepDetail.has_intervention && (
-                <div className="mb-3 p-3 rounded bg-amber-50 dark:bg-amber-950/40 border border-amber-300 dark:border-amber-700/60 flex items-center justify-between text-xs text-amber-900 dark:text-amber-200 shadow-xs animate-in fade-in">
+                <div className="p-3 rounded-lg bg-amber-50 dark:bg-amber-950/40 border border-amber-300 dark:border-amber-700/60 flex items-center justify-between text-xs text-amber-900 dark:text-amber-200 shadow-xs animate-in fade-in">
                   <div className="flex items-center gap-2">
-                    <span className="text-base">⚠️</span>
+                    <span className="text-lg">⚠️</span>
                     <div>
                       <div className="font-bold">Intervensi Operator Terdeteksi:</div>
                       <div>{selectedStepDetail.intervention_notes}</div>
@@ -957,56 +1603,142 @@ const Logs = () => {
                 </div>
               )}
 
-              <div className="border border-[#b8c2cc] dark:border-strokedark rounded overflow-hidden shadow-inner">
+              {/* Recipe Targets & Timings 6-Grid */}
+              <div className="p-3 rounded-lg bg-gray-50 dark:bg-meta-4/40 border border-stroke dark:border-strokedark grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-2 text-center text-xs font-mono">
+                <div className="p-1.5 rounded bg-white dark:bg-boxdark border border-stroke dark:border-strokedark">
+                  <div className="text-[10px] text-gray-500 uppercase font-semibold">Target Resep (Set)</div>
+                  <div className="font-bold text-black dark:text-white mt-0.5">
+                    {selectedStepDetail.set_time ? `${selectedStepDetail.set_time} min` : (selectedStepDetail.target_min ? `${selectedStepDetail.target_min} min` : 'Variabel')}
+                  </div>
+                </div>
+                <div className="p-1.5 rounded bg-white dark:bg-boxdark border border-stroke dark:border-strokedark">
+                  <div className="text-[10px] text-gray-500 uppercase font-semibold">Waktu Tahan (Hold)</div>
+                  <div className="font-bold text-black dark:text-white mt-0.5">
+                    {selectedStepDetail.hold_time ? `${selectedStepDetail.hold_time} min` : '-'}
+                  </div>
+                </div>
+                <div className="p-1.5 rounded bg-white dark:bg-boxdark border border-stroke dark:border-strokedark">
+                  <div className="text-[10px] text-gray-500 uppercase font-semibold">Proteksi (Max)</div>
+                  <div className="font-bold text-black dark:text-white mt-0.5">
+                    {selectedStepDetail.protect_time ? `${selectedStepDetail.protect_time} min` : '-'}
+                  </div>
+                </div>
+                <div className="p-1.5 rounded bg-white dark:bg-boxdark border border-stroke dark:border-strokedark">
+                  <div className="text-[10px] text-gray-500 uppercase font-semibold">Waktu Mulai</div>
+                  <div className="font-bold text-black dark:text-white mt-0.5">
+                    {selectedStepDetail.start_time ? formatStepTime(selectedStepDetail.start_time) : '-'}
+                  </div>
+                </div>
+                <div className="p-1.5 rounded bg-white dark:bg-boxdark border border-stroke dark:border-strokedark">
+                  <div className="text-[10px] text-gray-500 uppercase font-semibold">Waktu Selesai</div>
+                  <div className="font-bold text-black dark:text-white mt-0.5">
+                    {selectedStepDetail.no === currentStepNo ? (
+                      <span className="text-primary font-bold animate-pulse">Sedang Berjalan</span>
+                    ) : (
+                      selectedStepDetail.end_time ? formatStepTime(selectedStepDetail.end_time) : '-'
+                    )}
+                  </div>
+                </div>
+                <div className="p-1.5 rounded bg-white dark:bg-boxdark border border-stroke dark:border-strokedark">
+                  <div className="text-[10px] text-gray-500 uppercase font-semibold">Durasi & Deviasi</div>
+                  <div className="mt-0.5 flex flex-col items-center">
+                    <span className="font-bold text-emerald-600 dark:text-emerald-400">
+                      {selectedStepDetail.no === currentStepNo
+                        ? `${getElapsedDuration(selectedStepDetail.start_time) || selectedStepDetail.duration_text || 'Berjalan...'}`
+                        : (selectedStepDetail.duration_text || '-')}
+                    </span>
+                    {selectedStepDetail.delta_text && (
+                      <span className={`text-[9px] font-bold px-1 rounded mt-0.5 ${
+                        selectedStepDetail.time_status === 'SLOWER' || selectedStepDetail.time_status === 'OVERTIME'
+                          ? 'bg-rose-500/15 text-rose-700 dark:text-rose-300 border border-rose-500/30'
+                          : selectedStepDetail.time_status === 'FASTER'
+                            ? 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border border-emerald-500/30'
+                            : 'text-gray-500'
+                      }`}>
+                        {selectedStepDetail.delta_text}
+                      </span>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* Comprehensive Sub-Steps & Parameter Table */}
+              <div className="border border-stroke dark:border-strokedark rounded-lg overflow-hidden shadow-2xs">
                 <table className="w-full text-xs text-left">
-                  <thead className="bg-[#e9ecef] dark:bg-meta-4 text-[#334155] dark:text-gray-200 uppercase font-bold border-b border-[#b8c2cc] dark:border-strokedark font-mono">
+                  <thead className="bg-gray-100 dark:bg-meta-4 text-body dark:text-bodydark uppercase font-bold border-b border-stroke dark:border-strokedark font-mono">
                     <tr>
-                      <th className="py-2.5 px-3 w-16 text-center border-r border-[#b8c2cc] dark:border-strokedark">Step No</th>
-                      <th className="py-2.5 px-3 border-r border-[#b8c2cc] dark:border-strokedark">Description</th>
-                      <th className="py-2.5 px-3 w-24 text-center border-r border-[#b8c2cc] dark:border-strokedark">P1 Resep</th>
-                      <th className="py-2.5 px-3 w-24 text-center border-r border-[#b8c2cc] dark:border-strokedark">P2</th>
-                      <th className="py-2.5 px-3 w-20 text-center border-r border-[#b8c2cc] dark:border-strokedark">P3</th>
-                      <th className="py-2.5 px-3 w-32 text-center">Aktual / Δ</th>
+                      <th className="py-2.5 px-3 w-16 text-center border-r border-stroke dark:border-strokedark">Slot</th>
+                      <th className="py-2.5 px-3 w-48 border-r border-stroke dark:border-strokedark">Fungsi / Resource</th>
+                      <th className="py-2.5 px-3 border-r border-stroke dark:border-strokedark">Parameter Lengkap Resep (P1 - P6)</th>
+                      <th className="py-2.5 px-3 w-36 text-center">Aktual / Δ</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-[#d0d7de] dark:divide-strokedark font-sans">
+                  <tbody className="divide-y divide-stroke dark:divide-strokedark font-sans">
                     {(selectedStepDetail.sub_steps && selectedStepDetail.sub_steps.length > 0
                       ? selectedStepDetail.sub_steps
-                      : [{ line: 1, name: selectedStepDetail.name, p1: selectedStepDetail.p1, p2: selectedStepDetail.p2, p3: selectedStepDetail.p3, is_sub: false }]
+                      : [{ line: 1, name: selectedStepDetail.name, params: selectedStepDetail.params, p1: selectedStepDetail.p1, p2: selectedStepDetail.p2, p3: selectedStepDetail.p3, is_sub: false }]
                     ).map((line, idx) => {
                       const isMain = !line.is_sub && line.line === 1;
+                      const activeParams = line.params && line.params.length > 0
+                        ? line.params.filter(p => p.formatted && p.formatted !== '0' && p.formatted !== '0.0' && p.formatted !== 'Off')
+                        : [
+                            line.p1 ? { pos: 1, name: 'P1', formatted: line.p1 } : null,
+                            line.p2 ? { pos: 2, name: 'P2', formatted: line.p2 } : null,
+                            line.p3 ? { pos: 3, name: 'P3', formatted: line.p3 } : null,
+                            line.p4 ? { pos: 4, name: 'P4', formatted: line.p4 } : null
+                          ].filter(Boolean);
+
                       return (
                         <tr
                           key={idx}
                           className={`${isMain
-                            ? 'bg-[#0052cc] text-white font-bold'
+                            ? 'bg-primary/5 dark:bg-primary/10 font-medium'
                             : idx % 2 === 0
                               ? 'bg-white dark:bg-boxdark text-black dark:text-white'
-                              : 'bg-[#f8f9fa] dark:bg-meta-4/30 text-black dark:text-white'
+                              : 'bg-gray dark:bg-meta-4/20 text-black dark:text-white'
                             } transition-colors`}
                         >
-                          <td className={`py-2 px-3 text-center font-mono border-r ${isMain ? 'border-blue-400 font-extrabold text-sm' : 'border-[#d0d7de] dark:border-strokedark text-gray-400'}`}>
-                            {isMain ? String(selectedStepDetail.no).padStart(3, '0') : ''}
+                          <td className={`py-2.5 px-3 text-center font-mono border-r ${isMain ? 'font-extrabold text-primary text-sm' : 'border-stroke dark:border-strokedark text-gray-400'}`}>
+                            {String(line.line).padStart(2, '0')}
                           </td>
-                          <td className={`py-2 px-3 border-r ${isMain ? 'border-blue-400' : 'border-[#d0d7de] dark:border-strokedark'} ${line.is_sub ? 'pl-6 font-medium text-gray-700 dark:text-gray-300' : 'font-bold'}`}>
-                            {line.name}
+                          <td className={`py-2.5 px-3 border-r border-stroke dark:border-strokedark`}>
+                            <div className="font-bold text-black dark:text-white flex items-center gap-1.5">
+                              {line.func_name || line.name}
+                              {line.func_id > 0 && (
+                                <span className="text-[10px] font-mono px-1 py-0.2 rounded bg-gray-200 dark:bg-meta-4 text-gray-700 dark:text-gray-300">
+                                  F{line.func_id}
+                                </span>
+                              )}
+                            </div>
+                            <div className="text-[10px] text-gray-500 font-mono mt-0.5">
+                              {line.resource_name || (isMain ? 'Main Process Kier' : `Resource Slot ${line.line}`)}
+                            </div>
                           </td>
-                          <td className={`py-2 px-3 text-center font-mono border-r ${isMain ? 'border-blue-400' : 'border-[#d0d7de] dark:border-strokedark'}`}>
-                            {line.p1 || '-'}
+                          <td className={`py-2.5 px-3 border-r border-stroke dark:border-strokedark`}>
+                            {activeParams.length > 0 ? (
+                              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-1.5">
+                                {activeParams.map((p, pi) => (
+                                  <div key={pi} className="flex items-center justify-between px-2 py-1 rounded bg-white dark:bg-boxdark border border-stroke dark:border-strokedark text-[11px] font-mono shadow-2xs">
+                                    <span className="text-gray-500 truncate mr-1.5" title={p.name}>{p.name}:</span>
+                                    <span className="font-bold text-black dark:text-white shrink-0">{p.formatted}</span>
+                                  </div>
+                                ))}
+                              </div>
+                            ) : (
+                              <span className="text-gray-400 text-[11px] italic">Tidak ada parameter numerik</span>
+                            )}
                           </td>
-                          <td className={`py-2 px-3 text-center font-mono border-r ${isMain ? 'border-blue-400' : 'border-[#d0d7de] dark:border-strokedark'}`}>
-                            {line.p2 || '-'}
-                          </td>
-                          <td className={`py-2 px-3 text-center font-mono border-r ${isMain ? 'border-blue-400' : 'border-[#d0d7de] dark:border-strokedark'}`}>
-                            {line.p3 || '-'}
-                          </td>
-                          <td className="py-2 px-3 text-center font-mono">
+                          <td className="py-2.5 px-3 text-center font-mono">
                             {line.has_delta ? (
                               <span className="inline-block px-1.5 py-0.5 rounded bg-amber-100 dark:bg-amber-900/60 text-amber-800 dark:text-amber-200 font-bold font-mono text-[11px] border border-amber-300 dark:border-amber-700">
                                 {line.actual_p1} (Δ {line.delta_p1})
                               </span>
+                            ) : isMain && selectedStepDetail.telemetry?.pv_end ? (
+                              <div className="text-emerald-600 dark:text-emerald-400 font-mono font-bold text-[11px]">
+                                PV: {selectedStepDetail.telemetry.pv_end} °C
+                              </div>
                             ) : isMain ? (
-                              <span className="text-blue-100 text-[11px]">Sesuai Resep</span>
+                              <span className="text-emerald-600 dark:text-emerald-400 text-[11px] font-medium">Sesuai Resep</span>
                             ) : (
                               <span className="text-gray-400 text-[11px]">-</span>
                             )}
@@ -1018,26 +1750,113 @@ const Logs = () => {
                 </table>
               </div>
 
-              {/* Status info bar */}
-              <div className="mt-3 flex items-center justify-between text-xs text-gray-500 dark:text-gray-400">
-                <div>
-                  Kategori: <span className="font-bold uppercase text-primary font-mono">{selectedStepDetail.type || 'PROCESS'}</span> (Kode: F{selectedStepDetail.icon})
-                </div>
-                <div>
-                  Status Langkah: <span className={`font-bold font-mono px-2 py-0.5 rounded text-[11px] ${selectedStepDetail.no === currentStepNo
-                    ? 'bg-primary/10 text-primary border border-primary/20'
-                    : selectedStepDetail.no < currentStepNo
-                      ? 'bg-success/10 text-success border border-success/20'
-                      : 'bg-gray-100 text-gray-500'
-                    }`}>
-                    {selectedStepDetail.no === currentStepNo ? 'SEDANG JALAN' : selectedStepDetail.no < currentStepNo ? 'SELESAI' : 'MENUNGGU'}
+              {/* Physical Sensor Telemetry Snapshot During This Step */}
+              <div className="p-3 rounded-lg bg-gray-50 dark:bg-meta-4/30 border border-stroke dark:border-strokedark">
+                <div className="text-[11px] font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider mb-2 flex items-center justify-between">
+                  <span className="flex items-center gap-1.5">
+                    <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span>
+                    Pembacaan Telemetri Sensor Aktual Pada Langkah Ini
                   </span>
+                  {selectedStepDetail.telemetry?.point_count ? (
+                    <span className="text-[10px] text-gray-500 font-mono bg-white dark:bg-boxdark px-1.5 py-0.5 rounded border border-stroke dark:border-strokedark">
+                      {selectedStepDetail.telemetry.point_count} Titik Telemetri
+                    </span>
+                  ) : (
+                    <span className="text-[10px] text-gray-400 font-mono">
+                      {selectedStepDetail.no === currentStepNo ? 'Sensor Real-Time' : 'Data Arsip'}
+                    </span>
+                  )}
+                </div>
+
+                <div className="grid grid-cols-2 sm:grid-cols-5 gap-2 text-center text-xs font-mono">
+                  <div className="p-2 rounded bg-white dark:bg-boxdark border border-stroke dark:border-strokedark shadow-2xs">
+                    <div className="text-[10px] text-gray-500 uppercase font-semibold">Suhu Bejana (PV)</div>
+                    <div className="font-extrabold text-black dark:text-white text-sm mt-0.5">
+                      {selectedStepDetail.telemetry?.pv_end !== undefined && selectedStepDetail.telemetry?.pv_end !== null
+                        ? `${selectedStepDetail.telemetry.pv_end} °C`
+                        : (selectedStepDetail.no === currentStepNo && liveData?.current_temp !== undefined
+                          ? `${liveData.current_temp} °C`
+                          : '-')}
+                    </div>
+                    {selectedStepDetail.telemetry?.pv_avg ? (
+                      <div className="text-[10px] text-gray-400 mt-0.5">
+                        Avg: {selectedStepDetail.telemetry.pv_avg} °C (Min: {selectedStepDetail.telemetry.pv_min} - Max: {selectedStepDetail.telemetry.pv_max})
+                      </div>
+                    ) : (
+                      <div className="text-[10px] text-gray-400 mt-0.5">Sensor Utama</div>
+                    )}
+                  </div>
+
+                  <div className="p-2 rounded bg-white dark:bg-boxdark border border-stroke dark:border-strokedark shadow-2xs">
+                    <div className="text-[10px] text-gray-500 uppercase font-semibold">Setpoint (SP)</div>
+                    <div className="font-extrabold text-primary dark:text-secondary text-sm mt-0.5">
+                      {selectedStepDetail.telemetry?.sp !== undefined && selectedStepDetail.telemetry?.sp !== null
+                        ? `${selectedStepDetail.telemetry.sp} °C`
+                        : (selectedStepDetail.no === currentStepNo && liveData?.curve?.slice(-1)[0]?.temp_sp !== undefined
+                          ? `${liveData.curve.slice(-1)[0].temp_sp} °C`
+                          : (selectedStepDetail.p1?.includes('°C') ? selectedStepDetail.p1 : '-'))}
+                    </div>
+                    <div className="text-[10px] text-gray-400 mt-0.5">Target Suhu</div>
+                  </div>
+
+                  <div className="p-2 rounded bg-white dark:bg-boxdark border border-stroke dark:border-strokedark shadow-2xs">
+                    <div className="text-[10px] text-gray-500 uppercase font-semibold">Sensor T2 (PT100)</div>
+                    <div className="font-extrabold text-emerald-600 dark:text-emerald-400 text-sm mt-0.5">
+                      {selectedStepDetail.telemetry?.t2_avg !== undefined && selectedStepDetail.telemetry?.t2_avg !== null
+                        ? `${selectedStepDetail.telemetry.t2_avg} °C`
+                        : (selectedStepDetail.no === currentStepNo && liveData?.curve?.slice(-1)[0]?.temp_pt100_t2 !== undefined
+                          ? `${liveData.curve.slice(-1)[0].temp_pt100_t2} °C`
+                          : '-')}
+                    </div>
+                    <div className="text-[10px] text-gray-400 mt-0.5">Probe Tambahan</div>
+                  </div>
+
+                  <div className="p-2 rounded bg-white dark:bg-boxdark border border-stroke dark:border-strokedark shadow-2xs">
+                    <div className="text-[10px] text-gray-500 uppercase font-semibold">Pompa Sirkulasi</div>
+                    <div className="font-extrabold text-black dark:text-white text-sm mt-0.5">
+                      {selectedStepDetail.telemetry?.pump_avg !== undefined && selectedStepDetail.telemetry?.pump_avg !== null
+                        ? `${selectedStepDetail.telemetry.pump_avg} %`
+                        : (selectedStepDetail.no === currentStepNo && liveData?.curve?.slice(-1)[0]?.pump_speed_percent !== undefined
+                          ? `${liveData.curve.slice(-1)[0].pump_speed_percent} %`
+                          : (selectedStepDetail.sub_steps?.find(s => s.func_id === 404)?.p2 || '-'))}
+                    </div>
+                    <div className="text-[10px] text-gray-400 mt-0.5">Kecepatan Pompa</div>
+                  </div>
+
+                  <div className="p-2 rounded bg-white dark:bg-boxdark border border-stroke dark:border-strokedark shadow-2xs">
+                    <div className="text-[10px] text-gray-500 uppercase font-semibold">Material Flow (Reel)</div>
+                    <div className="font-extrabold text-black dark:text-white text-sm mt-0.5">
+                      {selectedStepDetail.telemetry?.reel_avg !== undefined && selectedStepDetail.telemetry?.reel_avg !== null
+                        ? `${selectedStepDetail.telemetry.reel_avg} m/min`
+                        : (selectedStepDetail.no === currentStepNo && liveData?.curve?.slice(-1)[0]?.reel_speed_mpm !== undefined
+                          ? `${liveData.curve.slice(-1)[0].reel_speed_mpm} m/min`
+                          : (selectedStepDetail.sub_steps?.find(s => s.func_id === 712 || s.func_id === 411)?.p2 || '-'))}
+                    </div>
+                    <div className="text-[10px] text-gray-400 mt-0.5">Kecepatan Kain</div>
+                  </div>
                 </div>
               </div>
+
+              {/* Step-specific Alarms / Events if occurred */}
+              {selectedStepDetail.alarms && selectedStepDetail.alarms.length > 0 && (
+                <div className="p-3 rounded-lg bg-rose-50 dark:bg-rose-950/40 border border-rose-300 dark:border-rose-800 text-xs">
+                  <div className="font-bold text-rose-700 dark:text-rose-300 mb-1 flex items-center gap-1.5">
+                    <span>🚨</span> Alarm / Event Terdeteksi Selama Langkah Ini ({selectedStepDetail.alarms.length}):
+                  </div>
+                  <div className="space-y-1">
+                    {selectedStepDetail.alarms.map((a, ai) => (
+                      <div key={ai} className="flex items-center justify-between font-mono text-[11px] text-rose-900 dark:text-rose-200">
+                        <span>[{a.alarm_code}] {a.alarm_text}</span>
+                        <span className="text-gray-500">{a.timestamp}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Modal Footer with Step Navigator */}
-            <div className="bg-[#f1f3f5] dark:bg-meta-4 px-4 py-3 border-t border-[#b8c2cc] dark:border-strokedark flex items-center justify-between">
+            <div className="bg-gray-50 dark:bg-meta-4 px-4 py-3 border-t border-stroke dark:border-strokedark flex items-center justify-between shrink-0">
               <div className="flex items-center gap-2">
                 <button
                   disabled={selectedStepDetail.no <= 1}

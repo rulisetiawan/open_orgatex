@@ -8,12 +8,11 @@ import {
   Kanban, 
   FlaskConical, 
   FileCode, 
-  FileText, 
   Settings, 
   Layers,
-  Database,
-  Server,
-  ListFilter
+  Server, 
+  ListFilter,
+  Clock
 } from 'lucide-react';
 
 const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
@@ -35,6 +34,12 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
           sub: 'FEN240 Telemetri & Kurva', 
           path: '/process-analyser', 
           icon: LineChart 
+        },
+        { 
+          name: 'Riwayat Batch', 
+          sub: 'Arsip & Kurva Batch Selesai', 
+          path: '/batch-history', 
+          icon: Clock 
         },
         { 
           name: 'Alarm Monitor', 
@@ -76,14 +81,6 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
     {
       groupTitle: 'EDITOR & PROCEDURES',
       items: [
-        /* Disembunyikan sementara agar tidak membingungkan:
-        { 
-          name: 'Program OrgaTEX (EDX300)', 
-          sub: 'Modular Procedure & Treatments', 
-          path: '/programs-edx', 
-          icon: Layers 
-        },
-        */
         { 
           name: 'Program SECOM Studio', 
           sub: 'Linear Step-by-Step 65B PRG', 
@@ -113,31 +110,36 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
 
   return (
     <aside
-      className={`absolute left-0 top-0 z-9999 flex h-screen w-72.5 flex-col overflow-y-hidden bg-[#1c2434] duration-300 ease-linear dark:bg-boxdark lg:static lg:translate-x-0 ${
-        sidebarOpen ? 'translate-x-0' : '-translate-x-full'
+      className={`fixed lg:static top-0 left-0 z-9999 flex h-screen w-72 flex-col overflow-y-hidden border-r border-stroke bg-white dark:border-strokedark dark:bg-[#0c1520] transition-all duration-300 ease-in-out ${
+        sidebarOpen ? 'translate-x-0 shadow-2xl' : '-translate-x-full lg:translate-x-0'
       }`}
     >
       {/* SIDEBAR HEADER */}
-      <div className="flex items-center justify-between gap-2 px-6 py-5.5 border-b border-gray-700/50">
-        <NavLink to="/" className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary text-white shadow-md">
-            <Layers className="h-6 w-6" />
+      <div className="flex items-center justify-between gap-3 px-6 py-4.5 border-b border-stroke dark:border-strokedark">
+        <NavLink to="/" className="flex items-center gap-3 group">
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary text-white shadow-md group-hover:scale-105 transition-transform">
+            <Layers className="h-5 w-5" />
           </div>
-          <div>
-            <div className="flex items-center gap-1.5">
-              <h1 className="text-xl font-bold tracking-wide text-white">OrgaTEX</h1>
-              <span className="text-[10px] bg-primary/30 text-primary border border-primary/50 px-1.5 py-0.2 rounded font-semibold">WEB</span>
+          <div className="min-w-0">
+            <div className="flex items-center gap-1.5 flex-wrap">
+              <h1 className="text-sm font-extrabold tracking-tight text-black dark:text-white leading-tight">
+                SMM digital otomation
+              </h1>
+              <span className="text-[9px] bg-primary/10 text-primary border border-primary/20 dark:bg-primary/20 dark:text-secondary px-1.5 py-0.2 rounded font-bold">
+                MES
+              </span>
             </div>
-            <p className="text-[10px] text-gray-400">SETEX Workplace 2.0 Parity</p>
+            <p className="text-[11px] text-body dark:text-bodydark font-medium">SETEX Workplace 2.0</p>
           </div>
         </NavLink>
       </div>
 
-      <div className="no-scrollbar flex flex-col overflow-y-auto duration-300 ease-linear py-4">
-        <nav className="px-4 lg:px-5 space-y-6">
+      {/* NAVIGATION GROUPS */}
+      <div className="no-scrollbar flex flex-col overflow-y-auto py-4 flex-1">
+        <nav className="px-3.5 space-y-6">
           {menuGroups.map((group, gIdx) => (
             <div key={gIdx}>
-              <h3 className="mb-2 ml-3 text-[11px] font-bold uppercase tracking-wider text-gray-400">
+              <h3 className="mb-2 px-3 text-[10px] font-bold uppercase tracking-wider text-body dark:text-bodydark2">
                 {group.groupTitle}
               </h3>
               <ul className="space-y-1">
@@ -148,16 +150,22 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
                     <li key={item.path}>
                       <NavLink
                         to={item.path}
-                        className={`group relative flex items-center gap-3 rounded px-3.5 py-2 font-medium duration-200 ease-in-out ${
+                        className={`group relative flex items-center gap-3 rounded-lg px-3 py-2 text-xs font-semibold transition-all duration-150 ${
                           isActive
-                            ? 'bg-primary text-white shadow-sm'
-                            : 'text-gray-300 hover:bg-gray-800 hover:text-white'
+                            ? 'bg-primary text-white shadow-sm shadow-primary/30 font-bold'
+                            : 'text-body dark:text-bodydark hover:bg-gray dark:hover:bg-meta-4/60 hover:text-black dark:hover:text-white'
                         }`}
                       >
-                        <Icon className={`h-4.5 w-4.5 shrink-0 ${isActive ? 'text-white' : 'text-gray-400 group-hover:text-white'}`} />
+                        <Icon className={`h-4.5 w-4.5 shrink-0 transition-colors ${
+                          isActive ? 'text-white' : 'text-body dark:text-bodydark group-hover:text-primary dark:group-hover:text-secondary'
+                        }`} />
                         <div className="flex flex-col min-w-0">
-                          <span className="text-xs font-semibold leading-tight truncate">{item.name}</span>
-                          <span className={`text-[10px] leading-tight truncate ${isActive ? 'text-blue-100' : 'text-gray-400'}`}>{item.sub}</span>
+                          <span className="leading-tight truncate">{item.name}</span>
+                          <span className={`text-[10px] font-normal leading-tight truncate mt-0.5 ${
+                            isActive ? 'text-blue-100/90' : 'text-body/80 dark:text-bodydark2'
+                          }`}>
+                            {item.sub}
+                          </span>
                         </div>
                       </NavLink>
                     </li>

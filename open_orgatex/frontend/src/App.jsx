@@ -19,6 +19,7 @@ function App() {
         <Routes>
           <Route path="/" element={<Dashboard />} />
           <Route path="/process-analyser" element={<Logs />} />
+          <Route path="/batch-history" element={<Logs defaultTab="archive" />} />
           <Route path="/logs" element={<Navigate to="/process-analyser" replace />} />
           <Route path="/machines" element={<Machines />} />
           <Route path="/recipes" element={<Recipes />} />

@@ -363,3 +363,151 @@ def sync_all_batches_to_ftp(ftp_host: str = FTP_HOST, ftp_port: int = FTP_PORT) 
 
     logger.info(f"Sinkronisasi selesai! Total {len(results)} folder batch telah diproses.")
     return results
+
+
+def sync_single_batch_to_ftp(
+    batch_ref_no: str, 
+    ftp_host: str = FTP_HOST, 
+    ftp_port: int = FTP_PORT
+) -> Dict[str, Any]:
+    """
+    Sinkronisasi SATU batch spesifik ke folder /Network/F/OT/BATCH/<batch_ref_no>/
+    dan perbarui cermin lokal serta QUEUE.BTD DA01 di FTP.
+    Sangat cepat (sub-detik) dan hemat sumber daya.
+    """
+    ref_no = str(batch_ref_no).strip().zfill(6)
+    target_batch = None
+    for db in get_db():
+        target_batch = db.query(BatchHeader).filter(BatchHeader.batch_ref_no == ref_no).first()
+        break
+
+    if not target_batch:
+        logger.warning(f"Batch ref {ref_no} tidak ditemukan untuk sinkronisasi FTP.")
+        return {"status": "not_found", "batch_ref_no": ref_no}
+
+    prog_no = int(target_batch.program_no or 1)
+    prg_name = f"M_{prog_no:04d}.PRG"
+    mach_no = str(target_batch.machine_no or "DA01").strip().upper()
+    batch_no = str(target_batch.batch_no or f"LOT-{ref_no}").strip()
+    recipe_title = str(target_batch.recipe_name or f"Program {prog_no}")
+    b_status = (target_batch.status or "QUEUED").strip().upper()
+
+    # 1. Buat binary BATCHREF.REF (762 byte)
+    batchref_bytes = create_batchref_binary(
+        reference_no=ref_no,
+        machine_no=mach_no,
+        batch_no=batch_no,
+        program_no=prog_no,
+        recipe_no=target_batch.recipe_name or "",
+        customer=target_batch.customer or "",
+        article=target_batch.article or "",
+        color_code=target_batch.color_code or "",
+        color_name=target_batch.color_name or "",
+        fabric_weight=float(target_batch.fabric_weight_kg or 350.0),
+        program_title=recipe_title
+    )
+
+    # 2. Ambil binary program M_xxxx.PRG
+    prg_bytes = None
+    try:
+        prg_bytes = get_compiled_prg_bytes(prog_no)
+    except Exception:
+        pass
+    if not prg_bytes or len(prg_bytes) < 65:
+        prg_bytes = build_minimal_prg(prog_no, recipe_title)
+
+    # 3. Cermin Lokal
+    local_target_folder = os.path.join(LOCAL_BATCH_DIR, ref_no)
+    _safe_write_file(os.path.join(local_target_folder, "BATCHREF.REF"), batchref_bytes)
+    _safe_write_file(os.path.join(local_target_folder, prg_name), prg_bytes)
+
+    # 4. Upload ke FTP jika mesin DA01 dan bukan PLANNING
+    ftp_synced = False
+    if mach_no == "DA01" and b_status != "PLANNING":
+        ftp = None
+        try:
+            ftp = ftplib.FTP(timeout=4.0)
+            ftp.connect(ftp_host, ftp_port)
+            ftp.login()
+            try:
+                ftp.set_pasv(True)
+            except Exception:
+                pass
+
+            target_ftp_dir = f"{FTP_BASE_BATCH_DIR}/{ref_no}"
+            try:
+                ftp.mkd(target_ftp_dir)
+            except Exception:
+                pass
+            ftp.cwd(target_ftp_dir)
+            ftp.storbinary("STOR BATCHREF.REF", io.BytesIO(batchref_bytes))
+            ftp.storbinary(f"STOR {prg_name}", io.BytesIO(prg_bytes))
+            ftp_synced = True
+            logger.info(f"[SUKSES] Batch {ref_no} ({batch_no}) terunggah ke FTP {target_ftp_dir}")
+
+            # Perbarui antrean QUEUE.BTD DA01 di FTP
+            active_da01 = []
+            for db in get_db():
+                active_da01 = db.query(BatchHeader).filter(
+                    BatchHeader.machine_no == "DA01",
+                    BatchHeader.status.in_(["QUEUED", "WAITING_LA", "RUNNING"])
+                ).order_by(BatchHeader.position.asc(), BatchHeader.id.asc()).all()
+                break
+
+            q_records = []
+            for idx, b in enumerate(active_da01, start=1):
+                r_no = str(b.batch_ref_no).strip().zfill(6)
+                p_no = int(b.program_no or 1)
+                bref = create_batchref_binary(
+                    reference_no=r_no,
+                    machine_no="DA01",
+                    batch_no=b.batch_no or f"LOT-{r_no}",
+                    program_no=p_no,
+                    recipe_no=b.recipe_name or "",
+                    customer=b.customer or "",
+                    article=b.article or "",
+                    color_code=b.color_code or "",
+                    color_name=b.color_name or "",
+                    fabric_weight=float(b.fabric_weight_kg or 350.0),
+                    program_title=b.recipe_name or f"Prog {p_no}"
+                )
+                q_rec = bytearray(bref[:759])
+                struct.pack_into("<HH", q_rec, 755, 0, idx)
+                q_records.append(bytes(q_rec))
+
+            q_bytes = generate_queue_btd(q_records, "DA01")
+            if q_bytes:
+                local_mach_dir = os.path.join(LOCAL_DATA_DIR, "OT", "MACHINES", "DA01", "BATCHES")
+                _safe_write_file(os.path.join(local_mach_dir, "QUEUE.BTD"), q_bytes)
+                ftp_queue_dir = "/Network/F/OT/MACHINES/DA01/BATCHES"
+                try:
+                    ftp.cwd(ftp_queue_dir)
+                except Exception:
+                    for part in ["/Network", "/Network/F", "/Network/F/OT", "/Network/F/OT/MACHINES", "/Network/F/OT/MACHINES/DA01", ftp_queue_dir]:
+                        try:
+                            ftp.mkd(part)
+                        except Exception:
+                            pass
+                    ftp.cwd(ftp_queue_dir)
+                ftp.storbinary("STOR QUEUE.BTD", io.BytesIO(q_bytes))
+                logger.info(f"[SUKSES] QUEUE.BTD DA01 diperbarui di FTP ({len(q_records)} batch).")
+
+            try:
+                ftp.quit()
+            except Exception:
+                ftp.close()
+
+        except Exception as fe:
+            logger.warning(f"FTP upload single batch {ref_no} failed (controller might be offline): {fe}")
+            if ftp:
+                try:
+                    ftp.close()
+                except Exception:
+                    pass
+
+    return {
+        "batch_ref_no": ref_no,
+        "batch_no": batch_no,
+        "machine_no": mach_no,
+        "ftp_synced": ftp_synced
+    }

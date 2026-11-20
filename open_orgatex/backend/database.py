@@ -102,7 +102,7 @@ def ensure_essential_machines(target_engine, is_postgres: bool = False):
                 ) VALUES (
                     'DA01', 'SETEX 797CE Mesin DA01', '192.168.1.95', 50100, 21,
                     'SETEX 797CE (Windows CE)', 'WindowsCE', 'Dyeing Sample / DA', 350.0, 8.0,
-                    2, '/Flashdisk/SC797CE', 'ONLINE', 1
+                    2, '/Flashdisk/SC797CE', 'ONLINE', TRUE
                 ) ON CONFLICT (machine_no) DO UPDATE SET
                     display_name = EXCLUDED.display_name,
                     ip_address = EXCLUDED.ip_address,
@@ -127,7 +127,7 @@ def ensure_essential_machines(target_engine, is_postgres: bool = False):
                 ) VALUES (
                     'M_95', 'SETEX 797CE Mesin DA01 (M_95)', '192.168.1.95', 50100, 21,
                     'SETEX 797CE (Windows CE)', 'WindowsCE', 'Dyeing Sample / DA', 350.0, 8.0,
-                    2, '/Flashdisk/SC797CE', 'ONLINE', 1
+                    2, '/Flashdisk/SC797CE', 'ONLINE', TRUE
                 ) ON CONFLICT (machine_no) DO UPDATE SET
                     display_name = EXCLUDED.display_name,
                     ip_address = EXCLUDED.ip_address,

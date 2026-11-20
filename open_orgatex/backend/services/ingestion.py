@@ -20,6 +20,9 @@ from ..models.schema_pg import Machine, BatchHeader, DatalogCyclicRecord, Datalo
 
 logger = logging.getLogger("orgatex.ingestion")
 
+# In-memory tracking of real-time step transitions during active polling
+_LIVE_STEP_TRANSITIONS: Dict[str, Dict[str, Any]] = {}
+
 class LogIngestionService:
     """
     On-the-fly reader & persistent synchronizer to TimescaleDB / PostgreSQL.
@@ -371,16 +374,19 @@ class LogIngestionService:
 
                     # Fail-safe auto-align so user NEVER sees the wrong process name
                     if active_st and active_st.get("func_id") != live_func_code:
-                        correct_name = SetexFolderReader.get_fallback_function_name(live_func_code)
-                        logger.warning(
-                            f"[AUTO-ALIGN] Aligning active step #{curr_step_no} to ground truth: {correct_name} [F{live_func_code}]"
-                        )
-                        active_st["func_id"] = live_func_code
-                        active_st["icon"] = str(live_func_code)
-                        active_st["name"] = correct_name
-                        if active_st.get("sub_steps") and len(active_st["sub_steps"]) > 0:
-                            active_st["sub_steps"][0]["name"] = correct_name
-                            active_st["sub_steps"][0]["func_id"] = live_func_code
+                        catalog = SetexFolderReader.get_function_catalog()
+                        # Only auto-align if live_func_code is recognized in the function catalog
+                        if str(live_func_code) in catalog or live_func_code in SetexFolderReader.FALLBACK_FUNCTION_NAMES:
+                            correct_name = SetexFolderReader.get_fallback_function_name(live_func_code)
+                            logger.warning(
+                                f"[AUTO-ALIGN] Aligning active step #{curr_step_no} to ground truth: {correct_name} [F{live_func_code}]"
+                            )
+                            active_st["func_id"] = live_func_code
+                            active_st["icon"] = str(live_func_code)
+                            active_st["name"] = correct_name
+                            if active_st.get("sub_steps") and len(active_st["sub_steps"]) > 0:
+                                active_st["sub_steps"][0]["name"] = correct_name
+                                active_st["sub_steps"][0]["func_id"] = live_func_code
         except Exception as e:
             logger.warning(f"Gagal mengekstrak langkah resep batch {batch_no}: {e}")
 
@@ -463,6 +469,232 @@ class LogIngestionService:
                                 line["has_delta"] = True
         except Exception as e:
             logger.warning(f"Gagal memproses evaluasi intervensi: {e}")
+
+        # 7. Evaluate Execution Timings per Step & Target vs Actual Deviation
+        try:
+            curr_step_no = machine.current_step or status_info.get("current_step") or 1
+            key = f"{machine.machine_no}_{batch_no}"
+            now_dt = datetime.now()
+            now_str = now_dt.strftime("%Y-%m-%d %H:%M:%S")
+
+            # 7.1 Primary: Ground-truth events from PR*.LOG if available
+            step_timings = {}
+            if ftp_bundle and ftp_bundle.get("batch_log_bytes"):
+                pr_timings = SetexFolderReader.parse_step_timings_from_pr_bytes(ftp_bundle["batch_log_bytes"])
+                if pr_timings:
+                    step_timings.update(pr_timings)
+
+            # 7.2 Secondary: Real-time Live Transition Tracker
+            if key not in _LIVE_STEP_TRANSITIONS:
+                _LIVE_STEP_TRANSITIONS[key] = {}
+            live_map = _LIVE_STEP_TRANSITIONS[key]
+
+            # Track transitions between steps in active session
+            if curr_step_no not in live_map:
+                # Mark previous active step as completed at current second
+                for prev_s in list(live_map.keys()):
+                    if prev_s < curr_step_no and not live_map[prev_s].get("end"):
+                        live_map[prev_s]["end"] = now_str
+                live_map[curr_step_no] = {"start": now_str, "end": None}
+
+            # Merge live tracked steps into step_timings if not already in PR log
+            for s_k, t_val in live_map.items():
+                if s_k not in step_timings:
+                    step_timings[s_k] = dict(t_val)
+                else:
+                    if not step_timings[s_k].get("start") and t_val.get("start"):
+                        step_timings[s_k]["start"] = t_val["start"]
+                    if not step_timings[s_k].get("end") and t_val.get("end"):
+                        step_timings[s_k]["end"] = t_val["end"]
+
+            # 7.3 Tertiary: Strict same-session database query (preventing cross-day 48-hour contamination)
+            if db and batch_no and (not step_timings or len(step_timings) < 2):
+                try:
+                    from sqlalchemy import func
+                    # Query only records for this machine and batch
+                    db_step_rows = db.query(
+                        DatalogCyclicRecord.step_no,
+                        func.min(DatalogCyclicRecord.log_timestamp),
+                        func.max(DatalogCyclicRecord.log_timestamp)
+                    ).filter(
+                        DatalogCyclicRecord.machine_no == machine.machine_no,
+                        DatalogCyclicRecord.batch_ref_no == batch_no
+                    ).group_by(DatalogCyclicRecord.step_no).all()
+
+                    for s_val, min_ts, max_ts in db_step_rows:
+                        if s_val is not None:
+                            s_int = int(s_val)
+                            # Never assign timestamps to future steps
+                            if s_int > curr_step_no:
+                                continue
+                            # Sanity check: span between min and max should not exceed 24 hours
+                            if min_ts and max_ts and (max_ts - min_ts).total_seconds() > 86400:
+                                min_ts = max_ts  # Discard old cross-day date
+
+                            min_s = min_ts.strftime("%Y-%m-%d %H:%M:%S") if min_ts else None
+                            max_s = max_ts.strftime("%Y-%m-%d %H:%M:%S") if max_ts else None
+
+                            if s_int not in step_timings:
+                                step_timings[s_int] = {"start": min_s, "end": max_s if s_int < curr_step_no else None}
+                            else:
+                                if not step_timings[s_int].get("start"):
+                                    step_timings[s_int]["start"] = min_s
+                                if s_int < curr_step_no and not step_timings[s_int].get("end"):
+                                    step_timings[s_int]["end"] = max_s
+                except Exception as e_db_t:
+                    logger.warning(f"Error querying step timings from DB: {e_db_t}")
+
+            sorted_step_nums = sorted([k for k in step_timings.keys()])
+
+            # 7.4 Evaluate Each Recipe Step: Timings, Target Setpoints, and Faster/Slower Deviations
+            for st in recipe_steps:
+                s_no = st.get("no")
+                timing = step_timings.get(s_no)
+
+                # Extract planned target duration in minutes from SETEX set_time or parameters
+                target_min = None
+                if st.get("set_time") and int(st["set_time"]) > 0:
+                    target_min = int(st["set_time"])
+                elif st.get("hold_time") and int(st["hold_time"]) > 0:
+                    target_min = int(st["hold_time"])
+                else:
+                    for p_val in (st.get("p3"), st.get("p1"), st.get("p2"), st.get("p4"), st.get("p5")):
+                        if p_val:
+                            m_t = re.search(r'(\d+)\s*(?:min|dak|mnt)', str(p_val), re.IGNORECASE)
+                            if m_t:
+                                v_t = int(m_t.group(1))
+                                if v_t > 0:
+                                    target_min = v_t
+                                    break
+
+                st["target_min"] = target_min
+                st["start_time"] = None
+                st["end_time"] = None
+                st["duration_seconds"] = None
+                st["duration_text"] = None
+                st["time_status"] = "WAITING"
+                st["delta_text"] = f"Target: {target_min} min" if target_min else "Variabel"
+
+                # Attach real sensor telemetry for this step (from unique_telemetry)
+                step_pts = [p for p in unique_telemetry if p.get("step_no") == s_no]
+                if step_pts:
+                    pv_vals = [float(p["temp_pv"]) for p in step_pts if p.get("temp_pv") is not None]
+                    sp_vals = [float(p["temp_sp"]) for p in step_pts if p.get("temp_sp") is not None]
+                    t2_vals = [float(p["temp_pt100_t2"]) for p in step_pts if p.get("temp_pt100_t2") is not None]
+                    pump_vals = [float(p["pump_speed_percent"]) for p in step_pts if p.get("pump_speed_percent") is not None]
+                    reel_vals = [float(p["reel_speed_mpm"]) for p in step_pts if p.get("reel_speed_mpm") is not None]
+
+                    st["telemetry"] = {
+                        "point_count": len(step_pts),
+                        "pv_start": round(pv_vals[0], 1) if pv_vals else None,
+                        "pv_end": round(pv_vals[-1], 1) if pv_vals else None,
+                        "pv_min": round(min(pv_vals), 1) if pv_vals else None,
+                        "pv_max": round(max(pv_vals), 1) if pv_vals else None,
+                        "pv_avg": round(sum(pv_vals) / len(pv_vals), 1) if pv_vals else None,
+                        "sp": round(sp_vals[-1], 1) if sp_vals else None,
+                        "t2_avg": round(sum(t2_vals) / len(t2_vals), 1) if t2_vals else None,
+                        "pump_avg": round(sum(pump_vals) / len(pump_vals), 1) if pump_vals else None,
+                        "reel_avg": round(sum(reel_vals) / len(reel_vals), 1) if reel_vals else None,
+                    }
+                else:
+                    st["telemetry"] = None
+
+                # Attach step-specific alarms & interventions
+                st["alarms"] = [a for a in final_alarms if a.get("step_no") == s_no]
+                st["interventions"] = [i for i in active_interventions if i.get("step_no") == s_no]
+
+                # Step is in the future (WAITING) -> STRICTLY BLANK TIMINGS
+                if s_no > curr_step_no:
+                    continue
+
+                if timing and timing.get("start"):
+                    st["start_time"] = timing["start"]
+
+                    if s_no < curr_step_no:
+                        # Completed step
+                        end_val = timing.get("end")
+                        next_s = next((k for k in sorted_step_nums if k > s_no), None)
+                        if next_s and step_timings.get(next_s, {}).get("start"):
+                            next_start = step_timings[next_s]["start"]
+                            if not end_val or end_val == timing["start"]:
+                                end_val = next_start
+                        st["end_time"] = end_val
+
+                        if st["start_time"] and st["end_time"]:
+                            try:
+                                t1 = datetime.strptime(st["start_time"], "%Y-%m-%d %H:%M:%S")
+                                t2 = datetime.strptime(st["end_time"], "%Y-%m-%d %H:%M:%S")
+                                dur_sec = max(0, int((t2 - t1).total_seconds()))
+                                # Sanity filter: a single textile dyeing step rarely exceeds 4 hours
+                                if dur_sec > 14400:
+                                    dur_sec = (target_min * 60) if target_min else 300
+
+                                st["duration_seconds"] = dur_sec
+                                if dur_sec < 60:
+                                    st["duration_text"] = f"{dur_sec} dtk"
+                                elif dur_sec < 3600:
+                                    m = dur_sec // 60
+                                    s = dur_sec % 60
+                                    st["duration_text"] = f"{m} mnt {s} dtk" if s > 0 else f"{m} mnt"
+                                else:
+                                    h = dur_sec // 3600
+                                    m = (dur_sec % 3600) // 60
+                                    st["duration_text"] = f"{h} jam {m} mnt"
+
+                                # Target vs Actual Comparison
+                                if target_min:
+                                    act_min = dur_sec / 60.0
+                                    diff_min = round(act_min - target_min, 1)
+                                    if diff_min >= 1.0:
+                                        st["time_status"] = "SLOWER"  # Molor / Terlambat
+                                        st["delta_text"] = f"+{int(round(diff_min))} mnt (Molor)"
+                                    elif diff_min <= -1.0:
+                                        st["time_status"] = "FASTER"  # Lebih Cepat
+                                        st["delta_text"] = f"-{int(round(abs(diff_min)))} mnt (Cepat)"
+                                    else:
+                                        st["time_status"] = "ON_TRACK"
+                                        st["delta_text"] = "Sesuai Target"
+                                else:
+                                    st["time_status"] = "VARIABLE"
+                                    st["delta_text"] = "Variabel (Sensor)"
+                            except Exception:
+                                pass
+                    elif s_no == curr_step_no:
+                        # Active step: currently running
+                        st["end_time"] = None
+                        try:
+                            t1 = datetime.strptime(st["start_time"], "%Y-%m-%d %H:%M:%S")
+                            elapsed_sec = max(0, int((now_dt - t1).total_seconds()))
+                            # Sanity filter for active step
+                            if elapsed_sec > 14400:
+                                elapsed_sec = 60
+
+                            st["duration_seconds"] = elapsed_sec
+                            if elapsed_sec < 60:
+                                st["duration_text"] = f"{elapsed_sec} dtk"
+                            elif elapsed_sec < 3600:
+                                st["duration_text"] = f"{elapsed_sec // 60} mnt"
+                            else:
+                                st["duration_text"] = f"{elapsed_sec // 3600} jam {(elapsed_sec % 3600) // 60} mnt"
+
+                            # Real-time Overtime / Remaining evaluation
+                            if target_min:
+                                act_min = elapsed_sec / 60.0
+                                if act_min > target_min + 0.5:
+                                    over_min = int(act_min - target_min)
+                                    st["time_status"] = "OVERTIME"  # Molor saat ini
+                                    st["delta_text"] = f"⚠️ Molor +{over_min} mnt"
+                                else:
+                                    rem_min = max(0, int(target_min - act_min))
+                                    st["time_status"] = "RUNNING"
+                                    st["delta_text"] = f"Sisa ~{rem_min} mnt"
+                            else:
+                                st["time_status"] = "RUNNING"
+                                st["delta_text"] = "Sedang Jalan"
+                        except Exception:
+                            pass
+        except Exception as e_timings:
+            logger.warning(f"Gagal memproses evaluasi waktu step: {e_timings}")
 
         return {
             "machine_no": machine.machine_no,

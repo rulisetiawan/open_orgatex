@@ -157,8 +157,11 @@ def sync_local_queue_files(batches_list: List[Dict[str, Any]]):
                 # Mirror batch folder locally: OT/BATCH/{ref_no}/
                 batch_folder = os.path.join(base_batch_dir, ref_no)
                 os.makedirs(batch_folder, exist_ok=True)
-                with open(os.path.join(batch_folder, "BATCHREF.REF"), "wb") as f_ref:
-                    f_ref.write(batchref_bin)
+                try:
+                    with open(os.path.join(batch_folder, "BATCHREF.REF"), "wb") as f_ref:
+                        f_ref.write(batchref_bin)
+                except Exception:
+                    pass
 
                 prg_bytes = None
                 if get_compiled_prg_bytes:
@@ -169,16 +172,22 @@ def sync_local_queue_files(batches_list: List[Dict[str, Any]]):
                 if not prg_bytes or len(prg_bytes) < 65:
                     prg_bytes = build_minimal_prg(prog_no, recipe_name)
 
-                with open(os.path.join(batch_folder, prg_name), "wb") as f_prg:
-                    f_prg.write(prg_bytes)
+                try:
+                    with open(os.path.join(batch_folder, prg_name), "wb") as f_prg:
+                        f_prg.write(prg_bytes)
+                except Exception:
+                    pass
 
             q_bytes = generate_queue_btd(q_records, mach)
             if q_bytes:
                 mach_queue_dir = os.path.join(data_dir, "OT", "MACHINES", mach, "BATCHES")
                 os.makedirs(mach_queue_dir, exist_ok=True)
                 queue_path = os.path.join(mach_queue_dir, "QUEUE.BTD")
-                with open(queue_path, "wb") as f:
-                    f.write(q_bytes)
+                try:
+                    with open(queue_path, "wb") as f:
+                        f.write(q_bytes)
+                except Exception:
+                    pass
     except Exception as e:
         print(f"Notice: local QUEUE.BTD / BATCH sync skipped: {e}")
 
@@ -355,17 +364,21 @@ def create_batch(req: CreateBatchRequest, db: Session = Depends(get_db)):
     except Exception:
         pass
 
-    # Sinkronisasi planning.json backup
-    all_batches = [_batch_to_dict(b) for b in db.query(BatchHeader).order_by(BatchHeader.created_at.desc()).all()]
-    _sync_planning_json(all_batches)
+    import threading
 
-    # Sinkronisasi otomatis ke FTP Controller OrgaTEX (192.168.1.95) untuk mesin DA01
+    # Sinkronisasi planning.json backup di background thread agar respons HTTP instan (<50ms)
+    all_batches = [_batch_to_dict(b) for b in db.query(BatchHeader).order_by(BatchHeader.created_at.desc()).all()]
+    threading.Thread(target=_sync_planning_json, args=(all_batches,), daemon=True).start()
+
+    # Sinkronisasi ke FTP Controller OrgaTEX (192.168.1.95) di background thread khusus mesin DA01
     if mach == "DA01" and (req.status or "QUEUED").upper() in ("QUEUED", "WAITING_LA", "RUNNING"):
-        try:
-            from ..services.ftp_sync_service import sync_all_batches_to_ftp
-            sync_all_batches_to_ftp()
-        except Exception as fe:
-            print(f"Warning: background FTP sync on create_batch skipped: {fe}")
+        def _bg_ftp_sync():
+            try:
+                from ..services.ftp_sync_service import sync_single_batch_to_ftp
+                sync_single_batch_to_ftp(ref_no)
+            except Exception as fe:
+                print(f"Warning: background FTP sync on create_batch skipped: {fe}")
+        threading.Thread(target=_bg_ftp_sync, daemon=True).start()
 
     batch_dict = _batch_to_dict(new_batch)
     return {
@@ -482,16 +495,19 @@ def reorder_machine_queue(req: ReorderRequest, db: Session = Depends(get_db)):
                 mq.position = idx
 
     db.commit()
+    import threading
     all_batches = [_batch_to_dict(b) for b in db.query(BatchHeader).all()]
-    _sync_planning_json(all_batches)
+    threading.Thread(target=_sync_planning_json, args=(all_batches,), daemon=True).start()
 
-    # Sinkronisasi antrean ke FTP Controller untuk mesin DA01
+    # Sinkronisasi antrean ke FTP Controller untuk mesin DA01 di background thread
     if mach == "DA01":
-        try:
-            from ..services.ftp_sync_service import sync_all_batches_to_ftp
-            sync_all_batches_to_ftp()
-        except Exception as fe:
-            print(f"Warning: background FTP sync on reorder skipped: {fe}")
+        def _bg_reorder_ftp():
+            try:
+                from ..services.ftp_sync_service import sync_all_batches_to_ftp
+                sync_all_batches_to_ftp()
+            except Exception as fe:
+                print(f"Warning: background FTP sync on reorder skipped: {fe}")
+        threading.Thread(target=_bg_reorder_ftp, daemon=True).start()
 
     return {"status": "success", "message": f"Urutan antrean mesin {mach} berhasil diperbarui di database."}
 
@@ -663,17 +679,21 @@ def dispatch_to_machine(batch_no: str, db: Session = Depends(get_db)):
     target.status = "WAITING_LA"
     db.commit()
 
+    import threading
     all_batches = [_batch_to_dict(b) for b in db.query(BatchHeader).all()]
-    _sync_planning_json(all_batches)
+    threading.Thread(target=_sync_planning_json, args=(all_batches,), daemon=True).start()
 
-    # Sinkronisasi ke FTP Controller untuk mesin DA01
+    # Sinkronisasi ke FTP Controller untuk mesin DA01 di background thread
     mach_code = str(target.machine_no or "DA01").strip().upper()
     if mach_code == "DA01":
-        try:
-            from ..services.ftp_sync_service import sync_all_batches_to_ftp
-            sync_all_batches_to_ftp()
-        except Exception as fe:
-            print(f"Warning: background FTP sync on dispatch skipped: {fe}")
+        ref_to_sync = str(target.batch_ref_no).strip().zfill(6)
+        def _bg_dispatch_ftp():
+            try:
+                from ..services.ftp_sync_service import sync_single_batch_to_ftp
+                sync_single_batch_to_ftp(ref_to_sync)
+            except Exception as fe:
+                print(f"Warning: background FTP sync on dispatch skipped: {fe}")
+        threading.Thread(target=_bg_dispatch_ftp, daemon=True).start()
 
     b_dict = _batch_to_dict(target)
     return {

@@ -45,14 +45,14 @@ async def lifespan(app: FastAPI):
     except Exception as be:
         print(f"Warning starting Event Broker: {be}")
 
-    # Background Periodic Database Synchronizer (Runs every 45s)
+    # Background Periodic Database Synchronizer (Runs every 45s, non-blocking worker thread)
     sync_task = None
     async def periodic_db_sync():
         while True:
             await asyncio.sleep(45)
             try:
                 if DBSyncService.is_pg_reachable():
-                    DBSyncService.sync_all()
+                    await asyncio.to_thread(DBSyncService.sync_all)
             except Exception:
                 pass
 

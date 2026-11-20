@@ -24,7 +24,7 @@ logger = logging.getLogger("orgatex.machine_config")
 SERVICES_DIR = os.path.dirname(os.path.abspath(__file__))
 BACKEND_DIR = os.path.abspath(os.path.join(SERVICES_DIR, ".."))
 BACKEND_DATA_DIR = os.path.join(BACKEND_DIR, "data")
-DA_TEX_ROOT = os.path.abspath(os.path.join(BACKEND_DIR, "..", ".."))
+DA_TEX_ROOT = "/app/sc777ce_root" if os.path.isdir("/app/sc777ce_root/WORKSPACE_PROGRAM_MESIN") else os.path.abspath(os.path.join(BACKEND_DIR, "..", ".."))
 
 WORKSPACE_BASE = os.path.join(DA_TEX_ROOT, "WORKSPACE_PROGRAM_MESIN")
 TEMPLATE_DIR = os.path.join(WORKSPACE_BASE, "_TEMPLATE_MESIN_BARU")
@@ -340,7 +340,13 @@ def fetch_machine_config_from_hmi(
     finally:
         if ftp:
             try:
-                ftp.quit()
+                try:
+                    ftp.quit()
+                except Exception:
+                    try:
+                        ftp.close()
+                    except Exception:
+                        pass
             except Exception:
                 pass
 
@@ -485,6 +491,10 @@ def fetch_machine_programs_from_hmi(
 
             if logged_in:
                 ftp_connected = True
+                try:
+                    ftp.set_pasv(True)
+                except Exception:
+                    pass
                 ftp.voidcmd("TYPE I")  # Binary mode
 
                 # Target dirs to try: prioritize requested remote_dir, then smart fallback
@@ -510,6 +520,16 @@ def fetch_machine_programs_from_hmi(
                             "/storage/sc777ce/programs",
                             "\\Storage\\SC777CE\\Programs"
                         ])
+
+                # Support OrgaTEX Central Network Share
+                if ip == "192.168.1.95" or "DA01" in clean_no or "NETWORK" in str(remote_dir).upper():
+                    dirs_to_try.extend([
+                        "/Network/F/OT/PROGRAMS",
+                        "/Network/F/OT/PROGRAM",
+                        "/Network/F/OT/PROGS",
+                        "/Network/F/OT/BATCH",
+                        "\\Network\\F\\OT\\PROGRAMS"
+                    ])
 
                 for c in CANDIDATE_PROGRAM_DIRS:
                     if c not in dirs_to_try:
@@ -579,6 +599,18 @@ def fetch_machine_programs_from_hmi(
                             raw_bytes = bio.getvalue()
                             with open(local_path, "wb") as f_out:
                                 f_out.write(raw_bytes)
+
+                            # Mirror to fallback or host if running in Docker
+                            alt_dir = "/app/WORKSPACE_PROGRAM_MESIN" if "/sc777ce_root" in ref_dir else "/app/sc777ce_root/WORKSPACE_PROGRAM_MESIN"
+                            alt_ref = os.path.join(alt_dir, folder_name, "03_CONTOH_PRG_DARI_HMI")
+                            if os.path.isdir(alt_dir):
+                                os.makedirs(alt_ref, exist_ok=True)
+                                try:
+                                    with open(os.path.join(alt_ref, pf), "wb") as f_alt:
+                                        f_alt.write(raw_bytes)
+                                except Exception:
+                                    pass
+
                             downloaded.append({
                                 "filename": pf,
                                 "size_bytes": len(raw_bytes),
@@ -588,7 +620,13 @@ def fetch_machine_programs_from_hmi(
                             logger.warning(f"Failed to download {pf}: {dl_err}")
                             failed.append({"filename": pf, "error": str(dl_err)})
 
-                ftp.quit()
+                try:
+                    ftp.quit()
+                except Exception:
+                    try:
+                        ftp.close()
+                    except Exception:
+                        pass
             else:
                 ftp_error_msg = "Login FTP ditolak oleh kontroler."
         except Exception as e:
@@ -649,6 +687,34 @@ def fetch_machine_programs_from_hmi(
             json.dump(custom_store, f, indent=2)
     except Exception as e:
         logger.error(f"Failed to write custom store: {e}")
+
+    # Synchronize updated programs to PostgreSQL ProgramComponent (Level 1)
+    try:
+        from ..database import get_db
+        from ..models.schema_pg import ProgramComponent
+        for db in get_db():
+            for p_no_key, parsed in custom_store.items():
+                if parsed.get("machine_code") == clean_no:
+                    p_row = db.query(ProgramComponent).filter(
+                        (ProgramComponent.number == str(p_no_key)),
+                        ProgramComponent.level == 1
+                    ).first()
+                    if p_row:
+                        p_row.machine_code = clean_no
+                        if parsed.get("program_name"):
+                            p_row.name = parsed["program_name"]
+                    else:
+                        db.add(ProgramComponent(
+                            number=str(p_no_key),
+                            name=parsed.get("program_name") or f"PROGRAM #{p_no_key}",
+                            level=1,
+                            type=1,
+                            machine_code=clean_no
+                        ))
+            db.commit()
+            break
+    except Exception as e_db:
+        logger.warning(f"Failed to sync ProgramComponent to PostgreSQL: {e_db}")
 
     total_programs = len(parsed_programs)
     success = total_programs > 0 or len(downloaded) > 0

@@ -16,7 +16,7 @@ import logging
 import threading
 import time
 from datetime import datetime
-from typing import Dict, List, Any, Optional
+from typing import Dict, List, Any, Optional, Tuple
 
 logger = logging.getLogger("orgatex.reader")
 
@@ -902,6 +902,83 @@ class SetexFolderReader:
         return unique
 
     @staticmethod
+    def parse_step_timings_from_pr_bytes(log_data: bytes) -> Dict[int, Dict[str, Optional[str]]]:
+        """
+        Extracts ground-truth step start and stop timestamps directly from SETEX PR*.LOG
+        Event 261 (0x0105):
+          words[0] == 1 -> Start Step
+          words[0] == 2 -> Stop Step
+          words[6]      -> Step Number
+        """
+        if not log_data or len(log_data) < 512 or len(log_data) % 512 != 0:
+            return {}
+
+        try:
+            page_size = 512
+            num_pages = len(log_data) // page_size
+            recs_by_seq = {}
+            for page in range(1, num_pages):
+                p_chunk = log_data[page * 512:(page + 1) * 512]
+                if len(p_chunk) < 12:
+                    continue
+                n = struct.unpack_from('<H', p_chunk, 10)[0]
+                if not (0 < n < 100):
+                    continue
+                for slot in range(n):
+                    a = struct.unpack_from('<H', p_chunk, 510 - slot * 2)[0]
+                    if a == 65535:
+                        continue
+                    start = a & 32767
+                    end = None
+                    for j in range(slot + 1, n + 1):
+                        z = struct.unpack_from('<H', p_chunk, 510 - j * 2)[0]
+                        if z != 65535:
+                            end = z & 32767
+                            break
+                    if end is None or not (12 <= start < end <= 512 - 2 * (n + 1)):
+                        continue
+                    packed = p_chunk[start:end]
+                    if a & 32768:
+                        packed = packed[4:]
+                    pos, out, repeat = 0, bytearray(), False
+                    while pos + 2 <= len(packed):
+                        cnt = struct.unpack_from('<H', packed, pos)[0]
+                        pos += 2
+                        need = 1 if repeat else cnt
+                        if pos + need > len(packed):
+                            break
+                        val = packed[pos:pos + need]
+                        out += val * cnt if repeat else val
+                        pos += need
+                        repeat = not repeat
+                    if len(out) == 154:
+                        seq = struct.unpack_from('<H', out, 0)[0]
+                        recs_by_seq[seq] = bytes(out)
+
+            step_timings = {}
+            for seq in sorted(recs_by_seq.keys()):
+                raw = recs_by_seq[seq]
+                evt = struct.unpack_from('<H', raw, 2)[0]
+                if (evt & 0xFF) == 5 and len(raw) >= 24:
+                    action = struct.unpack_from('<H', raw, 10)[0]
+                    step_cand = struct.unpack_from('<H', raw, 22)[0]
+                    y, mo, day, h, m, s = raw[4:10]
+                    year = 1900 + y
+                    if 2020 <= year <= 2035 and 1 <= step_cand <= 250:
+                        dt_str = f"{year:04d}-{mo:02d}-{day:02d} {h:02d}:{m:02d}:{s:02d}"
+                        if step_cand not in step_timings:
+                            step_timings[step_cand] = {"start": None, "end": None}
+                        if action == 1 and not step_timings[step_cand]["start"]:
+                            step_timings[step_cand]["start"] = dt_str
+                        elif action == 2:
+                            step_timings[step_cand]["end"] = dt_str
+
+            return step_timings
+        except Exception as ex:
+            logger.warning(f"Error parsing step timings from PR bytes: {ex}")
+            return {}
+
+    @staticmethod
     def read_cyclic_log_file(filepath: str) -> List[Dict[str, Any]]:
         """Parses local .LOG file telemetry."""
         if not os.path.exists(filepath):
@@ -970,6 +1047,9 @@ class SetexFolderReader:
 
     _PRG_STEPS_CACHE: Dict[str, Dict[str, Any]] = {}
     _FUNCTION_CATALOG: Optional[Dict[str, Any]] = None
+    _PARAMETERS_CATALOG: Optional[Dict[str, Any]] = None
+    _RESOURCES_CATALOG: Optional[Dict[str, Any]] = None
+    _CHOICES_CATALOG: Optional[Dict[str, Any]] = None
 
     FALLBACK_FUNCTION_NAMES: Dict[int, str] = {
         1: "Program Start",
@@ -1067,7 +1147,10 @@ class SetexFolderReader:
                     with open(cp, "r", encoding="utf-8") as f:
                         data = json.load(f)
                         catalog = data.get("functions", {})
-                        logger.info(f"Loaded SETEX function catalog ({len(catalog)} functions) from {cp}")
+                        cls._PARAMETERS_CATALOG = data.get("parameters", {})
+                        cls._RESOURCES_CATALOG = data.get("resources", {})
+                        cls._CHOICES_CATALOG = data.get("text_choices", {})
+                        logger.info(f"Loaded SETEX function catalog ({len(catalog)} functions, {len(cls._PARAMETERS_CATALOG or {})} params) from {cp}")
                         break
                 except Exception as e:
                     logger.warning(f"Failed to load function catalog from {cp}: {e}")
@@ -1075,185 +1158,332 @@ class SetexFolderReader:
         cls._FUNCTION_CATALOG = catalog
         return cls._FUNCTION_CATALOG
 
-    @staticmethod
-    def format_step_param(func_id: int, param_idx: int, val: Optional[float], max_params: int = 3) -> str:
-        """Formats SETEX Secom float parameter into human-readable representation with engineering units."""
+    @classmethod
+    def format_step_param(cls, func_id: int, param_idx: int, val: Optional[float], max_params: int = 6, func_meta: Optional[Dict[str, Any]] = None) -> Tuple[str, str, str]:
+        """
+        Formats SETEX Secom float parameter into human-readable representation with engineering units.
+        Returns: (formatted_value, param_name, unit)
+        """
         if val is None or param_idx >= max_params:
-            return ""
-        if func_id in (141, 121):  # Temperature Control / Hold
-            if param_idx == 0: return f"{val:.1f} °C" if val > 0 else f"{int(val)} °C"
-            if param_idx == 1: return f"{val:.1f} °C/min"
-            if param_idx == 2: return f"{int(val)} min" if val > 0 else "0 min"
-        elif func_id in (241, 747, 131):  # Rinsing / Cooling
-            if param_idx == 0: return f"{val:.1f} °C" if val > 0 else f"{int(val)} °C"
-            if param_idx == 1: return f"{val:.1f} °C/min"
-            if param_idx == 2: return f"{int(val)} min" if val > 0 else "0 min"
-        elif func_id == 404:  # Dye Liquor Pump
-            if param_idx in (0, 1): return f"{int(val)} %"
-        elif func_id == 712:  # Material Flow
-            if param_idx == 0: return "Off" if val == 0 else "On" if val == 1 else "Auto"
-            if param_idx == 1: return f"{int(val)} m/min"
-        elif func_id in (713, 717, 720, 668, 678):  # Filling / Level
-            if param_idx == 0: return "cold water" if val == 0 else "hot water" if val == 1 else f"{int(val)}"
-            if param_idx == 1: return f"{int(val)}"
-            if param_idx == 2: return f"{int(val)} %" if val <= 100 else f"{val:.1f} °C"
-            if param_idx == 3: return f"{int(val)} L"
-        elif func_id in (85, 86, 227, 228, 938, 939):  # Dosing Progression / Chemicals
-            if param_idx == 0: return f"{int(val)} %"
-            if param_idx == 1: return f"{int(val)}"
-            if param_idx == 2: return f"{int(val)} min"
-        elif func_id in (61, 71):  # Drain Percent
-            if param_idx == 0: return f"{int(val)} %"
-            if param_idx == 1: return f"{int(val)} min"
-        elif func_id in (30, 144):  # Runtime / Circulation
-            if param_idx == 0: return f"{int(val)} min"
+            return ("", f"P{param_idx+1}", "")
 
-        if abs(val - round(val)) < 0.01:
-            return f"{int(round(val))}" if val != 0 else "0"
-        return f"{val:.1f}"
+        # 1. Try resolving using schema definitions from typeconf_functions.json
+        if cls._PARAMETERS_CATALOG is None:
+            cls.get_function_catalog()
 
-    @staticmethod
-    def parse_prg_steps(prg_bytes: bytes, function_catalog: Optional[Dict[str, Any]] = None) -> List[Dict[str, Any]]:
+        p_name = f"P{param_idx+1}"
+        p_unit = ""
+        formatted = ""
+
+        if func_meta and "parameters" in func_meta:
+            f_params = func_meta.get("parameters", [])
+            if param_idx < len(f_params):
+                def_id = str(f_params[param_idx].get("definition_id"))
+                p_def = (cls._PARAMETERS_CATALOG or {}).get(def_id)
+                if p_def:
+                    p_name = p_def.get("name", p_name)
+                    p_unit = p_def.get("unit", "")
+
+                    # Check text choice (mode 16)
+                    scale = p_def.get("scale", {})
+                    scale2 = p_def.get("scale2", {})
+                    if scale.get("mode") == 16 and cls._CHOICES_CATALOG:
+                        grp = str(scale2.get("text_group", 0))
+                        grp_choices = cls._CHOICES_CATALOG.get(grp, [])
+                        for ch in grp_choices:
+                            if abs(ch.get("value", -9999) - val) < 0.01:
+                                formatted = ch.get("text", "")
+                                break
+
+        if not formatted:
+            # Domain-specific standard SETEX conventions
+            if func_id in (141, 121, 145, 146):  # Temperature Control / Hold / Heat / Cool
+                if param_idx == 0:
+                    formatted = f"{val:.1f} °C" if val > 0 else f"{int(val)} °C"
+                    p_name = p_name if p_name != f"P{param_idx+1}" else "Target Suhu"
+                    p_unit = "°C"
+                elif param_idx == 1:
+                    formatted = f"{val:.1f} °C/min"
+                    p_name = p_name if p_name != f"P{param_idx+1}" else "Laju Gradien"
+                    p_unit = "°C/min"
+                elif param_idx == 2:
+                    formatted = f"{int(val)} min" if val > 0 else "0 min"
+                    p_name = p_name if p_name != f"P{param_idx+1}" else "Waktu Tahan"
+                    p_unit = "min"
+            elif func_id in (241, 747, 131):  # Rinsing / Cooling
+                if param_idx == 0:
+                    formatted = f"{val:.1f} °C" if val > 0 else f"{int(val)} °C"
+                    p_name = p_name if p_name != f"P{param_idx+1}" else "Suhu Akhir"
+                    p_unit = "°C"
+                elif param_idx == 1:
+                    formatted = f"{val:.1f} °C/min"
+                    p_name = p_name if p_name != f"P{param_idx+1}" else "Laju Pendinginan"
+                    p_unit = "°C/min"
+                elif param_idx == 2:
+                    formatted = f"{int(val)} min" if val > 0 else "0 min"
+                    p_name = p_name if p_name != f"P{param_idx+1}" else "Waktu Bilas"
+                    p_unit = "min"
+            elif func_id == 404:  # Dye Liquor Pump
+                if param_idx == 0:
+                    formatted = f"{int(val)} %"
+                    p_name = "Variojet / Min Speed"
+                    p_unit = "%"
+                elif param_idx == 1:
+                    formatted = f"{int(val)} %"
+                    p_name = "Kecepatan Pompa"
+                    p_unit = "%"
+            elif func_id in (411, 712):  # Material Flow / Winch
+                if param_idx == 0:
+                    formatted = "Off" if val == 0 else "On" if val == 1 else "Auto"
+                    p_name = "Mode Putaran"
+                elif param_idx == 1:
+                    formatted = f"{int(val)} m/min"
+                    p_name = "Kecepatan Kain"
+                    p_unit = "m/min"
+            elif func_id in (713, 717, 718, 720, 668, 678, 679):  # Filling / Level
+                if param_idx == 0:
+                    formatted = "Air Dingin" if val == 0 else "Air Panas" if val == 1 else f"{int(val)}"
+                    p_name = p_name if p_name != f"P{param_idx+1}" else "Jenis Air / Valve"
+                elif param_idx == 1:
+                    formatted = f"{int(val)}"
+                    p_name = p_name if p_name != f"P{param_idx+1}" else "Mixer / Tangki"
+                elif param_idx == 2:
+                    formatted = f"{int(val)} %" if val <= 100 else f"{val:.1f} °C"
+                    p_name = p_name if p_name != f"P{param_idx+1}" else "Level / Suhu"
+                    p_unit = "%" if val <= 100 else "°C"
+                elif param_idx == 3:
+                    formatted = f"{int(val)} L"
+                    p_name = p_name if p_name != f"P{param_idx+1}" else "Volume Air"
+                    p_unit = "L"
+                elif param_idx == 4:
+                    formatted = f"{int(val)} min"
+                    p_name = p_name if p_name != f"P{param_idx+1}" else "Waktu Larut"
+                    p_unit = "min"
+            elif func_id in (85, 86, 227, 228, 938, 939):  # Dosing Progression / Chemicals
+                if param_idx == 0:
+                    formatted = f"{val:.1f} °C" if val > 20 else f"{int(val)} %"
+                    p_name = p_name if p_name != f"P{param_idx+1}" else "Suhu / Kurva"
+                elif param_idx == 1:
+                    formatted = f"{val:.1f} °C/min" if val > 0 else f"{int(val)}"
+                    p_name = p_name if p_name != f"P{param_idx+1}" else "Gradien / Tangki"
+                elif param_idx == 2:
+                    formatted = f"{int(val)} %" if val > 0 else "0 %"
+                    p_name = p_name if p_name != f"P{param_idx+1}" else "Kurva Dosing"
+                    p_unit = "%"
+                elif param_idx == 3:
+                    formatted = f"{int(val)}"
+                    p_name = p_name if p_name != f"P{param_idx+1}" else "No. Persiapan"
+                elif param_idx == 4:
+                    formatted = f"{int(val)} min"
+                    p_name = p_name if p_name != f"P{param_idx+1}" else "Waktu Dosing"
+                    p_unit = "min"
+            elif func_id in (61, 71):  # Drain Percent
+                if param_idx == 0:
+                    formatted = f"{int(val)} %"
+                    p_name = "Level Pembuangan"
+                    p_unit = "%"
+                elif param_idx == 1:
+                    formatted = f"{int(val)}"
+                    p_name = "Katup Pembuangan"
+                elif param_idx == 2:
+                    formatted = f"{int(val)} min"
+                    p_name = "Waktu Sisa"
+                    p_unit = "min"
+            elif func_id in (30, 144):  # Runtime / Circulation
+                if param_idx == 0:
+                    formatted = f"{int(val)} min"
+                    p_name = "Waktu Proses"
+                    p_unit = "min"
+
+        if not formatted:
+            if abs(val - round(val)) < 0.01:
+                formatted = f"{int(round(val))}" if val != 0 else "0"
+            else:
+                formatted = f"{val:.1f}"
+            if p_unit:
+                formatted = f"{formatted} {p_unit}"
+
+        return (formatted, p_name, p_unit)
+
+    @classmethod
+    def parse_prg_steps(cls, prg_bytes: bytes, function_catalog: Optional[Dict[str, Any]] = None) -> List[Dict[str, Any]]:
         """
         Parses a SETEX Secom .PRG binary recipe to extract every defined step (1..N),
-        all sub-lines (1..16), and their parameter values (P1, P2, P3).
+        comments/remarks (Slot 0), all sub-lines (1..16), all 6 parameters (with names and units),
+        and timing target setpoints (set_time, hold_time, protect_time).
         """
-        if not prg_bytes or len(prg_bytes) < 256:
+        if not prg_bytes or len(prg_bytes) < 384:
             return []
 
-        FALLBACK_FUNCTION_NAMES = {
-            1: "Program Start",
-            2: "Fill",
-            5: "Addition End",
-            30: "Runtime",
-            31: "Inject AT2",
-            61: "Drain",
-            71: "Drain Percent",
-            85: "Dosing",
-            86: "Dosing Chemical",
-            106: "Call-Off Operator",
-            121: "Holding",
-            126: "Check",
-            131: "Cooling",
-            141: "Temperature Control",
-            144: "Runtime",
-            227: "Dosing AT1",
-            228: "Dosing AT2",
-            238: "Inject AT2",
-            241: "Rinsing / Cooling",
-            261: "Load",
-            401: "Pump Set Value",
-            404: "Dye Liquor Pump",
-            668: "Filling AT2 Level",
-            678: "Fill ST1 Quantity",
-            708: "Machine -> ST1",
-            709: "Rinse Nozzle",
-            712: "Material Flow",
-            713: "Fill Level",
-            714: "Washing",
-            715: "Dosing AT2->AT1",
-            716: "ST -> Machine",
-            717: "Filling AT1 Level",
-            720: "Fill Level ST",
-            747: "Rinsing / Cooling",
-            938: "Dosing Progression 1",
-            939: "Dosing Progression 2",
-        }
+        if cls._PARAMETERS_CATALOG is None:
+            cls.get_function_catalog()
 
-        catalog = function_catalog or {}
+        catalog = function_catalog or cls._FUNCTION_CATALOG or {}
+        res_catalog = cls._RESOURCES_CATALOG or {}
+
+        # Read step count from header (offset 33)
+        hdr_count = struct.unpack_from("<H", prg_bytes, 33)[0] if len(prg_bytes) >= 384 else 0
+        total_steps = hdr_count if (hdr_count and 1 <= hdr_count <= 250) else 250
+
+        # Group 65-byte records by step number
+        records_by_step: Dict[int, List[Tuple[int, bytes]]] = {}
+        for off in range(384, len(prg_bytes), 65):
+            raw = prg_bytes[off:off + 65]
+            if len(raw) < 65:
+                break
+            step_no = struct.unpack_from("<H", raw, 0)[0]
+            slot = raw[2]
+            if 1 <= step_no <= total_steps:
+                records_by_step.setdefault(step_no, []).append((slot, raw))
+
         steps = []
+        for step_no in sorted(records_by_step.keys()):
+            step_records = records_by_step[step_no]
 
-        for step_no in range(1, 255):
-            pat1 = struct.pack("<HH", step_no, 1)
-            idx1 = prg_bytes.find(pat1)
-            if idx1 == -1:
-                continue
+            # Slot 0: Step comment / operator note
+            step_comment = ""
+            for slot, raw in step_records:
+                if slot == 0:
+                    step_comment = raw[3:].split(b"\0", 1)[0].decode("cp1252", errors="ignore").strip()
+                    break
 
             lines = []
             main_func_id = 0
             main_func_name = f"Step #{step_no}"
             main_type = "PROCESS"
+            main_set_time = 0
+            main_hold_time = 0
+            main_protect_time = 0
+            main_operator_txt = 0
+            main_params = []
 
-            # Parse all sub-lines (1 to 16) for this step
-            for line_no in range(1, 17):
-                pat = struct.pack("<HH", step_no, line_no)
-                idx = prg_bytes.find(pat)
-                if idx == -1:
+            # Slots 1..16: Execution functions
+            for slot, rec in sorted([r for r in step_records if r[0] > 0], key=lambda x: x[0]):
+                line_no = slot
+                func_id = struct.unpack_from("<H", rec, 4)[0]
+                if line_no > 1 and func_id in (0, 2):
                     continue
 
-                if idx + 6 <= len(prg_bytes):
-                    func_id = struct.unpack_from("<H", prg_bytes, idx + 4)[0]
-                    if line_no > 1 and func_id in (0, 2):
-                        continue
-                    func_meta = catalog.get(str(func_id), {})
-                    base_name = func_meta.get("name") or FALLBACK_FUNCTION_NAMES.get(func_id) or f"Func {func_id}"
+                func_meta = catalog.get(str(func_id), {})
+                base_name = func_meta.get("name") or cls.FALLBACK_FUNCTION_NAMES.get(func_id) or f"Func {func_id}"
 
-                    if "prpgression" in base_name.lower():
-                        base_name = base_name.replace("Prpgression", "Progression").replace("prpgression", "progression")
+                if "prpgression" in base_name.lower():
+                    base_name = base_name.replace("Prpgression", "Progression").replace("prpgression", "progression")
 
-                    display_name = base_name if line_no == 1 else f"- {base_name}"
-                    param_count = func_meta.get("parameter_count", 3)
+                display_name = base_name if line_no == 1 else f"- {base_name}"
+                res_info = res_catalog.get(str(line_no), {})
+                res_name = res_info.get("name") or ("Main Process" if line_no == 1 else f"Resource {line_no}")
 
-                    # Unpack 32-bit floats
-                    rec = prg_bytes[idx:idx + 65]
-                    raw_params = []
-                    for p_off in (9, 15, 21, 27):
-                        if p_off + 4 <= len(rec):
-                            val = struct.unpack_from("<f", rec, p_off)[0]
-                            raw_params.append(val if abs(val) < 100000 else 0.0)
+                # Additional fields at offset 43
+                p_time, s_time, op_txt, mod_no, loop_cnt, lbl_type, start_act, h_time, res_val, treat, treat_step = (0,)*11
+                if len(rec) >= 61:
+                    try:
+                        p_time, s_time, op_txt, mod_no, loop_cnt, lbl_type, start_act, h_time, res_val, treat, treat_step = struct.unpack_from("<5HBfHBHH", rec, 43)
+                    except Exception:
+                        pass
 
-                    fmt_p = [SetexFolderReader.format_step_param(func_id, pi, v, param_count) for pi, v in enumerate(raw_params)]
-                    while len(fmt_p) < 3:
-                        fmt_p.append("")
+                # Unpack 6x 32-bit float parameters
+                parsed_params = []
+                fmt_p = []
+                for j in range(6):
+                    p_off = 9 + 6 * j
+                    val = 0.0
+                    if p_off + 4 <= len(rec):
+                        val = struct.unpack_from("<f", rec, p_off)[0]
+                        if abs(val) > 100000 or not (-100000 < val < 100000):
+                            val = 0.0
 
-                    if line_no == 1:
-                        main_func_id = func_id
-                        main_func_name = base_name
-                        f_lower = base_name.lower()
-                        if "temp" in f_lower or "heat" in f_lower or func_id in (141, 121):
-                            main_type = "HEAT"
-                        elif "rinse" in f_lower or "cool" in f_lower or func_id in (241, 747, 131):
-                            main_type = "COOL"
-                        elif "dose" in f_lower or "dosing" in f_lower or func_id in (85, 86, 227, 228, 938, 939):
-                            main_type = "DOSE"
-                        elif "fill" in f_lower or func_id in (713, 668, 678, 717, 720):
-                            main_type = "FILL"
-                        elif "drain" in f_lower or func_id in (61, 71):
-                            main_type = "DRAIN"
-                        elif "inject" in f_lower or func_id in (238, 712):
-                            main_type = "INJECT"
-                        elif "hold" in f_lower or func_id == 121:
-                            main_type = "HOLD"
-                        elif "wash" in f_lower or func_id == 714:
-                            main_type = "WASH"
-                        elif "pump" in f_lower or "speed" in f_lower or func_id in (401, 404):
-                            main_type = "PUMP"
-                        elif "run" in f_lower or func_id in (30, 144):
-                            main_type = "RUNTIME"
-
-                    lines.append({
-                        "line": line_no,
-                        "func_id": func_id,
-                        "name": display_name,
-                        "is_sub": line_no > 1,
-                        "p1": fmt_p[0],
-                        "p2": fmt_p[1],
-                        "p3": fmt_p[2]
+                    formatted_str, p_name, p_unit = cls.format_step_param(
+                        func_id=func_id,
+                        param_idx=j,
+                        val=val,
+                        max_params=6,
+                        func_meta=func_meta
+                    )
+                    parsed_params.append({
+                        "pos": j + 1,
+                        "name": p_name,
+                        "unit": p_unit,
+                        "value": round(val, 2),
+                        "formatted": formatted_str
                     })
+                    fmt_p.append(formatted_str)
+
+                if line_no == 1:
+                    main_func_id = func_id
+                    main_func_name = base_name
+                    main_set_time = s_time
+                    main_hold_time = h_time
+                    main_protect_time = p_time
+                    main_operator_txt = op_txt
+                    main_params = parsed_params
+                    f_lower = base_name.lower()
+                    if "temp" in f_lower or "heat" in f_lower or func_id in (141, 121, 145):
+                        main_type = "HEAT"
+                    elif "rinse" in f_lower or "cool" in f_lower or func_id in (241, 747, 131, 146):
+                        main_type = "COOL"
+                    elif "dose" in f_lower or "dosing" in f_lower or func_id in (85, 86, 227, 228, 938, 939):
+                        main_type = "DOSE"
+                    elif "fill" in f_lower or func_id in (713, 668, 678, 717, 720):
+                        main_type = "FILL"
+                    elif "drain" in f_lower or func_id in (61, 71):
+                        main_type = "DRAIN"
+                    elif "inject" in f_lower or func_id in (238, 712):
+                        main_type = "INJECT"
+                    elif "hold" in f_lower or func_id == 121:
+                        main_type = "HOLD"
+                    elif "wash" in f_lower or func_id == 714:
+                        main_type = "WASH"
+                    elif "pump" in f_lower or "speed" in f_lower or func_id in (401, 404):
+                        main_type = "PUMP"
+                    elif "run" in f_lower or func_id in (30, 144):
+                        main_type = "RUNTIME"
+
+                lines.append({
+                    "line": line_no,
+                    "func_id": func_id,
+                    "func_name": base_name,
+                    "resource_name": res_name,
+                    "name": display_name,
+                    "is_sub": line_no > 1,
+                    "set_time": s_time,
+                    "hold_time": h_time,
+                    "protect_time": p_time,
+                    "operator_txt": op_txt,
+                    "params": parsed_params,
+                    "p1": fmt_p[0] if len(fmt_p) > 0 else "",
+                    "p2": fmt_p[1] if len(fmt_p) > 1 else "",
+                    "p3": fmt_p[2] if len(fmt_p) > 2 else "",
+                    "p4": fmt_p[3] if len(fmt_p) > 3 else "",
+                    "p5": fmt_p[4] if len(fmt_p) > 4 else "",
+                    "p6": fmt_p[5] if len(fmt_p) > 5 else ""
+                })
 
             if lines:
                 p1_val = lines[0]["p1"] if lines else ""
                 p2_val = lines[0]["p2"] if lines else ""
                 p3_val = lines[0]["p3"] if lines else ""
+                p4_val = lines[0]["p4"] if lines else ""
+                p5_val = lines[0]["p5"] if lines else ""
+                p6_val = lines[0]["p6"] if lines else ""
                 steps.append({
                     "no": step_no,
+                    "comment": step_comment,
                     "func_id": main_func_id,
                     "name": main_func_name,
                     "type": main_type,
                     "icon": str(main_func_id),
+                    "set_time": main_set_time,
+                    "hold_time": main_hold_time,
+                    "protect_time": main_protect_time,
+                    "operator_txt": main_operator_txt,
+                    "params": main_params,
                     "p1": p1_val,
                     "p2": p2_val,
                     "p3": p3_val,
+                    "p4": p4_val,
+                    "p5": p5_val,
+                    "p6": p6_val,
                     "sub_steps": lines
                 })
 

@@ -1,25 +1,14 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import Header from './Header';
 import Sidebar from './Sidebar';
+import { useTheme } from '../context/ThemeContext';
 
 const DefaultLayout = ({ children }) => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [darkMode, setDarkMode] = useState(() => {
-    return localStorage.getItem('color-theme') === 'dark';
-  });
-
-  useEffect(() => {
-    if (darkMode) {
-      document.documentElement.classList.add('dark');
-      localStorage.setItem('color-theme', 'dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-      localStorage.setItem('color-theme', 'light');
-    }
-  }, [darkMode]);
+  const { theme, toggleTheme } = useTheme();
 
   return (
-    <div className="dark:bg-boxdark-2 dark:text-bodydark">
+    <div className="bg-whiten dark:bg-boxdark-2 text-body dark:text-bodydark min-h-screen transition-colors duration-200">
       <div className="flex h-screen overflow-hidden">
         {/* Sidebar */}
         <Sidebar sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
@@ -30,12 +19,12 @@ const DefaultLayout = ({ children }) => {
           <Header
             sidebarOpen={sidebarOpen}
             setSidebarOpen={setSidebarOpen}
-            darkMode={darkMode}
-            setDarkMode={setDarkMode}
+            darkMode={theme === 'dark'}
+            setDarkMode={toggleTheme}
           />
 
-          {/* Main Content */}
-          <main>
+          {/* Main Content with smooth page entry animation */}
+          <main className="page-enter flex-1">
             <div className="mx-auto max-w-screen-2xl p-4 md:p-6 2xl:p-10">
               {children}
             </div>

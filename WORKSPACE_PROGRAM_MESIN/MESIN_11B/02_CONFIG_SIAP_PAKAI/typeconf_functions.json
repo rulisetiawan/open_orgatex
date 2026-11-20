@@ -63,7 +63,9 @@
           "attribute": 0,
           "reserved": 0
         }
-      ]
+      ],
+      "lines": [],
+      "groups": []
     },
     "668": {
       "id": 668,
@@ -128,7 +130,9 @@
           "attribute": 0,
           "reserved": 0
         }
-      ]
+      ],
+      "lines": [],
+      "groups": []
     },
     "401": {
       "id": 401,
@@ -149,7 +153,9 @@
           "attribute": 0,
           "reserved": 0
         }
-      ]
+      ],
+      "lines": [],
+      "groups": []
     },
     "262": {
       "id": 262,
@@ -192,6 +198,12 @@
           "attribute": 0,
           "reserved": 0
         }
+      ],
+      "lines": [
+        1
+      ],
+      "groups": [
+        "Operator Call"
       ]
     },
     "661": {
@@ -224,7 +236,9 @@
           "attribute": 0,
           "reserved": 0
         }
-      ]
+      ],
+      "lines": [],
+      "groups": []
     },
     "671": {
       "id": 671,
@@ -256,7 +270,9 @@
           "attribute": 0,
           "reserved": 0
         }
-      ]
+      ],
+      "lines": [],
+      "groups": []
     },
     "708": {
       "id": 708,
@@ -265,7 +281,9 @@
       "ack": 0,
       "type": 0,
       "parameter_count": 0,
-      "parameters": []
+      "parameters": [],
+      "lines": [],
+      "groups": []
     },
     "709": {
       "id": 709,
@@ -308,6 +326,12 @@
           "attribute": 0,
           "reserved": 0
         }
+      ],
+      "lines": [
+        1
+      ],
+      "groups": [
+        "Rinse"
       ]
     },
     "713": {
@@ -340,11 +364,17 @@
           "attribute": 0,
           "reserved": 0
         }
+      ],
+      "lines": [
+        1
+      ],
+      "groups": [
+        "Fill"
       ]
     },
     "702": {
       "id": 702,
-      "name_local": "Sirk\u00fclasyon BK -> AK",
+      "name_local": "Sirkülasyon BK -> AK",
       "name": "Circulate AT2 -> App",
       "ack": 0,
       "type": 0,
@@ -416,6 +446,12 @@
           "attribute": 0,
           "reserved": 0
         }
+      ],
+      "lines": [
+        1
+      ],
+      "groups": [
+        "Dosing/Inject"
       ]
     },
     "2": {
@@ -425,7 +461,13 @@
       "ack": 0,
       "type": 7,
       "parameter_count": 0,
-      "parameters": []
+      "parameters": [],
+      "lines": [
+        1
+      ],
+      "groups": [
+        "System"
+      ]
     },
     "3": {
       "id": 3,
@@ -434,7 +476,13 @@
       "ack": 0,
       "type": 0,
       "parameter_count": 0,
-      "parameters": []
+      "parameters": [],
+      "lines": [
+        1
+      ],
+      "groups": [
+        "System"
+      ]
     },
     "5": {
       "id": 5,
@@ -443,7 +491,13 @@
       "ack": 0,
       "type": 9,
       "parameter_count": 0,
-      "parameters": []
+      "parameters": [],
+      "lines": [
+        1
+      ],
+      "groups": [
+        "System"
+      ]
     },
     "4": {
       "id": 4,
@@ -452,11 +506,17 @@
       "ack": 0,
       "type": 8,
       "parameter_count": 0,
-      "parameters": []
+      "parameters": [],
+      "lines": [
+        1
+      ],
+      "groups": [
+        "System"
+      ]
     },
     "21": {
       "id": 21,
-      "name_local": "F\u00fcllen auf Niveau",
+      "name_local": "Füllen auf Niveau",
       "name": "Fill Level",
       "ack": 0,
       "type": 0,
@@ -484,7 +544,9 @@
           "attribute": 0,
           "reserved": 0
         }
-      ]
+      ],
+      "lines": [],
+      "groups": []
     },
     "22": {
       "id": 22,
@@ -516,11 +578,17 @@
           "attribute": 0,
           "reserved": 0
         }
+      ],
+      "lines": [
+        1
+      ],
+      "groups": [
+        "Fill"
       ]
     },
     "23": {
       "id": 23,
-      "name_local": "F\u00fcll Mischw. Niveau",
+      "name_local": "Füll Mischw. Niveau",
       "name": "Fill Blendw. Level",
       "ack": 0,
       "type": 0,
@@ -548,11 +616,13 @@
           "attribute": 0,
           "reserved": 0
         }
-      ]
+      ],
+      "lines": [],
+      "groups": []
     },
     "24": {
       "id": 24,
-      "name_local": "F\u00fcll Mischw. Menge",
+      "name_local": "Füll Mischw. Menge",
       "name": "Fill Blendw. Quant.",
       "ack": 0,
       "type": 0,
@@ -580,7 +650,9 @@
           "attribute": 0,
           "reserved": 0
         }
-      ]
+      ],
+      "lines": [],
+      "groups": []
     },
     "719": {
       "id": 719,
@@ -645,6 +717,12 @@
           "attribute": 0,
           "reserved": 0
         }
+      ],
+      "lines": [
+        6
+      ],
+      "groups": [
+        "Stock Tank 1"
       ]
     },
     "716": {
@@ -677,6 +755,12 @@
           "attribute": 0,
           "reserved": 0
         }
+      ],
+      "lines": [
+        1
+      ],
+      "groups": [
+        "Fill"
       ]
     },
     "126": {
@@ -698,6 +782,12 @@
           "attribute": 0,
           "reserved": 0
         }
+      ],
+      "lines": [
+        1
+      ],
+      "groups": [
+        "Operator Call"
       ]
     },
     "123": {
@@ -719,6 +809,12 @@
           "attribute": 0,
           "reserved": 0
         }
+      ],
+      "lines": [
+        1
+      ],
+      "groups": [
+        "Operator Call"
       ]
     },
     "122": {
@@ -740,6 +836,12 @@
           "attribute": 0,
           "reserved": 0
         }
+      ],
+      "lines": [
+        1
+      ],
+      "groups": [
+        "Operator Call"
       ]
     },
     "65": {
@@ -749,7 +851,9 @@
       "ack": 0,
       "type": 0,
       "parameter_count": 0,
-      "parameters": []
+      "parameters": [],
+      "lines": [],
+      "groups": []
     },
     "127": {
       "id": 127,
@@ -781,6 +885,12 @@
           "attribute": 0,
           "reserved": 0
         }
+      ],
+      "lines": [
+        1
+      ],
+      "groups": [
+        "Operator Call"
       ]
     },
     "141": {
@@ -824,6 +934,12 @@
           "attribute": 0,
           "reserved": 0
         }
+      ],
+      "lines": [
+        1
+      ],
+      "groups": [
+        "Dyeing"
       ]
     },
     "145": {
@@ -867,7 +983,9 @@
           "attribute": 0,
           "reserved": 0
         }
-      ]
+      ],
+      "lines": [],
+      "groups": []
     },
     "144": {
       "id": 144,
@@ -888,6 +1006,12 @@
           "attribute": 0,
           "reserved": 0
         }
+      ],
+      "lines": [
+        1
+      ],
+      "groups": [
+        "Dyeing"
       ]
     },
     "146": {
@@ -931,7 +1055,9 @@
           "attribute": 0,
           "reserved": 0
         }
-      ]
+      ],
+      "lines": [],
+      "groups": []
     },
     "227": {
       "id": 227,
@@ -1007,7 +1133,9 @@
           "attribute": 0,
           "reserved": 0
         }
-      ]
+      ],
+      "lines": [],
+      "groups": []
     },
     "653": {
       "id": 653,
@@ -1016,7 +1144,13 @@
       "ack": 6,
       "type": 0,
       "parameter_count": 0,
-      "parameters": []
+      "parameters": [],
+      "lines": [
+        4
+      ],
+      "groups": [
+        "Addition Tank 1"
+      ]
     },
     "652": {
       "id": 652,
@@ -1037,7 +1171,9 @@
           "attribute": 0,
           "reserved": 0
         }
-      ]
+      ],
+      "lines": [],
+      "groups": []
     },
     "654": {
       "id": 654,
@@ -1046,7 +1182,9 @@
       "ack": 7,
       "type": 0,
       "parameter_count": 0,
-      "parameters": []
+      "parameters": [],
+      "lines": [],
+      "groups": []
     },
     "655": {
       "id": 655,
@@ -1067,7 +1205,9 @@
           "attribute": 0,
           "reserved": 0
         }
-      ]
+      ],
+      "lines": [],
+      "groups": []
     },
     "656": {
       "id": 656,
@@ -1143,6 +1283,12 @@
           "attribute": 0,
           "reserved": 0
         }
+      ],
+      "lines": [
+        4
+      ],
+      "groups": [
+        "Addition Tank 1"
       ]
     },
     "662": {
@@ -1164,7 +1310,9 @@
           "attribute": 0,
           "reserved": 0
         }
-      ]
+      ],
+      "lines": [],
+      "groups": []
     },
     "663": {
       "id": 663,
@@ -1173,7 +1321,13 @@
       "ack": 6,
       "type": 0,
       "parameter_count": 0,
-      "parameters": []
+      "parameters": [],
+      "lines": [
+        5
+      ],
+      "groups": [
+        "Addition Tank 2"
+      ]
     },
     "664": {
       "id": 664,
@@ -1182,7 +1336,9 @@
       "ack": 7,
       "type": 0,
       "parameter_count": 0,
-      "parameters": []
+      "parameters": [],
+      "lines": [],
+      "groups": []
     },
     "666": {
       "id": 666,
@@ -1258,6 +1414,12 @@
           "attribute": 0,
           "reserved": 0
         }
+      ],
+      "lines": [
+        5
+      ],
+      "groups": [
+        "Addition Tank 2"
       ]
     },
     "672": {
@@ -1279,6 +1441,12 @@
           "attribute": 0,
           "reserved": 0
         }
+      ],
+      "lines": [
+        6
+      ],
+      "groups": [
+        "Stock Tank 1"
       ]
     },
     "676": {
@@ -1355,6 +1523,12 @@
           "attribute": 0,
           "reserved": 0
         }
+      ],
+      "lines": [
+        6
+      ],
+      "groups": [
+        "Stock Tank 1"
       ]
     },
     "533": {
@@ -1364,7 +1538,13 @@
       "ack": 3,
       "type": 0,
       "parameter_count": 0,
-      "parameters": []
+      "parameters": [],
+      "lines": [
+        5
+      ],
+      "groups": [
+        "Addition Tank 2"
+      ]
     },
     "37": {
       "id": 37,
@@ -1385,6 +1565,12 @@
           "attribute": 0,
           "reserved": 0
         }
+      ],
+      "lines": [
+        1
+      ],
+      "groups": [
+        "Fill"
       ]
     },
     "665": {
@@ -1406,11 +1592,13 @@
           "attribute": 0,
           "reserved": 0
         }
-      ]
+      ],
+      "lines": [],
+      "groups": []
     },
     "38": {
       "id": 38,
-      "name_local": "F\u00fcll Mischw. Memo",
+      "name_local": "Füll Mischw. Memo",
       "name": "Fill Blendw. Memo",
       "ack": 0,
       "type": 0,
@@ -1427,7 +1615,9 @@
           "attribute": 0,
           "reserved": 0
         }
-      ]
+      ],
+      "lines": [],
+      "groups": []
     },
     "261": {
       "id": 261,
@@ -1470,6 +1660,12 @@
           "attribute": 0,
           "reserved": 0
         }
+      ],
+      "lines": [
+        1
+      ],
+      "groups": [
+        "Operator Call"
       ]
     },
     "119": {
@@ -1502,7 +1698,9 @@
           "attribute": 0,
           "reserved": 0
         }
-      ]
+      ],
+      "lines": [],
+      "groups": []
     },
     "411": {
       "id": 411,
@@ -1523,7 +1721,9 @@
           "attribute": 0,
           "reserved": 0
         }
-      ]
+      ],
+      "lines": [],
+      "groups": []
     },
     "513": {
       "id": 513,
@@ -1532,7 +1732,13 @@
       "ack": 3,
       "type": 0,
       "parameter_count": 0,
-      "parameters": []
+      "parameters": [],
+      "lines": [
+        4
+      ],
+      "groups": [
+        "Addition Tank 1"
+      ]
     },
     "130": {
       "id": 130,
@@ -1553,6 +1759,12 @@
           "attribute": 0,
           "reserved": 0
         }
+      ],
+      "lines": [
+        1
+      ],
+      "groups": [
+        "Operator Call"
       ]
     },
     "228": {
@@ -1629,7 +1841,9 @@
           "attribute": 0,
           "reserved": 0
         }
-      ]
+      ],
+      "lines": [],
+      "groups": []
     },
     "231": {
       "id": 231,
@@ -1694,7 +1908,9 @@
           "attribute": 0,
           "reserved": 0
         }
-      ]
+      ],
+      "lines": [],
+      "groups": []
     },
     "239": {
       "id": 239,
@@ -1770,7 +1986,9 @@
           "attribute": 0,
           "reserved": 0
         }
-      ]
+      ],
+      "lines": [],
+      "groups": []
     },
     "79": {
       "id": 79,
@@ -1813,7 +2031,9 @@
           "attribute": 0,
           "reserved": 0
         }
-      ]
+      ],
+      "lines": [],
+      "groups": []
     },
     "237": {
       "id": 237,
@@ -1867,6 +2087,12 @@
           "attribute": 0,
           "reserved": 0
         }
+      ],
+      "lines": [
+        1
+      ],
+      "groups": [
+        "Dosing/Inject"
       ]
     },
     "238": {
@@ -1921,6 +2147,12 @@
           "attribute": 0,
           "reserved": 0
         }
+      ],
+      "lines": [
+        1
+      ],
+      "groups": [
+        "Dosing/Inject"
       ]
     },
     "240": {
@@ -1997,11 +2229,13 @@
           "attribute": 0,
           "reserved": 0
         }
-      ]
+      ],
+      "lines": [],
+      "groups": []
     },
     "417": {
       "id": 417,
-      "name_local": "Kule / D\u00fcze",
+      "name_local": "Kule / Düze",
       "name": "Material Flow Vario.",
       "ack": 5,
       "type": 0,
@@ -2029,7 +2263,9 @@
           "attribute": 0,
           "reserved": 0
         }
-      ]
+      ],
+      "lines": [],
+      "groups": []
     },
     "657": {
       "id": 657,
@@ -2061,6 +2297,12 @@
           "attribute": 0,
           "reserved": 0
         }
+      ],
+      "lines": [
+        4
+      ],
+      "groups": [
+        "Addition Tank 1"
       ]
     },
     "667": {
@@ -2093,6 +2335,12 @@
           "attribute": 0,
           "reserved": 0
         }
+      ],
+      "lines": [
+        5
+      ],
+      "groups": [
+        "Addition Tank 2"
       ]
     },
     "242": {
@@ -2147,7 +2395,9 @@
           "attribute": 0,
           "reserved": 0
         }
-      ]
+      ],
+      "lines": [],
+      "groups": []
     },
     "243": {
       "id": 243,
@@ -2201,6 +2451,12 @@
           "attribute": 0,
           "reserved": 0
         }
+      ],
+      "lines": [
+        1
+      ],
+      "groups": [
+        "Rinse"
       ]
     },
     "1": {
@@ -2210,7 +2466,13 @@
       "ack": 0,
       "type": 6,
       "parameter_count": 0,
-      "parameters": []
+      "parameters": [],
+      "lines": [
+        1
+      ],
+      "groups": [
+        "System"
+      ]
     },
     "722": {
       "id": 722,
@@ -2231,6 +2493,12 @@
           "attribute": 0,
           "reserved": 0
         }
+      ],
+      "lines": [
+        5
+      ],
+      "groups": [
+        "Addition Tank 2"
       ]
     },
     "673": {
@@ -2240,7 +2508,13 @@
       "ack": 6,
       "type": 0,
       "parameter_count": 0,
-      "parameters": []
+      "parameters": [],
+      "lines": [
+        6
+      ],
+      "groups": [
+        "Stock Tank 1"
+      ]
     },
     "241": {
       "id": 241,
@@ -2272,7 +2546,9 @@
           "attribute": 0,
           "reserved": 0
         }
-      ]
+      ],
+      "lines": [],
+      "groups": []
     },
     "747": {
       "id": 747,
@@ -2304,6 +2580,12 @@
           "attribute": 0,
           "reserved": 0
         }
+      ],
+      "lines": [
+        1
+      ],
+      "groups": [
+        "Rinse"
       ]
     },
     "938": {
@@ -2369,6 +2651,12 @@
           "attribute": 0,
           "reserved": 0
         }
+      ],
+      "lines": [
+        1
+      ],
+      "groups": [
+        "Dosing/Inject"
       ]
     },
     "730": {
@@ -2378,7 +2666,9 @@
       "ack": 2,
       "type": 0,
       "parameter_count": 0,
-      "parameters": []
+      "parameters": [],
+      "lines": [],
+      "groups": []
     },
     "723": {
       "id": 723,
@@ -2410,7 +2700,9 @@
           "attribute": 0,
           "reserved": 0
         }
-      ]
+      ],
+      "lines": [],
+      "groups": []
     },
     "651": {
       "id": 651,
@@ -2442,7 +2734,9 @@
           "attribute": 0,
           "reserved": 0
         }
-      ]
+      ],
+      "lines": [],
+      "groups": []
     },
     "718": {
       "id": 718,
@@ -2507,6 +2801,12 @@
           "attribute": 0,
           "reserved": 0
         }
+      ],
+      "lines": [
+        5
+      ],
+      "groups": [
+        "Addition Tank 2"
       ]
     },
     "717": {
@@ -2572,6 +2872,12 @@
           "attribute": 0,
           "reserved": 0
         }
+      ],
+      "lines": [
+        4
+      ],
+      "groups": [
+        "Addition Tank 1"
       ]
     },
     "720": {
@@ -2637,6 +2943,12 @@
           "attribute": 0,
           "reserved": 0
         }
+      ],
+      "lines": [
+        6
+      ],
+      "groups": [
+        "Stock Tank 1"
       ]
     },
     "93": {
@@ -2646,7 +2958,9 @@
       "ack": 3,
       "type": 0,
       "parameter_count": 0,
-      "parameters": []
+      "parameters": [],
+      "lines": [],
+      "groups": []
     },
     "710": {
       "id": 710,
@@ -2700,6 +3014,12 @@
           "attribute": 0,
           "reserved": 0
         }
+      ],
+      "lines": [
+        1
+      ],
+      "groups": [
+        "Rinse"
       ]
     },
     "658": {
@@ -2765,7 +3085,9 @@
           "attribute": 0,
           "reserved": 0
         }
-      ]
+      ],
+      "lines": [],
+      "groups": []
     },
     "712": {
       "id": 712,
@@ -2797,6 +3119,12 @@
           "attribute": 0,
           "reserved": 0
         }
+      ],
+      "lines": [
+        3
+      ],
+      "groups": [
+        "Material flow"
       ]
     },
     "404": {
@@ -2829,6 +3157,12 @@
           "attribute": 0,
           "reserved": 0
         }
+      ],
+      "lines": [
+        2
+      ],
+      "groups": [
+        "Pump"
       ]
     },
     "139": {
@@ -2850,6 +3184,12 @@
           "attribute": 0,
           "reserved": 0
         }
+      ],
+      "lines": [
+        1
+      ],
+      "groups": [
+        "Operator Call"
       ]
     },
     "680": {
@@ -2882,6 +3222,12 @@
           "attribute": 0,
           "reserved": 0
         }
+      ],
+      "lines": [
+        4
+      ],
+      "groups": [
+        "Addition Tank 1"
       ]
     },
     "711": {
@@ -2947,11 +3293,17 @@
           "attribute": 0,
           "reserved": 0
         }
+      ],
+      "lines": [
+        1
+      ],
+      "groups": [
+        "Rinse"
       ]
     },
     "244": {
       "id": 244,
-      "name_local": "Sp\u00fclen Zeit MW Mode",
+      "name_local": "Spülen Zeit MW Mode",
       "name": "Rinse Time BW Mode",
       "ack": 0,
       "type": 0,
@@ -3001,7 +3353,9 @@
           "attribute": 0,
           "reserved": 0
         }
-      ]
+      ],
+      "lines": [],
+      "groups": []
     },
     "71": {
       "id": 71,
@@ -3044,6 +3398,12 @@
           "attribute": 0,
           "reserved": 0
         }
+      ],
+      "lines": [
+        1
+      ],
+      "groups": [
+        "Drain"
       ]
     },
     "61": {
@@ -3087,7 +3447,9 @@
           "attribute": 0,
           "reserved": 0
         }
-      ]
+      ],
+      "lines": [],
+      "groups": []
     },
     "516": {
       "id": 516,
@@ -3108,6 +3470,12 @@
           "attribute": 0,
           "reserved": 0
         }
+      ],
+      "lines": [
+        4
+      ],
+      "groups": [
+        "Addition Tank 1"
       ]
     },
     "551": {
@@ -3117,11 +3485,17 @@
       "ack": 3,
       "type": 0,
       "parameter_count": 0,
-      "parameters": []
+      "parameters": [],
+      "lines": [
+        6
+      ],
+      "groups": [
+        "Stock Tank 1"
+      ]
     },
     "701": {
       "id": 701,
-      "name_local": "Sirk\u00fclasyon KK -> AK",
+      "name_local": "Sirkülasyon KK -> AK",
       "name": "Circulate AT1 -> MA",
       "ack": 0,
       "type": 0,
@@ -3193,6 +3567,12 @@
           "attribute": 0,
           "reserved": 0
         }
+      ],
+      "lines": [
+        1
+      ],
+      "groups": [
+        "Dosing/Inject"
       ]
     },
     "681": {
@@ -3225,6 +3605,12 @@
           "attribute": 0,
           "reserved": 0
         }
+      ],
+      "lines": [
+        5
+      ],
+      "groups": [
+        "Addition Tank 2"
       ]
     },
     "679": {
@@ -3290,11 +3676,13 @@
           "attribute": 0,
           "reserved": 0
         }
-      ]
+      ],
+      "lines": [],
+      "groups": []
     },
     "28": {
       "id": 28,
-      "name_local": "F\u00fcll Mischw. Prozent",
+      "name_local": "Füll Mischw. Prozent",
       "name": "Fill Blendw. Percent",
       "ack": 0,
       "type": 0,
@@ -3322,7 +3710,9 @@
           "attribute": 0,
           "reserved": 0
         }
-      ]
+      ],
+      "lines": [],
+      "groups": []
     },
     "674": {
       "id": 674,
@@ -3331,11 +3721,13 @@
       "ack": 7,
       "type": 0,
       "parameter_count": 0,
-      "parameters": []
+      "parameters": [],
+      "lines": [],
+      "groups": []
     },
     "245": {
       "id": 245,
-      "name_local": "Sp\u00fclen Menge MW Mode",
+      "name_local": "Spülen Menge MW Mode",
       "name": "Rinse Qua. BW Mode",
       "ack": 0,
       "type": 0,
@@ -3385,7 +3777,9 @@
           "attribute": 0,
           "reserved": 0
         }
-      ]
+      ],
+      "lines": [],
+      "groups": []
     },
     "39": {
       "id": 39,
@@ -3394,7 +3788,13 @@
       "ack": 2,
       "type": 0,
       "parameter_count": 0,
-      "parameters": []
+      "parameters": [],
+      "lines": [
+        7
+      ],
+      "groups": [
+        "Auto level"
+      ]
     },
     "536": {
       "id": 536,
@@ -3415,11 +3815,17 @@
           "attribute": 0,
           "reserved": 0
         }
+      ],
+      "lines": [
+        5
+      ],
+      "groups": [
+        "Addition Tank 2"
       ]
     },
     "27": {
       "id": 27,
-      "name_local": "F\u00fcllen auf Prozent",
+      "name_local": "Füllen auf Prozent",
       "name": "Fill Level Percent",
       "ack": 0,
       "type": 0,
@@ -3447,7 +3853,9 @@
           "attribute": 0,
           "reserved": 0
         }
-      ]
+      ],
+      "lines": [],
+      "groups": []
     },
     "721": {
       "id": 721,
@@ -3479,6 +3887,12 @@
           "attribute": 0,
           "reserved": 0
         }
+      ],
+      "lines": [
+        4
+      ],
+      "groups": [
+        "Addition Tank 1"
       ]
     },
     "554": {
@@ -3500,6 +3914,12 @@
           "attribute": 0,
           "reserved": 0
         }
+      ],
+      "lines": [
+        6
+      ],
+      "groups": [
+        "Stock Tank 1"
       ]
     },
     "714": {
@@ -3554,6 +3974,12 @@
           "attribute": 0,
           "reserved": 0
         }
+      ],
+      "lines": [
+        1
+      ],
+      "groups": [
+        "Rinse"
       ]
     },
     "803": {
@@ -3563,7 +3989,13 @@
       "ack": 3,
       "type": 0,
       "parameter_count": 0,
-      "parameters": []
+      "parameters": [],
+      "lines": [
+        8
+      ],
+      "groups": [
+        "Data"
+      ]
     },
     "715": {
       "id": 715,
@@ -3639,6 +4071,12 @@
           "attribute": 0,
           "reserved": 0
         }
+      ],
+      "lines": [
+        1
+      ],
+      "groups": [
+        "Dosing/Inject"
       ]
     },
     "800": {
@@ -3660,6 +4098,12 @@
           "attribute": 0,
           "reserved": 0
         }
+      ],
+      "lines": [
+        8
+      ],
+      "groups": [
+        "Data"
       ]
     },
     "802": {
@@ -3669,7 +4113,13 @@
       "ack": 3,
       "type": 0,
       "parameter_count": 0,
-      "parameters": []
+      "parameters": [],
+      "lines": [
+        8
+      ],
+      "groups": [
+        "Data"
+      ]
     },
     "801": {
       "id": 801,
@@ -3678,7 +4128,9 @@
       "ack": 2,
       "type": 0,
       "parameter_count": 0,
-      "parameters": []
+      "parameters": [],
+      "lines": [],
+      "groups": []
     },
     "939": {
       "id": 939,
@@ -3743,6 +4195,12 @@
           "attribute": 0,
           "reserved": 0
         }
+      ],
+      "lines": [
+        1
+      ],
+      "groups": [
+        "Dosing/Inject"
       ]
     }
   },
@@ -3832,8 +4290,8 @@
       "id": 3,
       "name_local": "Sicaklik",
       "name": "Temperature MA",
-      "unit_local": "\u00b0C",
-      "unit": "\u00b0C",
+      "unit_local": "°C",
+      "unit": "°C",
       "scale": {
         "digits_before": 3,
         "digits_after": 0,
@@ -3859,8 +4317,8 @@
       "id": 4,
       "name_local": "Egim",
       "name": "Gradient MA",
-      "unit_local": "\u00b0C/dak",
-      "unit": "\u00b0C/min",
+      "unit_local": "°C/dak",
+      "unit": "°C/min",
       "scale": {
         "digits_before": 3,
         "digits_after": 1,
@@ -4048,8 +4506,8 @@
       "id": 10,
       "name_local": "Hedef Sicaklik",
       "name": "Blend water temp.",
-      "unit_local": "\u00b0C",
-      "unit": "\u00b0C",
+      "unit_local": "°C",
+      "unit": "°C",
       "scale": {
         "digits_before": 3,
         "digits_after": 0,
@@ -4075,8 +4533,8 @@
       "id": 12,
       "name_local": "Gradient MW",
       "name": "Gradient Blendwater",
-      "unit_local": "\u00b0C/min",
-      "unit": "\u00b0C/min",
+      "unit_local": "°C/min",
+      "unit": "°C/min",
       "scale": {
         "digits_before": 1,
         "digits_after": 1,
@@ -4237,8 +4695,8 @@
       "id": 136,
       "name_local": "KK Sicaklik",
       "name": "Temperature AT1",
-      "unit_local": "\u00b0C",
-      "unit": "\u00b0C",
+      "unit_local": "°C",
+      "unit": "°C",
       "scale": {
         "digits_before": 3,
         "digits_after": 0,
@@ -4451,7 +4909,7 @@
     },
     "149": {
       "id": 149,
-      "name_local": "Ben\u00f6tigt im AG1",
+      "name_local": "Benötigt im AG1",
       "name": "needed for AT1 in",
       "unit_local": "min",
       "unit": "min",
@@ -4507,8 +4965,8 @@
       "id": 156,
       "name_local": "BK Sicaklik",
       "name": "Temperature AT2",
-      "unit_local": "\u00b0C",
-      "unit": "\u00b0C",
+      "unit_local": "°C",
+      "unit": "°C",
       "scale": {
         "digits_before": 3,
         "digits_after": 0,
@@ -4721,7 +5179,7 @@
     },
     "169": {
       "id": 169,
-      "name_local": "Ben\u00f6tigt im AG2",
+      "name_local": "Benötigt im AG2",
       "name": "Needed for AT2 in",
       "unit_local": "min",
       "unit": "min",
@@ -4885,8 +5343,8 @@
       "id": 176,
       "name_local": "RK Sicaklik",
       "name": "Temperature ST",
-      "unit_local": "\u00b0C",
-      "unit": "\u00b0C",
+      "unit_local": "°C",
+      "unit": "°C",
       "scale": {
         "digits_before": 2,
         "digits_after": 0,
@@ -5234,7 +5692,7 @@
     },
     "75": {
       "id": 75,
-      "name_local": "D\u00fcze",
+      "name_local": "Düze",
       "name": "Set value variojet",
       "unit_local": "%",
       "unit": "%",
@@ -5882,7 +6340,7 @@
     },
     "74": {
       "id": 74,
-      "name_local": "D\u00fcze Basinci",
+      "name_local": "Düze Basinci",
       "name": "Nozzle pressure",
       "unit_local": "bar",
       "unit": "bar",
@@ -5990,7 +6448,7 @@
     },
     "278": {
       "id": 278,
-      "name_local": "Kule H\u0131z\u0131 4",
+      "name_local": "Kule Hızı 4",
       "name": "Winch speed 4",
       "unit_local": "m/dak",
       "unit": "m/min",
@@ -6368,7 +6826,7 @@
     },
     "276": {
       "id": 276,
-      "name_local": "Kule H\u0131z\u0131 2",
+      "name_local": "Kule Hızı 2",
       "name": "Winch speed 2",
       "unit_local": "m/dak",
       "unit": "m/min",
@@ -6395,7 +6853,7 @@
     },
     "279": {
       "id": 279,
-      "name_local": "Kule H\u0131z\u0131 5",
+      "name_local": "Kule Hızı 5",
       "name": "Winch speed 5",
       "unit_local": "m/dak",
       "unit": "m/min",
@@ -6422,7 +6880,7 @@
     },
     "277": {
       "id": 277,
-      "name_local": "Kule H\u0131z\u0131 3",
+      "name_local": "Kule Hızı 3",
       "name": "Winch speed 3",
       "unit_local": "m/dak",
       "unit": "m/min",
@@ -6449,7 +6907,7 @@
     },
     "275": {
       "id": 275,
-      "name_local": "Kule H\u0131z\u0131 1",
+      "name_local": "Kule Hızı 1",
       "name": "Winch speed 1",
       "unit_local": "m/dak",
       "unit": "m/min",
@@ -6476,7 +6934,7 @@
     },
     "280": {
       "id": 280,
-      "name_local": "Kule H\u0131z\u0131 6",
+      "name_local": "Kule Hızı 6",
       "name": "Winch speed 6",
       "unit_local": "m/dak",
       "unit": "m/min",
@@ -6503,7 +6961,7 @@
     },
     "189": {
       "id": 189,
-      "name_local": "Ben\u00f6tigt im NB1",
+      "name_local": "Benötigt im NB1",
       "name": "Needed for ST in",
       "unit_local": "min",
       "unit": "min",
@@ -6584,5 +7042,217 @@
     }
   },
   "source": "TYPECONF.CNF",
-  "generated_at": "2026-11-17T08:58:17.628724"
+  "generated_at": "2026-11-17T08:58:17.628724",
+  "resources": {
+    "8": {
+      "id": 8,
+      "name": "Data",
+      "type": 3,
+      "disabled": false
+    },
+    "1": {
+      "id": 1,
+      "name": "main tank",
+      "type": 1,
+      "disabled": false
+    },
+    "2": {
+      "id": 2,
+      "name": "Pump",
+      "type": 2,
+      "disabled": false
+    },
+    "3": {
+      "id": 3,
+      "name": "Material flow",
+      "type": 2,
+      "disabled": false
+    },
+    "4": {
+      "id": 4,
+      "name": "Addition Tank 1",
+      "type": 3,
+      "disabled": false
+    },
+    "5": {
+      "id": 5,
+      "name": "Addition Tank 2",
+      "type": 3,
+      "disabled": false
+    },
+    "6": {
+      "id": 6,
+      "name": "Stock Tank 1",
+      "type": 3,
+      "disabled": false
+    },
+    "7": {
+      "id": 7,
+      "name": "Auto level",
+      "type": 2,
+      "disabled": false
+    }
+  },
+  "groups": [
+    {
+      "name": "System",
+      "line": 1,
+      "disabled": false,
+      "ids": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ]
+    },
+    {
+      "name": "Dyeing",
+      "line": 1,
+      "disabled": false,
+      "ids": [
+        141,
+        144
+      ]
+    },
+    {
+      "name": "Pump",
+      "line": 2,
+      "disabled": false,
+      "ids": [
+        404
+      ]
+    },
+    {
+      "name": "Material flow",
+      "line": 3,
+      "disabled": false,
+      "ids": [
+        712
+      ]
+    },
+    {
+      "name": "Addition Tank 1",
+      "line": 4,
+      "disabled": false,
+      "ids": [
+        717,
+        513,
+        657,
+        680,
+        516,
+        721,
+        656,
+        653
+      ]
+    },
+    {
+      "name": "Stock Tank 1",
+      "line": 6,
+      "disabled": false,
+      "ids": [
+        720,
+        719,
+        551,
+        554,
+        676,
+        673,
+        672
+      ]
+    },
+    {
+      "name": "Auto level",
+      "line": 7,
+      "disabled": false,
+      "ids": [
+        39
+      ]
+    },
+    {
+      "name": "Rinse",
+      "line": 1,
+      "disabled": false,
+      "ids": [
+        710,
+        243,
+        747,
+        714,
+        709,
+        711
+      ]
+    },
+    {
+      "name": "Drain",
+      "line": 1,
+      "disabled": false,
+      "ids": [
+        71
+      ]
+    },
+    {
+      "name": "Addition Tank 2",
+      "line": 5,
+      "disabled": false,
+      "ids": [
+        718,
+        533,
+        667,
+        536,
+        666,
+        663,
+        681,
+        722
+      ]
+    },
+    {
+      "name": "Fill",
+      "line": 1,
+      "disabled": false,
+      "ids": [
+        713,
+        22,
+        716,
+        37
+      ]
+    },
+    {
+      "name": "Data",
+      "line": 8,
+      "disabled": false,
+      "ids": [
+        800,
+        802,
+        803
+      ]
+    },
+    {
+      "name": "Dosing/Inject",
+      "line": 1,
+      "disabled": false,
+      "ids": [
+        938,
+        939,
+        715,
+        237,
+        238,
+        701,
+        702
+      ]
+    },
+    {
+      "name": "Operator Call",
+      "line": 1,
+      "disabled": false,
+      "ids": [
+        261,
+        122,
+        123,
+        127,
+        262,
+        130,
+        126,
+        139
+      ]
+    }
+  ]
 }

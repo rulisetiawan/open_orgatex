@@ -56,6 +56,11 @@ COMPILED_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "../data/
 os.makedirs(os.path.dirname(META_PATH), exist_ok=True)
 os.makedirs(COMPILED_DIR, exist_ok=True)
 
+if os.path.isdir("/app/sc777ce_root/WORKSPACE_PROGRAM_MESIN"):
+    MACHINE_WORKSPACE_BASE = "/app/sc777ce_root/WORKSPACE_PROGRAM_MESIN"
+else:
+    MACHINE_WORKSPACE_BASE = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../WORKSPACE_PROGRAM_MESIN"))
+
 # Pydantic Schemas
 class StepFunctionIn(BaseModel):
     function_id: int
@@ -415,7 +420,10 @@ def list_programs(db: Session = Depends(get_db)):
     results = []
     seen_ids = set()
 
-    # 1. Read from PostgreSQL (ProgramComponent Level 1)
+    # 1. Custom JSON store
+    custom = _load_json_file(META_PATH, {})
+
+    # 2. Read from PostgreSQL (ProgramComponent Level 1)
     try:
         procs = db.query(ProgramComponent).filter(ProgramComponent.level == 1).order_by(ProgramComponent.number).all()
         for p in procs:
@@ -424,20 +432,26 @@ def list_programs(db: Session = Depends(get_db)):
             except Exception:
                 pno = p.id
             seen_ids.add(pno)
+
+            custom_info = custom.get(str(pno)) or custom.get(pno)
+            m_code = (custom_info.get("machine_code") if custom_info else None) or p.machine_code or "TD12"
+            p_name = (custom_info.get("program_name") if custom_info else None) or p.name
+            t_steps = (len(custom_info.get("steps", [])) if custom_info and "steps" in custom_info else None) or len(p.steps) or sum(len(sub.treatment.steps) for sub in p.sub_program_items if sub.treatment)
+            f_size = (custom_info.get("file_size") if custom_info else None) or (1024 * (t_steps or 1))
+
             results.append({
-                "filename": f"M_{str(pno).zfill(4)}.PRG",
+                "filename": (custom_info.get("filename") if custom_info else None) or f"M_{str(pno).zfill(4)}.PRG",
                 "program_number": pno,
-                "program_name": p.name,
-                "machine_code": p.machine_code or "TD12",
-                "total_steps": len(p.steps) or sum(len(sub.treatment.steps) for sub in p.sub_program_items if sub.treatment),
+                "program_name": p_name,
+                "machine_code": m_code,
+                "total_steps": t_steps,
                 "is_custom": True,
-                "file_size": 1024 * (len(p.steps) or 1)
+                "file_size": f_size
             })
     except Exception:
         pass
 
-    # 2. Custom JSON store
-    custom = _load_json_file(META_PATH, {})
+    # 2. Add remaining programs from custom store
     for pid_str, prg in custom.items():
         try:
             pid = int(pid_str)
@@ -450,7 +464,7 @@ def list_programs(db: Session = Depends(get_db)):
                     "machine_code": prg.get("machine_code") or "TD12",
                     "total_steps": len(prg.get("steps", [])),
                     "is_custom": True,
-                    "file_size": 1024 * (len(prg.get("steps", [])) or 1)
+                    "file_size": prg.get("file_size") or (1024 * (len(prg.get("steps", [])) or 1))
                 })
         except Exception:
             pass
@@ -537,6 +551,32 @@ def list_programs(db: Session = Depends(get_db)):
 
     results.sort(key=lambda x: x["program_number"])
     return results
+
+
+@router.get("/catalog-templates")
+def get_catalog_templates():
+    """Lists the 37 reverse-engineered PRG templates from SECOM 777 backup."""
+    if os.path.exists(CATALOG_PATH):
+        try:
+            with open(CATALOG_PATH, "r", encoding="utf-8") as f:
+                cat = json.load(f)
+                return [
+                    {
+                        "id": t.get("id"),
+                        "filename": t.get("filename"),
+                        "title": t.get("title"),
+                        "steps": t.get("steps")
+                    } for t in cat.get("templates", [])
+                ]
+        except Exception:
+            pass
+    return []
+
+
+@router.get("/templates")
+def get_templates():
+    return DEFAULT_TREATMENTS
+
 
 @router.get("/{program_no}")
 def get_program(program_no: int, db: Session = Depends(get_db)):
@@ -1145,36 +1185,9 @@ def fetch_programs_from_machine(machine_no: str, req: Optional[FetchFromMachineI
     return result
 
 
-@router.get("/catalog-templates")
-def get_catalog_templates():
-    """Lists the 37 reverse-engineered PRG templates from SECOM 777 backup."""
-    if os.path.exists(CATALOG_PATH):
-        try:
-            with open(CATALOG_PATH, "r", encoding="utf-8") as f:
-                cat = json.load(f)
-                return [
-                    {
-                        "id": t.get("id"),
-                        "filename": t.get("filename"),
-                        "title": t.get("title"),
-                        "steps": t.get("steps")
-                    } for t in cat.get("templates", [])
-                ]
-        except Exception:
-            pass
-    return []
-
-
-@router.get("/templates")
-def get_templates():
-    return DEFAULT_TREATMENTS
-
-
 # =============================================================================
 # Machine-Specific Workspace Integration
 # =============================================================================
-
-MACHINE_WORKSPACE_BASE = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../WORKSPACE_PROGRAM_MESIN"))
 
 @router.get("/machine-workspace/{machine_no}/config")
 def get_machine_workspace_config(machine_no: str):

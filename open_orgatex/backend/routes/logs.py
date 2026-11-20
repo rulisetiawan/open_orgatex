@@ -7,7 +7,7 @@ from fastapi import APIRouter, HTTPException, Depends, Query
 from typing import Optional, List
 from datetime import datetime
 from sqlalchemy.orm import Session
-from sqlalchemy import desc
+from sqlalchemy import desc, func
 
 from ..database import get_db
 from ..models.schema_pg import Machine, DatalogCyclicRecord, DatalogAlarm, BatchHeader, OperatorIntervention
@@ -133,6 +133,296 @@ def get_historical_telemetry(
             }
             for r in records
         ]
+    }
+
+@router.get("/batch-history")
+def get_batch_history(
+    machine_no: Optional[str] = Query(None, description="Filter kode mesin (misal: 1A, DA01, SEMUA)"),
+    search: Optional[str] = Query(None, description="Pencarian nomor lot, resep, customer, artikel"),
+    limit: int = Query(default=100, le=500),
+    db: Session = Depends(get_db)
+):
+    """
+    Mengambil daftar batch yang sudah dikerjakan (riwayat batch)
+    beserta statistik durasi, titik telemetri, suhu puncak, dan alarm.
+    """
+    # 1. Agregasi cyclic records per (batch_ref_no, machine_no)
+    q = db.query(
+        DatalogCyclicRecord.batch_ref_no,
+        DatalogCyclicRecord.machine_no,
+        func.min(DatalogCyclicRecord.log_timestamp).label("start_time"),
+        func.max(DatalogCyclicRecord.log_timestamp).label("end_time"),
+        func.count(DatalogCyclicRecord.log_timestamp).label("total_points"),
+        func.max(DatalogCyclicRecord.temp_pv).label("max_temp")
+    )
+    if machine_no and machine_no.upper() not in ("SEMUA", "ALL", ""):
+        q = q.filter(DatalogCyclicRecord.machine_no == machine_no.upper())
+    
+    q = q.group_by(DatalogCyclicRecord.batch_ref_no, DatalogCyclicRecord.machine_no)
+    q = q.order_by(desc("end_time")).limit(limit)
+    rows = q.all()
+
+    # Pre-fetch BatchHeaders to avoid N+1 queries
+    all_ref_nos = list({r.batch_ref_no for r in rows if r.batch_ref_no})
+    b_headers = {}
+    if all_ref_nos:
+        bh_list = db.query(BatchHeader).filter(BatchHeader.batch_ref_no.in_(all_ref_nos)).all()
+        for bh in bh_list:
+            b_headers[bh.batch_ref_no] = bh
+
+    # Pre-fetch Machines
+    mach_dict = {m.machine_no: m for m in db.query(Machine).all()}
+
+    results = []
+    search_clean = (search or "").strip().lower()
+
+    for r in rows:
+        ref_no = r.batch_ref_no
+        mach_no = r.machine_no
+        bh = b_headers.get(ref_no)
+        m_obj = mach_dict.get(mach_no)
+
+        batch_display = bh.batch_no if bh and bh.batch_no else f"LOT-{ref_no}"
+        recipe_name = bh.recipe_name if bh and bh.recipe_name else "Reactive Dyeing Standard"
+        customer = bh.customer if bh and bh.customer else "PT. SMM JETFLOW"
+        article = bh.article if bh and bh.article else "-"
+        color_code = bh.color_code if bh and bh.color_code else "-"
+        color_name = bh.color_name if bh and bh.color_name else "-"
+        weight = float(bh.fabric_weight_kg) if bh and bh.fabric_weight_kg is not None else 350.0
+
+        # Filter pencarian
+        if search_clean:
+            match_str = f"{batch_display} {ref_no} {mach_no} {recipe_name} {customer} {article} {color_name}".lower()
+            if search_clean not in match_str:
+                continue
+
+        start_dt = r.start_time
+        end_dt = r.end_time
+        duration_sec = int((end_dt - start_dt).total_seconds()) if (start_dt and end_dt) else 0
+        if duration_sec < 60:
+            duration_text = f"{duration_sec} dtk"
+        elif duration_sec < 3600:
+            duration_text = f"{duration_sec // 60} mnt"
+        else:
+            duration_text = f"{duration_sec // 3600} jam {(duration_sec % 3600) // 60} mnt"
+
+        results.append({
+            "batch_ref_no": ref_no,
+            "batch_no": batch_display,
+            "machine_no": mach_no,
+            "machine_name": m_obj.display_name if m_obj else f"Mesin {mach_no}",
+            "recipe_name": recipe_name,
+            "program_no": bh.program_no if bh and bh.program_no else 1,
+            "program_code": f"M_{bh.program_no:04d}" if bh and bh.program_no else "M_0004",
+            "customer": customer,
+            "article": article,
+            "color_code": color_code,
+            "color_name": color_name,
+            "fabric_weight_kg": weight,
+            "start_time": start_dt.strftime("%Y-%m-%d %H:%M:%S") if start_dt else "-",
+            "end_time": end_dt.strftime("%Y-%m-%d %H:%M:%S") if end_dt else "-",
+            "date": end_dt.strftime("%Y-%m-%d") if end_dt else "-",
+            "duration_seconds": duration_sec,
+            "duration_text": duration_text,
+            "total_points": r.total_points or 0,
+            "max_temp": float(r.max_temp) if r.max_temp is not None else 0.0,
+            "status": "COMPLETED"
+        })
+
+    return {
+        "total": len(results),
+        "batches": results
+    }
+
+@router.get("/batch-detail/{machine_no}/{batch_ref_no}")
+def get_batch_history_detail(
+    machine_no: str,
+    batch_ref_no: str,
+    db: Session = Depends(get_db)
+):
+    """
+    Mengambil data detail lengkap batch yang sudah dikerjakan (riwayat),
+    menghasilkan format data yang identik dengan /api/logs/live/ (active batch):
+    - Curve telemetri lengkap (PV, SP, T2)
+    - Timeline resep program beserta durasi aktual setiap langkah
+    - Daftar alarm & intervensi operator
+    """
+    mach_clean = machine_no.upper()
+    ref_clean = batch_ref_no.strip()
+
+    m_obj = db.query(Machine).filter(Machine.machine_no == mach_clean).first()
+    bh = db.query(BatchHeader).filter(BatchHeader.batch_ref_no == ref_clean).first()
+
+    # Ambil kurva telemetri dari database
+    records = db.query(DatalogCyclicRecord).filter(
+        DatalogCyclicRecord.machine_no == mach_clean,
+        DatalogCyclicRecord.batch_ref_no == ref_clean
+    ).order_by(DatalogCyclicRecord.log_timestamp.asc()).all()
+
+    if not records:
+        # Fallback jika record dicatat tanpa filter machine_no tertentu
+        records = db.query(DatalogCyclicRecord).filter(
+            DatalogCyclicRecord.batch_ref_no == ref_clean
+        ).order_by(DatalogCyclicRecord.log_timestamp.asc()).all()
+
+    curve = [
+        {
+            "timestamp": r.log_timestamp.strftime("%Y-%m-%d %H:%M:%S") if r.log_timestamp else "",
+            "temp_pv": float(r.temp_pv) if r.temp_pv is not None else 0.0,
+            "temp_sp": float(r.temp_sp) if r.temp_sp is not None else 0.0,
+            "temp_pt100_t2": float(r.temp_pt100_t2) if r.temp_pt100_t2 is not None else 0.0,
+            "pump_speed_percent": float(r.pump_speed_percent) if r.pump_speed_percent is not None else 0.0,
+            "reel_speed_mpm": float(r.reel_speed_mpm) if r.reel_speed_mpm is not None else 0.0,
+            "step_no": r.step_no or 1
+        }
+        for r in records
+    ]
+
+    # Hitung waktu per step dari data telemetri
+    step_times = {}
+    for r in records:
+        s_no = r.step_no or 1
+        ts = r.log_timestamp
+        if s_no not in step_times:
+            step_times[s_no] = {"start": ts, "end": ts}
+        else:
+            if ts < step_times[s_no]["start"]:
+                step_times[s_no]["start"] = ts
+            if ts > step_times[s_no]["end"]:
+                step_times[s_no]["end"] = ts
+
+    # Ambil langkah resep program
+    recipe_steps = []
+    try:
+        recipe_steps = SetexFolderReader.get_recipe_steps(
+            batch_no=ref_clean,
+            prog_no=bh.program_no if bh else None
+        )
+    except Exception:
+        pass
+
+    # Jika recipe_steps kosong, generate dari step_times yang ada di telemetri
+    if not recipe_steps and step_times:
+        for s_no in sorted(step_times.keys()):
+            recipe_steps.append({
+                "no": s_no,
+                "func_id": s_no,
+                "name": f"Langkah Proses #{s_no}",
+                "icon": str(s_no),
+                "type": "PROCESS",
+                "comment": "",
+                "params": [],
+                "p1": "0", "p2": "0", "p3": "0",
+                "sub_steps": []
+            })
+
+    # Perkualitasi info langkah resep dengan timing aktual
+    max_step = max(step_times.keys()) if step_times else len(recipe_steps)
+    for st in recipe_steps:
+        s_no = st.get("no", 1)
+        st_info = step_times.get(s_no)
+        if st_info:
+            s_start = st_info["start"]
+            s_end = st_info["end"]
+            st["start_time"] = s_start.strftime("%Y-%m-%d %H:%M:%S")
+            st["end_time"] = s_end.strftime("%Y-%m-%d %H:%M:%S")
+            dur = max(0, int((s_end - s_start).total_seconds()))
+            st["duration_seconds"] = dur
+            if dur < 60:
+                st["duration_text"] = f"{dur} dtk"
+            elif dur < 3600:
+                st["duration_text"] = f"{dur // 60} mnt"
+            else:
+                st["duration_text"] = f"{dur // 3600} jam {(dur % 3600) // 60} mnt"
+            st["time_status"] = "ON_TRACK"
+            st["delta_text"] = "✓ Selesai"
+        else:
+            st["time_status"] = "ON_TRACK"
+            st["delta_text"] = "✓ Selesai"
+
+    # Ambil alarm untuk batch ini
+    alarms_db = db.query(DatalogAlarm).filter(
+        DatalogAlarm.batch_ref_no == ref_clean
+    ).order_by(DatalogAlarm.alarm_timestamp.asc()).all()
+
+    formatted_alarms = [
+        {
+            "id": a.id,
+            "timestamp": a.alarm_timestamp.strftime("%Y-%m-%d %H:%M:%S") if a.alarm_timestamp else "",
+            "date": a.alarm_timestamp.strftime("%Y-%m-%d") if a.alarm_timestamp else "",
+            "time": a.alarm_timestamp.strftime("%H:%M:%S") if a.alarm_timestamp else "",
+            "alarm_code": a.alarm_code,
+            "alarm_text": a.alarm_text,
+            "severity": a.severity or "WARNING",
+            "step_no": a.step_no,
+            "batch_no": a.batch_ref_no,
+            "is_intervention": str(a.alarm_code) in ("0", "20", "256", "5899"),
+            "category": "INTERVENTION" if str(a.alarm_code) in ("0", "20", "256", "5899") else "ALARM"
+        }
+        for a in alarms_db
+    ]
+
+    # Ambil intervensi untuk batch ini
+    interventions_db = db.query(OperatorIntervention).filter(
+        OperatorIntervention.batch_no == ref_clean
+    ).order_by(OperatorIntervention.timestamp.asc()).all()
+
+    formatted_interventions = [
+        {
+            "id": i.id,
+            "timestamp": i.timestamp.strftime("%Y-%m-%d %H:%M:%S") if i.timestamp else "",
+            "batch_no": i.batch_no,
+            "step_no": i.step_no,
+            "parameter_name": i.parameter_name,
+            "unit": i.unit,
+            "value_before": float(i.value_before) if i.value_before else 0.0,
+            "value_after": float(i.value_after) if i.value_after else 0.0,
+            "delta": float(i.delta) if i.delta else 0.0,
+            "notes": i.notes
+        }
+        for i in interventions_db
+    ]
+
+    last_pv = curve[-1]["temp_pv"] if curve else 0.0
+    last_sp = curve[-1]["temp_sp"] if curve else 0.0
+    start_str = curve[0]["timestamp"] if curve else "-"
+    end_str = curve[-1]["timestamp"] if curve else "-"
+
+    batch_display = bh.batch_no if bh and bh.batch_no else f"LOT-{ref_clean}"
+    recipe_display = bh.recipe_name if bh and bh.recipe_name else "Reactive Dyeing Standard"
+
+    is_797 = mach_clean in ("DA01", "M_95") or "797" in mach_clean
+
+    return {
+        "machine_no": mach_clean,
+        "batch_no": batch_display,
+        "batch_ref_no": ref_clean,
+        "status": "COMPLETED",
+        "controller_type": "SETEX 797CE (Windows CE)" if is_797 else (m_obj.controller_type if m_obj else "SECOM 777 (Windows CE)"),
+        "controller_name": "SETEX Secom 797CE" if is_797 else "SETEX Secom 777",
+        "database_mode": "POSTGRES",
+        "is_live_hmi": False,
+        "is_archive": True,
+        "prog_no": bh.program_no if bh and bh.program_no else 1,
+        "program_code": f"M_{bh.program_no:04d}" if bh and bh.program_no else "M_0004",
+        "program_name": recipe_display,
+        "recipe_name": recipe_display,
+        "customer": bh.customer if bh and bh.customer else "PT. SMM JETFLOW",
+        "article": bh.article if bh and bh.article else "-",
+        "color_code": bh.color_code if bh and bh.color_code else "-",
+        "color_name": bh.color_name if bh and bh.color_name else "-",
+        "fabric_weight_kg": float(bh.fabric_weight_kg) if bh and bh.fabric_weight_kg is not None else 350.0,
+        "current_step": max_step,
+        "current_temp": last_pv,
+        "current_sp": last_sp,
+        "start_time": start_str,
+        "end_time": end_str,
+        "is_alarm_active": False,
+        "total_points": len(curve),
+        "curve": curve,
+        "steps": recipe_steps,
+        "alarms": formatted_alarms,
+        "interventions": formatted_interventions
     }
 
 @router.get("/alarms/{machine_no}")

@@ -26,12 +26,12 @@ import { useNavigate } from 'react-router-dom';
 const API_BASE = '/api/planning';
 
 const STATUS_CONFIG = {
-  PLANNING: { label: 'Perencanaan (Planning)', badge: 'bg-purple-950/40 text-purple-300 border-purple-600/40' },
-  QUEUED: { label: 'Antrean (Queued)', badge: 'bg-amber-950/40 text-amber-300 border-amber-600/40' },
-  WAITING_LA: { label: 'Menunggu LA', badge: 'bg-blue-950/40 text-blue-300 border-blue-600/40' },
-  RUNNING: { label: 'Sedang Proses (Running)', badge: 'bg-emerald-950/40 text-emerald-300 border-emerald-600/40' },
-  COMPLETED: { label: 'Selesai (Completed)', badge: 'bg-slate-800 text-slate-300 border-slate-600/40' },
-  HOLD: { label: 'Ditahan (Hold)', badge: 'bg-rose-950/40 text-rose-300 border-rose-600/40' }
+  PLANNING: { label: 'Perencanaan (Planning)', badge: 'bg-purple-100 text-purple-800 border-purple-300 dark:bg-purple-950/40 dark:text-purple-300 dark:border-purple-600/40' },
+  QUEUED: { label: 'Antrean (Queued)', badge: 'bg-amber-100 text-amber-800 border-amber-300 dark:bg-amber-950/40 dark:text-amber-300 dark:border-amber-600/40' },
+  WAITING_LA: { label: 'Menunggu LA', badge: 'bg-blue-100 text-blue-800 border-blue-300 dark:bg-blue-950/40 dark:text-blue-300 dark:border-blue-600/40' },
+  RUNNING: { label: 'Sedang Proses (Running)', badge: 'bg-emerald-100 text-emerald-800 border-emerald-300 dark:bg-emerald-950/40 dark:text-emerald-300 dark:border-emerald-600/40' },
+  COMPLETED: { label: 'Selesai (Completed)', badge: 'bg-slate-100 text-slate-800 border-slate-300 dark:bg-slate-800 dark:text-slate-300 dark:border-slate-600/40' },
+  HOLD: { label: 'Ditahan (Hold)', badge: 'bg-rose-100 text-rose-800 border-rose-300 dark:bg-rose-950/40 dark:text-rose-300 dark:border-rose-600/40' }
 };
 
 const BatchListView = () => {
@@ -47,6 +47,7 @@ const BatchListView = () => {
 
   // New Batch Modal State - Defaults to DA01 and PT. SMM JETFLOW
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [form, setForm] = useState({
     batch_no: '',
     reference_no: '',
@@ -178,13 +179,17 @@ const BatchListView = () => {
   // Handle Create Batch
   const handleCreateBatch = async (e) => {
     e.preventDefault();
+    setIsSubmitting(true);
     try {
       await axios.post(`${API_BASE}/`, form);
       setIsModalOpen(false);
       fetchBatches();
       alert(`Batch ${form.batch_no} berhasil ditambahkan ke antrean!`);
     } catch (err) {
-      alert('Gagal menambahkan batch: ' + (err.response?.data?.detail || err.message));
+      const msg = err.response?.data?.detail || (typeof err.response?.data === 'string' ? err.response.data : err.message);
+      alert('Gagal menambahkan batch: ' + msg);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -805,10 +810,20 @@ const BatchListView = () => {
                 </button>
                 <button
                   type="submit"
-                  className="bg-primary hover:bg-opacity-90 text-white font-semibold px-5 py-2 rounded flex items-center gap-1.5"
+                  disabled={isSubmitting}
+                  className="bg-primary hover:bg-opacity-90 disabled:opacity-50 text-white font-semibold px-5 py-2 rounded flex items-center gap-1.5"
                 >
-                  <Plus className="h-4 w-4" />
-                  Simpan Batch
+                  {isSubmitting ? (
+                    <>
+                      <RefreshCw className="h-4 w-4 animate-spin" />
+                      Menyimpan...
+                    </>
+                  ) : (
+                    <>
+                      <Plus className="h-4 w-4" />
+                      Simpan Batch
+                    </>
+                  )}
                 </button>
               </div>
             </form>

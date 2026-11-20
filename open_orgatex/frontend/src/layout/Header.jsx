@@ -1,43 +1,93 @@
-import React from 'react';
-import { Menu, Bell, Sun, Moon } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Menu, Sun, Moon, Clock, ShieldCheck } from 'lucide-react';
+import { useTheme } from '../context/ThemeContext';
 
 const Header = ({ sidebarOpen, setSidebarOpen, darkMode, setDarkMode }) => {
+  const { theme, toggleTheme } = useTheme();
+  const [clock, setClock] = useState('');
+
+  useEffect(() => {
+    const updateTime = () => {
+      const now = new Date();
+      setClock(now.toLocaleTimeString('id-ID', { hour12: false }));
+    };
+    updateTime();
+    const interval = setInterval(updateTime, 1000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const shiftInfo = (() => {
+    const hours = new Date().getHours();
+    if (hours >= 6 && hours < 14) return { label: 'Shift 1', time: '06:00 - 14:00' };
+    if (hours >= 14 && hours < 22) return { label: 'Shift 2', time: '14:00 - 22:00' };
+    return { label: 'Shift 3', time: '22:00 - 06:00' };
+  })();
+
+  const isDark = darkMode !== undefined ? darkMode : theme === 'dark';
+  const handleToggle = setDarkMode ? () => setDarkMode(!darkMode) : toggleTheme;
+
   return (
-    <header className="sticky top-0 z-999 flex w-full bg-white drop-shadow-1 dark:bg-boxdark dark:drop-shadow-none">
-      <div className="flex flex-grow items-center justify-between px-4 py-4 shadow-2 md:px-6 2xl:px-11">
-        <div className="flex items-center gap-2 sm:gap-4 lg:hidden">
-          {/* Hamburger Toggle */}
+    <header className="sticky top-0 z-999 flex w-full border-b border-stroke bg-white/95 backdrop-blur shadow-sm dark:border-strokedark dark:bg-boxdark/95 transition-colors duration-200">
+      <div className="flex flex-grow items-center justify-between px-4 py-3 md:px-6 2xl:px-10">
+        <div className="flex items-center gap-3 sm:gap-4">
+          {/* Hamburger Toggle for Mobile */}
           <button
             onClick={() => setSidebarOpen(!sidebarOpen)}
-            className="z-99999 block rounded-sm border border-stroke bg-white p-1.5 shadow-sm dark:border-strokedark dark:bg-boxdark lg:hidden"
+            className="z-99999 block rounded-lg border border-stroke bg-white p-2 shadow-sm dark:border-strokedark dark:bg-meta-4 lg:hidden hover:border-primary transition-colors"
+            aria-label="Toggle Navigation"
           >
-            <Menu className="h-5 w-5" />
+            <Menu className="h-5 w-5 text-black dark:text-white" />
           </button>
-        </div>
 
-        <div className="hidden sm:block">
-          <div className="flex items-center gap-2">
-            <span className="h-2.5 w-2.5 rounded-full bg-success animate-pulse"></span>
-            <span className="text-xs font-semibold text-meta-3">SETEX 777 COMMUNICATION ENGINE ACTIVE</span>
+          {/* Real-time Status Badge */}
+          <div className="hidden sm:flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400">
+            <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse"></span>
+            <span className="text-[11px] font-bold tracking-wider uppercase font-mono">
+              SETEX 777 ENGINE ACTIVE
+            </span>
           </div>
         </div>
 
-        <div className="flex items-center gap-3 2xsm:gap-7">
-          {/* Dark Mode Toggler */}
+        {/* Center / Right: Shift, Clock, Dark/Light Mode, User Profile */}
+        <div className="flex items-center gap-3 sm:gap-6">
+          {/* Shift & Real-time Clock (Industrial SMM Style) */}
+          <div className="hidden md:flex items-center gap-3 border-r border-stroke dark:border-strokedark pr-5">
+            <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-gray dark:bg-meta-4 text-xs font-semibold text-black dark:text-white">
+              <Clock className="w-3.5 h-3.5 text-primary" />
+              <span className="font-mono tabular-nums">{clock || '--:--:--'}</span>
+            </div>
+            <div className="text-[11px] font-medium text-body dark:text-bodydark flex flex-col items-end">
+              <span className="font-bold text-black dark:text-white">{shiftInfo.label}</span>
+              <span className="text-[10px] text-body dark:text-bodydark2 font-mono">{shiftInfo.time}</span>
+            </div>
+          </div>
+
+          {/* Theme Switcher Toggle (Sun / Moon) */}
           <button
-            onClick={() => setDarkMode(!darkMode)}
-            className="relative flex h-8.5 w-8.5 items-center justify-center rounded-full border-[0.5px] border-stroke bg-gray hover:text-primary dark:border-strokedark dark:bg-meta-4 dark:text-white"
+            onClick={handleToggle}
+            type="button"
+            className="relative flex h-9 w-9 items-center justify-center rounded-lg border border-stroke bg-gray hover:bg-gray-2 hover:text-primary dark:border-strokedark dark:bg-meta-4 dark:text-white dark:hover:bg-slate-800 transition-all shadow-sm"
+            aria-label={isDark ? "Switch to Light Mode" : "Switch to Dark Mode"}
+            title={isDark ? "Mode Gelap aktif. Klik untuk Mode Terang" : "Mode Terang aktif. Klik untuk Mode Gelap"}
           >
-            {darkMode ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+            {isDark ? (
+              <Sun className="h-4 w-4 text-amber-400 transition-transform hover:rotate-45" />
+            ) : (
+              <Moon className="h-4 w-4 text-slate-700 transition-transform hover:-rotate-12" />
+            )}
           </button>
 
           {/* User Profile Info */}
-          <div className="flex items-center gap-4">
-            <span className="hidden text-right lg:block">
-              <span className="block text-sm font-medium text-black dark:text-white">Supervisor Celup</span>
-              <span className="block text-xs text-body">Dyehouse Admin</span>
-            </span>
-            <div className="h-10 w-10 rounded-full bg-primary/20 text-primary flex items-center justify-center font-bold">
+          <div className="flex items-center gap-3 pl-2">
+            <div className="hidden text-right lg:block">
+              <span className="block text-xs font-bold text-black dark:text-bodydark1">
+                Supervisor Celup
+              </span>
+              <span className="block text-[11px] text-primary dark:text-secondary font-medium">
+                Dyehouse Admin
+              </span>
+            </div>
+            <div className="h-9 w-9 rounded-lg bg-primary/10 border border-primary/20 text-primary dark:bg-primary/20 dark:text-secondary flex items-center justify-center font-bold text-xs shadow-sm">
               SC
             </div>
           </div>

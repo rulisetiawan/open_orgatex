@@ -46,6 +46,74 @@ import typeconfData from '../data/typeconf_functions.json';
 // Helper function definitions from TYPECONF
 const ALL_FUNCTIONS = typeconfData.functions || {};
 const ALL_PARAMETERS = typeconfData.parameters || {};
+const ALL_RESOURCES = typeconfData.resources || {};
+const ALL_GROUPS = typeconfData.groups || [];
+
+// Function options generator for a specific slot/line, matching program (Editor_PRG)
+export const getFunctionOptionsForLine = (line, funcsMap = ALL_FUNCTIONS, currentId = null) => {
+  const funcs = funcsMap || ALL_FUNCTIONS;
+  const options = Object.values(funcs)
+    .filter(f => {
+      const lines = (Array.isArray(f.lines) && f.lines.length > 0)
+        ? f.lines
+        : (ALL_FUNCTIONS[String(f.id)]?.lines || []);
+      return lines.includes(Number(line));
+    })
+    .sort((a, b) => (a.name || '').localeCompare(b.name || ''));
+
+  const result = [];
+  if (currentId && !options.some(f => f.id === Number(currentId))) {
+    const fallback = funcs[String(currentId)] || ALL_FUNCTIONS[String(currentId)];
+    const fallbackName = fallback?.name || fallback?.name_local || 'Fungsi tidak dikenal';
+    result.push({
+      id: Number(currentId),
+      label: `${fallbackName} · ID ${currentId} (template)`,
+      name: fallbackName
+    });
+  }
+  for (const f of options) {
+    result.push({
+      id: f.id,
+      label: `${f.name} · ID ${f.id}`,
+      name: f.name
+    });
+  }
+  return result;
+};
+
+// Generate parallel options (Slot 2..8) exactly matching program (Editor_PRG)
+export const getParallelOptionsList = (funcsMap = ALL_FUNCTIONS, resourcesMap = ALL_RESOURCES) => {
+  const funcs = funcsMap || ALL_FUNCTIONS;
+  const resources = resourcesMap || ALL_RESOURCES;
+  const result = [];
+
+  for (let col = 2; col <= 8; col++) {
+    const res = resources[String(col)];
+    const resName = res?.name || `Slot ${col}`;
+    const colFuncs = Object.values(funcs)
+      .filter(f => {
+        const lines = (Array.isArray(f.lines) && f.lines.length > 0)
+          ? f.lines
+          : (ALL_FUNCTIONS[String(f.id)]?.lines || []);
+        return lines.includes(col);
+      })
+      .sort((a, b) => (a.name || '').localeCompare(b.name || ''));
+
+    for (const f of colFuncs) {
+      result.push({
+        id: f.id,
+        col: col,
+        name: `${f.name} · ID ${f.id}`,
+        label: `Slot ${col} (${resName}): ${f.name} · ID ${f.id}`
+      });
+    }
+  }
+  return result;
+};
+
+// Default line 1 functions matching program/Editor_PRG
+const POPULAR_MAIN_FUNCTIONS = getFunctionOptionsForLine(1, ALL_FUNCTIONS);
+const POPULAR_PARALLEL_FUNCTIONS = getParallelOptionsList(ALL_FUNCTIONS, ALL_RESOURCES);
 
 // Common function categories for colors
 const getFunctionMeta = (funcId, funcsMap = ALL_FUNCTIONS) => {
@@ -62,7 +130,7 @@ const getFunctionMeta = (funcId, funcsMap = ALL_FUNCTIONS) => {
     return { name: 'Temperature Control', code: 'F141', color: 'border-red-500 bg-red-50 text-red-700 dark:bg-red-950/40 dark:text-red-300', icon: Flame };
   }
   if (funcId === 713) {
-    return { name: 'Water Fill (Fill Level)', code: 'F713', color: 'border-blue-500 bg-blue-50 text-blue-700 dark:bg-blue-950/40 dark:text-blue-300', icon: Droplet };
+    return { name: 'Fill Level', code: 'F713', color: 'border-blue-500 bg-blue-50 text-blue-700 dark:bg-blue-950/40 dark:text-blue-300', icon: Droplet };
   }
   if (funcId === 71) {
     return { name: 'Drain Percent', code: 'F71', color: 'border-cyan-600 bg-cyan-50 text-cyan-700 dark:bg-cyan-950/40 dark:text-cyan-300', icon: Droplet };
@@ -71,38 +139,13 @@ const getFunctionMeta = (funcId, funcsMap = ALL_FUNCTIONS) => {
     return { name: 'Dye Liquor Pump', code: 'F404', color: 'border-amber-500 bg-amber-50 text-amber-700 dark:bg-amber-950/40 dark:text-amber-300', icon: Gauge };
   }
   if (funcId === 712) {
-    return { name: 'Material Flow (Winch)', code: 'F712', color: 'border-purple-500 bg-purple-50 text-purple-700 dark:bg-purple-950/40 dark:text-purple-300', icon: Sliders };
+    return { name: 'Material Flow', code: 'F712', color: 'border-purple-500 bg-purple-50 text-purple-700 dark:bg-purple-950/40 dark:text-purple-300', icon: Sliders };
   }
   if (funcId === 126 || funcId === 122) {
     return { name: name, code: `F${funcId}`, color: 'border-orange-500 bg-orange-50 text-orange-700 dark:bg-orange-950/40 dark:text-orange-300', icon: Clock };
   }
   return { name, code: `F${funcId}`, color: 'border-gray-400 bg-gray-50 text-gray-700 dark:bg-meta-4 dark:text-gray-300', icon: Boxes };
 };
-
-// Popular functions to choose as Main Function
-const POPULAR_MAIN_FUNCTIONS = [
-  { id: 141, name: 'Temperature Control (Penaikan/Penahanan Suhu)' },
-  { id: 713, name: 'Fill Level (Pengisian Air Bejana Mesin)' },
-  { id: 71, name: 'Drain Percent (Pembuangan Air)' },
-  { id: 126, name: 'Check (Operator Check / Ambil Sampel)' },
-  { id: 122, name: 'Unload (Bongkar Kain)' },
-  { id: 261, name: 'Load (Muat Kain)' },
-  { id: 747, name: 'Rinsing / Cooling (Bilas / Pendinginan)' },
-  { id: 144, name: 'Runtime (Penahanan Waktu)' },
-  { id: 938, name: 'Dosing Progression 1 (Injeksi Dosis Obat 1)' },
-  { id: 939, name: 'Dosing Progression 2 (Injeksi Dosis Obat 2)' }
-];
-
-// Popular parallel functions
-const POPULAR_PARALLEL_FUNCTIONS = [
-  { id: 404, col: 2, name: 'Dye Liquor Pump (Sirkulasi Pompa Utama %)' },
-  { id: 712, col: 3, name: 'Material Flow / Winch Speed (Kecepatan Kain m/min)' },
-  { id: 717, col: 4, name: 'Filling AT1 Level (Pengisian Tangki Obat AT1)' },
-  { id: 718, col: 5, name: 'Filling AT2 Level (Pengisian Tangki Obat AT2)' },
-  { id: 720, col: 6, name: 'Fill Level ST (Pengisian Tangki Servis ST)' },
-  { id: 237, col: 7, name: 'Inject AT1 (Injeksi Tangki Obat AT1 ke Mesin)' },
-  { id: 238, col: 8, name: 'Inject AT2 (Injeksi Tangki Obat AT2 ke Mesin)' }
-];
 
 export default function Programs() {
   // Navigation / View State
@@ -351,65 +394,8 @@ export default function Programs() {
           setMachineParameters(params);
 
           // Build dynamic parallel options based on this machine's actual downloaded functions!
-          const dynamicOptions = [];
-
-          // Slot 2: Pump (F404 / F401)
-          const pumpFn = funcs['404'] || funcs['401'];
-          if (pumpFn) {
-            dynamicOptions.push({ id: pumpFn.id, col: 2, name: `${pumpFn.name} (${pumpFn.name_local || 'Sirkulasi Pompa'})` });
-          } else {
-            dynamicOptions.push({ id: 404, col: 2, name: 'Dye Liquor Pump (Sirkulasi Pompa Utama %)' });
-          }
-
-          // Slot 3: Winch / Material Flow (F712)
-          const winchFn = funcs['712'];
-          if (winchFn) {
-            dynamicOptions.push({ id: winchFn.id, col: 3, name: `${winchFn.name} (${winchFn.name_local || 'Kecepatan Winch'})` });
-          } else {
-            dynamicOptions.push({ id: 712, col: 3, name: 'Material Flow / Winch Speed (Kecepatan Kain m/min)' });
-          }
-
-          // Slot 4: AT1 / Tangki 1 (F717 / F667)
-          const at1Fill = funcs['717'] || funcs['667'];
-          if (at1Fill) {
-            dynamicOptions.push({ id: at1Fill.id, col: 4, name: `${at1Fill.name} (${at1Fill.name_local || 'Pengisian AT1'})` });
-          } else {
-            dynamicOptions.push({ id: 717, col: 4, name: 'Filling AT1 Level (Pengisian Tangki Obat AT1)' });
-          }
-
-          // Slot 5: AT2 / Tangki 2 (F718 / F668)
-          const at2Fill = funcs['718'] || funcs['668'];
-          if (at2Fill) {
-            dynamicOptions.push({ id: at2Fill.id, col: 5, name: `${at2Fill.name} (${at2Fill.name_local || 'Pengisian AT2'})` });
-          } else {
-            dynamicOptions.push({ id: 718, col: 5, name: 'Filling AT2 Level (Pengisian Tangki Obat AT2)' });
-          }
-
-          // Slot 6: ST / Tangki Servis (F720 / F678)
-          const stFill = funcs['720'] || funcs['678'];
-          if (stFill) {
-            dynamicOptions.push({ id: stFill.id, col: 6, name: `${stFill.name} (${stFill.name_local || 'Pengisian Tangki Servis'})` });
-          } else {
-            dynamicOptions.push({ id: 720, col: 6, name: 'Fill Level ST (Pengisian Tangki Servis ST)' });
-          }
-
-          // Slot 7: Inject AT1 (F237 / F661)
-          const at1Inj = funcs['237'] || funcs['661'];
-          if (at1Inj) {
-            dynamicOptions.push({ id: at1Inj.id, col: 7, name: `${at1Inj.name} (${at1Inj.name_local || 'Injeksi AT1'})` });
-          } else {
-            dynamicOptions.push({ id: 237, col: 7, name: 'Inject AT1 (Injeksi Tangki Obat AT1 ke Mesin)' });
-          }
-
-          // Slot 8: Inject AT2 (F238 / F702)
-          const at2Inj = funcs['238'] || funcs['702'];
-          if (at2Inj) {
-            dynamicOptions.push({ id: at2Inj.id, col: 8, name: `${at2Inj.name} (${at2Inj.name_local || 'Injeksi AT2'})` });
-          } else {
-            dynamicOptions.push({ id: 238, col: 8, name: 'Inject AT2 (Injeksi Tangki Obat AT2 ke Mesin)' });
-          }
-
-          setParallelOptions(dynamicOptions);
+          const dynamicOptions = getParallelOptionsList(funcs, ALL_RESOURCES);
+          setParallelOptions(dynamicOptions.length > 0 ? dynamicOptions : POPULAR_PARALLEL_FUNCTIONS);
         } else {
           setMachineFunctions(ALL_FUNCTIONS);
           setMachineParameters(ALL_PARAMETERS);
@@ -2350,8 +2336,8 @@ export default function Programs() {
                       onChange={(e) => handleChangeMainFunction(e.target.value)}
                       className="w-full text-xs font-bold rounded border border-stroke bg-white dark:bg-boxdark py-2 px-3 text-black dark:text-white outline-none focus:border-primary transition"
                     >
-                      {POPULAR_MAIN_FUNCTIONS.map(pf => (
-                        <option key={pf.id} value={pf.id}>F{pf.id} - {pf.name}</option>
+                      {getFunctionOptionsForLine(1, machineFunctions, mainFn?.function_id).map(pf => (
+                        <option key={pf.id} value={pf.id}>{pf.label}</option>
                       ))}
                     </select>
                   </div>
@@ -2421,7 +2407,7 @@ export default function Programs() {
                       >
                         {parallelOptions.map(pf => (
                           <option key={`${pf.id}-${pf.col}`} value={`${pf.id},${pf.col}`}>
-                            Slot {pf.col}: {pf.name}
+                            {pf.label || `Slot ${pf.col}: ${pf.name}`}
                           </option>
                         ))}
                       </select>
