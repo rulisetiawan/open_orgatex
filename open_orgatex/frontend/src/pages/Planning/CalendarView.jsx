@@ -35,12 +35,9 @@ const CalendarView = () => {
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-xl md:text-2xl font-extrabold tracking-tight text-black dark:text-white">
-          Kalender Jadwal Produksi Pencelupan
+        <h2 className="text-xl md:text-2xl font-bold tracking-tight text-black dark:text-white">
+          Kalender Produksi
         </h2>
-        <p className="text-xs text-body dark:text-bodydark mt-1 font-medium">
-          Rencana alokasi waktu mesin celup per shift dan hari kerja
-        </p>
       </div>
 
       <div className="rounded-xl border border-stroke bg-white p-5 shadow-sm dark:border-strokedark dark:bg-boxdark">

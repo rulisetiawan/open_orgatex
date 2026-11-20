@@ -46,12 +46,9 @@ const Recipes = () => {
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <div>
-          <h2 className="text-title-md2 font-bold text-black dark:text-white">
-            Formulasi Resep Kimia & Zat Warna
+          <h2 className="text-xl md:text-2xl font-bold text-black dark:text-white">
+            Formula Editor
           </h2>
-          <p className="text-sm font-medium text-body">
-            Kalkulasi otomatis penimbangan dan pembuatan order Lab Automation (.DOS)
-          </p>
         </div>
         <div className="flex gap-3">
           <button

@@ -433,10 +433,7 @@ const KanbanView = () => {
       <div className="flex flex-wrap items-center justify-between gap-1 bg-white dark:bg-boxdark px-2.5 py-1 rounded-md border border-stroke dark:border-strokedark shadow-xs">
         <div className="flex items-center gap-1.5">
           <span className="font-black text-xs tracking-tight text-black dark:text-white">
-            Planning & Antrean Mesin
-          </span>
-          <span className="text-[8px] font-bold px-1 py-0.2 rounded bg-primary/20 text-primary border border-primary/30">
-            SMM DIGITAL
+            Kanban Board
           </span>
           <span className="text-[9px] text-gray-400 font-mono hidden md:inline">
             · {batches.length} Batch ({totalQueuedBatches} Antrean)
@@ -1078,50 +1075,50 @@ const KanbanView = () => {
 
       {/* MODAL: FTP DISPATCH BATCH DIRECT TO CONTROLLER */}
       {ftpDispatchModalOpen && batchToDispatch && (
-        <div className="fixed inset-0 z-9999 flex items-center justify-center bg-black/75 p-4 backdrop-blur-sm animate-in fade-in">
-          <div className="bg-[#1c2434] border border-gray-700 rounded-lg w-full max-w-sm p-3.5 shadow-2xl space-y-2 text-xs">
-            <div className="flex items-center justify-between border-b border-gray-700 pb-1.5">
-              <h3 className="text-xs font-bold text-white flex items-center gap-1">
-                <Send className="h-3 w-3 text-emerald-400" />
+        <div className="fixed inset-0 z-9999 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm animate-in fade-in">
+          <div className="bg-white dark:bg-boxdark border border-stroke dark:border-strokedark rounded-lg w-full max-w-sm p-3.5 shadow-2xl space-y-2 text-xs">
+            <div className="flex items-center justify-between border-b border-stroke dark:border-strokedark pb-1.5">
+              <h3 className="text-xs font-bold text-black dark:text-white flex items-center gap-1">
+                <Send className="h-3 w-3 text-emerald-500" />
                 Kirim Batch ke Mesin {batchToDispatch.machine_no}
               </h3>
               <button
                 onClick={() => setFtpDispatchModalOpen(false)}
-                className="text-gray-400 hover:text-white"
+                className="text-gray-400 hover:text-black dark:hover:text-white"
               >
                 ✕
               </button>
             </div>
 
             <div className="space-y-1.5 text-[10px]">
-              <div className="bg-[#24303f] p-1.5 rounded border border-gray-700 space-y-0.5 font-mono">
+              <div className="bg-gray-50 dark:bg-meta-4 p-1.5 rounded border border-stroke dark:border-strokedark space-y-0.5 font-mono">
                 <div className="flex justify-between">
-                  <span className="text-gray-400">Batch:</span>
-                  <strong className="text-white">#{batchToDispatch.batch_no} ({batchToDispatch.reference_no})</strong>
+                  <span className="text-gray-500 dark:text-gray-400">Batch:</span>
+                  <strong className="text-black dark:text-white">#{batchToDispatch.batch_no} ({batchToDispatch.reference_no})</strong>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-400">Resep:</span>
-                  <span className="text-emerald-400 truncate max-w-[160px]">{batchToDispatch.recipe_name}</span>
+                  <span className="text-gray-500 dark:text-gray-400">Resep:</span>
+                  <span className="text-emerald-600 dark:text-emerald-400 truncate max-w-[160px] font-semibold">{batchToDispatch.recipe_name}</span>
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-1.5 bg-[#24303f] p-1.5 rounded border border-gray-700">
+              <div className="grid grid-cols-2 gap-1.5 bg-gray-50 dark:bg-meta-4 p-1.5 rounded border border-stroke dark:border-strokedark">
                 <div>
-                  <label className="block text-gray-300 font-medium mb-0.5 text-[9px]">IP Kontroler:</label>
+                  <label className="block text-gray-600 dark:text-gray-300 font-medium mb-0.5 text-[9px]">IP Kontroler:</label>
                   <input
                     type="text"
                     value={dispatchIp}
                     onChange={(e) => setDispatchIp(e.target.value)}
-                    className="w-full bg-[#1c2434] border border-gray-600 text-emerald-400 font-mono font-bold rounded px-1.5 py-0.5 outline-none text-[9px]"
+                    className="w-full bg-white dark:bg-slate-900 border border-stroke dark:border-strokedark text-black dark:text-emerald-400 font-mono font-bold rounded px-1.5 py-0.5 outline-none text-[9px]"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-gray-300 font-medium mb-0.5 text-[9px]">Folder Target:</label>
+                  <label className="block text-gray-600 dark:text-gray-300 font-medium mb-0.5 text-[9px]">Folder Target:</label>
                   <select
                     value={dispatchModel}
                     onChange={(e) => setDispatchModel(e.target.value)}
-                    className="w-full bg-[#1c2434] border border-gray-600 text-emerald-400 font-bold rounded px-1 py-0.5 outline-none text-[9px]"
+                    className="w-full bg-white dark:bg-slate-900 border border-stroke dark:border-strokedark text-black dark:text-emerald-400 font-bold rounded px-1 py-0.5 outline-none text-[9px]"
                   >
                     <option value="network_ot">/Network/F/OT/BATCH/</option>
                     <option value="797">/Flashdisk/SC797CE/BATCH</option>
@@ -1130,11 +1127,11 @@ const KanbanView = () => {
                 </div>
               </div>
 
-              <div className="flex justify-end gap-1 pt-1 border-t border-gray-700">
+              <div className="flex justify-end gap-1 pt-1 border-t border-stroke dark:border-strokedark">
                 <button
                   type="button"
                   onClick={() => setFtpDispatchModalOpen(false)}
-                  className="bg-gray-700 text-white px-2 py-0.5 rounded text-[10px]"
+                  className="bg-gray-100 hover:bg-gray-200 text-gray-700 dark:bg-meta-4 dark:hover:bg-meta-4/80 dark:text-white px-2 py-0.5 rounded text-[10px] border border-stroke dark:border-strokedark"
                 >
                   Batal
                 </button>

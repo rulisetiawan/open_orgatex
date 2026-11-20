@@ -4,12 +4,14 @@ import TempCurveChart from '../components/Charts/TempCurveChart';
 import {
   LineChart,
   AlertTriangle,
+  AlertCircle,
   CheckCircle2,
   RefreshCw,
   Database,
   Flame,
   Play,
   Clock,
+  PauseCircle,
   ShieldAlert,
   Server,
   Layers,
@@ -137,6 +139,11 @@ const Logs = ({ defaultTab = 'active' }) => {
   const [alarms, setAlarms] = useState([]);
   const [lastUpdated, setLastUpdated] = useState('');
   const [selectedStepDetail, setSelectedStepDetail] = useState(null);
+  // State Pemilihan Langkah pada Grafik Trend (Realtime vs Statis)
+  // Jika memilih langkah yang sudah selesai, trend otomatis TIDAK REALTIME (rekaman statis).
+  // Jika memilih langkah yang sedang berlangsung (atau siklus utuh live), trend REALTIME.
+  const [selectedTrendStep, setSelectedTrendStep] = useState(null); // null / 'ALL' / number step (1, 2, ...)
+  const [trendViewMode, setTrendViewMode] = useState('STEP'); // 'STEP' (Fokus Step) atau 'FULL' (Siklus Utuh)
 
   // State Riwayat Batch Selesai (Archive)
   const [archiveBatches, setArchiveBatches] = useState([]);
@@ -611,22 +618,54 @@ const Logs = ({ defaultTab = 'active' }) => {
     ? (selectedArchiveBatch?.duration_text || null)
     : (firstStepWithStart?.start_time ? getElapsedDuration(firstStepWithStart.start_time) : null);
 
+  // Evaluasi apakah grafik trend saat ini berstatus REALTIME atau STATIS
+  // Ketentuan:
+  // - Jika user memilih step yang sudah selesai (step yang sudah dilakukan): otomatis trend TIDAK REALTIME (rekaman kurva statis).
+  // - Jika user memilih step yang sedang berlangsung (atau siklus utuh live): trend REALTIME.
+  const isRealtimeTrend = useMemo(() => {
+    if (isArchiveMode) return false;
+    if (!selectedTrendStep || selectedTrendStep === 'ALL') return true;
+    return Number(selectedTrendStep) === Number(currentStepNo);
+  }, [isArchiveMode, selectedTrendStep, currentStepNo]);
+
+  // Titik telemetri kurva aktif berdasarkan langkah terpilih dan mode tampilan (Fokus Step vs Siklus Utuh)
+  const activeCurvePoints = useMemo(() => {
+    const rawCurve = isArchiveMode ? (selectedArchiveBatch?.curve || []) : (liveData?.curve || []);
+    if (!rawCurve || rawCurve.length === 0) return [];
+
+    if (selectedTrendStep && selectedTrendStep !== 'ALL' && trendViewMode === 'STEP') {
+      return rawCurve.filter((pt) => Number(pt.step_no) === Number(selectedTrendStep));
+    }
+    return rawCurve;
+  }, [isArchiveMode, selectedArchiveBatch?.curve, liveData?.curve, selectedTrendStep, trendViewMode]);
+
   const displayChartCategories = useMemo(() => {
-    if (isArchiveMode && selectedArchiveBatch?.curve) {
-      return selectedArchiveBatch.curve.map((pt) => {
-        const parts = pt.timestamp.split(' ');
+    if (activeCurvePoints.length > 0) {
+      return activeCurvePoints.map((pt) => {
+        const parts = (pt.timestamp || '').split(' ');
         return parts[1] || pt.timestamp;
       });
     }
-    return chartCategories;
-  }, [isArchiveMode, selectedArchiveBatch?.curve, chartCategories]);
+    if (isArchiveMode && selectedArchiveBatch?.curve) {
+      return selectedArchiveBatch.curve.map((pt) => {
+        const parts = (pt.timestamp || '').split(' ');
+        return parts[1] || pt.timestamp;
+      });
+    }
+    if (!selectedTrendStep || selectedTrendStep === 'ALL' || Number(selectedTrendStep) === Number(currentStepNo)) {
+      return chartCategories;
+    }
+    return [];
+  }, [activeCurvePoints, isArchiveMode, selectedArchiveBatch?.curve, chartCategories, selectedTrendStep, currentStepNo]);
 
   const displayChartSeries = useMemo(() => {
-    if (isArchiveMode && selectedArchiveBatch?.curve) {
-      const archiveSteps = selectedArchiveBatch.steps || [];
-      const pv = selectedArchiveBatch.curve.map((pt) => pt.temp_pv);
-      const sp = selectedArchiveBatch.curve.map((pt) => {
-        const step = archiveSteps.find((s) => s.no === pt.step_no);
+    if (activeCurvePoints.length > 0) {
+      const activeSteps = isArchiveMode 
+        ? (selectedArchiveBatch?.steps || []) 
+        : (liveData?.steps || stepsList || []);
+      const pv = activeCurvePoints.map((pt) => pt.temp_pv);
+      const sp = activeCurvePoints.map((pt) => {
+        const step = activeSteps.find((s) => Number(s.no) === Number(pt.step_no));
         if (step && !isStepWithTempSetpoint(step)) return null;
         const targetT = getStepTargetTemp(step);
         if (targetT !== null && targetT > 0) return targetT;
@@ -637,28 +676,47 @@ const Logs = ({ defaultTab = 'active' }) => {
         { name: 'Setpoint Suhu (SP °C)', data: sp }
       ];
     }
-    return chartSeries;
-  }, [isArchiveMode, selectedArchiveBatch?.curve, selectedArchiveBatch?.steps, chartSeries]);
+    if (isArchiveMode && selectedArchiveBatch?.curve) {
+      const archiveSteps = selectedArchiveBatch.steps || [];
+      const pv = selectedArchiveBatch.curve.map((pt) => pt.temp_pv);
+      const sp = selectedArchiveBatch.curve.map((pt) => {
+        const step = archiveSteps.find((s) => Number(s.no) === Number(pt.step_no));
+        if (step && !isStepWithTempSetpoint(step)) return null;
+        const targetT = getStepTargetTemp(step);
+        if (targetT !== null && targetT > 0) return targetT;
+        return (pt.temp_sp !== undefined && pt.temp_sp !== null && pt.temp_sp > 0 && Math.abs(pt.temp_sp - 90.0) > 0.1) ? pt.temp_sp : null;
+      });
+      return [
+        { name: 'Suhu Aktual Bejana T1 (PV °C)', data: pv },
+        { name: 'Setpoint Suhu (SP °C)', data: sp }
+      ];
+    }
+    if (!selectedTrendStep || selectedTrendStep === 'ALL' || Number(selectedTrendStep) === Number(currentStepNo)) {
+      return chartSeries;
+    }
+    return [];
+  }, [activeCurvePoints, isArchiveMode, selectedArchiveBatch?.curve, selectedArchiveBatch?.steps, liveData?.steps, stepsList, chartSeries, selectedTrendStep, currentStepNo]);
 
   // Indikator posisi batch saat ini pada grafik trend
   const chartAnnotations = useMemo(() => {
     if (!displayChartCategories || displayChartCategories.length === 0) return {};
 
-    if (!isArchiveMode) {
+    const xaxis = [];
+    const points = [];
+
+    // KASUS 1: GRAFIK TREND REALTIME (Langkah yang sedang berlangsung atau siklus utuh live)
+    if (isRealtimeTrend) {
       const lastIndex = displayChartCategories.length - 1;
       const currentCategory = displayChartCategories[lastIndex];
       const currentPv = displayChartSeries[0]?.data?.[lastIndex] ?? effectiveData?.current_temp ?? 0;
       const currentStep = effectiveData?.current_step || currentStepNo || 1;
 
-      const xaxis = [];
-      const points = [];
-
-      // Cari rentang awal dan akhir step aktif pada kategori grafik
+      // Cari rentang awal dan akhir step aktif pada kategori grafik (jika di mode siklus utuh)
       const currentCurve = liveData?.curve || [];
-      const stepPts = currentCurve.filter((p) => p.step_no === currentStep);
+      const stepPts = currentCurve.filter((p) => Number(p.step_no) === Number(currentStep));
       let stepStartCat = null;
       let stepEndCat = null;
-      if (stepPts.length > 0) {
+      if (stepPts.length > 0 && trendViewMode === 'FULL') {
         const firstTime = (stepPts[0].timestamp || '').split(' ')[1];
         const lastTime = (stepPts[stepPts.length - 1].timestamp || '').split(' ')[1];
         if (displayChartCategories.includes(firstTime)) stepStartCat = firstTime;
@@ -670,18 +728,18 @@ const Logs = ({ defaultTab = 'active' }) => {
         xaxis.push({
           x: stepStartCat,
           x2: stepEndCat,
-          fillColor: '#3b82f6',
+          fillColor: '#10b981',
           opacity: 0.12,
           label: {
-            borderColor: '#3b82f6',
+            borderColor: '#10b981',
             style: {
               fontSize: '10px',
               color: '#ffffff',
-              background: '#2563eb',
+              background: '#059669',
               fontWeight: 600,
               padding: { left: 4, right: 4, top: 2, bottom: 2 }
             },
-            text: `Step #${currentStep} Sedang Berjalan`,
+            text: `Step #${currentStep} Sedang Berjalan (Realtime)`,
           }
         });
       }
@@ -737,40 +795,81 @@ const Logs = ({ defaultTab = 'active' }) => {
       return { xaxis, points };
     }
 
-    // Pada batch riwayat (Arsip): jika user mengklik salah satu langkah, sorot posisinya di kurva
-    if (isArchiveMode && selectedStepDetail) {
-      const curve = selectedArchiveBatch?.curve || [];
-      const stepPts = curve.filter((p) => p.step_no === selectedStepDetail.no);
-      if (stepPts.length > 0) {
-        const startCat = (stepPts[0].timestamp || '').split(' ')[1];
-        const endCat = (stepPts[stepPts.length - 1].timestamp || '').split(' ')[1];
-        return {
-          xaxis: [{
-            x: startCat,
-            x2: endCat !== startCat ? endCat : undefined,
-            borderColor: '#6366f1',
-            borderWidth: 2,
-            fillColor: '#6366f1',
-            opacity: 0.15,
+    // KASUS 2: GRAFIK TREND TIDAK REALTIME (Langkah yang sudah selesai dikerjakan / Statis)
+    const targetStepNo = selectedTrendStep ? Number(selectedTrendStep) : (selectedStepDetail ? Number(selectedStepDetail.no) : null);
+    if (!isRealtimeTrend && targetStepNo) {
+      const stepObj = stepsList.find((s) => Number(s.no) === targetStepNo);
+      const stepName = stepObj?.name || `Langkah #${targetStepNo}`;
+
+      if (trendViewMode === 'STEP') {
+        // Tampilan fokus langkah selesai: tandai waktu mulai dan waktu selesai
+        if (displayChartCategories.length > 0) {
+          const firstCat = displayChartCategories[0];
+          const lastCat = displayChartCategories[displayChartCategories.length - 1];
+          const lastPv = displayChartSeries[0]?.data?.[displayChartSeries[0]?.data?.length - 1];
+
+          xaxis.push({
+            x: firstCat,
+            borderColor: '#64748b',
+            strokeDashArray: 2,
+            borderWidth: 1.5,
             label: {
-              borderColor: '#6366f1',
-              orientation: 'horizontal',
-              style: {
-                color: '#ffffff',
-                background: '#4f46e5',
-                fontSize: '11px',
-                fontWeight: 700,
-                padding: { left: 6, right: 6, top: 3, bottom: 3 }
-              },
-              text: `🔍 Step #${selectedStepDetail.no}: ${selectedStepDetail.name} (${stepPts.length} Titik)`,
+              borderColor: '#64748b',
+              style: { color: '#ffffff', background: '#475569', fontSize: '10px', fontWeight: 600 },
+              text: `Mulai: ${firstCat}`,
             }
-          }]
-        };
+          });
+
+          if (lastCat && lastCat !== firstCat) {
+            xaxis.push({
+              x: lastCat,
+              borderColor: '#f59e0b',
+              strokeDashArray: 2,
+              borderWidth: 1.5,
+              label: {
+                borderColor: '#f59e0b',
+                style: { color: '#ffffff', background: '#d97706', fontSize: '10px', fontWeight: 600 },
+                text: `Selesai: ${lastCat} (${lastPv !== undefined ? `${lastPv}°C` : ''})`,
+              }
+            });
+          }
+        }
+      } else {
+        // Tampilan siklus utuh: sorot rentang langkah yang dipilih
+        const rawCurve = isArchiveMode ? (selectedArchiveBatch?.curve || []) : (liveData?.curve || []);
+        const stepPts = rawCurve.filter((p) => Number(p.step_no) === targetStepNo);
+        if (stepPts.length > 0) {
+          const startCat = (stepPts[0].timestamp || '').split(' ')[1];
+          const endCat = (stepPts[stepPts.length - 1].timestamp || '').split(' ')[1];
+          if (startCat) {
+            xaxis.push({
+              x: startCat,
+              x2: endCat !== startCat ? endCat : undefined,
+              borderColor: '#f59e0b',
+              borderWidth: 2,
+              fillColor: '#f59e0b',
+              opacity: 0.15,
+              label: {
+                borderColor: '#f59e0b',
+                style: {
+                  color: '#ffffff',
+                  background: '#d97706',
+                  fontSize: '11px',
+                  fontWeight: 700,
+                  padding: { left: 6, right: 6, top: 3, bottom: 3 }
+                },
+                text: `📁 Step #${targetStepNo}: ${stepName} (Selesai • Statis)`,
+              }
+            });
+          }
+        }
       }
+
+      return { xaxis, points };
     }
 
     return {};
-  }, [displayChartCategories, displayChartSeries, effectiveData, currentStepNo, isArchiveMode, liveData?.curve, selectedArchiveBatch?.curve, selectedStepDetail]);
+  }, [displayChartCategories, displayChartSeries, effectiveData, currentStepNo, isRealtimeTrend, selectedTrendStep, selectedStepDetail, trendViewMode, stepsList, liveData?.curve, selectedArchiveBatch?.curve, isArchiveMode]);
 
   const displayAlarms = useMemo(() => {
     if (isArchiveMode && selectedArchiveBatch?.alarms) {
@@ -794,37 +893,25 @@ const Logs = ({ defaultTab = 'active' }) => {
 
   return (
     <div className="space-y-6">
-      {/* HEADER & ORGATEX TOOLBAR */}
+      {/* HEADER & TOOLBAR */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
           <div className="flex flex-wrap items-center gap-2">
             <h2 className="text-xl md:text-2xl font-bold text-black dark:text-white">
-              Process Analyser (Grafik Kurva Telemetri)
+              Process Analyser
             </h2>
-            <span className="text-xs bg-primary/10 text-primary font-bold px-2 py-0.5 rounded border border-primary/20">
-              FEN240 Parity
-            </span>
-            <span className="text-xs bg-success/10 text-success font-bold px-2 py-0.5 rounded border border-success/20">
-              {liveData?.database_mode === 'POSTGRES' ? 'Live TimescaleDB' : 'Database Lokal (SQLite Offline)'}
-            </span>
-            <span className="text-xs bg-blue-500/10 text-blue-600 dark:text-blue-400 font-bold px-2 py-0.5 rounded border border-blue-500/30">
-              {controllerName}
-            </span>
             {liveData?.is_live_hmi ? (
-              <span className="text-xs bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-bold px-2 py-0.5 rounded border border-emerald-500/30 flex items-center gap-1.5" title={`Terhubung ke ${liveData.data_source}`}>
+              <span className="text-xs bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-bold px-2 py-0.5 rounded border border-emerald-500/30 flex items-center gap-1.5">
                 <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
                 Live HMI ({liveData?.hmi_ip || hmiIp})
               </span>
             ) : (
-              <span className="text-xs bg-amber-500/10 text-amber-600 dark:text-amber-400 font-bold px-2 py-0.5 rounded border border-amber-500/30 flex items-center gap-1.5" title={`Mode: ${liveData?.data_source || 'Storage Lokal'}`}>
+              <span className="text-xs bg-amber-500/10 text-amber-600 dark:text-amber-400 font-bold px-2 py-0.5 rounded border border-amber-500/30 flex items-center gap-1.5">
                 <span className="w-2 h-2 rounded-full bg-amber-500"></span>
-                Target: {hmiIp || (is797 ? '192.168.1.95' : '172.16.110.101')} (Offline/Fallback)
+                Offline
               </span>
             )}
           </div>
-          <p className="text-xs text-body dark:text-gray-400 mt-1">
-            Visualisasi kurva telemetri langsung dari HMI {controllerName} (<code className="text-primary font-mono font-bold">ftp://{hmiIp || (is797 ? '192.168.1.95' : '172.16.110.101')}{controllerFolder}</code>)
-          </p>
         </div>
 
         {/* CONTROLS */}
@@ -933,20 +1020,20 @@ const Logs = ({ defaultTab = 'active' }) => {
         </div>
       </div>
 
-      {/* TABS: ACTIVE BATCH VS ARCHIVE (ORGATEX WORKPLACE PARITY) */}
+      {/* TABS: ACTIVE BATCH VS ARCHIVE */}
       <div className="flex border-b border-stroke dark:border-strokedark">
         <button
           onClick={() => {
             setActiveTab('active');
             setSelectedArchiveBatch(null);
           }}
-          className={`flex items-center gap-2 py-2 px-5 text-xs font-bold border-b-2 transition-colors ${activeTab === 'active'
+          className={`flex items-center gap-2 py-2 px-5 text-xs font-bold border-b-2 transition-colors cursor-pointer ${activeTab === 'active'
             ? 'border-primary text-primary'
             : 'border-transparent text-gray-500 hover:text-black dark:hover:text-white'
             }`}
         >
           <Activity className="h-4 w-4" />
-          Active Batch (Live Kurva Mesin {selectedMachine})
+          Batch Aktif ({selectedMachine})
         </button>
         <button
           onClick={() => {
@@ -955,13 +1042,13 @@ const Logs = ({ defaultTab = 'active' }) => {
               fetchArchiveBatches(archiveFilterMach, archiveSearch);
             }
           }}
-          className={`flex items-center gap-2 py-2 px-5 text-xs font-bold border-b-2 transition-colors ${activeTab === 'archive'
+          className={`flex items-center gap-2 py-2 px-5 text-xs font-bold border-b-2 transition-colors cursor-pointer ${activeTab === 'archive'
             ? 'border-primary text-primary'
             : 'border-transparent text-gray-500 hover:text-black dark:hover:text-white'
             }`}
         >
           <Clock className="h-4 w-4" />
-          Riwayat Batch (Daftar Batch yang Sudah Dikerjakan)
+          Riwayat Batch
           {archiveBatches.length > 0 && (
             <span className="text-[10px] px-1.5 py-0.2 rounded-full bg-primary/10 text-primary border border-primary/20 font-mono font-bold ml-1">
               {archiveBatches.length}
@@ -977,16 +1064,10 @@ const Logs = ({ defaultTab = 'active' }) => {
           <div className="rounded-xl border border-stroke bg-white p-4.5 shadow-sm dark:border-strokedark dark:bg-boxdark">
             <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3.5">
               <div>
-                <h3 className="text-base font-extrabold text-black dark:text-white flex items-center gap-2">
+                <h3 className="text-base font-bold text-black dark:text-white flex items-center gap-2">
                   <Clock className="h-5 w-5 text-primary" />
-                  Daftar Batch yang Sudah Dikerjakan
-                  <span className="text-xs bg-primary/10 text-primary border border-primary/20 px-2.5 py-0.5 rounded-full font-bold">
-                    {archiveBatches.length} Batch Tersimpan
-                  </span>
+                  Riwayat Batch Selesai
                 </h3>
-                <p className="text-xs text-body dark:text-bodydark mt-1 font-medium">
-                  Riwayat pengerjaan batch produksi pencelupan yang telah selesai beserta rekaman kurva telemetri dan log alarm di PostgreSQL TimescaleDB. Klik pada batch untuk melihat analisis lengkap.
-                </p>
               </div>
 
               <div className="flex flex-wrap items-center gap-2.5">
@@ -1307,6 +1388,29 @@ const Logs = ({ defaultTab = 'active' }) => {
             </h4>
           </div>
           <div className="flex flex-wrap items-center gap-2">
+            <button
+              onClick={() => setSelectedTrendStep('ALL')}
+              className={`px-2.5 py-1 rounded text-xs font-bold transition-all flex items-center gap-1 cursor-pointer ${
+                selectedTrendStep === 'ALL'
+                  ? 'bg-primary text-white shadow-xs'
+                  : 'bg-gray-100 dark:bg-meta-4 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-meta-4/80'
+              }`}
+              title="Tampilkan seluruh siklus langkah pada kurva trend"
+            >
+              📊 Semua Langkah
+            </button>
+            <button
+              onClick={() => setSelectedTrendStep(currentStepNo)}
+              className={`px-2.5 py-1 rounded text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
+                (!selectedTrendStep || Number(selectedTrendStep) === Number(currentStepNo))
+                  ? 'bg-emerald-600 text-white shadow-xs'
+                  : 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 hover:bg-emerald-100 border border-emerald-300 dark:border-emerald-700'
+              }`}
+              title="Tampilkan langkah yang sedang berjalan secara realtime"
+            >
+              <span className="w-2 h-2 rounded-full bg-emerald-300 animate-pulse"></span>
+              ⚡ Step Aktif #{currentStepNo} (Realtime)
+            </button>
             <span className="text-xs font-bold text-primary font-mono bg-primary/10 px-2 py-0.5 rounded border border-primary/20">
               Langkah Aktif: #{currentStepNo} ({stepsList.find(s => s.no === currentStepNo)?.name || 'Proses'})
             </span>
@@ -1324,13 +1428,13 @@ const Logs = ({ defaultTab = 'active' }) => {
             )}
             <button
               onClick={() => {
-                const active = stepsList.find(s => s.no === currentStepNo) || stepsList[0];
-                if (active) setSelectedStepDetail(active);
+                const targetStep = stepsList.find(s => s.no === (selectedTrendStep && selectedTrendStep !== 'ALL' ? Number(selectedTrendStep) : currentStepNo)) || stepsList[0];
+                if (targetStep) setSelectedStepDetail(targetStep);
               }}
               className="inline-flex items-center gap-1 text-[11px] font-bold bg-primary text-white hover:bg-primary/90 px-2.5 py-1 rounded shadow-xs transition-all active:scale-95 cursor-pointer"
-              title="Klik untuk membuka tabel sub-step dan parameter langkah aktif"
+              title="Klik untuk membuka tabel sub-step dan parameter langkah terpilih"
             >
-              Lihat Sub-Step #{currentStepNo}
+              Lihat Sub-Step #{selectedTrendStep && selectedTrendStep !== 'ALL' ? selectedTrendStep : currentStepNo}
             </button>
           </div>
         </div>
@@ -1340,19 +1444,47 @@ const Logs = ({ defaultTab = 'active' }) => {
           {stepsList.map((st) => {
             const isActive = st.no === currentStepNo;
             const isCompleted = st.no < currentStepNo;
+            const isSelectedForTrend = selectedTrendStep ? Number(selectedTrendStep) === Number(st.no) : isActive;
             return (
               <div
                 key={st.no}
                 id={`step-card-${st.no}`}
-                onClick={() => setSelectedStepDetail(st)}
-                className={`p-2 rounded border text-center transition-all cursor-pointer hover:shadow-md hover:border-primary/80 group ${isActive
-                  ? 'border-primary bg-primary/15 text-primary shadow-md font-bold ring-2 ring-primary/40 scale-[1.02]'
-                  : isCompleted
-                    ? 'border-success/40 bg-success/5 text-success font-medium'
-                    : 'border-stroke dark:border-strokedark bg-gray-50 dark:bg-meta-4/30 text-gray-500 hover:text-black dark:hover:text-white'
-                  }`}
-                title={`Klik untuk melihat detail sub-step & parameter langkah #${st.no}`}
+                onClick={() => setSelectedTrendStep(st.no)}
+                className={`p-2 rounded border text-center transition-all cursor-pointer hover:shadow-md group relative ${
+                  isSelectedForTrend
+                    ? 'ring-2 ring-primary ring-offset-2 border-primary shadow-lg scale-[1.02] ' +
+                      (isActive
+                        ? 'bg-primary/15 text-primary font-bold'
+                        : isCompleted
+                          ? 'bg-amber-500/10 border-amber-500 ring-amber-500 text-amber-900 dark:text-amber-200 font-bold'
+                          : 'bg-primary/10 text-primary font-bold')
+                    : isActive
+                      ? 'border-primary bg-primary/15 text-primary shadow-md font-bold'
+                      : isCompleted
+                        ? 'border-success/40 bg-success/5 text-success font-medium hover:border-success'
+                        : 'border-stroke dark:border-strokedark bg-gray-50 dark:bg-meta-4/30 text-gray-500 hover:text-black dark:hover:text-white'
+                }`}
+                title={`Klik untuk menampilkan kurva ${st.name} pada grafik trend (${isCompleted ? 'Statis / Tidak Realtime' : isActive ? 'Live Realtime' : 'Menunggu'})`}
               >
+                {/* Badge Status Pilihan Kurva */}
+                {isSelectedForTrend && (
+                  <div className="mb-1 text-[8px] font-bold uppercase tracking-wider">
+                    {isCompleted ? (
+                      <span className="bg-amber-500 text-white px-1.5 py-0.5 rounded-full shadow-2xs">
+                        📈 Kurva Statis
+                      </span>
+                    ) : isActive ? (
+                      <span className="bg-emerald-600 text-white px-1.5 py-0.5 rounded-full shadow-2xs animate-pulse">
+                        📈 Kurva Realtime
+                      </span>
+                    ) : (
+                      <span className="bg-gray-400 text-white px-1.5 py-0.5 rounded-full shadow-2xs">
+                        📈 Antrean
+                      </span>
+                    )}
+                  </div>
+                )}
+
                 <div className="text-[10px] font-mono uppercase">Step #{st.no} [F{st.icon}]</div>
                 <div className="text-xs font-semibold truncate mt-0.5" title={st.name}>{st.name}</div>
                 {st.comment && (
@@ -1370,9 +1502,19 @@ const Logs = ({ defaultTab = 'active' }) => {
                     ⚠️ Δ {st.delta_p1}
                   </div>
                 )}
-                <div className="mt-1 text-[9px] font-bold flex items-center justify-center gap-1">
+                <div className="mt-1 text-[9px] font-bold flex items-center justify-center gap-1.5">
                   <span>{isActive ? '● SEDANG JALAN' : isCompleted ? '✓ SELESAI' : 'MENUNGGU'}</span>
-                  <span className="opacity-0 group-hover:opacity-100 text-[10px] transition-opacity">🔍</span>
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setSelectedStepDetail(st);
+                    }}
+                    className="p-0.5 hover:bg-black/10 dark:hover:bg-white/10 rounded transition-colors"
+                    title="Buka tabel sub-step dan parameter"
+                  >
+                    🔍
+                  </button>
                 </div>
 
                 {/* Execution Timing & Target Comparison */}
@@ -1468,31 +1610,90 @@ const Logs = ({ defaultTab = 'active' }) => {
               <h4 className="text-sm font-bold text-black dark:text-white uppercase tracking-wider">
                 Profil Kurva Proses: Mesin {effectiveMachine} {is797 ? '(SETEX 797CE)' : '(SETEX 777)'} (Batch #{effectiveData?.batch_no || '-'})
               </h4>
-              {!isArchiveMode && (
+
+              {/* Status Indikator REALTIME vs STATIS */}
+              {isArchiveMode ? (
+                <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-gray-100 text-gray-700 dark:bg-meta-4 dark:text-gray-300 border border-stroke dark:border-strokedark">
+                  <Database className="w-3 h-3 text-primary" /> ARSIP BATCH SELESAI
+                </span>
+              ) : isRealtimeTrend ? (
                 <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-700 shadow-2xs">
                   <span className="relative flex h-2 w-2">
                     <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
                     <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
                   </span>
-                  POSISI SEKARANG: STEP #{effectiveData?.current_step || currentStepNo || 1}
+                  {selectedTrendStep && selectedTrendStep !== 'ALL'
+                    ? `LIVE REALTIME: STEP #${currentStepNo}`
+                    : `SIKLUS UTUH REALTIME (#${currentStepNo})`}
+                </span>
+              ) : (
+                <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300 border border-amber-300 dark:border-amber-700 shadow-2xs">
+                  <Clock className="w-3 h-3 text-amber-600 dark:text-amber-400" />
+                  REKAMAN STATIS: STEP #{selectedTrendStep}
                 </span>
               )}
             </div>
-            <span className="text-xs text-gray-500">
-              {isArchiveMode ? 'Arsip rekaman kurva Sensor T1 & Setpoint SP di PostgreSQL TimescaleDB' : 'Sinkronisasi waktu nyata: Sensor Utama T1 (PV) & Setpoint Target (SP)'}
-            </span>
           </div>
-          <div className="flex items-center gap-2 text-xs text-gray-500 font-mono">
-            {isArchiveMode ? (
-              <span className="bg-gray-100 dark:bg-meta-4 px-2.5 py-1 rounded border border-stroke dark:border-strokedark font-medium">
-                Total: {effectiveData?.total_points || displayChartCategories.length} Titik Telemetri
-              </span>
-            ) : (
-              <span className="bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 px-2.5 py-1 rounded flex items-center gap-1.5 font-medium">
-                <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
-                Terakhir: {lastUpdated}
-              </span>
+
+          <div className="flex flex-wrap items-center gap-2">
+            {/* View Mode Toggle: Fokus Step vs Siklus Utuh */}
+            <div className="flex items-center bg-gray-100 dark:bg-meta-4 p-0.5 rounded border border-stroke dark:border-strokedark text-xs font-semibold">
+              <button
+                type="button"
+                onClick={() => setTrendViewMode('STEP')}
+                className={`px-2.5 py-1 rounded transition-all cursor-pointer ${
+                  trendViewMode === 'STEP'
+                    ? 'bg-white dark:bg-boxdark text-primary font-bold shadow-xs'
+                    : 'text-gray-500 hover:text-black dark:hover:text-white'
+                }`}
+                title="Tampilkan hanya data titik langkah yang dipilih"
+              >
+                🔍 Fokus Step {selectedTrendStep && selectedTrendStep !== 'ALL' ? `#${selectedTrendStep}` : `#${currentStepNo}`}
+              </button>
+              <button
+                type="button"
+                onClick={() => setTrendViewMode('FULL')}
+                className={`px-2.5 py-1 rounded transition-all cursor-pointer ${
+                  trendViewMode === 'FULL'
+                    ? 'bg-white dark:bg-boxdark text-primary font-bold shadow-xs'
+                    : 'text-gray-500 hover:text-black dark:hover:text-white'
+                }`}
+                title="Tampilkan seluruh siklus batch dengan penanda langkah terpilih"
+              >
+                🌐 Siklus Utuh
+              </button>
+            </div>
+
+            {/* Quick Action Button: Kembali ke Step Aktif jika sedang melihat langkah statis */}
+            {!isRealtimeTrend && !isArchiveMode && (
+              <button
+                type="button"
+                onClick={() => setSelectedTrendStep(currentStepNo)}
+                className="px-2.5 py-1 rounded bg-primary text-white text-xs font-bold hover:bg-primary/90 flex items-center gap-1 shadow-xs transition-all active:scale-95 cursor-pointer"
+                title="Beralih ke langkah aktif yang sedang berlangsung secara realtime"
+              >
+                ⚡ Step Aktif (Realtime)
+              </button>
             )}
+
+            {/* Indikator Status Waktu Refresh */}
+            <div className="flex items-center gap-2 text-xs font-mono">
+              {isArchiveMode ? (
+                <span className="bg-gray-100 dark:bg-meta-4 px-2.5 py-1 rounded border border-stroke dark:border-strokedark font-medium text-gray-500">
+                  Total: {displayChartCategories.length} Titik
+                </span>
+              ) : isRealtimeTrend ? (
+                <span className="bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 px-2.5 py-1 rounded flex items-center gap-1.5 font-medium">
+                  <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
+                  Terakhir: {lastUpdated} (Live)
+                </span>
+              ) : (
+                <span className="bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-800 px-2.5 py-1 rounded flex items-center gap-1.5 font-medium">
+                  <PauseCircle className="w-3.5 h-3.5 text-amber-500" />
+                  Mode Statis (Bukan Realtime)
+                </span>
+              )}
+            </div>
           </div>
         </div>
 
@@ -1501,12 +1702,61 @@ const Logs = ({ defaultTab = 'active' }) => {
             series={displayChartSeries}
             categories={displayChartCategories}
             annotations={chartAnnotations}
-            title={isArchiveMode ? `Arsip Kurva Suhu T1 & Setpoint - Batch #${effectiveData?.batch_no || ''}` : `Grafik Trend Suhu T1 & Posisi Batch Realtime - Batch #${effectiveData?.batch_no || ''}`}
+            title={
+              isArchiveMode
+                ? `Arsip Kurva Suhu T1 & Setpoint - Batch #${effectiveData?.batch_no || ''}${selectedTrendStep && selectedTrendStep !== 'ALL' ? ` (Step #${selectedTrendStep})` : ''}`
+                : isRealtimeTrend
+                  ? `Grafik Trend Suhu T1 & Posisi Batch Realtime - ${selectedTrendStep && selectedTrendStep !== 'ALL' ? `Step #${currentStepNo}` : `Batch #${effectiveData?.batch_no || ''}`}`
+                  : `Rekaman Statis Suhu T1 & Setpoint (Tidak Realtime) - Step #${selectedTrendStep}: ${stepsList.find(s => Number(s.no) === Number(selectedTrendStep))?.name || ''}`
+            }
           />
+        ) : selectedTrendStep && Number(selectedTrendStep) > Number(currentStepNo) && !isArchiveMode ? (
+          <div className="flex flex-col items-center justify-center h-64 text-gray-400 bg-gray-50/50 dark:bg-meta-4/20 rounded border border-dashed border-stroke dark:border-strokedark p-6 text-center">
+            <Clock className="h-9 w-9 text-gray-400 mb-2" />
+            <h5 className="text-sm font-bold text-gray-800 dark:text-gray-200">
+              Step #{selectedTrendStep} ({stepsList.find(s => Number(s.no) === Number(selectedTrendStep))?.name || 'Proses'}) Belum Berjalan
+            </h5>
+            <p className="text-xs text-gray-500 mt-1 max-w-md">
+              Langkah ini masih dalam antrean (Status: Menunggu). Rekaman kurva telemetri akan otomatis dimulai ketika mesin mengeksekusi langkah ini.
+            </p>
+            <button
+              type="button"
+              onClick={() => setSelectedTrendStep(currentStepNo)}
+              className="mt-3 px-3 py-1.5 bg-primary text-white rounded text-xs font-bold hover:bg-primary/90 flex items-center gap-1.5 shadow-sm cursor-pointer"
+            >
+              ⚡ Tampilkan Step Berlangsung #{currentStepNo} (Realtime)
+            </button>
+          </div>
+        ) : selectedTrendStep && Number(selectedTrendStep) < Number(currentStepNo) && !isArchiveMode ? (
+          <div className="flex flex-col items-center justify-center h-64 text-gray-400 bg-gray-50/50 dark:bg-meta-4/20 rounded border border-dashed border-stroke dark:border-strokedark p-6 text-center">
+            <AlertCircle className="h-9 w-9 text-amber-500 mb-2" />
+            <h5 className="text-sm font-bold text-gray-800 dark:text-gray-200">
+              Tidak Ada Titik Kurva untuk Step #{selectedTrendStep}
+            </h5>
+            <p className="text-xs text-gray-500 mt-1 max-w-md">
+              Data kurva telemetri untuk langkah ini tidak ditemukan pada memori penyangga mesin saat ini.
+            </p>
+            <button
+              type="button"
+              onClick={() => setSelectedTrendStep(currentStepNo)}
+              className="mt-3 px-3 py-1.5 bg-primary text-white rounded text-xs font-bold hover:bg-primary/90 flex items-center gap-1.5 shadow-sm cursor-pointer"
+            >
+              ⚡ Kembali ke Step Berlangsung #{currentStepNo} (Realtime)
+            </button>
+          </div>
         ) : (
           <div className="flex flex-col items-center justify-center h-64 text-gray-400">
-            <Activity className="h-8 w-8 animate-pulse mb-2 text-primary" />
-            <p className="text-sm font-medium">Sedang memuat data kurva dari mesin...</p>
+            {loading ? (
+              <>
+                <Activity className="h-7 w-7 animate-pulse mb-2 text-primary" />
+                <p className="text-xs font-medium">Memuat kurva mesin...</p>
+              </>
+            ) : (
+              <>
+                <LineChart className="h-7 w-7 mb-2 text-gray-300 dark:text-gray-600" />
+                <p className="text-xs font-medium">Belum ada rekaman titik kurva untuk proses ini</p>
+              </>
+            )}
           </div>
         )}
       </div>
@@ -1519,7 +1769,7 @@ const Logs = ({ defaultTab = 'active' }) => {
             <div className="flex flex-wrap items-center gap-2">
               <AlertTriangle className="h-4 w-4 text-warning" />
               <h4 className="text-sm font-bold text-black dark:text-white uppercase tracking-wider">
-                Riwayat Alarm & Intervensi HMI Mesin {effectiveMachine} {isArchiveMode ? `(Batch #${effectiveData?.batch_no})` : ''}
+                Alarm & Intervensi ({effectiveMachine})
               </h4>
               {selectedAlarmDate ? (
                 <span className="text-[11px] bg-primary/10 text-primary font-bold px-2 py-0.5 rounded border border-primary/20 flex items-center gap-1">
@@ -1531,9 +1781,6 @@ const Logs = ({ defaultTab = 'active' }) => {
                 </span>
               )}
             </div>
-            <p className="text-[11px] text-gray-500 dark:text-gray-400 mt-0.5">
-              Penyaringan riwayat berdasarkan tanggal kejadian | Sumber: ALARMS.LOG & ALARM.ACT | PostgreSQL TimescaleDB
-            </p>
           </div>
 
           {/* CONTROLS BERDASARKAN TANGGAL */}
@@ -1868,13 +2115,26 @@ const Logs = ({ defaultTab = 'active' }) => {
                   {selectedStepDetail.no === currentStepNo ? 'SEDANG JALAN' : selectedStepDetail.no < currentStepNo ? 'SELESAI' : 'MENUNGGU'}
                 </span>
               </div>
-              <button
-                onClick={() => setSelectedStepDetail(null)}
-                className="w-7 h-7 bg-rose-600 hover:bg-rose-700 active:scale-95 text-white font-bold rounded-lg flex items-center justify-center shadow-sm transition-all cursor-pointer shrink-0"
-                title="Tutup Popup"
-              >
-                <X className="w-4 h-4" />
-              </button>
+              <div className="flex items-center gap-2 shrink-0">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSelectedTrendStep(selectedStepDetail.no);
+                    setSelectedStepDetail(null);
+                  }}
+                  className="px-2.5 py-1 text-xs font-bold rounded bg-primary text-white hover:bg-primary/90 transition-all flex items-center gap-1 shadow-xs cursor-pointer active:scale-95"
+                  title="Tampilkan kurva langkah ini pada grafik trend di bawah"
+                >
+                  📈 Tampilkan Kurva
+                </button>
+                <button
+                  onClick={() => setSelectedStepDetail(null)}
+                  className="w-7 h-7 bg-rose-600 hover:bg-rose-700 active:scale-95 text-white font-bold rounded-lg flex items-center justify-center shadow-sm transition-all cursor-pointer shrink-0"
+                  title="Tutup Popup"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
             </div>
 
             {/* Scrollable Modal Content */}

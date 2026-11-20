@@ -40,25 +40,23 @@ const Header = ({ sidebarOpen, setSidebarOpen, darkMode, setDarkMode }) => {
           </button>
 
           {/* Real-time Status Badge */}
-          <div className="hidden sm:flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400">
+          <div className="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400">
             <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse"></span>
-            <span className="text-[11px] font-bold tracking-wider uppercase font-mono">
-              SETEX 777 ENGINE ACTIVE
-            </span>
+            <span className="text-xs font-semibold">Online</span>
           </div>
         </div>
 
         {/* Center / Right: Shift, Clock, Dark/Light Mode, User Profile */}
         <div className="flex items-center gap-3 sm:gap-6">
-          {/* Shift & Real-time Clock (Industrial SMM Style) */}
+          {/* Shift & Real-time Clock */}
           <div className="hidden md:flex items-center gap-3 border-r border-stroke dark:border-strokedark pr-5">
             <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-gray dark:bg-meta-4 text-xs font-semibold text-black dark:text-white">
               <Clock className="w-3.5 h-3.5 text-primary" />
               <span className="font-mono tabular-nums">{clock || '--:--:--'}</span>
             </div>
-            <div className="text-[11px] font-medium text-body dark:text-bodydark flex flex-col items-end">
-              <span className="font-bold text-black dark:text-white">{shiftInfo.label}</span>
-              <span className="text-[10px] text-body dark:text-bodydark2 font-mono">{shiftInfo.time}</span>
+            <div className="text-xs font-medium text-body dark:text-bodydark flex items-center gap-1.5">
+              <span className="font-semibold text-black dark:text-white">{shiftInfo.label}</span>
+              <span className="text-gray-400">({shiftInfo.time})</span>
             </div>
           </div>
 
@@ -66,9 +64,9 @@ const Header = ({ sidebarOpen, setSidebarOpen, darkMode, setDarkMode }) => {
           <button
             onClick={handleToggle}
             type="button"
-            className="relative flex h-9 w-9 items-center justify-center rounded-lg border border-stroke bg-gray hover:bg-gray-2 hover:text-primary dark:border-strokedark dark:bg-meta-4 dark:text-white dark:hover:bg-slate-800 transition-all shadow-sm"
+            className="relative flex h-9 w-9 items-center justify-center rounded-lg border border-stroke bg-gray hover:bg-gray-2 hover:text-primary dark:border-strokedark dark:bg-meta-4 dark:text-white dark:hover:bg-slate-800 transition-all shadow-sm cursor-pointer"
             aria-label={isDark ? "Switch to Light Mode" : "Switch to Dark Mode"}
-            title={isDark ? "Mode Gelap aktif. Klik untuk Mode Terang" : "Mode Terang aktif. Klik untuk Mode Gelap"}
+            title={isDark ? "Mode Terang" : "Mode Gelap"}
           >
             {isDark ? (
               <Sun className="h-4 w-4 text-amber-400 transition-transform hover:rotate-45" />
@@ -78,17 +76,14 @@ const Header = ({ sidebarOpen, setSidebarOpen, darkMode, setDarkMode }) => {
           </button>
 
           {/* User Profile Info */}
-          <div className="flex items-center gap-3 pl-2">
+          <div className="flex items-center gap-2.5 pl-2">
             <div className="hidden text-right lg:block">
               <span className="block text-xs font-bold text-black dark:text-bodydark1">
-                Supervisor Celup
-              </span>
-              <span className="block text-[11px] text-primary dark:text-secondary font-medium">
-                Dyehouse Admin
+                Operator
               </span>
             </div>
-            <div className="h-9 w-9 rounded-lg bg-primary/10 border border-primary/20 text-primary dark:bg-primary/20 dark:text-secondary flex items-center justify-center font-bold text-xs shadow-sm">
-              SC
+            <div className="h-8 w-8 rounded-lg bg-primary/10 border border-primary/20 text-primary dark:bg-primary/20 dark:text-secondary flex items-center justify-center font-bold text-xs shadow-xs">
+              OP
             </div>
           </div>
         </div>

@@ -253,23 +253,12 @@ const Machines = () => {
 
   return (
     <div className="space-y-6">
-      {/* HEADER & ORGATEX TOOLBAR */}
+      {/* HEADER & TOOLBAR */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
-          <div className="flex items-center gap-2">
-            <h2 className="text-xl md:text-2xl font-bold text-black dark:text-white">
-              Konfigurasi Mesin (Machine Configuration)
-            </h2>
-            <span className="text-xs bg-primary/10 text-primary font-bold px-2 py-0.5 rounded border border-primary/20">
-              OtxMachineConfigLib Parity
-            </span>
-            <span className="text-xs bg-success/10 text-success font-bold px-2 py-0.5 rounded border border-success/20">
-              PostgreSQL Schema Active
-            </span>
-          </div>
-          <p className="text-xs text-body dark:text-gray-400 mt-1">
-            Manajemen parameter kontroler SETEX Secom 777, deteksi jaringan otomatis (Sniffer), dan integrasi basis data permanen.
-          </p>
+          <h2 className="text-xl md:text-2xl font-bold text-black dark:text-white">
+            Konfigurasi Mesin
+          </h2>
         </div>
 
         {/* ACTIONS */}
@@ -279,10 +268,10 @@ const Machines = () => {
               setSnifferModalOpen(true);
               setDetectedControllers([]);
             }}
-            className="flex items-center gap-1.5 px-3.5 py-2 text-xs font-bold text-white bg-meta-5 hover:bg-meta-5/90 rounded shadow-sm transition-colors"
+            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-white bg-meta-5 hover:bg-meta-5/90 rounded shadow-xs transition-colors cursor-pointer"
           >
             <Radar className="h-4 w-4" />
-            Pindai Controller Online (Sniffer)
+            Pindai Jaringan
           </button>
 
           <button
@@ -292,39 +281,21 @@ const Machines = () => {
               setActiveTab('general');
               setEditModalOpen(true);
             }}
-            className="flex items-center gap-1.5 px-3.5 py-2 text-xs font-bold text-white bg-primary hover:bg-primary/90 rounded shadow-sm transition-colors"
+            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-white bg-primary hover:bg-primary/90 rounded shadow-xs transition-colors cursor-pointer"
           >
             <Plus className="h-4 w-4" />
-            Tambah Mesin Manual
+            Tambah Mesin
           </button>
 
           <button
             onClick={fetchMachines}
             disabled={loading}
-            className="flex items-center gap-1.5 px-3 py-2 text-xs font-semibold bg-white dark:bg-boxdark border border-stroke dark:border-strokedark rounded hover:bg-gray-100 dark:hover:bg-meta-4 text-black dark:text-white shadow-sm"
+            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold bg-white dark:bg-boxdark border border-stroke dark:border-strokedark rounded hover:bg-gray-100 dark:hover:bg-meta-4 text-black dark:text-white shadow-xs cursor-pointer"
           >
             <RefreshCw className={`h-3.5 w-3.5 ${loading ? 'animate-spin' : ''}`} />
             Refresh
           </button>
         </div>
-      </div>
-
-      {/* READ-ONLY SAFETY BANNER */}
-      <div className="rounded border border-warning/30 bg-warning/5 p-4 flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <ShieldCheck className="h-5 w-5 text-warning shrink-0" />
-          <div className="text-xs">
-            <span className="font-bold text-black dark:text-white block">
-              Mode Akuisisi Data On-The-Fly (Strict Read-Only Mode): AKTIF
-            </span>
-            <span className="text-gray-500">
-              Backend hanya membaca berkas telemetry dari FTP/SMB dan menyimpan secara permanen di PostgreSQL. Operasi penulisan atau pengubahan berkas controller dinonaktifkan demi keselamatan operasional mesin.
-            </span>
-          </div>
-        </div>
-        <span className="text-[11px] font-bold text-success bg-success/10 border border-success/30 px-2.5 py-1 rounded">
-          PostgreSQL Storage Active
-        </span>
       </div>
 
       {/* TEST DIAGNOSTIC RESULT POPUP */}
@@ -491,7 +462,7 @@ const Machines = () => {
               <div className="flex items-center gap-2">
                 <Radar className="h-5 w-5 text-meta-5" />
                 <h3 className="text-base font-bold text-black dark:text-white">
-                  Pindai Mesin Online (OrgaTEX SecomCESniffer Parity)
+                  Pindai Mesin Online
                 </h3>
               </div>
               <button
@@ -615,7 +586,7 @@ const Machines = () => {
               <div className="flex items-center gap-2">
                 <Settings className="h-5 w-5 text-primary" />
                 <h3 className="text-base font-bold text-black dark:text-white">
-                  {isEditing ? `Edit Konfigurasi Mesin ${form.machine_no}` : 'Tambah Konfigurasi Mesin Baru (OrgaTEX Parity)'}
+                  {isEditing ? `Edit Konfigurasi Mesin ${form.machine_no}` : 'Tambah Konfigurasi Mesin Baru'}
                 </h3>
               </div>
               <button

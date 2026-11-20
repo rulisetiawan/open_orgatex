@@ -612,7 +612,7 @@ const FtpManager = () => {
             ? 'bg-emerald-950/95 border-emerald-500 text-emerald-300'
             : toastMessage.type === 'error'
               ? 'bg-rose-950/95 border-rose-500 text-rose-300'
-              : 'bg-[#1c2434]/95 border-primary/70 text-gray-200'
+              : 'bg-white/95 dark:bg-[#1c2434]/95 border-primary/70 text-black dark:text-gray-200'
             }`}
         >
           {toastMessage.type === 'success' && <CheckCircle2 className="h-4 w-4 text-emerald-400" />}
@@ -626,18 +626,10 @@ const FtpManager = () => {
       {/* HEADER SECTION */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
-          <div className="flex items-center gap-2">
-            <h2 className="text-2xl font-bold tracking-tight text-white flex items-center gap-2">
-              <Server className="h-7 w-7 text-primary" />
-              FileZilla Dual-Pane FTP Client
-            </h2>
-            <span className="text-[11px] bg-primary/20 text-primary border border-primary/40 px-2 py-0.5 rounded font-mono font-semibold">
-              LOCAL & REMOTE TWO-SIDED
-            </span>
-          </div>
-          <p className="text-xs text-gray-400 mt-1">
-            Manajemen dua sisi berkas: Host Lokal (PC Server) $\longleftrightarrow$ Remote Controller (SETEX 777CE Port 21)
-          </p>
+          <h2 className="text-xl md:text-2xl font-bold tracking-tight text-black dark:text-white flex items-center gap-2">
+            <Server className="h-6 w-6 text-primary" />
+            FTP Explorer
+          </h2>
         </div>
 
         {/* TOP QUICK ACTION BUTTONS */}
@@ -655,7 +647,7 @@ const FtpManager = () => {
               browseRemoteDirectory(remotePath);
             }}
             disabled={loadingLocal || loadingRemote}
-            className="flex items-center gap-1.5 bg-[#24303f] hover:bg-[#2d3a4d] border border-gray-700 text-gray-300 text-xs px-3.5 py-2 rounded shadow transition"
+            className="flex items-center gap-1.5 bg-gray-100 hover:bg-gray-200 dark:bg-meta-4 dark:hover:bg-[#2d3a4d] border border-stroke dark:border-gray-700 text-gray-700 dark:text-gray-300 text-xs px-3.5 py-2 rounded shadow-xs transition"
           >
             <RefreshCw className={`h-3.5 w-3.5 ${(loadingLocal || loadingRemote) ? 'animate-spin text-primary' : ''}`} />
             Muat Ulang Kedua Sisi
@@ -664,11 +656,11 @@ const FtpManager = () => {
       </div>
 
       {/* CONNECTION & MACHINE BAR */}
-      <div className="bg-[#1c2434] border border-gray-700/60 rounded-lg p-3.5 shadow-sm">
+      <div className="bg-white dark:bg-boxdark border border-stroke dark:border-strokedark rounded-lg p-3.5 shadow-sm">
         <div className="grid grid-cols-1 md:grid-cols-12 gap-3 items-end">
           {/* Machine Selector */}
           <div className="md:col-span-4">
-            <label className="block text-xs font-medium text-gray-300 mb-1">
+            <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">
               Pilih Mesin / IP Controller:
             </label>
             <select
@@ -678,7 +670,7 @@ const FtpManager = () => {
                 testConnection(e.target.value, ftpPort);
                 browseRemoteDirectory(remotePath, e.target.value);
               }}
-              className="w-full bg-[#24303f] border border-gray-700 text-white text-xs rounded px-3 py-1.5 outline-none focus:border-primary font-mono"
+              className="w-full bg-gray-50 dark:bg-meta-4 border border-stroke dark:border-gray-700 text-black dark:text-white text-xs rounded px-3 py-1.5 outline-none focus:border-primary font-mono"
             >
               {machines.map((m) => (
                 <option key={m.machine_no} value={m.ip_address}>
@@ -702,19 +694,19 @@ const FtpManager = () => {
 
           {/* Custom IP & Port */}
           <div className="md:col-span-3">
-            <label className="block text-xs font-medium text-gray-300 mb-1">Custom IP & Port:</label>
+            <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Custom IP & Port:</label>
             <div className="flex gap-2">
               <input
                 type="text"
                 value={selectedMachineIp}
                 onChange={(e) => setSelectedMachineIp(e.target.value)}
-                className="w-full bg-[#24303f] border border-gray-700 text-white text-xs rounded px-2.5 py-1.5 font-mono outline-none focus:border-primary"
+                className="w-full bg-gray-50 dark:bg-meta-4 border border-stroke dark:border-gray-700 text-black dark:text-white text-xs rounded px-2.5 py-1.5 font-mono outline-none focus:border-primary"
               />
               <input
                 type="number"
                 value={ftpPort}
                 onChange={(e) => setFtpPort(e.target.value)}
-                className="w-20 bg-[#24303f] border border-gray-700 text-white text-xs rounded px-2 py-1.5 font-mono text-center outline-none focus:border-primary"
+                className="w-20 bg-gray-50 dark:bg-meta-4 border border-stroke dark:border-gray-700 text-black dark:text-white text-xs rounded px-2 py-1.5 font-mono text-center outline-none focus:border-primary"
               />
             </div>
           </div>
@@ -724,7 +716,7 @@ const FtpManager = () => {
             <button
               onClick={() => testConnection()}
               disabled={isTesting}
-              className="w-full bg-[#24303f] hover:bg-primary/20 border border-primary/50 text-primary text-xs font-semibold py-1.5 rounded flex items-center justify-center gap-1.5 transition"
+              className="w-full bg-primary/10 hover:bg-primary/20 border border-primary/30 text-primary text-xs font-semibold py-1.5 rounded flex items-center justify-center gap-1.5 transition"
             >
               <Activity className={`h-3.5 w-3.5 ${isTesting ? 'animate-pulse' : ''}`} />
               {isTesting ? 'Menguji...' : 'Uji Koneksi FTP'}
@@ -752,7 +744,7 @@ const FtpManager = () => {
                 )}
               </div>
             ) : (
-              <div className="w-full px-3 py-1.5 rounded border border-gray-700 bg-[#24303f] text-gray-400 text-xs text-center font-mono">
+              <div className="w-full px-3 py-1.5 rounded border border-stroke dark:border-gray-700 bg-gray-50 dark:bg-meta-4 text-gray-500 dark:text-gray-400 text-xs text-center font-mono">
                 Status Belum Diuji
               </div>
             )}
@@ -761,7 +753,7 @@ const FtpManager = () => {
       </div>
 
       {/* OPERATIONS TOOLBAR */}
-      <div className="bg-[#1c2434] border border-gray-700/60 rounded-lg p-2 flex flex-wrap items-center justify-between gap-2 shadow-sm">
+      <div className="bg-white dark:bg-boxdark border border-stroke dark:border-strokedark rounded-lg p-2 flex flex-wrap items-center justify-between gap-2 shadow-sm">
         <div className="flex flex-wrap items-center gap-1.5">
           {/* Direct Upload (Local -> Remote) */}
           <button
@@ -785,7 +777,7 @@ const FtpManager = () => {
             <span>Unduh ke Lokal</span>
           </button>
 
-          <div className="h-4 w-[1px] bg-gray-700 mx-1 hidden sm:block" />
+          <div className="h-4 w-[1px] bg-stroke dark:bg-gray-700 mx-1 hidden sm:block" />
 
           {/* New Folder */}
           <button
@@ -793,7 +785,7 @@ const FtpManager = () => {
               setMkdirTargetPane(activePane);
               setMkdirModalOpen(true);
             }}
-            className="flex items-center gap-1 bg-[#24303f] hover:bg-[#2d3a4d] border border-gray-700 text-gray-200 text-xs px-2.5 py-1.5 rounded transition"
+            className="flex items-center gap-1 bg-gray-100 hover:bg-gray-200 dark:bg-meta-4 dark:hover:bg-[#2d3a4d] border border-stroke dark:border-gray-700 text-gray-700 dark:text-gray-200 text-xs px-2.5 py-1.5 rounded shadow-xs transition"
             title={`Buat Folder Baru di Sisi ${activePane.toUpperCase()}`}
           >
             <FolderPlus className="h-3.5 w-3.5 text-amber-400" />
@@ -807,7 +799,7 @@ const FtpManager = () => {
               if (e) handleCopy(activePane, e);
             }}
             disabled={activePane === 'local' ? !selectedLocalEntry : !selectedRemoteEntry}
-            className="flex items-center gap-1 bg-[#24303f] hover:bg-[#2d3a4d] disabled:opacity-40 disabled:hover:bg-[#24303f] border border-gray-700 text-gray-200 text-xs px-2.5 py-1.5 rounded transition"
+            className="flex items-center gap-1 bg-gray-100 hover:bg-gray-200 disabled:opacity-40 disabled:hover:bg-gray-100 dark:bg-meta-4 dark:hover:bg-[#2d3a4d] border border-stroke dark:border-gray-700 text-gray-700 dark:text-gray-200 text-xs px-2.5 py-1.5 rounded shadow-xs transition"
             title="Salin Item Terpilih (Ctrl+C)"
           >
             <Copy className="h-3.5 w-3.5 text-blue-400" />
@@ -821,7 +813,7 @@ const FtpManager = () => {
               if (e) handleCut(activePane, e);
             }}
             disabled={activePane === 'local' ? !selectedLocalEntry : !selectedRemoteEntry}
-            className="flex items-center gap-1 bg-[#24303f] hover:bg-[#2d3a4d] disabled:opacity-40 disabled:hover:bg-[#24303f] border border-gray-700 text-gray-200 text-xs px-2.5 py-1.5 rounded transition"
+            className="flex items-center gap-1 bg-gray-100 hover:bg-gray-200 disabled:opacity-40 disabled:hover:bg-gray-100 dark:bg-meta-4 dark:hover:bg-[#2d3a4d] border border-stroke dark:border-gray-700 text-gray-700 dark:text-gray-200 text-xs px-2.5 py-1.5 rounded shadow-xs transition"
             title="Potong Item Terpilih (Ctrl+X)"
           >
             <Scissors className="h-3.5 w-3.5 text-purple-400" />
@@ -834,7 +826,7 @@ const FtpManager = () => {
             disabled={!clipboard || actionLoading}
             className={`flex items-center gap-1 text-xs px-3 py-1.5 rounded font-semibold border transition ${clipboard
               ? 'bg-emerald-600 hover:bg-emerald-500 text-white border-emerald-500 animate-pulse'
-              : 'bg-[#24303f] text-gray-500 border-gray-700 opacity-40 cursor-not-allowed'
+              : 'bg-gray-100 dark:bg-meta-4 text-gray-400 dark:text-gray-500 border-stroke dark:border-gray-700 opacity-40 cursor-not-allowed'
               }`}
             title="Tempel Item dari Clipboard (Ctrl+V)"
           >
@@ -852,7 +844,7 @@ const FtpManager = () => {
               }
             }}
             disabled={activePane === 'local' ? !selectedLocalEntry : !selectedRemoteEntry}
-            className="flex items-center gap-1 bg-[#24303f] hover:bg-rose-950/40 disabled:opacity-40 disabled:hover:bg-[#24303f] border border-gray-700 hover:border-rose-500/50 text-gray-200 hover:text-rose-400 text-xs px-2.5 py-1.5 rounded transition"
+            className="flex items-center gap-1 bg-gray-100 hover:bg-rose-50 dark:bg-meta-4 dark:hover:bg-rose-950/40 disabled:opacity-40 border border-stroke dark:border-gray-700 hover:border-rose-300 dark:hover:border-rose-500/50 text-gray-700 hover:text-rose-600 dark:text-gray-200 dark:hover:text-rose-400 text-xs px-2.5 py-1.5 rounded shadow-xs transition"
             title="Hapus Item Terpilih (Delete)"
           >
             <Trash2 className="h-3.5 w-3.5 text-rose-400" />
@@ -897,7 +889,7 @@ const FtpManager = () => {
             </button>
             <button
               onClick={() => setClipboard(null)}
-              className="bg-gray-800 hover:bg-gray-700 text-gray-300 px-2.5 py-1 rounded text-xs transition"
+              className="bg-white hover:bg-gray-100 text-gray-700 dark:bg-meta-4 dark:hover:bg-meta-4/80 dark:text-gray-300 border border-stroke dark:border-gray-700 px-2.5 py-1 rounded text-xs transition shadow-xs"
             >
               Batal
             </button>
@@ -913,11 +905,11 @@ const FtpManager = () => {
         {/* ========================================================= */}
         <div
           onClick={() => setActivePane('local')}
-          className={`bg-[#1c2434] border rounded-lg overflow-hidden shadow-sm flex flex-col h-[620px] transition ${activePane === 'local' ? 'border-amber-500/80 ring-1 ring-amber-500/30' : 'border-gray-700/60'
+          className={`bg-white dark:bg-boxdark border rounded-lg overflow-hidden shadow-sm flex flex-col h-[620px] transition ${activePane === 'local' ? 'border-amber-500 ring-1 ring-amber-500/30' : 'border-stroke dark:border-strokedark'
             }`}
         >
           {/* Header Situs Lokal */}
-          <div className="bg-[#24303f] p-3 border-b border-gray-700 space-y-2.5">
+          <div className="bg-gray-100 dark:bg-meta-4 p-3 border-b border-stroke dark:border-strokedark space-y-2.5">
             <div className="flex items-center justify-between">
               <span className="text-xs font-bold text-amber-300 flex items-center gap-1.5 uppercase tracking-wide">
                 <Laptop className="h-4 w-4" /> Situs Lokal (Host PC / Server)
@@ -937,7 +929,7 @@ const FtpManager = () => {
                 onChange={(e) => {
                   if (e.target.value) browseLocalDirectory(e.target.value);
                 }}
-                className="w-full bg-[#1c2434] border border-gray-700 hover:border-amber-500 text-amber-300 text-xs rounded px-2.5 py-1.5 outline-none font-mono transition"
+                className="w-full bg-white dark:bg-boxdark border border-stroke dark:border-gray-700 hover:border-amber-500 text-amber-700 dark:text-amber-300 text-xs rounded px-2.5 py-1.5 outline-none font-mono transition"
               >
                 <option value="" disabled>-- Pilih Folder / Drive Host Lainnya --</option>
                 {availableLocations.map((loc, idx) => (
@@ -954,19 +946,19 @@ const FtpManager = () => {
                 type="button"
                 onClick={handleNavigateUpLocal}
                 disabled={!localParentPath && (localPath === '/' || !localPath)}
-                className="p-1.5 bg-[#1c2434] hover:bg-[#2d3a4d] disabled:opacity-40 border border-gray-700 text-gray-300 rounded transition"
+                className="p-1.5 bg-white hover:bg-gray-100 dark:bg-boxdark dark:hover:bg-meta-4 disabled:opacity-40 border border-stroke dark:border-gray-700 text-gray-700 dark:text-gray-300 rounded transition"
                 title="Ke Folder Induk (Up)"
               >
                 <ArrowLeft className="h-3.5 w-3.5" />
               </button>
-              <div className="flex items-center gap-1.5 px-2.5 py-1 bg-[#1c2434] border border-gray-700 rounded flex-1 focus-within:border-amber-500 transition">
+              <div className="flex items-center gap-1.5 px-2.5 py-1 bg-white dark:bg-boxdark border border-stroke dark:border-gray-700 rounded flex-1 focus-within:border-amber-500 transition">
                 <span className="text-amber-400 font-bold text-xs font-mono">host:</span>
                 <input
                   type="text"
                   value={localInputPath}
                   onChange={(e) => setLocalInputPath(e.target.value)}
                   placeholder="Ketik path host, misal: /host_c, C:/Users, /app, dsb..."
-                  className="w-full bg-transparent text-white text-xs font-mono outline-none"
+                  className="w-full bg-transparent text-black dark:text-white text-xs font-mono outline-none"
                 />
               </div>
               <button
@@ -980,7 +972,7 @@ const FtpManager = () => {
                 type="button"
                 onClick={() => browseLocalDirectory(localPath)}
                 disabled={loadingLocal}
-                className="p-1.5 bg-[#1c2434] hover:bg-[#2d3a4d] border border-gray-700 text-gray-300 rounded transition"
+                className="p-1.5 bg-white hover:bg-gray-100 dark:bg-boxdark dark:hover:bg-meta-4 border border-stroke dark:border-gray-700 text-gray-700 dark:text-gray-300 rounded transition"
                 title="Muat Ulang Folder Lokal"
               >
                 <RefreshCw className={`h-3.5 w-3.5 ${loadingLocal ? 'animate-spin text-amber-400' : ''}`} />
@@ -991,7 +983,7 @@ const FtpManager = () => {
           {/* Local File Explorer Table */}
           <div className="overflow-y-auto flex-1">
             <table className="w-full text-left border-collapse">
-              <thead className="bg-[#1c2434] text-[10px] uppercase tracking-wider text-gray-400 font-semibold sticky top-0 z-10 border-b border-gray-750">
+              <thead className="bg-gray-50 dark:bg-meta-4 text-[10px] uppercase tracking-wider text-gray-600 dark:text-gray-400 font-semibold sticky top-0 z-10 border-b border-stroke dark:border-strokedark">
                 <tr>
                   <th className="py-2 px-2.5 w-8">#</th>
                   <th className="py-2 px-2.5 w-8">Tipe</th>
@@ -1001,7 +993,7 @@ const FtpManager = () => {
                   <th className="py-2 px-3 w-28 text-center">Aksi Cepat</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-800 text-xs">
+              <tbody className="divide-y divide-stroke dark:divide-strokedark text-xs">
                 {loadingLocal ? (
                   <tr>
                     <td colSpan={6} className="py-16 text-center text-gray-400">
@@ -1032,21 +1024,21 @@ const FtpManager = () => {
                           ? 'bg-amber-950/40 border-l-4 border-amber-500 text-white'
                           : isCut
                             ? 'opacity-40 italic'
-                            : 'hover:bg-[#24303f]/50'
+                            : 'hover:bg-gray-50 dark:hover:bg-meta-4/40'
                           }`}
                       >
                         <td className="py-2 px-2.5 text-[10px] text-gray-500 font-mono">{idx + 1}</td>
                         <td className="py-2 px-2.5">{renderIcon(entry.category, entry.is_dir)}</td>
-                        <td className="py-2 px-3 font-medium text-white truncate max-w-[200px]">
+                        <td className="py-2 px-3 font-medium text-black dark:text-white truncate max-w-[200px]">
                           <span className={entry.is_dir ? 'font-bold text-amber-200 hover:text-amber-100' : 'hover:text-primary'}>
                             {entry.name}
                           </span>
                         </td>
-                        <td className="py-2 px-3 text-right font-mono text-[11px] text-gray-300">
+                        <td className="py-2 px-3 text-right font-mono text-[11px] text-gray-600 dark:text-gray-300">
                           {entry.is_dir ? '-' : `${entry.size.toLocaleString()} B`}
                         </td>
                         <td className="py-2 px-3">
-                          <span className={`text-[9px] px-1.5 py-0.2 rounded font-mono ${entry.is_dir ? 'bg-amber-950/40 text-amber-300 border border-amber-600/40' : 'bg-gray-800 text-gray-300'
+                          <span className={`text-[9px] px-1.5 py-0.2 rounded font-mono ${entry.is_dir ? 'bg-amber-950/40 text-amber-300 border border-amber-600/40' : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 border border-stroke dark:border-transparent'
                             }`}>
                             {entry.category}
                           </span>
@@ -1059,7 +1051,7 @@ const FtpManager = () => {
                                   e.stopPropagation();
                                   handleDirectUpload(entry);
                                 }}
-                                className="p-1 text-emerald-400 hover:bg-[#24303f] rounded transition"
+                                className="p-1 text-emerald-400 hover:bg-gray-100 dark:hover:bg-[#24303f] rounded transition"
                                 title="Unggah berkas ini ke Remote Controller"
                               >
                                 <ArrowRight className="h-3.5 w-3.5" />
@@ -1070,7 +1062,7 @@ const FtpManager = () => {
                                   e.stopPropagation();
                                   browseLocalDirectory(entry.full_path);
                                 }}
-                                className="p-1 text-amber-400 hover:bg-[#24303f] rounded transition"
+                                className="p-1 text-amber-400 hover:bg-gray-100 dark:hover:bg-[#24303f] rounded transition"
                                 title="Buka Folder"
                               >
                                 <CornerDownRight className="h-3.5 w-3.5" />
@@ -1081,7 +1073,7 @@ const FtpManager = () => {
                                 e.stopPropagation();
                                 handleCopy('local', entry);
                               }}
-                              className="p-1 text-gray-400 hover:text-blue-400 hover:bg-[#24303f] rounded transition"
+                              className="p-1 text-gray-400 hover:text-blue-400 hover:bg-gray-100 dark:hover:bg-[#24303f] rounded transition"
                               title="Salin (Ctrl+C)"
                             >
                               <Copy className="h-3 w-3" />
@@ -1092,7 +1084,7 @@ const FtpManager = () => {
                                 setItemToDelete({ pane: 'local', entry });
                                 setDeleteModalOpen(true);
                               }}
-                              className="p-1 text-gray-400 hover:text-rose-400 hover:bg-[#24303f] rounded transition"
+                              className="p-1 text-gray-400 hover:text-rose-400 hover:bg-gray-100 dark:hover:bg-[#24303f] rounded transition"
                               title="Hapus"
                             >
                               <Trash2 className="h-3 w-3" />
@@ -1108,7 +1100,7 @@ const FtpManager = () => {
           </div>
 
           {/* Local Status Bar */}
-          <div className="bg-[#24303f] px-3 py-1.5 border-t border-gray-700 flex items-center justify-between text-[10px] text-gray-400 font-mono">
+          <div className="bg-gray-50 dark:bg-meta-4 px-3 py-1.5 border-t border-stroke dark:border-strokedark flex items-center justify-between text-[10px] text-gray-500 dark:text-gray-400 font-mono">
             <span>{localEntries.filter(e => e.is_dir).length} folder, {localEntries.filter(e => !e.is_dir).length} berkas</span>
             <span>Total: {localEntries.reduce((acc, curr) => acc + (curr.size || 0), 0).toLocaleString()} B</span>
           </div>
@@ -1120,11 +1112,11 @@ const FtpManager = () => {
         {/* ========================================================= */}
         <div
           onClick={() => setActivePane('remote')}
-          className={`bg-[#1c2434] border rounded-lg overflow-hidden shadow-sm flex flex-col h-[620px] transition ${activePane === 'remote' ? 'border-primary ring-1 ring-primary/30' : 'border-gray-700/60'
+          className={`bg-white dark:bg-boxdark border rounded-lg overflow-hidden shadow-sm flex flex-col h-[620px] transition ${activePane === 'remote' ? 'border-primary ring-1 ring-primary/30' : 'border-stroke dark:border-strokedark'
             }`}
         >
           {/* Header Situs Remote */}
-          <div className="bg-[#24303f] p-3 border-b border-gray-700 space-y-2.5">
+          <div className="bg-gray-100 dark:bg-meta-4 p-3 border-b border-stroke dark:border-strokedark space-y-2.5">
             <div className="flex items-center justify-between">
               <span className="text-xs font-bold text-primary flex items-center gap-1.5 uppercase tracking-wide">
                 <Server className="h-4 w-4" /> Situs Remote ({selectedMachineIp}:{ftpPort})
@@ -1144,7 +1136,7 @@ const FtpManager = () => {
                 onChange={(e) => {
                   if (e.target.value) browseRemoteDirectory(e.target.value);
                 }}
-                className="w-full bg-[#1c2434] border border-gray-700 hover:border-primary text-primary text-xs rounded px-2.5 py-1.5 outline-none font-mono transition"
+                className="w-full bg-white dark:bg-boxdark border border-stroke dark:border-gray-700 hover:border-primary text-primary text-xs rounded px-2.5 py-1.5 outline-none font-mono transition"
               >
                 <option value="" disabled>-- Pilih Direktori Controller --</option>
                 {remotePresets.map((r, idx) => (
@@ -1161,19 +1153,19 @@ const FtpManager = () => {
                 type="button"
                 onClick={handleNavigateUpRemote}
                 disabled={remotePath === '/' || !remotePath}
-                className="p-1.5 bg-[#1c2434] hover:bg-[#2d3a4d] disabled:opacity-40 border border-gray-700 text-gray-300 rounded transition"
+                className="p-1.5 bg-white hover:bg-gray-100 dark:bg-boxdark dark:hover:bg-meta-4 disabled:opacity-40 border border-stroke dark:border-gray-700 text-gray-700 dark:text-gray-300 rounded transition"
                 title="Ke Folder Induk (Up)"
               >
                 <ArrowLeft className="h-3.5 w-3.5" />
               </button>
-              <div className="flex items-center gap-1.5 px-2.5 py-1 bg-[#1c2434] border border-gray-700 rounded flex-1 focus-within:border-primary transition">
+              <div className="flex items-center gap-1.5 px-2.5 py-1 bg-white dark:bg-boxdark border border-stroke dark:border-gray-700 rounded flex-1 focus-within:border-primary transition">
                 <span className="text-primary font-bold text-xs font-mono">ftp://{selectedMachineIp}:</span>
                 <input
                   type="text"
                   value={remoteInputPath}
                   onChange={(e) => setRemoteInputPath(e.target.value)}
                   placeholder="Ketik path controller, misal: /Storage/sc777ce/BATCH..."
-                  className="w-full bg-transparent text-white text-xs font-mono outline-none"
+                  className="w-full bg-transparent text-black dark:text-white text-xs font-mono outline-none"
                 />
               </div>
               <button
@@ -1187,7 +1179,7 @@ const FtpManager = () => {
                 type="button"
                 onClick={() => browseRemoteDirectory(remotePath)}
                 disabled={loadingRemote}
-                className="p-1.5 bg-[#1c2434] hover:bg-[#2d3a4d] border border-gray-700 text-gray-300 rounded transition"
+                className="p-1.5 bg-white hover:bg-gray-100 dark:bg-boxdark dark:hover:bg-meta-4 border border-stroke dark:border-gray-700 text-gray-700 dark:text-gray-300 rounded transition"
                 title="Muat Ulang Folder Remote"
               >
                 <RefreshCw className={`h-3.5 w-3.5 ${loadingRemote ? 'animate-spin text-primary' : ''}`} />
@@ -1198,7 +1190,7 @@ const FtpManager = () => {
           {/* Remote File Explorer Table */}
           <div className="overflow-y-auto flex-1">
             <table className="w-full text-left border-collapse">
-              <thead className="bg-[#1c2434] text-[10px] uppercase tracking-wider text-gray-400 font-semibold sticky top-0 z-10 border-b border-gray-750">
+              <thead className="bg-gray-50 dark:bg-meta-4 text-[10px] uppercase tracking-wider text-gray-600 dark:text-gray-400 font-semibold sticky top-0 z-10 border-b border-stroke dark:border-strokedark">
                 <tr>
                   <th className="py-2 px-2.5 w-8">#</th>
                   <th className="py-2 px-2.5 w-8">Tipe</th>
@@ -1208,7 +1200,7 @@ const FtpManager = () => {
                   <th className="py-2 px-3 w-28 text-center">Aksi Cepat</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-800 text-xs">
+              <tbody className="divide-y divide-stroke dark:divide-strokedark text-xs">
                 {loadingRemote ? (
                   <tr>
                     <td colSpan={6} className="py-16 text-center text-gray-400">
@@ -1239,21 +1231,21 @@ const FtpManager = () => {
                           ? 'bg-primary/20 border-l-4 border-primary text-white'
                           : isCut
                             ? 'opacity-40 italic'
-                            : 'hover:bg-[#24303f]/50'
+                            : 'hover:bg-gray-50 dark:hover:bg-meta-4/40'
                           }`}
                       >
                         <td className="py-2 px-2.5 text-[10px] text-gray-500 font-mono">{idx + 1}</td>
                         <td className="py-2 px-2.5">{renderIcon(entry.category, entry.is_dir)}</td>
-                        <td className="py-2 px-3 font-medium text-white truncate max-w-[200px]">
+                        <td className="py-2 px-3 font-medium text-black dark:text-white truncate max-w-[200px]">
                           <span className={entry.is_dir ? 'font-bold text-amber-200 hover:text-amber-100' : 'hover:text-primary'}>
                             {entry.name}
                           </span>
                         </td>
-                        <td className="py-2 px-3 text-right font-mono text-[11px] text-gray-300">
+                        <td className="py-2 px-3 text-right font-mono text-[11px] text-gray-600 dark:text-gray-300">
                           {entry.is_dir ? '-' : `${entry.size.toLocaleString()} B`}
                         </td>
                         <td className="py-2 px-3">
-                          <span className={`text-[9px] px-1.5 py-0.2 rounded font-mono ${entry.is_dir ? 'bg-amber-950/40 text-amber-300 border border-amber-600/40' : 'bg-gray-800 text-gray-300'
+                          <span className={`text-[9px] px-1.5 py-0.2 rounded font-mono ${entry.is_dir ? 'bg-amber-950/40 text-amber-300 border border-amber-600/40' : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 border border-stroke dark:border-transparent'
                             }`}>
                             {entry.category}
                           </span>
@@ -1267,7 +1259,7 @@ const FtpManager = () => {
                                     e.stopPropagation();
                                     handleDirectDownload(entry);
                                   }}
-                                  className="p-1 text-primary hover:bg-[#24303f] rounded transition"
+                                  className="p-1 text-primary hover:bg-gray-100 dark:hover:bg-[#24303f] rounded transition"
                                   title="Unduh berkas ini ke Host Lokal"
                                 >
                                   <ArrowLeft className="h-3.5 w-3.5" />
@@ -1277,7 +1269,7 @@ const FtpManager = () => {
                                     e.stopPropagation();
                                     handleOpenFile('remote', entry);
                                   }}
-                                  className="p-1 text-gray-400 hover:text-cyan-400 hover:bg-[#24303f] rounded transition"
+                                  className="p-1 text-gray-400 hover:text-cyan-400 hover:bg-gray-100 dark:hover:bg-[#24303f] rounded transition"
                                   title="Lihat Pratinjau"
                                 >
                                   <Eye className="h-3 w-3" />
@@ -1289,7 +1281,7 @@ const FtpManager = () => {
                                   e.stopPropagation();
                                   browseRemoteDirectory(entry.full_path);
                                 }}
-                                className="p-1 text-amber-400 hover:bg-[#24303f] rounded transition"
+                                className="p-1 text-amber-400 hover:bg-gray-100 dark:hover:bg-[#24303f] rounded transition"
                                 title="Buka Folder"
                               >
                                 <CornerDownRight className="h-3.5 w-3.5" />
@@ -1300,7 +1292,7 @@ const FtpManager = () => {
                                 e.stopPropagation();
                                 handleCopy('remote', entry);
                               }}
-                              className="p-1 text-gray-400 hover:text-blue-400 hover:bg-[#24303f] rounded transition"
+                              className="p-1 text-gray-400 hover:text-blue-400 hover:bg-gray-100 dark:hover:bg-[#24303f] rounded transition"
                               title="Salin (Ctrl+C)"
                             >
                               <Copy className="h-3 w-3" />
@@ -1311,7 +1303,7 @@ const FtpManager = () => {
                                 setItemToDelete({ pane: 'remote', entry });
                                 setDeleteModalOpen(true);
                               }}
-                              className="p-1 text-gray-400 hover:text-rose-400 hover:bg-[#24303f] rounded transition"
+                              className="p-1 text-gray-400 hover:text-rose-400 hover:bg-gray-100 dark:hover:bg-[#24303f] rounded transition"
                               title="Hapus"
                             >
                               <Trash2 className="h-3 w-3" />
@@ -1327,7 +1319,7 @@ const FtpManager = () => {
           </div>
 
           {/* Remote Status Bar */}
-          <div className="bg-[#24303f] px-3 py-1.5 border-t border-gray-700 flex items-center justify-between text-[10px] text-gray-400 font-mono">
+          <div className="bg-gray-50 dark:bg-meta-4 px-3 py-1.5 border-t border-stroke dark:border-strokedark flex items-center justify-between text-[10px] text-gray-500 dark:text-gray-400 font-mono">
             <span>{remoteEntries.filter(e => e.is_dir).length} folder, {remoteEntries.filter(e => !e.is_dir).length} berkas</span>
             <span>Total: {remoteEntries.reduce((acc, curr) => acc + (curr.size || 0), 0).toLocaleString()} B</span>
           </div>
@@ -1338,12 +1330,12 @@ const FtpManager = () => {
       {/* MODAL 1: FILE PREVIEW & DECODED TELEMETRY */}
       {previewModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 p-4 backdrop-blur-sm">
-          <div className="bg-[#1c2434] border border-gray-700 rounded-lg w-full max-w-4xl max-h-[85vh] flex flex-col shadow-2xl">
+          <div className="bg-white dark:bg-boxdark border border-stroke dark:border-strokedark rounded-lg w-full max-w-4xl max-h-[85vh] flex flex-col shadow-2xl">
             <div className="flex items-center justify-between px-6 py-4 border-b border-gray-700">
               <div className="flex items-center gap-2">
                 <FileText className="h-5 w-5 text-primary" />
                 <div>
-                  <h3 className="text-base font-bold text-white">
+                  <h3 className="text-base font-bold text-black dark:text-white">
                     {previewData?.file_name || 'Pratinjau Berkas'}
                   </h3>
                   <p className="text-xs text-gray-400 font-mono">
@@ -1367,16 +1359,16 @@ const FtpManager = () => {
               ) : (
                 <>
                   {previewData?.decoded_telemetry && (
-                    <div className="bg-[#24303f] border border-cyan-500/40 rounded-lg p-4 space-y-3">
+                    <div className="bg-cyan-50/50 dark:bg-[#24303f] border border-cyan-200 dark:border-cyan-500/40 rounded-lg p-4 space-y-3">
                       <span className="text-xs font-bold text-cyan-400 uppercase tracking-wide flex items-center gap-1.5">
                         <Activity className="h-4 w-4" /> Hasil Dekode Biner STATUS.ACT
                       </span>
                       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
-                        <div className="bg-[#1c2434] p-2.5 rounded border border-gray-700">
+                        <div className="bg-white dark:bg-[#1c2434] p-2.5 rounded border border-stroke dark:border-gray-700">
                           <span className="text-gray-400 text-[10px] block">BATCH AKTIF</span>
                           <span className="text-amber-400 font-bold font-mono">{previewData.decoded_telemetry.current_batch || '-'}</span>
                         </div>
-                        <div className="bg-[#1c2434] p-2.5 rounded border border-gray-700">
+                        <div className="bg-white dark:bg-[#1c2434] p-2.5 rounded border border-stroke dark:border-gray-700">
                           <span className="text-gray-400 text-[10px] block">SUHU PV</span>
                           <span className="text-cyan-400 font-bold font-mono">{previewData.decoded_telemetry.temp_pv}°C</span>
                         </div>
@@ -1384,7 +1376,7 @@ const FtpManager = () => {
                     </div>
                   )}
 
-                  <pre className="bg-[#24303f] p-4 rounded text-xs font-mono text-gray-200 overflow-x-auto max-h-96 whitespace-pre-wrap border border-gray-700">
+                  <pre className="bg-gray-50 dark:bg-[#24303f] p-4 rounded text-xs font-mono text-gray-800 dark:text-gray-200 overflow-x-auto max-h-96 whitespace-pre-wrap border border-stroke dark:border-gray-700">
                     {previewData?.text || previewData?.hex_preview || 'Tidak ada konten teks.'}
                   </pre>
                 </>
@@ -1392,7 +1384,7 @@ const FtpManager = () => {
             </div>
 
             <div className="flex justify-end p-4 border-t border-gray-700">
-              <button onClick={() => setPreviewModalOpen(false)} className="bg-gray-700 text-white px-4 py-1.5 rounded text-xs">
+              <button onClick={() => setPreviewModalOpen(false)} className="bg-gray-100 hover:bg-gray-200 text-gray-700 dark:bg-meta-4 dark:hover:bg-meta-4/80 dark:text-white px-4 py-1.5 rounded text-xs border border-stroke dark:border-strokedark transition">
                 Tutup
               </button>
             </div>
@@ -1403,9 +1395,9 @@ const FtpManager = () => {
       {/* MODAL 2: DISPATCH BATCH */}
       {dispatchModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 p-4 backdrop-blur-sm">
-          <div className="bg-[#1c2434] border border-gray-700 rounded-lg w-full max-w-lg p-6 shadow-2xl space-y-4 text-xs">
+          <div className="bg-white dark:bg-boxdark border border-stroke dark:border-strokedark rounded-lg w-full max-w-lg p-6 shadow-2xl space-y-4 text-xs">
             <div className="flex items-center justify-between border-b border-gray-700 pb-3">
-              <h3 className="text-base font-bold text-white flex items-center gap-2">
+              <h3 className="text-base font-bold text-black dark:text-white flex items-center gap-2">
                 <Send className="h-5 w-5 text-emerald-500" />
                 Kirim Batch Produksi ke Controller via FTP
               </h3>
@@ -1417,7 +1409,7 @@ const FtpManager = () => {
               <select
                 value={selectedBatchId}
                 onChange={(e) => setSelectedBatchId(e.target.value)}
-                className="w-full bg-[#24303f] border border-gray-700 text-white rounded px-3 py-2 outline-none font-mono"
+                className="w-full bg-white dark:bg-slate-900 border border-stroke dark:border-gray-700 text-black dark:text-white rounded px-3 py-2 outline-none font-mono"
               >
                 {availableBatches.map((b) => (
                   <option key={b.id} value={b.id}>
@@ -1427,7 +1419,7 @@ const FtpManager = () => {
               </select>
             </div>
 
-            <div className="grid grid-cols-2 gap-3 bg-[#24303f] p-3 rounded border border-gray-700">
+            <div className="grid grid-cols-2 gap-3 bg-gray-50 dark:bg-meta-4 p-3 rounded border border-stroke dark:border-strokedark">
               <div>
                 <label className="block text-gray-300 font-medium mb-1">IP Controller Target:</label>
                 <input
@@ -1441,7 +1433,7 @@ const FtpManager = () => {
                     }
                   }}
                   placeholder="192.168.1.95"
-                  className="w-full bg-[#1c2434] border border-gray-600 text-emerald-400 font-mono font-bold rounded px-2.5 py-1.5 outline-none"
+                  className="w-full bg-white dark:bg-slate-900 border border-stroke dark:border-gray-600 text-black dark:text-emerald-400 font-mono font-bold rounded px-2.5 py-1.5 outline-none"
                 />
               </div>
 
@@ -1450,7 +1442,7 @@ const FtpManager = () => {
                 <select
                   value={dispatchControllerModel}
                   onChange={(e) => setDispatchControllerModel(e.target.value)}
-                  className="w-full bg-[#1c2434] border border-gray-600 text-amber-300 font-bold rounded px-2.5 py-1.5 outline-none"
+                  className="w-full bg-white dark:bg-slate-900 border border-stroke dark:border-gray-600 text-black dark:text-amber-300 font-bold rounded px-2.5 py-1.5 outline-none"
                 >
                   <option value="797">SETEX 797CE (/Flashdisk/SC797CE/BATCH)</option>
                   <option value="777">SETEX 777 (/Storage/sc777ce/BATCH)</option>
@@ -1458,7 +1450,7 @@ const FtpManager = () => {
               </div>
             </div>
 
-            <div className="text-[11px] text-gray-400 bg-black/20 p-2.5 rounded border border-gray-800">
+            <div className="text-[11px] text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-black/20 p-2.5 rounded border border-stroke dark:border-gray-800">
               <span className="font-bold text-gray-300">File yang akan ditulis ke FTP:</span>
               <ul className="list-disc list-inside mt-1 text-slate-300">
                 <li><code className="text-emerald-400">BATCHREF.REF</code> (Struktur biner Secom 762 byte)</li>
@@ -1470,7 +1462,7 @@ const FtpManager = () => {
             </div>
 
             <div className="flex justify-end gap-2 pt-3 border-t border-gray-700">
-              <button type="button" onClick={() => setDispatchModalOpen(false)} className="bg-gray-700 text-white px-3 py-1.5 rounded">
+              <button type="button" onClick={() => setDispatchModalOpen(false)} className="bg-gray-100 hover:bg-gray-200 text-gray-700 dark:bg-meta-4 dark:hover:bg-meta-4/80 dark:text-white px-3 py-1.5 rounded border border-stroke dark:border-strokedark transition">
                 Batal
               </button>
               <button
@@ -1489,8 +1481,8 @@ const FtpManager = () => {
       {/* MODAL 3: CREATE NEW FOLDER */}
       {mkdirModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 p-4 backdrop-blur-sm">
-          <div className="bg-[#1c2434] border border-gray-700 rounded-lg w-full max-w-sm p-5 shadow-2xl space-y-4 text-xs">
-            <h3 className="text-sm font-bold text-white flex items-center gap-2">
+          <div className="bg-white dark:bg-boxdark border border-stroke dark:border-strokedark rounded-lg w-full max-w-sm p-5 shadow-2xl space-y-4 text-xs">
+            <h3 className="text-sm font-bold text-black dark:text-white flex items-center gap-2">
               <FolderPlus className="h-4 w-4 text-amber-400" />
               Buat Folder Baru di {mkdirTargetPane === 'local' ? 'Host Lokal' : 'Remote FTP'}
             </h3>
@@ -1498,7 +1490,7 @@ const FtpManager = () => {
             <form onSubmit={handleCreateFolder} className="space-y-3">
               <div>
                 <label className="block text-gray-400 mb-1">Lokasi:</label>
-                <div className="bg-[#24303f] text-gray-300 px-2.5 py-1.5 rounded font-mono truncate">
+                <div className="bg-gray-50 dark:bg-[#24303f] text-gray-700 dark:text-gray-300 px-2.5 py-1.5 rounded font-mono truncate border border-stroke dark:border-gray-700">
                   {mkdirTargetPane === 'local' ? localPath : remotePath}
                 </div>
               </div>
@@ -1510,12 +1502,12 @@ const FtpManager = () => {
                   value={newFolderName}
                   onChange={(e) => setNewFolderName(e.target.value)}
                   placeholder="Contoh: NEW_RECIPES"
-                  className="w-full bg-[#24303f] border border-gray-700 text-white px-3 py-2 rounded outline-none font-mono"
+                  className="w-full bg-white dark:bg-slate-900 border border-stroke dark:border-gray-700 text-black dark:text-white px-3 py-2 rounded outline-none font-mono"
                 />
               </div>
 
               <div className="flex justify-end gap-2 pt-2 border-t border-gray-700">
-                <button type="button" onClick={() => setMkdirModalOpen(false)} className="bg-gray-700 text-white px-3 py-1.5 rounded">
+                <button type="button" onClick={() => setMkdirModalOpen(false)} className="bg-gray-100 hover:bg-gray-200 text-gray-700 dark:bg-meta-4 dark:hover:bg-meta-4/80 dark:text-white px-3 py-1.5 rounded border border-stroke dark:border-strokedark transition">
                   Batal
                 </button>
                 <button type="submit" disabled={!newFolderName.trim() || actionLoading} className="bg-primary text-white font-semibold px-4 py-1.5 rounded">
@@ -1530,13 +1522,13 @@ const FtpManager = () => {
       {/* MODAL 4: DELETE CONFIRMATION */}
       {deleteModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 p-4 backdrop-blur-sm">
-          <div className="bg-[#1c2434] border border-rose-500/50 rounded-lg w-full max-w-sm p-5 shadow-2xl space-y-4 text-xs">
+          <div className="bg-white dark:bg-boxdark border border-rose-300 dark:border-rose-500/50 rounded-lg w-full max-w-sm p-5 shadow-2xl space-y-4 text-xs">
             <div className="flex items-center gap-2 text-rose-400">
               <AlertTriangle className="h-5 w-5" />
-              <h3 className="text-sm font-bold text-white">Konfirmasi Penghapusan ({itemToDelete?.pane.toUpperCase()})</h3>
+              <h3 className="text-sm font-bold text-black dark:text-white">Konfirmasi Penghapusan ({itemToDelete?.pane.toUpperCase()})</h3>
             </div>
 
-            <p className="text-gray-300">
+            <p className="text-gray-600 dark:text-gray-300">
               Apakah Anda yakin ingin menghapus {itemToDelete?.entry?.is_dir ? 'direktori' : 'berkas'}:
               <strong className="text-rose-400 font-mono block mt-1 break-all">
                 {itemToDelete?.entry?.full_path}
@@ -1544,7 +1536,7 @@ const FtpManager = () => {
             </p>
 
             <div className="flex justify-end gap-2 pt-2 border-t border-gray-700">
-              <button type="button" onClick={() => setDeleteModalOpen(false)} className="bg-gray-700 text-white px-3 py-1.5 rounded">
+              <button type="button" onClick={() => setDeleteModalOpen(false)} className="bg-gray-100 hover:bg-gray-200 text-gray-700 dark:bg-meta-4 dark:hover:bg-meta-4/80 dark:text-white px-3 py-1.5 rounded border border-stroke dark:border-strokedark transition">
                 Batal
               </button>
               <button type="button" onClick={handleDeleteItem} disabled={actionLoading} className="bg-rose-600 text-white font-semibold px-4 py-1.5 rounded">

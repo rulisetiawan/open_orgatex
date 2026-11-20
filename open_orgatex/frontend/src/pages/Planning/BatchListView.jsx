@@ -275,22 +275,10 @@ const BatchListView = () => {
       {/* HEADER SECTION */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <div className="flex items-center gap-2">
-            <h2 className="text-2xl font-bold tracking-tight text-white flex items-center gap-2">
-              <Layers className="h-7 w-7 text-primary" />
-              Batch Pool & Antrean Produksi (SCX620)
-            </h2>
-            <span className="text-[11px] bg-primary/20 text-primary border border-primary/40 px-2 py-0.5 rounded font-mono font-semibold">
-              OrgaTEX Parity
-            </span>
-            <span className="text-[11px] bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 px-2.5 py-0.5 rounded font-mono font-semibold flex items-center gap-1.5">
-              <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse"></span>
-              DB: pt_smm_jetflow.public / SQLite Lokal
-            </span>
-          </div>
-          <p className="text-sm text-gray-400 mt-1">
-            Daftar lengkap alokasi batch, nomor resep, formula celup, dan status antrean mikrokontroler
-          </p>
+          <h2 className="text-xl md:text-2xl font-bold tracking-tight text-white flex items-center gap-2">
+            <Layers className="h-6 w-6 text-primary" />
+            Batch Pool
+          </h2>
         </div>
 
         {/* TOP BUTTONS */}
@@ -322,15 +310,15 @@ const BatchListView = () => {
           )}
           <button
             onClick={() => navigate('/ftp')}
-            className="flex items-center gap-2 bg-[#24303f] hover:bg-[#2d3a4d] border border-gray-700 text-gray-200 text-xs px-3.5 py-2 rounded shadow transition"
+            className="flex items-center gap-2 bg-gray-100 hover:bg-gray-200 dark:bg-[#24303f] dark:hover:bg-[#2d3a4d] border border-stroke dark:border-gray-700 text-gray-700 dark:text-gray-200 text-xs px-3.5 py-2 rounded shadow-xs transition"
           >
-            <Send className="h-4 w-4 text-emerald-400" />
+            <Send className="h-4 w-4 text-emerald-500 dark:text-emerald-400" />
             Buka FTP Explorer
           </button>
           <button
             onClick={handleSyncAllBatchFoldersToFTP}
             disabled={isSyncingFTP}
-            className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold px-3.5 py-2 rounded shadow transition"
+            className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold px-3.5 py-2 rounded shadow-xs transition"
             title="Sinkronkan seluruh nomor batch_ref_no sebagai folder baru di ftp://192.168.1.95/Network/F/OT/BATCH/<batch_ref_no>/"
           >
             <RefreshCw className={`h-4 w-4 ${isSyncingFTP ? 'animate-spin' : ''}`} />
@@ -339,16 +327,16 @@ const BatchListView = () => {
           <button
             onClick={handleSyncDB}
             disabled={syncing}
-            className="flex items-center gap-1.5 bg-blue-900/40 hover:bg-blue-800/60 border border-blue-600/50 text-blue-300 text-xs px-3 py-2 rounded shadow transition"
+            className="flex items-center gap-1.5 bg-blue-50 hover:bg-blue-100 dark:bg-blue-900/40 dark:hover:bg-blue-800/60 border border-blue-200 dark:border-blue-600/50 text-blue-700 dark:text-blue-300 text-xs px-3 py-2 rounded shadow-xs transition"
             title="Sinkronkan data antara PostgreSQL pt_smm_jetflow dan SQLite lokal"
           >
-            <RefreshCw className={`h-4 w-4 ${syncing ? 'animate-spin text-blue-400' : 'text-blue-400'}`} />
+            <RefreshCw className={`h-4 w-4 ${syncing ? 'animate-spin text-blue-600 dark:text-blue-400' : 'text-blue-600 dark:text-blue-400'}`} />
             {syncing ? 'Syncing...' : 'Sync DB'}
           </button>
           <button
             onClick={fetchBatches}
             disabled={loading}
-            className="flex items-center gap-1.5 bg-[#24303f] hover:bg-[#2d3a4d] border border-gray-700 text-gray-300 text-xs px-3 py-2 rounded shadow transition"
+            className="flex items-center gap-1.5 bg-gray-100 hover:bg-gray-200 dark:bg-[#24303f] dark:hover:bg-[#2d3a4d] border border-stroke dark:border-gray-700 text-gray-700 dark:text-gray-300 text-xs px-3 py-2 rounded shadow-xs transition"
           >
             <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin text-primary' : ''}`} />
           </button>
@@ -356,7 +344,7 @@ const BatchListView = () => {
       </div>
 
       {/* FILTER & SEARCH BAR */}
-      <div className="bg-[#1c2434] border border-gray-700/60 rounded-lg p-3.5 shadow-sm">
+      <div className="bg-white dark:bg-boxdark border border-stroke dark:border-strokedark rounded-lg p-3.5 shadow-sm">
         <div className="grid grid-cols-1 sm:grid-cols-12 gap-3 items-center">
           {/* Search box */}
           <div className="sm:col-span-5 relative">
@@ -366,49 +354,49 @@ const BatchListView = () => {
               placeholder="Cari No Lot, Referensi, Resep, Customer, atau Kain..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full bg-[#24303f] border border-gray-700 text-white text-xs rounded pl-9 pr-3 py-2 outline-none focus:border-primary"
+              className="w-full bg-gray-50 dark:bg-meta-4 border border-stroke dark:border-strokedark text-black dark:text-white text-xs rounded pl-9 pr-3 py-2 outline-none focus:border-primary"
             />
           </div>
 
           {/* Machine Filter */}
           <div className="sm:col-span-3 flex items-center gap-2">
-            <span className="text-xs text-gray-400 whitespace-nowrap">Mesin:</span>
+            <span className="text-xs text-gray-500 dark:text-gray-400 whitespace-nowrap">Mesin:</span>
             <select
               value={selectedMachine}
               onChange={(e) => setSelectedMachine(e.target.value)}
-              className="w-full bg-[#24303f] border border-gray-700 text-white text-xs rounded px-2.5 py-2 outline-none font-mono"
+              className="w-full bg-gray-50 dark:bg-meta-4 border border-stroke dark:border-strokedark text-black dark:text-white text-xs rounded px-2.5 py-2 outline-none font-mono"
             >
               {machineOptions.map(m => (
-                <option key={m} value={m}>{m}</option>
+                <option key={m} value={m} className="bg-white dark:bg-boxdark text-black dark:text-white">{m}</option>
               ))}
             </select>
           </div>
 
           {/* Status Filter */}
           <div className="sm:col-span-4 flex items-center gap-2">
-            <span className="text-xs text-gray-400 whitespace-nowrap">Status:</span>
+            <span className="text-xs text-gray-500 dark:text-gray-400 whitespace-nowrap">Status:</span>
             <select
               value={selectedStatus}
               onChange={(e) => setSelectedStatus(e.target.value)}
-              className="w-full bg-[#24303f] border border-gray-700 text-white text-xs rounded px-2.5 py-2 outline-none font-mono"
+              className="w-full bg-gray-50 dark:bg-meta-4 border border-stroke dark:border-strokedark text-black dark:text-white text-xs rounded px-2.5 py-2 outline-none font-mono"
             >
-              <option value="SEMUA">SEMUA STATUS</option>
-              <option value="PLANNING">Perencanaan (Planning)</option>
-              <option value="QUEUED">Antrean (Queued)</option>
-              <option value="WAITING_LA">Menunggu LA</option>
-              <option value="RUNNING">Sedang Proses (Running)</option>
-              <option value="COMPLETED">Selesai (Completed)</option>
-              <option value="HOLD">Ditahan (Hold)</option>
+              <option value="SEMUA" className="bg-white dark:bg-boxdark text-black dark:text-white">SEMUA STATUS</option>
+              <option value="PLANNING" className="bg-white dark:bg-boxdark text-black dark:text-white">Perencanaan (Planning)</option>
+              <option value="QUEUED" className="bg-white dark:bg-boxdark text-black dark:text-white">Antrean (Queued)</option>
+              <option value="WAITING_LA" className="bg-white dark:bg-boxdark text-black dark:text-white">Menunggu LA</option>
+              <option value="RUNNING" className="bg-white dark:bg-boxdark text-black dark:text-white">Sedang Proses (Running)</option>
+              <option value="COMPLETED" className="bg-white dark:bg-boxdark text-black dark:text-white">Selesai (Completed)</option>
+              <option value="HOLD" className="bg-white dark:bg-boxdark text-black dark:text-white">Ditahan (Hold)</option>
             </select>
           </div>
         </div>
       </div>
 
       {/* BATCH TABLE */}
-      <div className="bg-[#1c2434] border border-gray-700/60 rounded-lg overflow-hidden shadow-sm">
+      <div className="bg-white dark:bg-boxdark border border-stroke dark:border-strokedark rounded-lg overflow-hidden shadow-sm">
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse">
-            <thead className="bg-[#24303f] text-[11px] uppercase tracking-wider text-gray-400 font-semibold border-b border-gray-700">
+            <thead className="bg-gray-100 dark:bg-meta-4 text-[11px] uppercase tracking-wider text-gray-600 dark:text-gray-400 font-semibold border-b border-stroke dark:border-strokedark">
               <tr>
                 <th className="py-2.5 px-3 w-10 text-center">Pos</th>
                 <th className="py-2.5 px-3 w-28">Ref / Lot No</th>
@@ -420,10 +408,10 @@ const BatchListView = () => {
                 <th className="py-2.5 px-3 w-40 text-center">Aksi</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-800 text-xs">
+            <tbody className="divide-y divide-stroke dark:divide-strokedark text-xs">
               {loading ? (
                 <tr>
-                  <td colSpan={8} className="py-12 text-center text-gray-400">
+                  <td colSpan={8} className="py-12 text-center text-gray-500 dark:text-gray-400">
                     <RefreshCw className="h-6 w-6 animate-spin text-primary mx-auto mb-2" />
                     Memuat antrean batch produksi...
                   </td>
@@ -436,53 +424,53 @@ const BatchListView = () => {
                 </tr>
               ) : (
                 filteredBatches.map((b, idx) => {
-                  const statusInfo = STATUS_CONFIG[b.status] || { label: b.status, badge: 'bg-gray-800 text-gray-300' };
+                  const statusInfo = STATUS_CONFIG[b.status] || { label: b.status, badge: 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300' };
                   return (
-                    <tr key={b.id} className="hover:bg-[#24303f]/50 transition group">
+                    <tr key={b.id} className="hover:bg-gray-50 dark:hover:bg-meta-4/40 transition group">
                       {/* Posisi */}
-                      <td className="py-2.5 px-3 text-center font-bold text-gray-400 font-mono">
+                      <td className="py-2.5 px-3 text-center font-bold text-gray-500 dark:text-gray-400 font-mono">
                         {b.position || idx + 1}
                       </td>
 
                       {/* Ref & Lot */}
                       <td className="py-2.5 px-3">
-                        <div className="font-mono font-bold text-white flex items-center gap-1.5">
-                          <span className="text-amber-400">{b.batch_no}</span>
+                        <div className="font-mono font-bold text-black dark:text-white flex items-center gap-1.5">
+                          <span className="text-amber-600 dark:text-amber-400">{b.batch_no}</span>
                         </div>
-                        <span className="text-[10px] text-gray-400 font-mono block">
+                        <span className="text-[10px] text-gray-500 dark:text-gray-400 font-mono block">
                           Ref: {b.reference_no}
                         </span>
                       </td>
 
                       {/* Mesin */}
                       <td className="py-2.5 px-3 text-center">
-                        <span className="bg-[#24303f] border border-gray-700 text-primary font-bold font-mono px-2 py-0.5 rounded text-[11px]">
+                        <span className="bg-primary/10 border border-primary/20 text-primary font-bold font-mono px-2 py-0.5 rounded text-[11px]">
                           {b.machine_no}
                         </span>
                       </td>
 
                       {/* Program & Resep */}
                       <td className="py-2.5 px-3">
-                        <div className="font-semibold text-gray-100 flex items-center gap-1.5">
-                          <FileCode className="h-3.5 w-3.5 text-emerald-400" />
+                        <div className="font-semibold text-gray-800 dark:text-gray-100 flex items-center gap-1.5">
+                          <FileCode className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400" />
                           <span>M_{String(b.program_no || 1).padStart(4, '0')}.PRG</span>
-                          <span className="text-gray-400 font-normal">| {b.recipe_name}</span>
+                          <span className="text-gray-500 dark:text-gray-400 font-normal">| {b.recipe_name}</span>
                         </div>
-                        <span className="text-[11px] text-gray-400 block mt-0.5">
-                          Warna: <span className="text-gray-300 font-medium">{b.color_name}</span> ({b.color_code})
+                        <span className="text-[11px] text-gray-500 dark:text-gray-400 block mt-0.5">
+                          Warna: <span className="text-gray-700 dark:text-gray-300 font-medium">{b.color_name}</span> ({b.color_code})
                         </span>
                       </td>
 
                       {/* Customer / Artikel */}
                       <td className="py-2.5 px-3">
-                        <span className="text-white font-medium block">{b.customer}</span>
-                        <span className="text-[11px] text-gray-400 block">{b.article}</span>
+                        <span className="text-black dark:text-white font-medium block">{b.customer}</span>
+                        <span className="text-[11px] text-gray-500 dark:text-gray-400 block">{b.article}</span>
                       </td>
 
                       {/* Berat & Air */}
                       <td className="py-2.5 px-3 text-right font-mono">
-                        <span className="text-white font-bold">{b.fabric_weight_kg} kg</span>
-                        <span className="text-[10px] text-gray-400 block">
+                        <span className="text-black dark:text-white font-bold">{b.fabric_weight_kg} kg</span>
+                        <span className="text-[10px] text-gray-500 dark:text-gray-400 block">
                           LR 1:{b.liquor_ratio} ({b.total_water_l || Math.round(b.fabric_weight_kg * b.liquor_ratio)} L)
                         </span>
                       </td>
@@ -494,12 +482,12 @@ const BatchListView = () => {
                           onChange={(e) => handleStatusChange(b.id, e.target.value)}
                           className={`text-[10px] font-mono font-semibold px-2 py-1 rounded border outline-none cursor-pointer ${statusInfo.badge}`}
                         >
-                          <option value="PLANNING" className="bg-[#1c2434] text-purple-300">PLANNING</option>
-                          <option value="QUEUED" className="bg-[#1c2434] text-amber-300">QUEUED</option>
-                          <option value="WAITING_LA" className="bg-[#1c2434] text-blue-300">WAITING LA</option>
-                          <option value="RUNNING" className="bg-[#1c2434] text-emerald-300">RUNNING</option>
-                          <option value="COMPLETED" className="bg-[#1c2434] text-slate-300">COMPLETED</option>
-                          <option value="HOLD" className="bg-[#1c2434] text-rose-300">HOLD</option>
+                          <option value="PLANNING" className="bg-white dark:bg-boxdark text-purple-600 dark:text-purple-300">PLANNING</option>
+                          <option value="QUEUED" className="bg-white dark:bg-boxdark text-amber-600 dark:text-amber-300">QUEUED</option>
+                          <option value="WAITING_LA" className="bg-white dark:bg-boxdark text-blue-600 dark:text-blue-300">WAITING LA</option>
+                          <option value="RUNNING" className="bg-white dark:bg-boxdark text-emerald-600 dark:text-emerald-300">RUNNING</option>
+                          <option value="COMPLETED" className="bg-white dark:bg-boxdark text-slate-600 dark:text-slate-300">COMPLETED</option>
+                          <option value="HOLD" className="bg-white dark:bg-boxdark text-rose-600 dark:text-rose-300">HOLD</option>
                         </select>
                       </td>
 
@@ -515,14 +503,14 @@ const BatchListView = () => {
                                 setDispatchModel('network_ot');
                                 setFtpDispatchModalOpen(true);
                               }}
-                              className="p-1.5 text-gray-300 hover:text-emerald-400 hover:bg-[#24303f] rounded transition"
+                              className="p-1.5 text-gray-500 hover:text-emerald-600 hover:bg-gray-100 dark:text-gray-300 dark:hover:text-emerald-400 dark:hover:bg-meta-4 rounded transition"
                               title="Kirim ke Controller DA01 via FTP (Port 21)"
                             >
                               <Send className="h-4 w-4" />
                             </button>
                           ) : (
                             <span 
-                              className="p-1.5 text-gray-600 cursor-not-allowed" 
+                              className="p-1.5 text-gray-400 dark:text-gray-600 cursor-not-allowed" 
                               title={`Terkunci: Pengiriman FTP dibatasi hanya untuk Mesin DA01. Mesin ${b.machine_no} dalam mode Read-Only.`}
                             >
                               <Lock className="h-4 w-4" />
@@ -532,7 +520,7 @@ const BatchListView = () => {
                           {/* Download ZIP */}
                           <button
                             onClick={() => handleDownloadZip(b.id, b.reference_no, b.batch_no)}
-                            className="p-1.5 text-gray-300 hover:text-primary hover:bg-[#24303f] rounded transition"
+                            className="p-1.5 text-gray-500 hover:text-primary hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-meta-4 rounded transition"
                             title="Unduh Paket ZIP OrgaTEX"
                           >
                             <Download className="h-4 w-4" />
@@ -544,7 +532,7 @@ const BatchListView = () => {
                               setTransferBatch(b);
                               setTransferModalOpen(true);
                             }}
-                            className="p-1.5 text-gray-300 hover:text-amber-400 hover:bg-[#24303f] rounded transition"
+                            className="p-1.5 text-gray-500 hover:text-amber-600 hover:bg-gray-100 dark:text-gray-300 dark:hover:text-amber-400 dark:hover:bg-meta-4 rounded transition"
                             title="Pindah Mesin (Transfer)"
                           >
                             <Cpu className="h-4 w-4" />
@@ -553,7 +541,7 @@ const BatchListView = () => {
                           {/* Delete */}
                           <button
                             onClick={() => handleDeleteBatch(b.id)}
-                            className="p-1.5 text-gray-300 hover:text-rose-400 hover:bg-[#24303f] rounded transition"
+                            className="p-1.5 text-gray-500 hover:text-rose-600 hover:bg-gray-100 dark:text-gray-300 dark:hover:text-rose-400 dark:hover:bg-meta-4 rounded transition"
                             title="Hapus Batch"
                           >
                             <Trash2 className="h-4 w-4" />
@@ -571,35 +559,35 @@ const BatchListView = () => {
 
       {/* MODAL: BUAT BATCH BARU */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 p-4 backdrop-blur-sm">
-          <div className="bg-[#1c2434] border border-gray-700 rounded-lg w-full max-w-2xl max-h-[90vh] overflow-y-auto p-6 shadow-2xl space-y-4">
-            <div className="flex items-center justify-between border-b border-gray-700 pb-3">
-              <h3 className="text-base font-bold text-white flex items-center gap-2">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm">
+          <div className="bg-white dark:bg-boxdark border border-stroke dark:border-strokedark rounded-lg w-full max-w-2xl max-h-[90vh] overflow-y-auto p-6 shadow-2xl space-y-4">
+            <div className="flex items-center justify-between border-b border-stroke dark:border-strokedark pb-3">
+              <h3 className="text-base font-bold text-black dark:text-white flex items-center gap-2">
                 <Plus className="h-5 w-5 text-primary" />
-                Tambah Batch Produksi Baru (OrgaTEX SCX620)
+                Tambah Batch Produksi Baru
               </h3>
-              <button onClick={() => setIsModalOpen(false)} className="text-gray-400 hover:text-white">✕</button>
+              <button onClick={() => setIsModalOpen(false)} className="text-gray-400 hover:text-black dark:hover:text-white">✕</button>
             </div>
 
             <form onSubmit={handleCreateBatch} className="space-y-4 text-xs">
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 <div>
-                  <label className="block text-gray-300 font-medium mb-1">Nomor Lot / Batch:</label>
+                  <label className="block text-gray-700 dark:text-gray-300 font-medium mb-1">Nomor Lot / Batch:</label>
                   <input
                     type="text"
                     required
                     placeholder="misal PJT030"
                     value={form.batch_no}
                     onChange={(e) => setForm({ ...form, batch_no: e.target.value })}
-                    className="w-full bg-[#24303f] border border-gray-700 text-white px-3 py-2 rounded font-mono outline-none focus:border-primary"
+                    className="w-full bg-white dark:bg-slate-900 border border-stroke dark:border-gray-700 text-black dark:text-white px-3 py-2 rounded font-mono outline-none focus:border-primary"
                   />
                 </div>
                 <div>
-                  <label className="block text-gray-300 font-medium mb-1">Target Mesin Celup:</label>
+                  <label className="block text-gray-700 dark:text-gray-300 font-medium mb-1">Target Mesin Celup:</label>
                   <select
                     value={form.machine_no}
                     onChange={(e) => setForm({ ...form, machine_no: e.target.value })}
-                    className="w-full bg-[#24303f] border border-gray-700 text-white px-3 py-2 rounded font-mono outline-none focus:border-primary font-bold"
+                    className="w-full bg-white dark:bg-slate-900 border border-stroke dark:border-gray-700 text-black dark:text-white px-3 py-2 rounded font-mono outline-none focus:border-primary font-bold"
                   >
                     <optgroup label="⭐ SETEX 797CE Controllers (Prioritas)">
                       <option value="M_95">M_95 - SETEX 797CE Mesin DA01 (192.168.1.95)</option>
@@ -619,7 +607,7 @@ const BatchListView = () => {
                   </select>
                 </div>
                 <div>
-                  <label className="block text-gray-300 font-medium mb-1">
+                  <label className="block text-gray-700 dark:text-gray-300 font-medium mb-1">
                     Program Secom (Dari Database /programs):
                   </label>
                   <div className="flex gap-1.5">
@@ -635,7 +623,7 @@ const BatchListView = () => {
                           ...(match ? { recipe_name: match.program_name || match.name } : {})
                         });
                       }}
-                      className="w-20 bg-[#24303f] border border-gray-700 text-white px-2 py-2 rounded font-mono outline-none focus:border-primary font-bold text-center"
+                      className="w-20 bg-white dark:bg-slate-900 border border-stroke dark:border-gray-700 text-black dark:text-white px-2 py-2 rounded font-mono outline-none focus:border-primary font-bold text-center"
                       title="Nomor Program Secom M_xxxx"
                     />
                     <select
@@ -649,7 +637,7 @@ const BatchListView = () => {
                           ...(match ? { recipe_name: match.program_name || match.name } : {})
                         });
                       }}
-                      className="flex-1 bg-[#24303f] border border-gray-700 text-white px-2 py-2 rounded font-mono text-xs outline-none focus:border-primary"
+                      className="flex-1 bg-white dark:bg-slate-900 border border-stroke dark:border-gray-700 text-black dark:text-white px-2 py-2 rounded font-mono text-xs outline-none focus:border-primary"
                     >
                       {/* Priority: Mesin Terpilih (DA01 / M_95) */}
                       {programList.filter(p => {
@@ -704,114 +692,114 @@ const BatchListView = () => {
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-gray-300 font-medium mb-1">Nama Resep Formula:</label>
+                  <label className="block text-gray-700 dark:text-gray-300 font-medium mb-1">Nama Resep Formula:</label>
                   <input
                     type="text"
                     value={form.recipe_name}
                     onChange={(e) => setForm({ ...form, recipe_name: e.target.value })}
-                    className="w-full bg-[#24303f] border border-gray-700 text-white px-3 py-2 rounded outline-none focus:border-primary"
+                    className="w-full bg-white dark:bg-slate-900 border border-stroke dark:border-gray-700 text-black dark:text-white px-3 py-2 rounded outline-none focus:border-primary"
                   />
                 </div>
                 <div>
-                  <label className="block text-gray-300 font-medium mb-1">Nama Customer:</label>
+                  <label className="block text-gray-700 dark:text-gray-300 font-medium mb-1">Nama Customer:</label>
                   <input
                     type="text"
                     value={form.customer}
                     onChange={(e) => setForm({ ...form, customer: e.target.value })}
-                    className="w-full bg-[#24303f] border border-gray-700 text-white px-3 py-2 rounded outline-none focus:border-primary"
+                    className="w-full bg-white dark:bg-slate-900 border border-stroke dark:border-gray-700 text-black dark:text-white px-3 py-2 rounded outline-none focus:border-primary"
                   />
                 </div>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 <div>
-                  <label className="block text-gray-300 font-medium mb-1">Artikel Kain:</label>
+                  <label className="block text-gray-700 dark:text-gray-300 font-medium mb-1">Artikel Kain:</label>
                   <input
                     type="text"
                     value={form.article}
                     onChange={(e) => setForm({ ...form, article: e.target.value })}
-                    className="w-full bg-[#24303f] border border-gray-700 text-white px-3 py-2 rounded outline-none focus:border-primary"
+                    className="w-full bg-white dark:bg-slate-900 border border-stroke dark:border-gray-700 text-black dark:text-white px-3 py-2 rounded outline-none focus:border-primary"
                   />
                 </div>
                 <div>
-                  <label className="block text-gray-300 font-medium mb-1">Kode Warna:</label>
+                  <label className="block text-gray-700 dark:text-gray-300 font-medium mb-1">Kode Warna:</label>
                   <input
                     type="text"
                     value={form.color_code}
                     onChange={(e) => setForm({ ...form, color_code: e.target.value })}
-                    className="w-full bg-[#24303f] border border-gray-700 text-white px-3 py-2 rounded font-mono outline-none focus:border-primary"
+                    className="w-full bg-white dark:bg-slate-900 border border-stroke dark:border-gray-700 text-black dark:text-white px-3 py-2 rounded font-mono outline-none focus:border-primary"
                   />
                 </div>
                 <div>
-                  <label className="block text-gray-300 font-medium mb-1">Nama Warna:</label>
+                  <label className="block text-gray-700 dark:text-gray-300 font-medium mb-1">Nama Warna:</label>
                   <input
                     type="text"
                     value={form.color_name}
                     onChange={(e) => setForm({ ...form, color_name: e.target.value })}
-                    className="w-full bg-[#24303f] border border-gray-700 text-white px-3 py-2 rounded outline-none focus:border-primary"
+                    className="w-full bg-white dark:bg-slate-900 border border-stroke dark:border-gray-700 text-black dark:text-white px-3 py-2 rounded outline-none focus:border-primary"
                   />
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 bg-[#24303f] p-3 rounded border border-gray-700">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 bg-gray-50 dark:bg-meta-4 p-3 rounded border border-stroke dark:border-strokedark">
                 <div>
-                  <label className="block text-gray-300 font-medium mb-1">Berat Kain (kg):</label>
+                  <label className="block text-gray-700 dark:text-gray-300 font-medium mb-1">Berat Kain (kg):</label>
                   <input
                     type="number"
                     step="0.01"
                     value={form.fabric_weight_kg}
                     onChange={(e) => setForm({ ...form, fabric_weight_kg: parseFloat(e.target.value) || 0 })}
-                    className="w-full bg-[#1c2434] border border-gray-700 text-white px-3 py-2 rounded font-mono"
+                    className="w-full bg-white dark:bg-slate-900 border border-stroke dark:border-gray-700 text-black dark:text-white px-3 py-2 rounded font-mono"
                   />
                 </div>
                 <div>
-                  <label className="block text-gray-300 font-medium mb-1">Liquor Ratio (1:x):</label>
+                  <label className="block text-gray-700 dark:text-gray-300 font-medium mb-1">Liquor Ratio (1:x):</label>
                   <input
                     type="number"
                     step="0.1"
                     value={form.liquor_ratio}
                     onChange={(e) => setForm({ ...form, liquor_ratio: parseFloat(e.target.value) || 0 })}
-                    className="w-full bg-[#1c2434] border border-gray-700 text-white px-3 py-2 rounded font-mono"
+                    className="w-full bg-white dark:bg-slate-900 border border-stroke dark:border-gray-700 text-black dark:text-white px-3 py-2 rounded font-mono"
                   />
                 </div>
                 <div>
-                  <label className="block text-gray-300 font-medium mb-1">Total Air Dihitung (L):</label>
+                  <label className="block text-gray-700 dark:text-gray-300 font-medium mb-1">Total Air Dihitung (L):</label>
                   <input
                     type="text"
                     disabled
                     value={`${(form.fabric_weight_kg * form.liquor_ratio).toFixed(1)} Liter`}
-                    className="w-full bg-[#1c2434] border border-gray-700 text-emerald-400 font-bold px-3 py-2 rounded font-mono"
+                    className="w-full bg-gray-100 dark:bg-slate-800 border border-stroke dark:border-gray-700 text-emerald-600 dark:text-emerald-400 font-bold px-3 py-2 rounded font-mono"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-gray-300 font-medium mb-1">Tahap Masuk Awal (Status):</label>
+                <label className="block text-gray-700 dark:text-gray-300 font-medium mb-1">Tahap Masuk Awal (Status):</label>
                 <select
                   value={form.status || 'PLANNING'}
                   onChange={(e) => setForm({ ...form, status: e.target.value })}
-                  className="w-full bg-[#24303f] border border-gray-700 text-white px-3 py-2 rounded font-mono outline-none focus:border-primary font-bold"
+                  className="w-full bg-white dark:bg-slate-900 border border-stroke dark:border-gray-700 text-black dark:text-white px-3 py-2 rounded font-mono outline-none focus:border-primary font-bold"
                 >
                   <option value="PLANNING">Perencanaan (PLANNING) - Disimpan di database (Belum dikirim ke HMI)</option>
                   <option value="QUEUED">Antrean Produksi (QUEUED) - Masuk antrean aktif mesin</option>
                 </select>
-                <span className="text-[10px] text-gray-400 block mt-1">
+                <span className="text-[10px] text-gray-500 dark:text-gray-400 block mt-1">
                   Batch berstatus "Perencanaan" belum akan dikirim ke mesin HMI sampai Anda memindahkannya ke antrean (QUEUED).
                 </span>
               </div>
 
-              <div className="flex justify-end gap-2 pt-3 border-t border-gray-700">
+              <div className="flex justify-end gap-2 pt-3 border-t border-stroke dark:border-strokedark">
                 <button
                   type="button"
                   onClick={() => setIsModalOpen(false)}
-                  className="bg-gray-700 text-white px-4 py-2 rounded"
+                  className="bg-gray-100 hover:bg-gray-200 text-gray-700 dark:bg-meta-4 dark:hover:bg-meta-4/80 dark:text-white px-4 py-2 rounded border border-stroke dark:border-strokedark transition"
                 >
                   Batal
                 </button>
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="bg-primary hover:bg-opacity-90 disabled:opacity-50 text-white font-semibold px-5 py-2 rounded flex items-center gap-1.5"
+                  className="bg-primary hover:bg-opacity-90 disabled:opacity-50 text-white font-semibold px-5 py-2 rounded flex items-center gap-1.5 transition"
                 >
                   {isSubmitting ? (
                     <>
@@ -833,27 +821,27 @@ const BatchListView = () => {
 
       {/* MODAL: TRANSFER MESIN (DlgMachineBatchTransfer) */}
       {transferModalOpen && transferBatch && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 p-4 backdrop-blur-sm">
-          <div className="bg-[#1c2434] border border-gray-700 rounded-lg w-full max-w-md p-6 shadow-2xl space-y-4">
-            <div className="flex items-center justify-between border-b border-gray-700 pb-3">
-              <h3 className="text-base font-bold text-white flex items-center gap-2">
-                <Cpu className="h-5 w-5 text-amber-400" />
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm">
+          <div className="bg-white dark:bg-boxdark border border-stroke dark:border-strokedark rounded-lg w-full max-w-md p-6 shadow-2xl space-y-4">
+            <div className="flex items-center justify-between border-b border-stroke dark:border-strokedark pb-3">
+              <h3 className="text-base font-bold text-black dark:text-white flex items-center gap-2">
+                <Cpu className="h-5 w-5 text-amber-500" />
                 Pindah Alokasi Mesin (Batch Transfer)
               </h3>
-              <button onClick={() => setTransferModalOpen(false)} className="text-gray-400 hover:text-white">✕</button>
+              <button onClick={() => setTransferModalOpen(false)} className="text-gray-400 hover:text-black dark:hover:text-white">✕</button>
             </div>
 
             <div className="space-y-3 text-xs">
-              <p className="text-gray-300">
-                Pindahkan batch <span className="font-bold text-white">{transferBatch.batch_no}</span> (Ref: {transferBatch.reference_no}) dari mesin <span className="text-rose-400 font-bold">{transferBatch.machine_no}</span> ke mesin tujuan:
+              <p className="text-gray-600 dark:text-gray-300">
+                Pindahkan batch <span className="font-bold text-black dark:text-white">{transferBatch.batch_no}</span> (Ref: {transferBatch.reference_no}) dari mesin <span className="text-rose-500 font-bold">{transferBatch.machine_no}</span> ke mesin tujuan:
               </p>
 
               <div>
-                <label className="block text-gray-300 font-medium mb-1">Mesin Tujuan Baru:</label>
+                <label className="block text-gray-700 dark:text-gray-300 font-medium mb-1">Mesin Tujuan Baru:</label>
                 <select
                   value={targetMachine}
                   onChange={(e) => setTargetMachine(e.target.value)}
-                  className="w-full bg-[#24303f] border border-gray-700 text-white px-3 py-2 rounded font-mono outline-none"
+                  className="w-full bg-white dark:bg-slate-900 border border-stroke dark:border-gray-700 text-black dark:text-white px-3 py-2 rounded font-mono outline-none"
                 >
                   <optgroup label="⭐ SETEX 797CE">
                     {['M_95', 'DA01'].filter(m => m !== transferBatch.machine_no).map(m => (
@@ -872,18 +860,18 @@ const BatchListView = () => {
                 </select>
               </div>
 
-              <div className="flex justify-end gap-2 pt-3 border-t border-gray-700">
+              <div className="flex justify-end gap-2 pt-3 border-t border-stroke dark:border-strokedark">
                 <button
                   type="button"
                   onClick={() => setTransferModalOpen(false)}
-                  className="bg-gray-700 text-white px-3 py-1.5 rounded"
+                  className="bg-gray-100 hover:bg-gray-200 text-gray-700 dark:bg-meta-4 dark:hover:bg-meta-4/80 dark:text-white px-3 py-1.5 rounded border border-stroke dark:border-strokedark transition"
                 >
                   Batal
                 </button>
                 <button
                   type="button"
                   onClick={handleExecuteTransfer}
-                  className="bg-amber-600 hover:bg-amber-500 text-white font-semibold px-4 py-1.5 rounded"
+                  className="bg-amber-600 hover:bg-amber-500 text-white font-semibold px-4 py-1.5 rounded transition"
                 >
                   Pindahkan Sekarang
                 </button>
@@ -894,40 +882,40 @@ const BatchListView = () => {
       )}
       {/* MODAL: FTP DISPATCH BATCH DIRECT TO CONTROLLER */}
       {ftpDispatchModalOpen && batchToDispatch && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 p-4 backdrop-blur-sm animate-in fade-in">
-          <div className="bg-[#1c2434] border border-gray-700 rounded-lg w-full max-w-lg p-6 shadow-2xl space-y-4 text-xs">
-            <div className="flex items-center justify-between border-b border-gray-700 pb-3">
-              <h3 className="text-base font-bold text-white flex items-center gap-2">
-                <Send className="h-5 w-5 text-emerald-400" />
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm animate-in fade-in">
+          <div className="bg-white dark:bg-boxdark border border-stroke dark:border-strokedark rounded-lg w-full max-w-lg p-6 shadow-2xl space-y-4 text-xs">
+            <div className="flex items-center justify-between border-b border-stroke dark:border-strokedark pb-3">
+              <h3 className="text-base font-bold text-black dark:text-white flex items-center gap-2">
+                <Send className="h-5 w-5 text-emerald-500" />
                 Kirim Batch ke Kontroler FTP (SETEX 797CE / 777)
               </h3>
               <button
                 onClick={() => setFtpDispatchModalOpen(false)}
-                className="text-gray-400 hover:text-white"
+                className="text-gray-400 hover:text-black dark:hover:text-white"
               >
                 ✕
               </button>
             </div>
 
             <div className="space-y-3">
-              <div className="bg-[#24303f] p-3 rounded border border-gray-700 space-y-1.5 font-mono">
+              <div className="bg-gray-50 dark:bg-meta-4 p-3 rounded border border-stroke dark:border-strokedark space-y-1.5 font-mono">
                 <div className="flex justify-between">
-                  <span className="text-gray-400">Batch Target:</span>
-                  <strong className="text-white">#{batchToDispatch.batch_no} (Ref: {batchToDispatch.reference_no})</strong>
+                  <span className="text-gray-500 dark:text-gray-400">Batch Target:</span>
+                  <strong className="text-black dark:text-white">#{batchToDispatch.batch_no} (Ref: {batchToDispatch.reference_no})</strong>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-400">Resep / Formula:</span>
-                  <span className="text-emerald-400">{batchToDispatch.recipe_name || 'Standard'}</span>
+                  <span className="text-gray-500 dark:text-gray-400">Resep / Formula:</span>
+                  <span className="text-emerald-600 dark:text-emerald-400 font-semibold">{batchToDispatch.recipe_name || 'Standard'}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-400">Nomor Program:</span>
-                  <span className="text-amber-400">M_{String(batchToDispatch.program_no || 1).padStart(4, '0')}.PRG</span>
+                  <span className="text-gray-500 dark:text-gray-400">Nomor Program:</span>
+                  <span className="text-amber-600 dark:text-amber-400 font-semibold">M_{String(batchToDispatch.program_no || 1).padStart(4, '0')}.PRG</span>
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-3 bg-[#24303f] p-3 rounded border border-gray-700">
+              <div className="grid grid-cols-2 gap-3 bg-gray-50 dark:bg-meta-4 p-3 rounded border border-stroke dark:border-strokedark">
                 <div>
-                  <label className="block text-gray-300 font-medium mb-1">IP Kontroler Target:</label>
+                  <label className="block text-gray-700 dark:text-gray-300 font-medium mb-1">IP Kontroler Target:</label>
                   <input
                     type="text"
                     value={dispatchIp}
@@ -939,17 +927,17 @@ const BatchListView = () => {
                       }
                     }}
                     placeholder="192.168.1.95"
-                    className="w-full bg-[#1c2434] border border-gray-600 text-emerald-400 font-mono font-bold rounded px-2.5 py-1.5 outline-none"
+                    className="w-full bg-white dark:bg-slate-900 border border-stroke dark:border-gray-700 text-black dark:text-emerald-400 font-mono font-bold rounded px-2.5 py-1.5 outline-none"
                   />
                   <span className="text-[10px] text-gray-400 block mt-1">Default: 192.168.1.95</span>
                 </div>
 
                 <div>
-                  <label className="block text-gray-300 font-medium mb-1">Tipe Kontroler / Folder:</label>
+                  <label className="block text-gray-700 dark:text-gray-300 font-medium mb-1">Tipe Kontroler / Folder:</label>
                   <select
                     value={dispatchModel}
                     onChange={(e) => setDispatchModel(e.target.value)}
-                    className="w-full bg-[#1c2434] border border-gray-600 text-amber-300 font-bold rounded px-2.5 py-1.5 outline-none"
+                    className="w-full bg-white dark:bg-slate-900 border border-stroke dark:border-gray-700 text-black dark:text-amber-300 font-bold rounded px-2.5 py-1.5 outline-none"
                   >
                     <option value="network_ot">OrgaTEX Share (/Network/F/OT/BATCH/ + QUEUE.BTD)</option>
                     <option value="797">SETEX 797CE Lokal (/Flashdisk/SC797CE/BATCH)</option>
@@ -959,29 +947,29 @@ const BatchListView = () => {
                 </div>
               </div>
 
-              <div className="text-[11px] text-gray-400 bg-black/20 p-2.5 rounded border border-gray-800 space-y-1.5">
-                <span className="font-bold text-gray-300">File biner yang langsung diunggah:</span>
-                <ul className="list-disc list-inside text-slate-300 space-y-0.5">
-                  <li>Folder Batch: <code className="text-emerald-400 font-mono">
+              <div className="text-[11px] text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-meta-4/60 p-2.5 rounded border border-stroke dark:border-strokedark space-y-1.5">
+                <span className="font-bold text-gray-700 dark:text-gray-300">File biner yang langsung diunggah:</span>
+                <ul className="list-disc list-inside text-gray-600 dark:text-slate-300 space-y-0.5">
+                  <li>Folder Batch: <code className="text-emerald-600 dark:text-emerald-400 font-mono">
                     {dispatchModel === 'network_ot'
                       ? `/Network/F/OT/BATCH/${batchToDispatch.reference_no}/`
                       : (dispatchModel === '797' ? '/Flashdisk/SC797CE/BATCH/' : '/Storage/sc777ce/BATCH/')}
                   </code></li>
-                  <li className="pl-4 text-gray-400">- <code className="text-emerald-300">BATCHREF.REF</code> (762-byte Secom binary)</li>
-                  <li className="pl-4 text-gray-400">- <code className="text-emerald-300">M_{String(batchToDispatch.program_no || 1).padStart(4, '0')}.PRG</code> (Biner program mikro)</li>
+                  <li className="pl-4 text-gray-500 dark:text-gray-400">- <code className="text-emerald-600 dark:text-emerald-300">BATCHREF.REF</code> (762-byte Secom binary)</li>
+                  <li className="pl-4 text-gray-500 dark:text-gray-400">- <code className="text-emerald-600 dark:text-emerald-300">M_{String(batchToDispatch.program_no || 1).padStart(4, '0')}.PRG</code> (Biner program mikro)</li>
                   {dispatchModel === 'network_ot' && (
-                    <li>Replace Antrean: <code className="text-cyan-400 font-mono">
+                    <li>Replace Antrean: <code className="text-cyan-600 dark:text-cyan-400 font-mono">
                       /Network/F/OT/MACHINES/{batchToDispatch.machine_no}/BATCHES/QUEUE.BTD
                     </code></li>
                   )}
                 </ul>
               </div>
 
-              <div className="flex justify-end gap-2 pt-3 border-t border-gray-700">
+              <div className="flex justify-end gap-2 pt-3 border-t border-stroke dark:border-strokedark">
                 <button
                   type="button"
                   onClick={() => setFtpDispatchModalOpen(false)}
-                  className="bg-gray-700 text-white px-3 py-1.5 rounded"
+                  className="bg-gray-100 hover:bg-gray-200 text-gray-700 dark:bg-meta-4 dark:hover:bg-meta-4/80 dark:text-white px-3 py-1.5 rounded border border-stroke dark:border-strokedark transition"
                 >
                   Batal
                 </button>

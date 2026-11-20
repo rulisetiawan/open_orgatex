@@ -99,27 +99,19 @@ const Dashboard = () => {
       {/* HEADER */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
-          <div className="flex items-center gap-2.5">
-            <h2 className="text-xl md:text-2xl font-extrabold tracking-tight text-black dark:text-white">
-              Process Picture (Online Machine Mimic)
-            </h2>
-            <span className="text-[11px] bg-primary/10 text-primary dark:bg-primary/20 dark:text-secondary font-bold px-2 py-0.5 rounded-md border border-primary/20 uppercase tracking-wider">
-              OLN420 Parity
-            </span>
-          </div>
-          <p className="text-xs text-body dark:text-bodydark mt-1 font-medium">
-            Monitoring terpusat status visual mesin pencelupan SETEX Secom 777 & jalan pintas ke Process Analyser.
-          </p>
+          <h2 className="text-xl md:text-2xl font-bold tracking-tight text-black dark:text-white">
+            Process Picture
+          </h2>
         </div>
 
         <div className="flex items-center gap-3">
           <span className="text-xs text-body dark:text-bodydark font-mono tabular-nums">
-            Update terakhir: {lastRefreshed}
+            {lastRefreshed}
           </span>
           <button
             onClick={fetchMachines}
             disabled={loading}
-            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold bg-white dark:bg-boxdark border border-stroke dark:border-strokedark rounded-lg hover:bg-gray-100 dark:hover:bg-meta-4 text-black dark:text-white shadow-sm transition-colors"
+            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold bg-white dark:bg-boxdark border border-stroke dark:border-strokedark rounded-lg hover:bg-gray-100 dark:hover:bg-meta-4 text-black dark:text-white shadow-sm transition-colors cursor-pointer"
           >
             <RefreshCw className={`h-3.5 w-3.5 ${loading ? 'animate-spin' : ''}`} />
             Refresh
@@ -127,12 +119,12 @@ const Dashboard = () => {
         </div>
       </div>
 
-      {/* STATS OVERVIEW CARDS (TAILADMIN SMM STYLE) */}
+      {/* STATS OVERVIEW CARDS */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <div className="rounded-xl border border-stroke bg-white p-4.5 shadow-sm dark:border-strokedark dark:bg-boxdark hover:border-primary/40 transition-all">
+        <div className="rounded-xl border border-stroke bg-white p-4.5 shadow-sm dark:border-strokedark dark:bg-boxdark">
           <div className="flex items-center justify-between">
             <span className="text-[11px] font-bold uppercase tracking-wider text-body dark:text-bodydark2">
-              Total Mesin Terhubung
+              Total Mesin
             </span>
             <div className="p-2 rounded-lg bg-primary/10 text-primary dark:bg-primary/20 dark:text-secondary">
               <Server className="h-4 w-4" />
@@ -141,15 +133,12 @@ const Dashboard = () => {
           <h4 className="mt-2 text-2xl font-extrabold tracking-tight text-black dark:text-bodydark1 font-mono tabular-nums">
             {machines.length} <span className="text-xs font-semibold text-body">Unit</span>
           </h4>
-          <span className="text-[11px] text-emerald-600 dark:text-emerald-400 font-semibold mt-1 block">
-            Semua unit terdaftar di Postgres
-          </span>
         </div>
 
-        <div className="rounded-xl border border-stroke bg-white p-4.5 shadow-sm dark:border-strokedark dark:bg-boxdark hover:border-emerald-500/40 transition-all">
+        <div className="rounded-xl border border-stroke bg-white p-4.5 shadow-sm dark:border-strokedark dark:bg-boxdark">
           <div className="flex items-center justify-between">
             <span className="text-[11px] font-bold uppercase tracking-wider text-body dark:text-bodydark2">
-              Batch Sedang Berjalan
+              Sedang Jalan
             </span>
             <div className="p-2 rounded-lg bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
               <Activity className="h-4 w-4" />
@@ -158,15 +147,12 @@ const Dashboard = () => {
           <h4 className="mt-2 text-2xl font-extrabold tracking-tight text-emerald-600 dark:text-emerald-400 font-mono tabular-nums">
             {runningCount} <span className="text-xs font-semibold text-body">Unit</span>
           </h4>
-          <span className="text-[11px] text-body dark:text-bodydark font-medium mt-1 block">
-            Proses pencelupan aktif
-          </span>
         </div>
 
-        <div className="rounded-xl border border-stroke bg-white p-4.5 shadow-sm dark:border-strokedark dark:bg-boxdark hover:border-sky-500/40 transition-all">
+        <div className="rounded-xl border border-stroke bg-white p-4.5 shadow-sm dark:border-strokedark dark:bg-boxdark">
           <div className="flex items-center justify-between">
             <span className="text-[11px] font-bold uppercase tracking-wider text-body dark:text-bodydark2">
-              Mesin Online
+              Online
             </span>
             <div className="p-2 rounded-lg bg-sky-500/10 text-sky-600 dark:text-sky-400">
               <CheckCircle className="h-4 w-4" />
@@ -175,15 +161,12 @@ const Dashboard = () => {
           <h4 className="mt-2 text-2xl font-extrabold tracking-tight text-black dark:text-white font-mono tabular-nums">
             {onlineCount} <span className="text-xs font-semibold text-body">Unit</span>
           </h4>
-          <span className="text-[11px] text-body dark:text-bodydark font-medium mt-1 block">
-            Komunikasi HMI/FTP aktif
-          </span>
         </div>
 
-        <div className="rounded-xl border border-stroke bg-white p-4.5 shadow-sm dark:border-strokedark dark:bg-boxdark hover:border-rose-500/40 transition-all">
+        <div className="rounded-xl border border-stroke bg-white p-4.5 shadow-sm dark:border-strokedark dark:bg-boxdark">
           <div className="flex items-center justify-between">
             <span className="text-[11px] font-bold uppercase tracking-wider text-body dark:text-bodydark2">
-              Alarm / Intervensi
+              Alarm
             </span>
             <div className="p-2 rounded-lg bg-rose-500/10 text-rose-600 dark:text-rose-400">
               <AlertTriangle className="h-4 w-4" />
@@ -192,23 +175,15 @@ const Dashboard = () => {
           <h4 className="mt-2 text-2xl font-extrabold tracking-tight text-rose-600 dark:text-rose-400 font-mono tabular-nums">
             {alarmCount} <span className="text-xs font-semibold text-body">Mesin</span>
           </h4>
-          <span className="text-[11px] text-rose-600 dark:text-rose-400 font-semibold mt-1 block">
-            Memerlukan perhatian operator
-          </span>
         </div>
       </div>
 
       {/* MACHINE TILES GRID */}
       <div className="rounded-xl border border-stroke bg-white shadow-sm dark:border-strokedark dark:bg-boxdark overflow-hidden">
         <div className="flex items-center justify-between py-3.5 px-6 border-b border-stroke dark:border-strokedark">
-          <div className="flex items-center gap-2">
-            <h4 className="text-xs font-bold text-black dark:text-white uppercase tracking-wider">
-              Daftar Mesin & Mimic Visual Real-Time
-            </h4>
-            <span className="text-xs text-body dark:text-bodydark font-medium hidden sm:inline">
-              (Klik "Buka Process Analyser" pada mesin untuk membaca grafik kurva & telemetri)
-            </span>
-          </div>
+          <h4 className="text-xs font-bold text-black dark:text-white uppercase tracking-wider">
+            Daftar Mesin
+          </h4>
         </div>
 
         <div className="p-6 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
