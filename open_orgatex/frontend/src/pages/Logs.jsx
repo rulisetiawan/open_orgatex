@@ -2374,11 +2374,11 @@ const Logs = ({ defaultTab = 'active' }) => {
                                 10: { name: 'Set temperature', conv: (v) => `${(v * 100 / 6666).toFixed(1)} °C` },
                                 11: { name: 'level machine dig.', conv: (v) => `${v}` },
                                 12: { name: 'level machine (%)', conv: (v) => `${v} %` },
-                                13: { name: 'quantity machine (L)', conv: (v) => `${v} Lt` },
-                                15: { name: 'water counter IW', conv: (v) => `${v} Lt` },
+                                13: { name: 'quantity machine (L)', conv: (v) => `${v} L` },
+                                15: { name: 'water counter IW', conv: (v) => `${v} L` },
                                 16: { name: 'pressure machine', conv: (v) => `${v} bar` },
                                 21: { name: 'speed main pump', conv: (v) => `${v} %` },
-                                22: { name: 'winch speed', conv: (v) => `${v} m/dak` },
+                                22: { name: 'winch speed', conv: (v) => `${v} m/min` },
                                 25: { name: 'Temperature ST', conv: (v) => `${(v * 150 / 10000).toFixed(2)} °C` },
                                 30: { name: 'Temperature AT', conv: (v) => `${(v * 150 / 10000).toFixed(2)} °C` }
                               };

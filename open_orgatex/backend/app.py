@@ -121,6 +121,35 @@ def health_check():
         "extensions": ["timescaledb", "dblink", "postgres_fdw"]
     }
 
+# ==============================================================================
+# SERVE FRONTEND (STATIC ASSETS & SPA ROUTING)
+# Memungkinkan aplikasi berjalan penuh (Backend + Frontend) tanpa Docker / Nginx
+# ==============================================================================
+frontend_dist = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "frontend", "dist"))
+if os.path.isdir(frontend_dist):
+    from fastapi.staticfiles import StaticFiles
+    from fastapi.responses import FileResponse
+    from fastapi import HTTPException
+
+    assets_dir = os.path.join(frontend_dist, "assets")
+    if os.path.isdir(assets_dir):
+        app.mount("/assets", StaticFiles(directory=assets_dir), name="assets")
+
+    @app.get("/{full_path:path}")
+    async def serve_frontend_spa(full_path: str):
+        if full_path.startswith("api/"):
+            raise HTTPException(status_code=404, detail="API endpoint tidak ditemukan")
+        
+        target_file = os.path.join(frontend_dist, full_path)
+        if full_path and os.path.isfile(target_file):
+            return FileResponse(target_file)
+        
+        index_file = os.path.join(frontend_dist, "index.html")
+        if os.path.isfile(index_file):
+            return FileResponse(index_file)
+        
+        raise HTTPException(status_code=404, detail="Frontend index.html tidak ditemukan")
+
 if __name__ == "__main__":
     import uvicorn
     port = int(os.getenv("PORT", "8788"))

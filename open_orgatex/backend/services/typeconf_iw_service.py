@@ -58,6 +58,24 @@ class TypeconfIwService:
 
         return {}
 
+    UNIT_NORMALIZATION = {
+        "dak": "min",
+        "dk": "min",
+        "dak.": "min",
+        "dk.": "min",
+        "m/dak": "m/min",
+        "m/dk": "m/min",
+        "d/dak": "rpm",
+        "d/dk": "rpm",
+        "Lt": "L",
+        "lt": "L",
+        "LT": "L",
+        "Bar": "bar",
+        "%!": "%",
+        ".ZG": "",
+        ".zg": "",
+    }
+
     @classmethod
     def convert_register(cls, machine_no: str, index: int, raw_value: int) -> Dict[str, Any]:
         """
@@ -89,8 +107,11 @@ class TypeconfIwService:
         else:
             conv = float(raw_value)
 
+        raw_unit = meta.get("unit", "").strip()
+        unit = cls.UNIT_NORMALIZATION.get(raw_unit, raw_unit)
+        name = meta.get("name", f"IW {index}")
+
         # Formatting
-        unit = meta.get("unit", "").strip()
         if digits_after > 0:
             formatted = f"{conv:.{digits_after}f}"
         elif conv.is_integer():
@@ -98,12 +119,15 @@ class TypeconfIwService:
         else:
             formatted = f"{conv:.1f}"
 
-        if unit:
+        if raw_unit in (".ZG", ".zg") or name.lower() == "active tank" or index == 39:
+            unit = ""
+            formatted = f"Tank {int(conv)}" if conv > 0 else "-"
+        elif unit:
             formatted = f"{formatted} {unit}"
 
         return {
             "index": index,
-            "name": meta.get("name", f"IW {index}"),
+            "name": name,
             "unit": unit,
             "raw_val": raw_value,
             "conv_val": round(conv, 2),
