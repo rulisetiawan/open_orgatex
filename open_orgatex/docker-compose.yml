@@ -20,7 +20,7 @@ services:
       - ../STATUS:/app/STATUS
       - ../plain_export:/app/plain_export
       - ..:/app/sc777ce_root
-      - C:/:/host_c
+      # - C:/:/host_c  # DINONAKTIFKAN: Hanya valid di Windows lokal, menyebabkan error 'invalid volume specification' di server Linux.
       # - D:/:/host_d
     networks:
       - orgatex_net
