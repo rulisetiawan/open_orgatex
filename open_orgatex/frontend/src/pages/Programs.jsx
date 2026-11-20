@@ -147,6 +147,30 @@ const getFunctionMeta = (funcId, funcsMap = ALL_FUNCTIONS) => {
   return { name, code: `F${funcId}`, color: 'border-gray-400 bg-gray-50 text-gray-700 dark:bg-meta-4 dark:text-gray-300', icon: Boxes };
 };
 
+// Helper: Extract discrete choices for parameters (scale mode 16) matching Editor_PRG.html
+export const getChoicesForParam = (paramDef, data = typeconfData) => {
+  if (!paramDef || !paramDef.scale || paramDef.scale.mode !== 16) return [];
+  const textGroup = paramDef.scale2?.text_group ?? paramDef.scale?.text_table_id;
+  const choices = data?.text_choices?.[String(textGroup)] || [];
+  return [...choices].sort((a, b) => a.value - b.value);
+};
+
+// Helper: Compute concise step summary matching Editor_PRG.html
+export const getStepSummary = (step) => {
+  if (!step) return '';
+  const comment = (step.label || '').trim();
+  if (comment) return comment;
+  const mFn = step.functions?.find(f => f.column === 1);
+  const fId = mFn?.function_id;
+  const params = mFn?.params || [];
+  if (fId === 141) return `${params[0] ?? 0} °C · ${params[2] ?? 0} min`;
+  if (fId === 144) return `${params[0] ?? 0} min`;
+  if (fId === 713) return `${params[1] ?? 0} L`;
+  if (fId === 71) return `Drain ${params[0] ?? 0}%`;
+  const fCount = step.functions?.length || 1;
+  return fCount > 1 ? `${fCount} fungsi` : '';
+};
+
 export default function Programs() {
   // Navigation / View State
   const [viewMode, setViewMode] = useState('LIST'); // 'LIST' or 'EDITOR'
@@ -193,13 +217,21 @@ export default function Programs() {
   const [isSaving, setIsSaving] = useState(false);
   const [showChart, setShowChart] = useState(true);
 
-  // Sub-Program & Fasa Architecture State
+  // Sub-Program & Fasa Architecture State (Default: Linear View sesuai Editor_PRG.html)
   const [subPrograms, setSubPrograms] = useState([]);
-  const [isGroupedView, setIsGroupedView] = useState(true);
+  const [isGroupedView, setIsGroupedView] = useState(false);
   const [expandedSubIds, setExpandedSubIds] = useState(new Set([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]));
   const [showSubProgramDrawer, setShowSubProgramDrawer] = useState(false);
   const [showWizardModal, setShowWizardModal] = useState(false);
   const [activeSubIdx, setActiveSubIdx] = useState(0);
+
+  // Auto-scroll ref ke langkah aktif di daftar linear (seperti Editor_PRG.html)
+  const selectedStepRef = useRef(null);
+  useEffect(() => {
+    if (selectedStepRef.current) {
+      selectedStepRef.current.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+  }, [selectedStepIdx]);
 
   // Intelligent Sub-Program / Fasa Partitioning
   const autoPartitionStepsToSubPrograms = (rawSteps) => {
@@ -900,29 +932,31 @@ export default function Programs() {
     setTimeout(() => setNotification(null), 4000);
   };
 
-  // STEP OPERATIONS
+  // STEP OPERATIONS (Mengikuti Alur Editor_PRG.html)
   const currentStep = steps[selectedStepIdx] || null;
   const isBoundaryStep = selectedStepIdx === 0 || selectedStepIdx === steps.length - 1;
 
-  // Add Step before End
+  // Add Step: Sisipkan tepat setelah langkah yang dipilih (atau sebelum End jika di akhir), sesuai Editor_PRG.html
   const handleAddStep = () => {
-    const insertIdx = Math.max(1, steps.length - 1);
+    // Seperti di Editor_PRG.html: const at = Math.min(Math.max(1, selected + 1), model.steps.length - 1);
+    const insertIdx = Math.min(Math.max(1, selectedStepIdx + 1), Math.max(1, steps.length - 1));
     const newStepObj = {
       step_no: insertIdx + 1,
-      label: 'Langkah Proses Baru',
+      label: '',
       functions: [
-        { function_id: 141, column: 1, flags: 0, params: [60.0, 2.0, 20.0, 0, 0, 0] }
+        { function_id: 144, column: 1, flags: 0, params: [1.0, 0, 0, 0, 0, 0] }
       ]
     };
     const updated = [...steps];
     updated.splice(insertIdx, 0, newStepObj);
-    // Renumber
+    // Renumber seluruh langkah 1..N
     updated.forEach((s, idx) => { s.step_no = idx + 1; });
     setSteps(updated);
     setSelectedStepIdx(insertIdx);
+    setSubPrograms(autoPartitionStepsToSubPrograms(updated));
   };
 
-  // Duplicate Step
+  // Duplicate Step: Duplikasi tepat di bawah langkah saat ini
   const handleDuplicateStep = () => {
     if (isBoundaryStep) return;
     const cloned = JSON.parse(JSON.stringify(currentStep));
@@ -932,6 +966,7 @@ export default function Programs() {
     updated.forEach((s, idx) => { s.step_no = idx + 1; });
     setSteps(updated);
     setSelectedStepIdx(insertIdx);
+    setSubPrograms(autoPartitionStepsToSubPrograms(updated));
   };
 
   // Move Step Up
@@ -944,6 +979,7 @@ export default function Programs() {
     updated.forEach((s, idx) => { s.step_no = idx + 1; });
     setSteps(updated);
     setSelectedStepIdx(selectedStepIdx - 1);
+    setSubPrograms(autoPartitionStepsToSubPrograms(updated));
   };
 
   // Move Step Down
@@ -956,6 +992,7 @@ export default function Programs() {
     updated.forEach((s, idx) => { s.step_no = idx + 1; });
     setSteps(updated);
     setSelectedStepIdx(selectedStepIdx + 1);
+    setSubPrograms(autoPartitionStepsToSubPrograms(updated));
   };
 
   // Delete Step
@@ -969,6 +1006,7 @@ export default function Programs() {
     updated.forEach((s, idx) => { s.step_no = idx + 1; });
     setSteps(updated);
     setSelectedStepIdx(Math.min(selectedStepIdx, updated.length - 2));
+    setSubPrograms(autoPartitionStepsToSubPrograms(updated));
   };
 
   // Update Current Step Label / Comment
@@ -1906,37 +1944,24 @@ export default function Programs() {
       {/* MAIN TWO-COLUMN STEP STUDIO */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
 
-        {/* KOLOM KIRI: DAFTAR LANGKAH LINEAR ATAU GRUP FASA (5 COLS) */}
+        {/* KOLOM KIRI: DAFTAR LANGKAH LINEAR (5 COLS) */}
         <div className="lg:col-span-5 bg-white dark:bg-boxdark rounded-lg border border-stroke dark:border-strokedark shadow-sm overflow-hidden">
-          <div className="px-4 py-3 bg-gray-50 dark:bg-meta-4/30 border-b border-stroke dark:border-strokedark flex items-center justify-between">
+          <div className="px-4 py-3 bg-gray-50 dark:bg-meta-4/30 border-b border-stroke dark:border-strokedark flex items-center justify-between gap-2">
             <div>
               <span className="text-xs font-bold uppercase tracking-wider text-black dark:text-white flex items-center gap-1.5">
                 <Boxes className="h-4 w-4 text-primary" />
                 Urutan Langkah ({steps.length})
-                {isGroupedView && (
-                  <span className="text-[10px] font-mono text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-950/60 px-1.5 py-0.2 rounded border border-indigo-200 dark:border-indigo-800">
-                    {subPrograms.length} Fasa
-                  </span>
-                )}
               </span>
             </div>
             
             <div className="flex items-center gap-1.5">
               <button
-                onClick={() => setShowSubProgramDrawer(true)}
-                className="flex items-center gap-1 px-2 py-1 text-xs font-bold bg-indigo-50 dark:bg-indigo-950/50 hover:bg-indigo-100 text-indigo-700 dark:text-indigo-300 rounded border border-indigo-200 dark:border-indigo-800 transition"
-                title="Sisipkan modul fasa baru"
-              >
-                <Plus className="h-3 w-3" />
-                <span>+ Fasa</span>
-              </button>
-
-              <button
                 onClick={handleAddStep}
-                className="flex items-center gap-1 px-2.5 py-1 text-xs font-bold bg-primary hover:bg-primary/90 text-white rounded shadow-sm transition"
+                className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold bg-primary hover:bg-primary/90 text-white rounded shadow-sm transition active:scale-95"
+                title="Sisipkan langkah tepat setelah langkah aktif (seperti Editor_PRG.html)"
               >
-                <Plus className="h-3 w-3" />
-                <span>+ Langkah</span>
+                <Plus className="h-3.5 w-3.5" />
+                <span>+ Tambah Langkah</span>
               </button>
             </div>
           </div>
@@ -2179,55 +2204,65 @@ export default function Programs() {
               </div>
             </div>
           ) : (
-            /* VIEW MODE: FLAT LINEAR LIST (ORIGINAL VIEW) */
-            <div className="divide-y divide-stroke dark:divide-strokedark max-h-[600px] overflow-y-auto">
+            /* VIEW MODE: FLAT LINEAR LIST (SESUAI EDITOR_PRG.HTML) */
+            <div className="divide-y divide-stroke dark:divide-strokedark max-h-[650px] overflow-y-auto">
               {steps.map((s, idx) => {
                 const mFn = s.functions?.find(f => f.column === 1);
                 const meta = mFn ? getFunctionMeta(mFn.function_id) : null;
                 const isSelected = selectedStepIdx === idx;
                 const isStart = idx === 0;
                 const isEnd = idx === steps.length - 1;
-                const params = mFn?.params || [];
-
-                let badgeText = '';
-                if (mFn?.function_id === 141) badgeText = `${params[0] || 0} °C · ${params[2] || 0} min`;
-                else if (mFn?.function_id === 713) badgeText = `${params[1] || 0} L`;
-                else if (mFn?.function_id === 71) badgeText = `Drain ${params[0] || 0}%`;
+                const summary = getStepSummary(s);
 
                 return (
                   <div
                     key={idx}
+                    ref={isSelected ? selectedStepRef : null}
                     onClick={() => setSelectedStepIdx(idx)}
                     className={`p-3 cursor-pointer transition flex items-center justify-between ${isSelected
-                      ? 'bg-primary/10 border-l-4 border-primary'
+                      ? 'bg-teal-50 dark:bg-teal-950/40 border-l-4 border-teal-600 dark:border-teal-400 shadow-xs'
                       : 'hover:bg-gray-50 dark:hover:bg-meta-4/30'
                       }`}
                   >
-                    <div className="flex items-center gap-3">
-                      <span className={`w-6 h-6 rounded flex items-center justify-center font-mono text-xs font-bold ${isStart || isEnd ? 'bg-gray-200 dark:bg-meta-4 text-gray-700 dark:text-gray-300' : 'bg-primary text-white'
-                        }`}>
+                    <div className="flex items-center gap-3 min-w-0">
+                      <span
+                        className={`w-7 h-7 rounded-md flex items-center justify-center font-mono text-xs font-bold shrink-0 ${
+                          isSelected
+                            ? 'bg-teal-600 text-white'
+                            : isStart || isEnd
+                            ? 'bg-gray-200 dark:bg-meta-4 text-gray-700 dark:text-gray-300'
+                            : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700'
+                        }`}
+                      >
                         {String(idx + 1).padStart(2, '0')}
                       </span>
 
-                      <div>
-                        <div className="flex items-center gap-1.5">
-                          <span className="text-xs font-bold text-black dark:text-white">
-                            {meta?.name || `Langkah ${idx + 1}`}
+                      <div className="min-w-0">
+                        <div className="flex items-center gap-2">
+                          <span className="text-xs font-bold text-black dark:text-white truncate">
+                            {meta?.name || `Fungsi ${mFn?.function_id || idx + 1}`}
                           </span>
-                          {badgeText && (
-                            <span className="text-[10px] font-mono font-bold px-1.5 py-0.2 bg-blue-50 text-blue-700 dark:bg-blue-950/50 dark:text-blue-300 rounded border border-blue-500/20">
-                              {badgeText}
+                          {isStart && (
+                            <span className="text-[9px] font-mono px-1.5 py-0.2 rounded bg-emerald-100 text-emerald-800 dark:bg-emerald-950/80 dark:text-emerald-300 border border-emerald-300">
+                              Start
+                            </span>
+                          )}
+                          {isEnd && (
+                            <span className="text-[9px] font-mono px-1.5 py-0.2 rounded bg-slate-200 text-slate-800 dark:bg-slate-800 dark:text-slate-300 border border-slate-300">
+                              End
                             </span>
                           )}
                         </div>
-                        <p className="text-[11px] text-gray-400 truncate max-w-[200px]">
-                          {s.label || 'Tanpa komentar'}
-                        </p>
+                        {summary && (
+                          <p className="text-[11px] text-gray-500 dark:text-gray-400 truncate mt-0.5 font-medium">
+                            {summary}
+                          </p>
+                        )}
                       </div>
                     </div>
 
-                    <div className="flex items-center gap-1">
-                      <ChevronRight className={`h-4 w-4 ${isSelected ? 'text-primary' : 'text-gray-300'}`} />
+                    <div className="flex items-center gap-1 shrink-0">
+                      <ChevronRight className={`h-4 w-4 ${isSelected ? 'text-teal-600 dark:text-teal-400' : 'text-gray-300 dark:text-gray-600'}`} />
                     </div>
                   </div>
                 );
@@ -2351,6 +2386,7 @@ export default function Programs() {
                       const pName = paramDef?.name || `Parameter ${pIdx + 1}`;
                       const pUnit = paramDef?.unit || '';
                       const curVal = mainFn?.params?.[pIdx] ?? 0;
+                      const choices = getChoicesForParam(paramDef);
 
                       return (
                         <div key={pIdx} className="bg-white dark:bg-boxdark p-3 rounded border border-stroke dark:border-strokedark shadow-sm">
@@ -2358,21 +2394,42 @@ export default function Programs() {
                             P{pIdx + 1}: {pName}
                           </label>
                           <div className="flex items-center gap-1.5 mt-1.5">
-                            <input
-                              type="number"
-                              step="any"
-                              value={curVal}
-                              onChange={(e) => handleUpdateParam(0, pIdx, e.target.value)}
-                              className="w-full text-xs font-mono font-bold rounded border border-stroke bg-transparent py-1.5 px-2 text-black dark:text-white outline-none focus:border-primary transition"
-                            />
-                            {pUnit && (
-                              <span className="text-[11px] font-bold text-gray-500 font-mono bg-gray-100 dark:bg-meta-4 px-1.5 py-1 rounded">
-                                {pUnit}
-                              </span>
+                            {choices.length > 0 ? (
+                              <select
+                                value={curVal}
+                                onChange={(e) => handleUpdateParam(0, pIdx, e.target.value)}
+                                className="w-full text-xs font-bold rounded border border-stroke bg-white dark:bg-boxdark py-1.5 px-2 text-black dark:text-white outline-none focus:border-primary transition"
+                              >
+                                {!choices.some(c => c.value === curVal) && (
+                                  <option value={curVal}>{curVal} · Nilai Asli</option>
+                                )}
+                                {choices.map(c => (
+                                  <option key={c.value} value={c.value}>
+                                    {c.text} ({c.value})
+                                  </option>
+                                ))}
+                              </select>
+                            ) : (
+                              <>
+                                <input
+                                  type="number"
+                                  step="any"
+                                  value={curVal}
+                                  onChange={(e) => handleUpdateParam(0, pIdx, e.target.value)}
+                                  className="w-full text-xs font-mono font-bold rounded border border-stroke bg-transparent py-1.5 px-2 text-black dark:text-white outline-none focus:border-primary transition"
+                                />
+                                {pUnit && (
+                                  <span className="text-[11px] font-bold text-gray-500 font-mono bg-gray-100 dark:bg-meta-4 px-1.5 py-1 rounded">
+                                    {pUnit}
+                                  </span>
+                                )}
+                              </>
                             )}
                           </div>
                           <span className="text-[9px] text-gray-400 block mt-1">
-                            Min: {pMeta.minimum} · Maks: {Math.round(pMeta.maximum)}
+                            {choices.length > 0
+                              ? 'Pilihan diskrit dari CNF mesin'
+                              : `Min: ${pMeta.minimum} · Maks: ${Math.round(pMeta.maximum)}`}
                           </span>
                         </div>
                       );
@@ -2457,19 +2514,39 @@ export default function Programs() {
                                   const pName = paramDef?.name || `P${pIdx + 1}`;
                                   const pUnit = paramDef?.unit || '';
                                   const curVal = fn.params?.[pIdx] ?? 0;
+                                  const choices = getChoicesForParam(paramDef);
 
                                   return (
                                     <div key={pIdx}>
-                                      <label className="block text-[10px] font-bold text-gray-500 truncate">{pName}</label>
+                                      <label className="block text-[10px] font-bold text-gray-500 truncate" title={pName}>{pName}</label>
                                       <div className="flex items-center gap-1 mt-1">
-                                        <input
-                                          type="number"
-                                          step="any"
-                                          value={curVal}
-                                          onChange={(e) => handleUpdateParam(actualIdx, pIdx, e.target.value)}
-                                          className="w-full text-xs font-mono font-bold rounded border border-stroke bg-transparent py-1 px-1.5 text-black dark:text-white outline-none focus:border-primary"
-                                        />
-                                        {pUnit && <span className="text-[10px] text-gray-400 font-mono">{pUnit}</span>}
+                                        {choices.length > 0 ? (
+                                          <select
+                                            value={curVal}
+                                            onChange={(e) => handleUpdateParam(actualIdx, pIdx, e.target.value)}
+                                            className="w-full text-xs font-bold rounded border border-stroke bg-white dark:bg-boxdark py-1 px-1.5 text-black dark:text-white outline-none focus:border-primary transition"
+                                          >
+                                            {!choices.some(c => c.value === curVal) && (
+                                              <option value={curVal}>{curVal}</option>
+                                            )}
+                                            {choices.map(c => (
+                                              <option key={c.value} value={c.value}>
+                                                {c.text} ({c.value})
+                                              </option>
+                                            ))}
+                                          </select>
+                                        ) : (
+                                          <>
+                                            <input
+                                              type="number"
+                                              step="any"
+                                              value={curVal}
+                                              onChange={(e) => handleUpdateParam(actualIdx, pIdx, e.target.value)}
+                                              className="w-full text-xs font-mono font-bold rounded border border-stroke bg-transparent py-1 px-1.5 text-black dark:text-white outline-none focus:border-primary"
+                                            />
+                                            {pUnit && <span className="text-[10px] text-gray-400 font-mono">{pUnit}</span>}
+                                          </>
+                                        )}
                                       </div>
                                     </div>
                                   );
