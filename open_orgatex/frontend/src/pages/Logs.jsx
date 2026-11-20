@@ -32,6 +32,89 @@ import {
 
 const API_BASE = '/api';
 
+// Helper untuk mendeteksi apakah suatu langkah resep memiliki target/setpoint suhu
+const isStepWithTempSetpoint = (step) => {
+  if (!step) return false;
+  if (step.has_temp_target !== undefined) return Boolean(step.has_temp_target);
+  const type = String(step.type || '').toUpperCase();
+  if (['HEAT', 'COOL', 'HOLD', 'TEMP'].includes(type)) return true;
+  if ([140, 141, 142, 145, 146, 121, 131, 150].includes(Number(step.func_id))) return true;
+  if (typeof step.p1 === 'string' && step.p1.includes('°C')) return true;
+  if (typeof step.p2 === 'string' && step.p2.includes('°C')) return true;
+  if (Array.isArray(step.params) && step.params.some(p => p.unit === '°C' || (p.formatted && p.formatted.includes('°C')))) return true;
+  if (Array.isArray(step.sub_steps) && step.sub_steps.some(sub => {
+    const sType = String(sub.type || '').toUpperCase();
+    if (['HEAT', 'COOL', 'HOLD', 'TEMP'].includes(sType)) return true;
+    if ([140, 141, 142, 145, 146, 121, 131, 150].includes(Number(sub.func_id))) return true;
+    if (typeof sub.p1 === 'string' && sub.p1.includes('°C')) return true;
+    return Array.isArray(sub.params) && sub.params.some(p => p.unit === '°C' || (p.formatted && p.formatted.includes('°C')));
+  })) return true;
+  return false;
+};
+
+// Helper untuk mengekstrak target/setpoint suhu sejati dari resep (atau intervensi operator)
+const getStepTargetTemp = (step) => {
+  if (!step) return null;
+  // 1. Cek nilai telemetri sp jika sudah dihitung backend dengan benar (bukan default 90 atau status word 76.8)
+  if (step.telemetry?.sp !== undefined && step.telemetry?.sp !== null && step.telemetry.sp > 0 && Math.abs(step.telemetry.sp - 90.0) > 0.01 && Math.abs(step.telemetry.sp - 76.8) > 0.01) {
+    return Number(step.telemetry.sp);
+  }
+  // 2. Cek intervensi operator untuk suhu (filter out bogus 76.8)
+  if (Array.isArray(step.interventions) && step.interventions.length > 0) {
+    const tempInv = step.interventions.find(i => 
+      ((i.parameter_name && i.parameter_name.toLowerCase().includes('temp')) ||
+      (i.unit && i.unit.includes('°C'))) &&
+      Math.abs(Number(i.value_after) - 76.8) > 0.05
+    );
+    if (tempInv && tempInv.value_after !== undefined && tempInv.value_after > 0) {
+      return Number(tempInv.value_after);
+    }
+  }
+  if (step.actual_p1 && step.has_intervention && !String(step.actual_p1).includes('76.8')) {
+    const num = parseFloat(step.actual_p1);
+    if (!isNaN(num) && num > 0) return num;
+  }
+  // 3. Cek parameter resep (P1 - P6)
+  if (Array.isArray(step.params)) {
+    const tempParam = step.params.find(p => 
+      p.unit === '°C' || 
+      (p.name && (p.name.toLowerCase().includes('temp') || p.name.toLowerCase().includes('suhu'))) ||
+      (p.formatted && p.formatted.includes('°C'))
+    );
+    if (tempParam && tempParam.value !== undefined && tempParam.value > 0) {
+      return Number(tempParam.value);
+    }
+  }
+  // 4. Cek sub_steps
+  if (Array.isArray(step.sub_steps)) {
+    for (const sub of step.sub_steps) {
+      if (Array.isArray(sub.params)) {
+        const subP = sub.params.find(p => 
+          p.unit === '°C' || 
+          (p.name && (p.name.toLowerCase().includes('temp') || p.name.toLowerCase().includes('suhu'))) ||
+          (p.formatted && p.formatted.includes('°C'))
+        );
+        if (subP && subP.value !== undefined && subP.value > 0) {
+          return Number(subP.value);
+        }
+      }
+    }
+  }
+  // 5. Cek string p1 / p2
+  if (typeof step.p1 === 'string' && step.p1.includes('°C')) {
+    const p1Val = parseFloat(step.p1);
+    if (!isNaN(p1Val) && p1Val > 0) return p1Val;
+  }
+  if (typeof step.p2 === 'string' && step.p2.includes('°C')) {
+    const p2Val = parseFloat(step.p2);
+    if (!isNaN(p2Val) && p2Val > 0) return p2Val;
+  }
+  if (step.telemetry?.sp !== undefined && step.telemetry?.sp !== null && step.telemetry.sp > 0) {
+    return Number(step.telemetry.sp);
+  }
+  return null;
+};
+
 const Logs = ({ defaultTab = 'active' }) => {
   const location = useLocation();
   const navigate = useNavigate();
@@ -60,6 +143,11 @@ const Logs = ({ defaultTab = 'active' }) => {
   const [archiveLoading, setArchiveLoading] = useState(false);
   const [archiveSearch, setArchiveSearch] = useState('');
   const [archiveFilterMach, setArchiveFilterMach] = useState('SEMUA');
+
+  // State Live Register IW (Info Words - Object 1025 via Port 50000)
+  const [showIwModal, setShowIwModal] = useState(false);
+  const [iwLoading, setIwLoading] = useState(false);
+  const [iwDetail, setIwDetail] = useState(null);
   const [selectedArchiveBatch, setSelectedArchiveBatch] = useState(null);
   const [archiveDetailLoading, setArchiveDetailLoading] = useState(false);
 
@@ -132,21 +220,26 @@ const Logs = ({ defaultTab = 'active' }) => {
         }
         setLastUpdated(new Date().toLocaleTimeString());
 
-        // Format chart series
+        // Format chart series: ambil Sensor T1 saja & Setpoint (SP) hanya jika step memiliki target suhu
         if (data.curve && data.curve.length > 0) {
           const cats = data.curve.map((pt) => {
             const parts = pt.timestamp.split(' ');
             return parts[1] || pt.timestamp;
           });
           const pv = data.curve.map((pt) => pt.temp_pv);
-          const sp = data.curve.map((pt) => pt.temp_sp);
-          const t2 = data.curve.map((pt) => pt.temp_pt100_t2);
+          const currentSteps = data.steps || [];
+          const sp = data.curve.map((pt) => {
+            const step = currentSteps.find((s) => s.no === pt.step_no);
+            if (step && !isStepWithTempSetpoint(step)) return null;
+            const targetT = getStepTargetTemp(step);
+            if (targetT !== null && targetT > 0) return targetT;
+            return (pt.temp_sp !== undefined && pt.temp_sp !== null && pt.temp_sp > 0 && Math.abs(pt.temp_sp - 90.0) > 0.1) ? pt.temp_sp : null;
+          });
 
           setChartCategories(cats);
           setChartSeries([
-            { name: 'Suhu Aktual Bejana (PV °C)', data: pv },
+            { name: 'Suhu Aktual Bejana T1 (PV °C)', data: pv },
             { name: 'Setpoint Suhu (SP °C)', data: sp },
-            { name: 'Sensor PT100 Tambahan (T2 °C)', data: t2 },
           ]);
         }
 
@@ -164,6 +257,24 @@ const Logs = ({ defaultTab = 'active' }) => {
     } finally {
       setLoading(false);
       isFetchingRef.current = false;
+    }
+  };
+
+  // Mengambil data registri IW (Info Words / Objek 1025) via TCP Port 50000
+  const fetchIwRegisters = async () => {
+    if (!selectedMachine) return;
+    setIwLoading(true);
+    try {
+      const q = hmiIp ? `?ip=${encodeURIComponent(hmiIp)}` : '';
+      const res = await fetch(`${API_BASE}/logs/iw/${selectedMachine}${q}`);
+      if (res.ok) {
+        const d = await res.json();
+        setIwDetail(d);
+      }
+    } catch (e) {
+      console.error('Gagal mengambil data register IW:', e);
+    } finally {
+      setIwLoading(false);
     }
   };
 
@@ -512,14 +623,154 @@ const Logs = ({ defaultTab = 'active' }) => {
 
   const displayChartSeries = useMemo(() => {
     if (isArchiveMode && selectedArchiveBatch?.curve) {
+      const archiveSteps = selectedArchiveBatch.steps || [];
+      const pv = selectedArchiveBatch.curve.map((pt) => pt.temp_pv);
+      const sp = selectedArchiveBatch.curve.map((pt) => {
+        const step = archiveSteps.find((s) => s.no === pt.step_no);
+        if (step && !isStepWithTempSetpoint(step)) return null;
+        const targetT = getStepTargetTemp(step);
+        if (targetT !== null && targetT > 0) return targetT;
+        return (pt.temp_sp !== undefined && pt.temp_sp !== null && pt.temp_sp > 0 && Math.abs(pt.temp_sp - 90.0) > 0.1) ? pt.temp_sp : null;
+      });
       return [
-        { name: 'Suhu Aktual Bejana (PV °C)', data: selectedArchiveBatch.curve.map(pt => pt.temp_pv) },
-        { name: 'Setpoint Suhu (SP °C)', data: selectedArchiveBatch.curve.map(pt => pt.temp_sp) },
-        { name: 'Sensor PT100 Tambahan (T2 °C)', data: selectedArchiveBatch.curve.map(pt => pt.temp_pt100_t2) }
+        { name: 'Suhu Aktual Bejana T1 (PV °C)', data: pv },
+        { name: 'Setpoint Suhu (SP °C)', data: sp }
       ];
     }
     return chartSeries;
-  }, [isArchiveMode, selectedArchiveBatch?.curve, chartSeries]);
+  }, [isArchiveMode, selectedArchiveBatch?.curve, selectedArchiveBatch?.steps, chartSeries]);
+
+  // Indikator posisi batch saat ini pada grafik trend
+  const chartAnnotations = useMemo(() => {
+    if (!displayChartCategories || displayChartCategories.length === 0) return {};
+
+    if (!isArchiveMode) {
+      const lastIndex = displayChartCategories.length - 1;
+      const currentCategory = displayChartCategories[lastIndex];
+      const currentPv = displayChartSeries[0]?.data?.[lastIndex] ?? effectiveData?.current_temp ?? 0;
+      const currentStep = effectiveData?.current_step || currentStepNo || 1;
+
+      const xaxis = [];
+      const points = [];
+
+      // Cari rentang awal dan akhir step aktif pada kategori grafik
+      const currentCurve = liveData?.curve || [];
+      const stepPts = currentCurve.filter((p) => p.step_no === currentStep);
+      let stepStartCat = null;
+      let stepEndCat = null;
+      if (stepPts.length > 0) {
+        const firstTime = (stepPts[0].timestamp || '').split(' ')[1];
+        const lastTime = (stepPts[stepPts.length - 1].timestamp || '').split(' ')[1];
+        if (displayChartCategories.includes(firstTime)) stepStartCat = firstTime;
+        if (displayChartCategories.includes(lastTime)) stepEndCat = lastTime;
+      }
+
+      // Shaded area untuk langkah proses yang sedang aktif
+      if (stepStartCat && stepEndCat && stepStartCat !== stepEndCat) {
+        xaxis.push({
+          x: stepStartCat,
+          x2: stepEndCat,
+          fillColor: '#3b82f6',
+          opacity: 0.12,
+          label: {
+            borderColor: '#3b82f6',
+            style: {
+              fontSize: '10px',
+              color: '#ffffff',
+              background: '#2563eb',
+              fontWeight: 600,
+              padding: { left: 4, right: 4, top: 2, bottom: 2 }
+            },
+            text: `Step #${currentStep} Sedang Berjalan`,
+          }
+        });
+      }
+
+      // Garis vertikal indikator posisi saat ini di grafik trend
+      if (currentCategory) {
+        xaxis.push({
+          x: currentCategory,
+          borderColor: '#10b981',
+          strokeDashArray: 0,
+          borderWidth: 2.5,
+          label: {
+            borderColor: '#10b981',
+            orientation: 'horizontal',
+            style: {
+              color: '#ffffff',
+              background: '#059669',
+              fontSize: '11px',
+              fontWeight: 700,
+              padding: { left: 6, right: 6, top: 4, bottom: 4 }
+            },
+            text: `📍 Posisi Sekarang (Step #${currentStep} • ${currentPv}°C)`,
+          }
+        });
+
+        // Pin marker bulat di titik PV saat ini
+        points.push({
+          x: currentCategory,
+          y: currentPv,
+          marker: {
+            size: 8,
+            fillColor: '#10b981',
+            strokeColor: '#ffffff',
+            strokeWidth: 3,
+            shape: 'circle',
+            radius: 3,
+          },
+          label: {
+            borderColor: '#10b981',
+            offsetY: -8,
+            style: {
+              color: '#ffffff',
+              background: '#047857',
+              fontSize: '11px',
+              fontWeight: 700,
+              padding: { left: 6, right: 6, top: 3, bottom: 3 }
+            },
+            text: `Saat Ini: ${currentPv}°C`,
+          }
+        });
+      }
+
+      return { xaxis, points };
+    }
+
+    // Pada batch riwayat (Arsip): jika user mengklik salah satu langkah, sorot posisinya di kurva
+    if (isArchiveMode && selectedStepDetail) {
+      const curve = selectedArchiveBatch?.curve || [];
+      const stepPts = curve.filter((p) => p.step_no === selectedStepDetail.no);
+      if (stepPts.length > 0) {
+        const startCat = (stepPts[0].timestamp || '').split(' ')[1];
+        const endCat = (stepPts[stepPts.length - 1].timestamp || '').split(' ')[1];
+        return {
+          xaxis: [{
+            x: startCat,
+            x2: endCat !== startCat ? endCat : undefined,
+            borderColor: '#6366f1',
+            borderWidth: 2,
+            fillColor: '#6366f1',
+            opacity: 0.15,
+            label: {
+              borderColor: '#6366f1',
+              orientation: 'horizontal',
+              style: {
+                color: '#ffffff',
+                background: '#4f46e5',
+                fontSize: '11px',
+                fontWeight: 700,
+                padding: { left: 6, right: 6, top: 3, bottom: 3 }
+              },
+              text: `🔍 Step #${selectedStepDetail.no}: ${selectedStepDetail.name} (${stepPts.length} Titik)`,
+            }
+          }]
+        };
+      }
+    }
+
+    return {};
+  }, [displayChartCategories, displayChartSeries, effectiveData, currentStepNo, isArchiveMode, liveData?.curve, selectedArchiveBatch?.curve, selectedStepDetail]);
 
   const displayAlarms = useMemo(() => {
     if (isArchiveMode && selectedArchiveBatch?.alarms) {
@@ -639,6 +890,28 @@ const Logs = ({ defaultTab = 'active' }) => {
               })}
             </select>
           </div>
+
+          {/* TOMBOL & INDIKATOR SETEX IW (TCP :50000) */}
+          <button
+            onClick={() => {
+              setShowIwModal(true);
+              fetchIwRegisters();
+            }}
+            className={`flex items-center gap-1.5 px-3 py-2 text-xs font-bold rounded border shadow-sm transition-all cursor-pointer ${
+              liveData?.iw_telemetry?.online
+                ? 'bg-emerald-500/15 border-emerald-500/30 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/25'
+                : 'bg-white dark:bg-boxdark border-stroke dark:border-strokedark text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-meta-4'
+            }`}
+            title="Klik untuk membuka tabel Live Register IW (Info Words / Objek 1025) langsung via Port 50000"
+          >
+            <Activity className={`h-3.5 w-3.5 ${liveData?.iw_telemetry?.online ? 'text-emerald-500 animate-pulse' : 'text-gray-400'}`} />
+            <span>SETEX IW (:50000)</span>
+            <span className={`px-1.5 py-0.2 rounded-full text-[10px] font-mono font-bold ${
+              liveData?.iw_telemetry?.online ? 'bg-emerald-500 text-white' : 'bg-gray-200 text-gray-600 dark:bg-meta-4 dark:text-gray-300'
+            }`}>
+              {liveData?.iw_telemetry?.online ? 'LIVE' : 'SIAP'}
+            </span>
+          </button>
 
           <button
             onClick={() => fetchLiveLog(true)}
@@ -945,13 +1218,13 @@ const Logs = ({ defaultTab = 'active' }) => {
           <div className="grid grid-cols-2 md:grid-cols-5 gap-3.5">
             <div className="rounded border border-stroke bg-white p-3.5 shadow-sm dark:border-strokedark dark:bg-boxdark">
               <div className="flex items-center justify-between text-gray-500 text-[11px]">
-                <span>Suhu Aktual Bejana (PV)</span>
+                <span>Suhu Bejana T1 (PV)</span>
                 <Flame className="h-4 w-4 text-danger" />
               </div>
               <h3 className="mt-1.5 text-xl font-extrabold text-danger font-mono">
                 {effectiveData?.current_temp !== undefined ? `${effectiveData.current_temp} °C` : '-'}
               </h3>
-              <span className="text-[10px] text-gray-400">{isArchiveMode ? 'Suhu Puncak / Akhir' : 'Sensor Bejana Utama'}</span>
+              <span className="text-[10px] text-gray-400">{isArchiveMode ? 'Suhu Puncak / Akhir' : 'Sensor Bejana Utama T1'}</span>
             </div>
 
             <div className="rounded border border-stroke bg-white p-3.5 shadow-sm dark:border-strokedark dark:bg-boxdark">
@@ -960,9 +1233,28 @@ const Logs = ({ defaultTab = 'active' }) => {
                 <Clock className="h-4 w-4 text-primary" />
               </div>
               <h3 className="mt-1.5 text-xl font-extrabold text-primary font-mono">
-                {effectiveData?.current_sp !== undefined ? `${effectiveData.current_sp} °C` : (displayChartSeries[1]?.data?.slice(-1)[0] !== undefined ? `${displayChartSeries[1].data.slice(-1)[0]} °C` : '90.0 °C')}
+                {(() => {
+                  const activeSt = stepsList.find((s) => s.no === (effectiveData?.current_step || currentStepNo));
+                  if (activeSt && !isStepWithTempSetpoint(activeSt)) {
+                    return '-';
+                  }
+                  const stTarget = getStepTargetTemp(activeSt);
+                  if (stTarget !== null && stTarget > 0) {
+                    return `${stTarget} °C`;
+                  }
+                  if (effectiveData?.current_sp !== undefined && effectiveData.current_sp > 0 && Math.abs(effectiveData.current_sp - 90.0) > 0.1) {
+                    return `${effectiveData.current_sp} °C`;
+                  }
+                  const lastSpVal = displayChartSeries[1]?.data?.slice(-1)[0];
+                  return (lastSpVal !== undefined && lastSpVal !== null && lastSpVal > 0 && Math.abs(lastSpVal - 90.0) > 0.1) ? `${lastSpVal} °C` : '-';
+                })()}
               </h3>
-              <span className="text-[10px] text-gray-400">Target Resep Saat Ini</span>
+              <span className="text-[10px] text-gray-400">
+                {(() => {
+                  const activeSt = stepsList.find((s) => s.no === (effectiveData?.current_step || currentStepNo));
+                  return (activeSt && !isStepWithTempSetpoint(activeSt)) ? 'Tanpa Target Suhu' : 'Target Resep Saat Ini';
+                })()}
+              </span>
             </div>
 
             <div className="rounded border border-stroke bg-white p-3.5 shadow-sm dark:border-strokedark dark:bg-boxdark">
@@ -1168,27 +1460,48 @@ const Logs = ({ defaultTab = 'active' }) => {
         </div>
       </div>
 
-      {/* TRACK 2: MULTI-CHANNEL ANALOG CURVES (UCCurve PARITY) */}
+      {/* TRACK 2: ANALOG CURVES (Sensor T1 Process Value & Target SP) */}
       <div className="rounded border border-stroke bg-white p-5 shadow-sm dark:border-strokedark dark:bg-boxdark">
-        <div className="flex items-center justify-between mb-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
           <div>
-            <h4 className="text-sm font-bold text-black dark:text-white uppercase tracking-wider">
-              Profil Kurva Proses: Mesin {effectiveMachine} {is797 ? '(SETEX 797CE)' : '(SETEX 777)'} (Batch #{effectiveData?.batch_no || '-'})
-            </h4>
+            <div className="flex flex-wrap items-center gap-2">
+              <h4 className="text-sm font-bold text-black dark:text-white uppercase tracking-wider">
+                Profil Kurva Proses: Mesin {effectiveMachine} {is797 ? '(SETEX 797CE)' : '(SETEX 777)'} (Batch #{effectiveData?.batch_no || '-'})
+              </h4>
+              {!isArchiveMode && (
+                <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-700 shadow-2xs">
+                  <span className="relative flex h-2 w-2">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                  </span>
+                  POSISI SEKARANG: STEP #{effectiveData?.current_step || currentStepNo || 1}
+                </span>
+              )}
+            </div>
             <span className="text-xs text-gray-500">
-              {isArchiveMode ? 'Arsip rekaman kurva tersimpan di PostgreSQL TimescaleDB' : 'Sinkronisasi waktu nyata: Suhu PV, Setpoint SP, dan Sensor T2 (°C)'}
+              {isArchiveMode ? 'Arsip rekaman kurva Sensor T1 & Setpoint SP di PostgreSQL TimescaleDB' : 'Sinkronisasi waktu nyata: Sensor Utama T1 (PV) & Setpoint Target (SP)'}
             </span>
           </div>
-          <span className="text-xs text-gray-500 font-mono">
-            {isArchiveMode ? `Total: ${effectiveData?.total_points || displayChartCategories.length} Titik Telemetri` : `Terakhir diperbarui: ${lastUpdated}`}
-          </span>
+          <div className="flex items-center gap-2 text-xs text-gray-500 font-mono">
+            {isArchiveMode ? (
+              <span className="bg-gray-100 dark:bg-meta-4 px-2.5 py-1 rounded border border-stroke dark:border-strokedark font-medium">
+                Total: {effectiveData?.total_points || displayChartCategories.length} Titik Telemetri
+              </span>
+            ) : (
+              <span className="bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 px-2.5 py-1 rounded flex items-center gap-1.5 font-medium">
+                <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
+                Terakhir: {lastUpdated}
+              </span>
+            )}
+          </div>
         </div>
 
         {displayChartSeries.length > 0 && displayChartCategories.length > 0 ? (
           <TempCurveChart
             series={displayChartSeries}
             categories={displayChartCategories}
-            title={`Kurva Telemetri Kontroler ${controllerName} - Batch #${effectiveData?.batch_no || ''}`}
+            annotations={chartAnnotations}
+            title={isArchiveMode ? `Arsip Kurva Suhu T1 & Setpoint - Batch #${effectiveData?.batch_no || ''}` : `Grafik Trend Suhu T1 & Posisi Batch Realtime - Batch #${effectiveData?.batch_no || ''}`}
           />
         ) : (
           <div className="flex flex-col items-center justify-center h-64 text-gray-400">
@@ -1537,7 +1850,7 @@ const Logs = ({ defaultTab = 'active' }) => {
             <div className="bg-gray-100 dark:bg-meta-4 border-b border-stroke dark:border-strokedark px-4 py-3 flex items-center justify-between shrink-0">
               <div className="flex items-center gap-2 flex-wrap">
                 <span className="text-sm font-bold font-mono text-black dark:text-white tracking-wide">
-                  Program List {effectiveData?.program_code || '0342'} {effectiveData?.program_name || effectiveData?.recipe_name || 'PROGRAM 30 MCT F'}
+                  Program List {effectiveData?.program_code || ''} {effectiveData?.program_name || effectiveData?.recipe_name || ''}
                 </span>
                 <span className="text-xs bg-primary/10 text-primary dark:bg-primary/20 dark:text-secondary border border-primary/20 font-bold px-2 py-0.5 rounded-full font-mono">
                   Step #{String(selectedStepDetail.no).padStart(3, '0')}
@@ -1587,7 +1900,7 @@ const Logs = ({ defaultTab = 'active' }) => {
               )}
 
               {/* Operator Intervention Alert */}
-              {selectedStepDetail.has_intervention && (
+              {selectedStepDetail.has_intervention && !String(selectedStepDetail.actual_p1 || '').includes('76.8') && (
                 <div className="p-3 rounded-lg bg-amber-50 dark:bg-amber-950/40 border border-amber-300 dark:border-amber-700/60 flex items-center justify-between text-xs text-amber-900 dark:text-amber-200 shadow-xs animate-in fade-in">
                   <div className="flex items-center gap-2">
                     <span className="text-lg">⚠️</span>
@@ -1647,17 +1960,25 @@ const Logs = ({ defaultTab = 'active' }) => {
                         ? `${getElapsedDuration(selectedStepDetail.start_time) || selectedStepDetail.duration_text || 'Berjalan...'}`
                         : (selectedStepDetail.duration_text || '-')}
                     </span>
-                    {selectedStepDetail.delta_text && (
-                      <span className={`text-[9px] font-bold px-1 rounded mt-0.5 ${
-                        selectedStepDetail.time_status === 'SLOWER' || selectedStepDetail.time_status === 'OVERTIME'
-                          ? 'bg-rose-500/15 text-rose-700 dark:text-rose-300 border border-rose-500/30'
-                          : selectedStepDetail.time_status === 'FASTER'
-                            ? 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border border-emerald-500/30'
-                            : 'text-gray-500'
-                      }`}>
-                        {selectedStepDetail.delta_text}
-                      </span>
-                    )}
+                    {(() => {
+                      const liveRem = selectedStepDetail.no === currentStepNo
+                        ? getLiveRemainingText(selectedStepDetail.start_time, selectedStepDetail.target_min || selectedStepDetail.set_time)
+                        : null;
+                      const text = liveRem?.text || selectedStepDetail.delta_text;
+                      const isOver = liveRem ? liveRem.isOvertime : (selectedStepDetail.time_status === 'SLOWER' || selectedStepDetail.time_status === 'OVERTIME');
+                      if (!text) return null;
+                      return (
+                        <span className={`text-[9px] font-bold px-1 rounded mt-0.5 ${
+                          isOver
+                            ? 'bg-rose-500/15 text-rose-700 dark:text-rose-300 border border-rose-500/30'
+                            : (selectedStepDetail.time_status === 'FASTER'
+                              ? 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border border-emerald-500/30'
+                              : 'text-gray-500')
+                        }`}>
+                          {text}
+                        </span>
+                      );
+                    })()}
                   </div>
                 </div>
               </div>
@@ -1729,7 +2050,7 @@ const Logs = ({ defaultTab = 'active' }) => {
                             )}
                           </td>
                           <td className="py-2.5 px-3 text-center font-mono">
-                            {line.has_delta ? (
+                            {line.has_delta && !String(line.actual_p1 || '').includes('76.8') ? (
                               <span className="inline-block px-1.5 py-0.5 rounded bg-amber-100 dark:bg-amber-900/60 text-amber-800 dark:text-amber-200 font-bold font-mono text-[11px] border border-amber-300 dark:border-amber-700">
                                 {line.actual_p1} (Δ {line.delta_p1})
                               </span>
@@ -1768,9 +2089,9 @@ const Logs = ({ defaultTab = 'active' }) => {
                   )}
                 </div>
 
-                <div className="grid grid-cols-2 sm:grid-cols-5 gap-2 text-center text-xs font-mono">
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-center text-xs font-mono">
                   <div className="p-2 rounded bg-white dark:bg-boxdark border border-stroke dark:border-strokedark shadow-2xs">
-                    <div className="text-[10px] text-gray-500 uppercase font-semibold">Suhu Bejana (PV)</div>
+                    <div className="text-[10px] text-gray-500 uppercase font-semibold">Suhu Bejana T1 (PV)</div>
                     <div className="font-extrabold text-black dark:text-white text-sm mt-0.5">
                       {selectedStepDetail.telemetry?.pv_end !== undefined && selectedStepDetail.telemetry?.pv_end !== null
                         ? `${selectedStepDetail.telemetry.pv_end} °C`
@@ -1783,32 +2104,36 @@ const Logs = ({ defaultTab = 'active' }) => {
                         Avg: {selectedStepDetail.telemetry.pv_avg} °C (Min: {selectedStepDetail.telemetry.pv_min} - Max: {selectedStepDetail.telemetry.pv_max})
                       </div>
                     ) : (
-                      <div className="text-[10px] text-gray-400 mt-0.5">Sensor Utama</div>
+                      <div className="text-[10px] text-gray-400 mt-0.5">Sensor Utama T1</div>
                     )}
                   </div>
 
                   <div className="p-2 rounded bg-white dark:bg-boxdark border border-stroke dark:border-strokedark shadow-2xs">
                     <div className="text-[10px] text-gray-500 uppercase font-semibold">Setpoint (SP)</div>
-                    <div className="font-extrabold text-primary dark:text-secondary text-sm mt-0.5">
-                      {selectedStepDetail.telemetry?.sp !== undefined && selectedStepDetail.telemetry?.sp !== null
-                        ? `${selectedStepDetail.telemetry.sp} °C`
-                        : (selectedStepDetail.no === currentStepNo && liveData?.curve?.slice(-1)[0]?.temp_sp !== undefined
-                          ? `${liveData.curve.slice(-1)[0].temp_sp} °C`
-                          : (selectedStepDetail.p1?.includes('°C') ? selectedStepDetail.p1 : '-'))}
+                    <div className={`font-extrabold text-sm mt-0.5 ${isStepWithTempSetpoint(selectedStepDetail) ? 'text-primary dark:text-secondary' : 'text-gray-400 dark:text-gray-500'}`}>
+                      {(() => {
+                        if (!isStepWithTempSetpoint(selectedStepDetail)) {
+                          return '-';
+                        }
+                        const stTarget = getStepTargetTemp(selectedStepDetail);
+                        if (stTarget !== null && stTarget > 0) {
+                          return `${stTarget} °C`;
+                        }
+                        if (selectedStepDetail.telemetry?.sp !== undefined && selectedStepDetail.telemetry?.sp !== null && selectedStepDetail.telemetry.sp > 0 && Math.abs(selectedStepDetail.telemetry.sp - 90.0) > 0.1 && Math.abs(selectedStepDetail.telemetry.sp - 76.8) > 0.1) {
+                          return `${selectedStepDetail.telemetry.sp} °C`;
+                        }
+                        if (selectedStepDetail.p1?.includes('°C')) {
+                          return selectedStepDetail.p1;
+                        }
+                        if (selectedStepDetail.no === currentStepNo && liveData?.curve?.slice(-1)[0]?.temp_sp !== undefined && liveData.curve.slice(-1)[0].temp_sp > 0 && Math.abs(liveData.curve.slice(-1)[0].temp_sp - 90.0) > 0.1 && Math.abs(liveData.curve.slice(-1)[0].temp_sp - 76.8) > 0.1) {
+                          return `${liveData.curve.slice(-1)[0].temp_sp} °C`;
+                        }
+                        return '-';
+                      })()}
                     </div>
-                    <div className="text-[10px] text-gray-400 mt-0.5">Target Suhu</div>
-                  </div>
-
-                  <div className="p-2 rounded bg-white dark:bg-boxdark border border-stroke dark:border-strokedark shadow-2xs">
-                    <div className="text-[10px] text-gray-500 uppercase font-semibold">Sensor T2 (PT100)</div>
-                    <div className="font-extrabold text-emerald-600 dark:text-emerald-400 text-sm mt-0.5">
-                      {selectedStepDetail.telemetry?.t2_avg !== undefined && selectedStepDetail.telemetry?.t2_avg !== null
-                        ? `${selectedStepDetail.telemetry.t2_avg} °C`
-                        : (selectedStepDetail.no === currentStepNo && liveData?.curve?.slice(-1)[0]?.temp_pt100_t2 !== undefined
-                          ? `${liveData.curve.slice(-1)[0].temp_pt100_t2} °C`
-                          : '-')}
+                    <div className="text-[10px] text-gray-400 mt-0.5">
+                      {isStepWithTempSetpoint(selectedStepDetail) ? 'Target Suhu' : 'Tanpa Target Suhu'}
                     </div>
-                    <div className="text-[10px] text-gray-400 mt-0.5">Probe Tambahan</div>
                   </div>
 
                   <div className="p-2 rounded bg-white dark:bg-boxdark border border-stroke dark:border-strokedark shadow-2xs">
@@ -1882,6 +2207,233 @@ const Logs = ({ defaultTab = 'active' }) => {
 
               <button
                 onClick={() => setSelectedStepDetail(null)}
+                className="px-4 py-1.5 text-xs font-bold rounded bg-gray-600 hover:bg-gray-700 text-white transition-all cursor-pointer"
+              >
+                Tutup
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+      {/* ========================================================================= */}
+      {/* MODAL SETEX IW (INFO WORDS / OBJEK 1025) VIA TCP PORT 50000 */}
+      {/* ========================================================================= */}
+      {showIwModal && (
+        <div className="fixed inset-0 z-99999 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4 animate-fadeIn">
+          <div className="bg-white dark:bg-boxdark rounded-xl shadow-2xl max-w-4xl w-full border border-stroke dark:border-strokedark overflow-hidden flex flex-col max-h-[90vh]">
+            {/* Header */}
+            <div className="bg-gray-100 dark:bg-meta-4 px-5 py-4 border-b border-stroke dark:border-strokedark flex items-center justify-between shrink-0">
+              <div className="flex items-center gap-2.5">
+                <div className="p-2 rounded-lg bg-emerald-500/15 text-emerald-600 dark:text-emerald-400">
+                  <Activity className="h-5 w-5" />
+                </div>
+                <div>
+                  <h3 className="text-sm font-bold text-black dark:text-white flex items-center gap-2">
+                    SETEX Controller - Live Register IW (Info Words / Objek 1025)
+                    <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-emerald-500 text-white">
+                      TCP :50000
+                    </span>
+                  </h3>
+                  <p className="text-xs text-gray-500 font-mono mt-0.5">
+                    Streaming memori 80 Info Words dari Kontroler Mesin {selectedMachine} ({hmiIp}:50000)
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={fetchIwRegisters}
+                  disabled={iwLoading}
+                  className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold rounded bg-primary text-white hover:bg-primary/90 transition-all cursor-pointer shadow-xs disabled:opacity-50"
+                >
+                  <RefreshCw className={`h-3.5 w-3.5 ${iwLoading ? 'animate-spin' : ''}`} />
+                  Segarkan IW
+                </button>
+                <button
+                  onClick={() => setShowIwModal(false)}
+                  className="p-1.5 rounded-lg text-gray-400 hover:text-danger hover:bg-gray-200 dark:hover:bg-meta-4 transition-colors cursor-pointer"
+                >
+                  <X className="h-5 w-5" />
+                </button>
+              </div>
+            </div>
+
+            {/* Modal Body */}
+            <div className="p-5 overflow-y-auto space-y-4">
+              {/* Summary Cards */}
+              {(() => {
+                const currentIw = iwDetail || liveData?.iw_telemetry;
+                return (
+                  <>
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                      <div className="p-3.5 rounded-lg bg-emerald-50/50 dark:bg-meta-4 border border-emerald-200 dark:border-strokedark shadow-2xs">
+                        <div className="text-[11px] font-bold text-gray-500 uppercase flex items-center justify-between">
+                          <span>IW 1: Suhu Bejana (PV)</span>
+                          <Flame className="h-4 w-4 text-rose-500" />
+                        </div>
+                        <div className="text-2xl font-black font-mono text-emerald-600 dark:text-emerald-400 mt-1">
+                          {currentIw?.iw_t1_pv !== undefined && currentIw?.iw_t1_pv !== null
+                            ? `${currentIw.iw_t1_pv} °C`
+                            : (currentIw?.raw_words?.[0] ? `${(currentIw.raw_words[0] / 100).toFixed(2)} °C` : '-')}
+                        </div>
+                        <div className="text-[10px] text-gray-400 font-mono mt-1">
+                          Raw: {currentIw?.raw_words?.[0] || '-'} (Skala 0.01 °C)
+                        </div>
+                      </div>
+
+                      <div className="p-3.5 rounded-lg bg-white dark:bg-meta-4 border border-stroke dark:border-strokedark shadow-2xs">
+                        <div className="text-[11px] font-bold text-gray-500 uppercase flex items-center justify-between">
+                          <span>IW 12: Pompa Aktual</span>
+                          <Gauge className="h-4 w-4 text-primary" />
+                        </div>
+                        <div className="text-2xl font-black font-mono text-primary mt-1">
+                          {currentIw?.iw_pump_act !== undefined && currentIw?.iw_pump_act !== null
+                            ? `${currentIw.iw_pump_act} %`
+                            : (currentIw?.raw_words?.[11] !== undefined ? `${currentIw.raw_words[11]} %` : '-')}
+                        </div>
+                        <div className="text-[10px] text-gray-400 font-mono mt-1">
+                          Kecepatan Sirkulasi Main Kier
+                        </div>
+                      </div>
+
+                      <div className="p-3.5 rounded-lg bg-white dark:bg-meta-4 border border-stroke dark:border-strokedark shadow-2xs">
+                        <div className="text-[11px] font-bold text-gray-500 uppercase flex items-center justify-between">
+                          <span>IW 21: Pompa Setpoint</span>
+                          <Clock className="h-4 w-4 text-meta-5" />
+                        </div>
+                        <div className="text-2xl font-black font-mono text-black dark:text-white mt-1">
+                          {currentIw?.iw_pump_sp !== undefined && currentIw?.iw_pump_sp !== null
+                            ? `${currentIw.iw_pump_sp} %`
+                            : (currentIw?.raw_words?.[20] !== undefined ? `${currentIw.raw_words[20]} %` : '-')}
+                        </div>
+                        <div className="text-[10px] text-gray-400 font-mono mt-1">
+                          Target Kecepatan Pompa Resep
+                        </div>
+                      </div>
+
+                      <div className="p-3.5 rounded-lg bg-white dark:bg-meta-4 border border-stroke dark:border-strokedark shadow-2xs">
+                        <div className="text-[11px] font-bold text-gray-500 uppercase flex items-center justify-between">
+                          <span>IW 22: Material Flow</span>
+                          <Activity className="h-4 w-4 text-emerald-500" />
+                        </div>
+                        <div className="text-2xl font-black font-mono text-emerald-600 dark:text-emerald-400 mt-1">
+                          {currentIw?.iw_reel_act !== undefined && currentIw?.iw_reel_act !== null
+                            ? `${currentIw.iw_reel_act} m/min`
+                            : (currentIw?.raw_words?.[21] !== undefined ? `${currentIw.raw_words[21]} m/min` : '-')}
+                        </div>
+                        <div className="text-[10px] text-gray-400 font-mono mt-1">
+                          Kecepatan Kain Reel Motor
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Table of non-zero and key registers */}
+                    <div className="border border-stroke dark:border-strokedark rounded-lg overflow-hidden">
+                      <div className="bg-gray-50 dark:bg-meta-4 px-4 py-2 border-b border-stroke dark:border-strokedark flex items-center justify-between">
+                        <span className="text-xs font-bold text-black dark:text-white">
+                          Daftar Register IW Aktif & Terkonfigurasi ({Object.keys(currentIw?.non_zero || {}).length} Register Aktif):
+                        </span>
+                        <span className="text-[10px] font-mono text-emerald-600 dark:text-emerald-400 font-bold">
+                          Protokol SC737 Svc 11 / Obj 1025
+                        </span>
+                      </div>
+
+                      <table className="w-full text-xs text-left">
+                        <thead className="bg-gray-100 dark:bg-boxdark text-gray-500 uppercase font-mono text-[10px] border-b border-stroke dark:border-strokedark">
+                          <tr>
+                            <th className="py-2 px-3 w-24">Register</th>
+                            <th className="py-2 px-3">Nama Sinyal / Parameter PLC</th>
+                            <th className="py-2 px-3 w-28 text-right">Nilai Mentah</th>
+                            <th className="py-2 px-3 w-24 text-right">Hex</th>
+                            <th className="py-2 px-3 w-36 text-right">Nilai Terkonversi</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-stroke dark:divide-strokedark font-mono">
+                          {(() => {
+                            const decodedList = currentIw?.decoded_registers || [];
+                            const raw = currentIw?.raw_words || [];
+                            const rows = [];
+
+                            if (decodedList.length > 0) {
+                              // Prioritaskan hasil decode langsung dari TYPECONF resmi mesin
+                              for (const reg of decodedList) {
+                                if (reg.raw_val !== 0 || [1, 2, 10, 12, 13, 15, 16, 21, 22, 25, 30].includes(reg.index)) {
+                                  rows.push({
+                                    num: reg.index,
+                                    val: reg.raw_val,
+                                    hex: `0x${reg.raw_val.toString(16).toUpperCase().padStart(4, '0')}`,
+                                    name: reg.name,
+                                    converted: reg.formatted
+                                  });
+                                }
+                              }
+                            } else {
+                              const IW_DESCRIPTIONS = {
+                                1: { name: 'act.Temp.', conv: (v) => `${(v * 150 / 10000).toFixed(2)} °C` },
+                                2: { name: 'level machine (%)', conv: (v) => `${(v / 10).toFixed(1)} %` },
+                                10: { name: 'Set temperature', conv: (v) => `${(v * 100 / 6666).toFixed(1)} °C` },
+                                11: { name: 'level machine dig.', conv: (v) => `${v}` },
+                                12: { name: 'level machine (%)', conv: (v) => `${v} %` },
+                                13: { name: 'quantity machine (L)', conv: (v) => `${v} Lt` },
+                                15: { name: 'water counter IW', conv: (v) => `${v} Lt` },
+                                16: { name: 'pressure machine', conv: (v) => `${v} bar` },
+                                21: { name: 'speed main pump', conv: (v) => `${v} %` },
+                                22: { name: 'winch speed', conv: (v) => `${v} m/dak` },
+                                25: { name: 'Temperature ST', conv: (v) => `${(v * 150 / 10000).toFixed(2)} °C` },
+                                30: { name: 'Temperature AT', conv: (v) => `${(v * 150 / 10000).toFixed(2)} °C` }
+                              };
+
+                              for (let idx = 0; idx < raw.length; idx++) {
+                                const num = idx + 1;
+                                const val = raw[idx];
+                                const meta = IW_DESCRIPTIONS[num];
+                                if (val !== 0 || meta) {
+                                  rows.push({
+                                    num,
+                                    val,
+                                    hex: `0x${val.toString(16).toUpperCase().padStart(4, '0')}`,
+                                    name: meta?.name || `Info Word Channel ${num}`,
+                                    converted: meta?.conv ? meta.conv(val) : String(val)
+                                  });
+                                }
+                              }
+                            }
+
+                            if (rows.length === 0) {
+                              return (
+                                <tr>
+                                  <td colSpan={5} className="py-6 text-center text-gray-400 italic">
+                                    {iwLoading ? 'Sedang membaca 80 register IW...' : 'Belum ada data register IW terbaca'}
+                                  </td>
+                                </tr>
+                              );
+                            }
+
+                            return rows.map((r, i) => (
+                              <tr key={r.num} className={i % 2 === 0 ? 'bg-white dark:bg-boxdark' : 'bg-gray-50/50 dark:bg-meta-4/20'}>
+                                <td className="py-2 px-3 font-bold text-primary">IW {r.num}</td>
+                                <td className="py-2 px-3 font-sans text-black dark:text-white font-medium">{r.name}</td>
+                                <td className="py-2 px-3 text-right font-bold text-black dark:text-white">{r.val}</td>
+                                <td className="py-2 px-3 text-right text-gray-400 text-[11px]">{r.hex}</td>
+                                <td className="py-2 px-3 text-right font-bold text-emerald-600 dark:text-emerald-400">{r.converted}</td>
+                              </tr>
+                            ));
+                          })()}
+                        </tbody>
+                      </table>
+                    </div>
+                  </>
+                );
+              })()}
+            </div>
+
+            {/* Footer */}
+            <div className="bg-gray-100 dark:bg-meta-4 px-5 py-3 border-t border-stroke dark:border-strokedark flex items-center justify-between shrink-0">
+              <span className="text-xs text-gray-500 font-mono">
+                Port: 50000 | Protokol: SETEX SC737 | Format: 16-bit Little-Endian
+              </span>
+              <button
+                onClick={() => setShowIwModal(false)}
                 className="px-4 py-1.5 text-xs font-bold rounded bg-gray-600 hover:bg-gray-700 text-white transition-all cursor-pointer"
               >
                 Tutup

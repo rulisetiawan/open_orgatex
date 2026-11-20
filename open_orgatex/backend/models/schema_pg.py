@@ -443,3 +443,17 @@ class OperatorIntervention(Base):
     notes = Column(Text)
     raw_details = Column(Text)  # JSON string of detailed snapshot
 
+class BatchConsumption(Base):
+    __tablename__ = 'batch_consumptions'
+
+    id = Column(BigInteger().with_variant(Integer, "sqlite"), primary_key=True, autoincrement=True)
+    batch_ref_no = Column(String(50), nullable=False, index=True)
+    machine_no = Column(String(50), nullable=False, index=True)
+    recorded_at = Column(DateTime(timezone=True), server_default=func.now(), index=True)
+    water_liters = Column(Numeric(10, 2), default=0.0)
+    power_kwh = Column(Numeric(10, 2), default=0.0)
+    steam_kg = Column(Numeric(10, 2), default=0.0)
+    runtime_minutes = Column(Numeric(10, 2), default=0.0)
+    raw_counters = Column(Text, nullable=True)  # JSON dump of Object 1035 counters
+
+

@@ -37,11 +37,11 @@ def get_machine_folders() -> List[str]:
 def check_status():
     """Prints a clear overview table of all machines and their configuration readiness."""
     folders = get_machine_folders()
-    print("\n" + "=" * 95)
+    print("\n" + "=" * 105)
     print("STATUS WORKSPACE MESIN CELUP (OPENORGATEX)")
-    print("=" * 95)
-    print(f"{'Folder Mesin':<15} | {'Raw CNF dari HMI':<22} | {'Decoded JSON':<18} | {'Acuan PRG':<10} | {'Hasil PRG':<10}")
-    print("-" * 95)
+    print("=" * 105)
+    print(f"{'Folder Mesin':<15} | {'Raw CNF & AWL dari HMI':<30} | {'Decoded JSON':<18} | {'Acuan PRG':<10} | {'Hasil PRG':<10}")
+    print("-" * 105)
 
     for m in folders:
         m_dir = os.path.join(BASE_DIR, m)
@@ -50,15 +50,17 @@ def check_status():
         ref_dir = os.path.join(m_dir, "03_CONTOH_PRG_DARI_HMI")
         out_dir = os.path.join(m_dir, "04_HASIL_PROGRAM_CELUP")
 
-        # Check raw CNFs
+        # Check raw CNFs & AWLs
         has_tc = os.path.exists(os.path.join(raw_dir, "TYPECONF.CNF"))
         has_ct = os.path.exists(os.path.join(raw_dir, "CONFTEXT.CNF"))
         has_mc = os.path.exists(os.path.join(raw_dir, "MACHCONF.CNF"))
+        awl_files = [f for f in os.listdir(raw_dir) if f.upper().endswith(".AWL")] if os.path.exists(raw_dir) else []
 
         raw_str = []
         if has_tc: raw_str.append("TYPECONF")
         if has_ct: raw_str.append("CONFTEXT")
         if has_mc: raw_str.append("MACHCONF")
+        if awl_files: raw_str.append(f"AWL({len(awl_files)})")
         raw_display = ", ".join(raw_str) if raw_str else "[Belum ada]"
 
         # Check decoded JSON
@@ -75,9 +77,9 @@ def check_status():
         ref_count = len([f for f in os.listdir(ref_dir) if f.upper().endswith(".PRG")]) if os.path.exists(ref_dir) else 0
         out_count = len([f for f in os.listdir(out_dir) if f.upper().endswith(".PRG")]) if os.path.exists(out_dir) else 0
 
-        print(f"{m:<15} | {raw_display:<22} | {dec_display:<18} | {ref_count} file{'':<4} | {out_count} file{'':<4}")
+        print(f"{m:<15} | {raw_display:<30} | {dec_display:<18} | {ref_count} file{'':<4} | {out_count} file{'':<4}")
 
-    print("=" * 95)
+    print("=" * 105)
     print("Keterangan:")
     print(" - Taruh file download HMI di: WORKSPACE_PROGRAM_MESIN/<NAMA_MESIN>/01_CONFIG_DARI_HMI/")
     print(" - Jalankan sinkronisasi:      python WORKSPACE_PROGRAM_MESIN/kelola_mesin.py --sync <NAMA_MESIN>\n")
@@ -209,19 +211,29 @@ def create_machine(machine_name: str, ip_address: Optional[str] = None, auto_fet
         print(f"  --> {raw_dir}")
         print(f"Atau unduh otomatis nanti dengan: python kelola_mesin.py --fetch-config {m_code} --ip <IP_ADDRESS>\n")
 
-def fetch_existing_machine(machine_name: str, ip_address: Optional[str] = None):
-    """Fetches HMI config via FTP for an existing machine workspace."""
+def fetch_existing_machine(machine_name: str, ip_address: Optional[str] = None, remote_path: Optional[str] = None):
+    """Fetches HMI config & .AWL files via FTP for an existing machine workspace."""
     folder_name = machine_name if machine_name.startswith("MESIN_") else f"MESIN_{machine_name}"
     target = os.path.join(BASE_DIR, folder_name)
     if not os.path.isdir(target):
-        print(f"[ERROR] Mesin {folder_name} belum terdaftar! Tambahkan dulu dengan --tambah-mesin")
-        return
+        print(f"[ERROR] Mesin {folder_name} belum terdaftar! Menyiapkan folder baru...")
+        create_machine(machine_name, ip_address=ip_address, auto_fetch=False)
 
     m_code = folder_name.replace("MESIN_", "")
     dec_dir = os.path.join(target, "02_CONFIG_SIAP_PAKAI")
     prof_file = os.path.join(dec_dir, "machine_profile.json")
 
     resolved_ip = ip_address
+    resolved_path = remote_path
+
+    # Parse if user gave an FTP URL like ftp://172.16.110.106/Storage/SC777CE/Config/
+    if resolved_ip and resolved_ip.startswith("ftp://"):
+        url_part = resolved_ip.replace("ftp://", "")
+        parts = url_part.split("/", 1)
+        resolved_ip = parts[0]
+        if len(parts) > 1 and not resolved_path:
+            resolved_path = "/" + parts[1].rstrip("/")
+
     if not resolved_ip and os.path.exists(prof_file):
         try:
             with open(prof_file, "r", encoding="utf-8") as f:
@@ -231,22 +243,44 @@ def fetch_existing_machine(machine_name: str, ip_address: Optional[str] = None):
             pass
 
     if not resolved_ip:
-        print(f"[ERROR] IP kontroler untuk {m_code} tidak ditemukan. Harap masukkan --ip <IP_ADDRESS>!")
+        print(f"[ERROR] IP kontroler untuk {m_code} tidak ditemukan. Harap masukkan --ip <IP_ADDRESS> atau --ftp <FTP_URL>!")
         return
 
-    print(f"\n[*] Menghubungi HMI {m_code} di {resolved_ip}:21 via FTP...")
+    path_info = f" ({resolved_path})" if resolved_path else ""
+    print(f"\n[*] Menghubungi HMI {m_code} di {resolved_ip}:21{path_info} via FTP...")
     backend_dir = os.path.abspath(os.path.join(BASE_DIR, ".."))
     if backend_dir not in sys.path:
         sys.path.append(backend_dir)
     from open_orgatex.backend.services.machine_config_service import fetch_machine_config_from_hmi
-    res = fetch_machine_config_from_hmi(ip=resolved_ip, machine_no=m_code)
+    res = fetch_machine_config_from_hmi(ip=resolved_ip, machine_no=m_code, remote_dir=resolved_path)
     if res.get("success"):
-        print(f"[SUKSES] Berhasil mengunduh {res.get('downloaded_count', 0)} file konfigurasi HMI:")
+        print(f"[SUKSES] Berhasil mengunduh {res.get('downloaded_count', 0)} file konfigurasi & program HMI:")
         for item in res.get("downloaded", []):
-            print(f"  + {item['filename']} ({item['size_bytes']} bytes)")
+            ftype = f"[{item.get('type', 'FILE')}]"
+            print(f"  + {ftype:<6} {item['filename']} ({item['size_bytes']} bytes)")
+        print("[SUKSES] File mentah tersimpan di 01_CONFIG_DARI_HMI/")
         print("[SUKSES] File siap pakai di 02_CONFIG_SIAP_PAKAI telah diperbarui!\n")
     else:
         print(f"[PERINGATAN] {res.get('message')}\n")
+
+def fetch_all_machines():
+    """Fetches HMI config & AWL for all machines that have IP addresses configured."""
+    folders = get_machine_folders()
+    print(f"\n[*] Memulai auto-fetch HMI config & AWL untuk {len(folders)} mesin...")
+    for m in folders:
+        m_code = m.replace("MESIN_", "")
+        prof_file = os.path.join(BASE_DIR, m, "02_CONFIG_SIAP_PAKAI", "machine_profile.json")
+        ip = None
+        if os.path.exists(prof_file):
+            try:
+                with open(prof_file, "r", encoding="utf-8") as f:
+                    ip = json.load(f).get("ip_address")
+            except Exception:
+                pass
+        if ip:
+            fetch_existing_machine(m_code, ip_address=ip)
+        else:
+            print(f"[-] Lewati {m}: Belum memiliki IP address.")
 
 def main():
     parser = argparse.ArgumentParser(description="Tool Manajemen Workspace Mesin Celup OpenOrgaTEX")
@@ -255,10 +289,22 @@ def main():
     parser.add_argument("--sync-all", action="store_true", help="Sinkronisasi seluruh mesin")
     parser.add_argument("--tambah-mesin", type=str, help="Tambah folder workspace untuk mesin baru (cth: TD15)")
     parser.add_argument("--ip", type=str, help="Alamat IP kontroler HMI mesin (opsional, cth: 172.16.110.115)")
-    parser.add_argument("--auto-fetch", action="store_true", help="Otomatis unduh file config (.CNF) via FTP saat menambah mesin")
-    parser.add_argument("--fetch-config", type=str, help="Tarik file config HMI via FTP untuk mesin yang ada (cth: TD12)")
+    parser.add_argument("--ftp", type=str, help="URL FTP kontroler (cth: ftp://172.16.110.106/Storage/SC777CE/Config/)")
+    parser.add_argument("--remote-path", type=str, help="Direktori remote pada controller (cth: /Storage/SC777CE/Config)")
+    parser.add_argument("--auto-fetch", action="store_true", help="Otomatis unduh file config (.CNF & .AWL) via FTP saat menambah mesin")
+    parser.add_argument("--fetch-config", type=str, help="Tarik file config & AWL via FTP untuk mesin yang ada (cth: 16C)")
+    parser.add_argument("--fetch-all", action="store_true", help="Tarik file config & AWL via FTP untuk semua mesin yang memiliki IP")
 
     args = parser.parse_args()
+
+    ip_target = args.ip
+    path_target = args.remote_path
+    if args.ftp:
+        url_part = args.ftp.replace("ftp://", "")
+        parts = url_part.split("/", 1)
+        ip_target = parts[0]
+        if len(parts) > 1 and not path_target:
+            path_target = "/" + parts[1].rstrip("/")
 
     if args.status:
         check_status()
@@ -268,9 +314,11 @@ def main():
         for m in get_machine_folders():
             sync_machine(m)
     elif args.tambah_mesin:
-        create_machine(args.tambah_mesin, ip_address=args.ip, auto_fetch=args.auto_fetch)
+        create_machine(args.tambah_mesin, ip_address=ip_target, auto_fetch=args.auto_fetch)
     elif args.fetch_config:
-        fetch_existing_machine(args.fetch_config, ip_address=args.ip)
+        fetch_existing_machine(args.fetch_config, ip_address=ip_target, remote_path=path_target)
+    elif args.fetch_all:
+        fetch_all_machines()
     else:
         check_status()
 

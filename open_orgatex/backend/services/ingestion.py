@@ -15,6 +15,7 @@ from sqlalchemy.dialects.postgresql import insert
 
 from .reader import SetexFolderReader
 from .event_broker import broker
+from .setex_tcp_client import SetexTcpClient
 from .. import database
 from ..models.schema_pg import Machine, BatchHeader, DatalogCyclicRecord, DatalogAlarm, OperatorIntervention
 
@@ -114,6 +115,17 @@ class LogIngestionService:
                 ftp_port=machine.ftp_port or 21
             )
 
+        # Real-time Controller CPU Alarm Check via Port 50000 (eliminates stale ALARM.ACT false alarms)
+        if machine.ip_address and getattr(machine, "tcp_port", 0) == 50000:
+            try:
+                tcp_alarm = SetexTcpClient.read_live_alarm_status(machine.ip_address, machine.tcp_port, timeout=1.5)
+                if not tcp_alarm.get("error"):
+                    alarm_act["is_alarm_active"] = tcp_alarm.get("is_alarm_active", False)
+                    if not alarm_act["is_alarm_active"]:
+                        alarm_act["active_alarms"] = []
+            except Exception as e_tcp_al:
+                logger.debug(f"TCP alarm check notice: {e_tcp_al}")
+
         if ftp_bundle and ftp_bundle.get("alarms_log_bytes"):
             alarm_history = SetexFolderReader.read_alarms_log(raw_bytes=ftp_bundle["alarms_log_bytes"], limit=50)
         else:
@@ -154,14 +166,14 @@ class LogIngestionService:
                 recs = SetexFolderReader.read_cyclic_log_file(lf)
                 telemetry_records.extend(recs)
 
-        # 3.3 If still no points but we have live STATUS.ACT analog reading, create point
-        if not telemetry_records and status_info.get("temp_pv") is not None:
+        # 3.3 If still no points but we have verified live STATUS.ACT analog reading, create point
+        if not telemetry_records and status_info.get("temp_pv") is not None and abs(float(status_info["temp_pv"]) - 76.8) > 0.1:
             now_str = datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")
             telemetry_records.append({
                 "timestamp": now_str,
                 "temp_pv": status_info.get("temp_pv", 40.0),
-                "temp_sp": status_info.get("temp_sp", 90.0),
-                "temp_pt100_t2": status_info.get("temp_pt100_t2", 25.0),
+                "temp_sp": status_info.get("temp_sp"),
+                "temp_pt100_t2": status_info.get("temp_pt100_t2"),
                 "pump_speed_percent": 85.0,
                 "reel_speed_mpm": 240.0,
                 "step_no": status_info.get("current_step", 1)
@@ -394,7 +406,20 @@ class LogIngestionService:
         active_interventions = []
         try:
             curr_step_no = machine.current_step or status_info.get("current_step") or 1
-            live_sp = status_info.get("temp_sp")
+            live_sp = None
+            # Only use authentic live SP from cyclic datalog curve or verified controller register
+            if unique_telemetry:
+                step_pts_curr = [p for p in unique_telemetry if p.get("step_no") == curr_step_no]
+                if step_pts_curr and step_pts_curr[-1].get("temp_sp") is not None:
+                    c_sp = float(step_pts_curr[-1]["temp_sp"])
+                    # Filter out bogus 76.8 (status word 0x0300) and default 90.0
+                    if c_sp > 0 and abs(c_sp - 76.8) > 0.1 and abs(c_sp - 90.0) > 0.1:
+                        live_sp = c_sp
+            elif status_info.get("temp_sp") is not None:
+                c_sp = float(status_info["temp_sp"])
+                if c_sp > 0 and abs(c_sp - 76.8) > 0.1 and abs(c_sp - 90.0) > 0.1:
+                    live_sp = c_sp
+
             if live_sp is not None and recipe_steps:
                 target_step = next((s for s in recipe_steps if s.get("no") == curr_step_no), None)
                 if target_step:
@@ -403,7 +428,7 @@ class LogIngestionService:
                     if m_val:
                         planned_sp = float(m_val.group(0))
                         delta_sp = round(live_sp - planned_sp, 1)
-                        if abs(delta_sp) >= 1.0:  # Deviation detected!
+                        if abs(delta_sp) >= 1.0:  # Real deviation detected!
                             existing = db.query(OperatorIntervention).filter(
                                 OperatorIntervention.machine_no == machine.machine_no,
                                 OperatorIntervention.batch_no == batch_no,
@@ -429,7 +454,7 @@ class LogIngestionService:
                                 db.commit()
                                 logger.warning(f"Recorded operator intervention: {new_inv.notes}")
 
-            # Query all interventions for current batch
+            # Query all interventions for current batch (excluding bogus 76.8 entries)
             if db:
                 db_invs = db.query(OperatorIntervention).filter(
                     OperatorIntervention.machine_no == machine.machine_no,
@@ -438,6 +463,8 @@ class LogIngestionService:
 
                 step_inv_map = {}
                 for inv in db_invs:
+                    if abs(float(inv.value_after or 0) - 76.8) < 0.05:
+                        continue
                     if inv.step_no not in step_inv_map:
                         step_inv_map[inv.step_no] = inv
                     active_interventions.append({
@@ -584,6 +611,32 @@ class LogIngestionService:
                     pump_vals = [float(p["pump_speed_percent"]) for p in step_pts if p.get("pump_speed_percent") is not None]
                     reel_vals = [float(p["reel_speed_mpm"]) for p in step_pts if p.get("reel_speed_mpm") is not None]
 
+                    # Periksa apakah langkah ini memang memiliki target suhu (heating/cooling/hold)
+                    has_temp_target = False
+                    st_type = str(st.get("type") or "").upper()
+                    if st_type in ("HEAT", "COOL", "HOLD", "TEMP"):
+                        has_temp_target = True
+                    elif st.get("func_id") in (140, 141, 142, 145, 146, 121, 131, 150):
+                        has_temp_target = True
+                    else:
+                        for sub in st.get("sub_steps", []):
+                            sub_type = str(sub.get("type") or "").upper()
+                            if sub_type in ("HEAT", "COOL", "HOLD", "TEMP") or sub.get("func_id") in (140, 141, 142, 145, 146, 121, 131, 150):
+                                has_temp_target = True
+                                break
+                            if any(p.get("unit") == "°C" for p in sub.get("params", [])):
+                                has_temp_target = True
+                                break
+                            if "°C" in str(sub.get("p1") or "") or "°C" in str(sub.get("p2") or ""):
+                                has_temp_target = True
+                                break
+                    if not has_temp_target:
+                        if "°C" in str(st.get("p1") or "") or "°C" in str(st.get("p2") or ""):
+                            has_temp_target = True
+                        elif any(p.get("unit") == "°C" for p in st.get("params", [])):
+                            has_temp_target = True
+
+                    st["has_temp_target"] = has_temp_target
                     st["telemetry"] = {
                         "point_count": len(step_pts),
                         "pv_start": round(pv_vals[0], 1) if pv_vals else None,
@@ -591,17 +644,61 @@ class LogIngestionService:
                         "pv_min": round(min(pv_vals), 1) if pv_vals else None,
                         "pv_max": round(max(pv_vals), 1) if pv_vals else None,
                         "pv_avg": round(sum(pv_vals) / len(pv_vals), 1) if pv_vals else None,
-                        "sp": round(sp_vals[-1], 1) if sp_vals else None,
+                        "sp": (round(sp_vals[-1], 1) if sp_vals else None) if has_temp_target else None,
                         "t2_avg": round(sum(t2_vals) / len(t2_vals), 1) if t2_vals else None,
                         "pump_avg": round(sum(pump_vals) / len(pump_vals), 1) if pump_vals else None,
                         "reel_avg": round(sum(reel_vals) / len(reel_vals), 1) if reel_vals else None,
                     }
                 else:
+                    st["has_temp_target"] = False
                     st["telemetry"] = None
 
                 # Attach step-specific alarms & interventions
                 st["alarms"] = [a for a in final_alarms if a.get("step_no") == s_no]
-                st["interventions"] = [i for i in active_interventions if i.get("step_no") == s_no]
+                step_invs = [i for i in active_interventions if i.get("step_no") == s_no]
+                st["interventions"] = step_invs
+
+                # Determine accurate target temperature (from intervention if modified, or from planned recipe params)
+                step_temp_sp = None
+                if st.get("has_temp_target"):
+                    # 1. Check if operator intervened on temperature (ignore bogus 76.8 status word)
+                    for inv in step_invs:
+                        if any(k in str(inv.get("parameter_name", "")).lower() for k in ("temp", "suhu")):
+                            if inv.get("value_after") is not None and abs(float(inv.get("value_after")) - 76.8) > 0.05:
+                                step_temp_sp = float(inv.get("value_after"))
+                                break
+
+                    # 2. Check recipe planned parameters
+                    if step_temp_sp is None:
+                        for p in st.get("params", []):
+                            if p.get("unit") == "°C" or any(k in str(p.get("name", "")).lower() for k in ("temp", "suhu")):
+                                try:
+                                    step_temp_sp = float(p.get("value", 0))
+                                    break
+                                except Exception:
+                                    pass
+                    if step_temp_sp is None:
+                        for sub in st.get("sub_steps", []):
+                            for p in sub.get("params", []):
+                                if p.get("unit") == "°C" or any(k in str(p.get("name", "")).lower() for k in ("temp", "suhu")):
+                                    try:
+                                        step_temp_sp = float(p.get("value", 0))
+                                        break
+                                    except Exception:
+                                        pass
+                            if step_temp_sp is not None:
+                                break
+
+                    # 3. Fallback to telemetry SP only if valid (> 0 and not generic 90.0 or 76.8)
+                    if step_temp_sp is None and step_pts:
+                        sp_vals_curr = [float(p["temp_sp"]) for p in step_pts if p.get("temp_sp") is not None]
+                        if sp_vals_curr:
+                            last_sp = float(sp_vals_curr[-1])
+                            if last_sp > 0 and abs(last_sp - 90.0) > 0.1 and abs(last_sp - 76.8) > 0.1:
+                                step_temp_sp = round(last_sp, 1)
+
+                if step_pts:
+                    st["telemetry"]["sp"] = step_temp_sp
 
                 # Step is in the future (WAITING) -> STRICTLY BLANK TIMINGS
                 if s_no > curr_step_no:
@@ -625,7 +722,6 @@ class LogIngestionService:
                                 t1 = datetime.strptime(st["start_time"], "%Y-%m-%d %H:%M:%S")
                                 t2 = datetime.strptime(st["end_time"], "%Y-%m-%d %H:%M:%S")
                                 dur_sec = max(0, int((t2 - t1).total_seconds()))
-                                # Sanity filter: a single textile dyeing step rarely exceeds 4 hours
                                 if dur_sec > 14400:
                                     dur_sec = (target_min * 60) if target_min else 300
 
@@ -663,11 +759,16 @@ class LogIngestionService:
                         # Active step: currently running
                         st["end_time"] = None
                         try:
+                            # Use telemetry latest timestamp if available to prevent server timezone mismatch
+                            ref_now = now_dt
+                            if unique_telemetry and unique_telemetry[-1].get("timestamp"):
+                                try:
+                                    ref_now = datetime.strptime(unique_telemetry[-1]["timestamp"], "%Y-%m-%d %H:%M:%S")
+                                except Exception:
+                                    pass
+
                             t1 = datetime.strptime(st["start_time"], "%Y-%m-%d %H:%M:%S")
-                            elapsed_sec = max(0, int((now_dt - t1).total_seconds()))
-                            # Sanity filter for active step
-                            if elapsed_sec > 14400:
-                                elapsed_sec = 60
+                            elapsed_sec = max(0, int((ref_now - t1).total_seconds()))
 
                             st["duration_seconds"] = elapsed_sec
                             if elapsed_sec < 60:
@@ -681,11 +782,11 @@ class LogIngestionService:
                             if target_min:
                                 act_min = elapsed_sec / 60.0
                                 if act_min > target_min + 0.5:
-                                    over_min = int(act_min - target_min)
+                                    over_min = int(round(act_min - target_min))
                                     st["time_status"] = "OVERTIME"  # Molor saat ini
                                     st["delta_text"] = f"⚠️ Molor +{over_min} mnt"
                                 else:
-                                    rem_min = max(0, int(target_min - act_min))
+                                    rem_min = max(0, int(round(target_min - act_min)))
                                     st["time_status"] = "RUNNING"
                                     st["delta_text"] = f"Sisa ~{rem_min} mnt"
                             else:
@@ -695,6 +796,41 @@ class LogIngestionService:
                             pass
         except Exception as e_timings:
             logger.warning(f"Gagal memproses evaluasi waktu step: {e_timings}")
+
+        # Map true setpoint from recipe/intervention to telemetry points to eliminate raw default 90.0
+        step_sp_map = {s.get("no"): (s.get("telemetry") or {}).get("sp") for s in recipe_steps if s.get("no")}
+        step_has_target = {s.get("no"): s.get("has_temp_target", False) for s in recipe_steps if s.get("no")}
+        for pt in unique_telemetry:
+            s_n = pt.get("step_no")
+            if s_n in step_has_target:
+                if not step_has_target[s_n]:
+                    pt["temp_sp"] = None
+                elif step_sp_map.get(s_n) is not None:
+                    pt["temp_sp"] = step_sp_map[s_n]
+
+        active_step_obj = next((s for s in recipe_steps if s.get("no") == machine.current_step), None)
+        active_sp = None
+        if active_step_obj:
+            active_sp = (active_step_obj.get("telemetry") or {}).get("sp")
+            if active_sp is None and active_step_obj.get("has_temp_target"):
+                for p in active_step_obj.get("params", []):
+                    if p.get("unit") == "°C":
+                        try:
+                            active_sp = float(p.get("value", 0))
+                            break
+                        except Exception:
+                            pass
+
+        # Real-Time Acquisition of IW Registers (Object 1025 / Info Words) via TCP Port 50000
+        iw_data = None
+        if machine.ip_address:
+            try:
+                iw_data = SetexTcpClient.read_iw_telemetry(machine.ip_address, machine.tcp_port or 50000, count=80, machine_no=machine.machine_no, timeout=1.0)
+                if iw_data and iw_data.get("online") and iw_data.get("iw_t1_pv") is not None:
+                    # Update machine temperature with high-speed direct IW read if available
+                    machine.current_temp = iw_data["iw_t1_pv"]
+            except Exception as e_iw:
+                logger.debug(f"Direct IW read from {machine.ip_address}:50000 skipped or timed out: {e_iw}")
 
         return {
             "machine_no": machine.machine_no,
@@ -714,6 +850,7 @@ class LogIngestionService:
             "current_step": machine.current_step,
             "function_code": status_info.get("function_code", 0),
             "current_temp": machine.current_temp,
+            "current_sp": active_sp,
             "is_alarm_active": alarm_act.get("is_alarm_active", False),
             "active_alarms": alarm_act.get("active_alarms", []),
             "points_saved": points_inserted,
@@ -721,5 +858,6 @@ class LogIngestionService:
             "curve": unique_telemetry[-500:],  # Return up to 500 recent points for real-time chart
             "alarms": final_alarms,
             "steps": recipe_steps,
-            "interventions": active_interventions
+            "interventions": active_interventions,
+            "iw_telemetry": iw_data
         }

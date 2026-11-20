@@ -110,9 +110,83 @@ class SetexTcpClient:
         frame = cls.build_read_frame(11, obj, start_address, count)
         resp = cls._exchange(host, port, frame, timeout)
         size = cls._validate_frame(resp, 11, obj)
-        if size != count * 2:
-            raise ValueError(f"Payload size mismatch: expected {count*2}, got {size}")
-        return list(struct.unpack_from('<' + 'H' * count, resp, 20))
+        width = 4 if obj == 1035 else 2
+        code = 'I' if obj == 1035 else 'H'
+        if size != count * width:
+            raise ValueError(f"Payload size mismatch: expected {count*width}, got {size}")
+        return list(struct.unpack_from('<' + code * count, resp, 20))
+
+    @classmethod
+    def read_batch_consumption(cls, host: str, port: int, start_index: int = 1, count: int = 10, timeout: float = 3.0) -> List[int]:
+        """
+        Reads batch consumption counters (Object 1035 - 32-bit DWORD Little-Endian).
+        Counters include total water (L), steam, energy/power (kWh), and runtime.
+        """
+        if count < 1 or count > 80:
+            raise ValueError("Consumption counter count must be between 1 and 80.")
+        return cls.read_block(host, port, 1035, start_index, count, timeout=timeout)
+
+    @classmethod
+    def build_change_parameter_extended_frame(cls, entries: List[Tuple[int, float]], flag: int = 1, target_extra: int = 0) -> bytes:
+        """
+        Builds SV_CHANGE_EXTENDED (Service 137) on OBJID_PARAMETER (Object 41).
+        Reconstructed from SETEX-LAN 50000 reverse engineering of SecomCE_D_BackGround_2d.dll.
+        - flag = 1 triggers the internal PLC intervention bit (Object 1079 addr 12 / Object 1002 addr 3512)
+        - target_extra = 0 updates both active running PLC step and logs to PRxxxxxx.LOG
+        """
+        if not entries or len(entries) > 20:
+            raise ValueError("Entries count must be between 1 and 20.")
+
+        frame = bytearray(FRAME_SIZE)
+        struct.pack_into('<HH', frame, 0, 2, 16 + 124)
+        frame[4:7] = bytes((10, 12, 0))
+        struct.pack_into('<H', frame, 9, 1)
+        frame[14] = 1        # Message Type (1 = Request)
+        frame[15] = 137      # Service 137 (SV_CHANGE_EXTENDED)
+        struct.pack_into('<HH', frame, 16, 41, 124)  # Object 41 (OBJID_PARAMETER), length 124
+        frame[20] = flag     # Flag: 1 = trigger PLC intervention
+        frame[21] = len(entries)  # Count of entries
+
+        for i, (pid, val) in enumerate(entries):
+            off = 22 + 6 * i
+            struct.pack_into('<H', frame, off, int(pid))
+            struct.pack_into('<f', frame, off + 2, float(val))
+
+        # Target extra at frame offset 142 (payload offset 122)
+        struct.pack_into('<H', frame, 142, int(target_extra))
+        return bytes(frame)
+
+    @classmethod
+    def change_parameter_da01_only(cls, machine_no: str, host: str, port: int, param_id: int, value: float, parameter_name: str = "") -> Dict[str, Any]:
+        """
+        Executes parameter modification (Intervent) via Service 137 / Object 41.
+        
+        SAFETY INTERLOCK:
+        Strictly restricted to pilot machine 'DA01' only. All other machines are locked
+        in Read-Only mode to protect factory production lines.
+        """
+        clean_mach = str(machine_no or "").strip().upper()
+        if clean_mach != "DA01":
+            raise PermissionError(
+                f"Akses Ditolak: Perubahan parameter jarak jauh via web HANYA diizinkan untuk mesin pilot 'DA01'. "
+                f"Mesin '{clean_mach}' terkunci dalam mode Aman / Read-Only demi keselamatan operasional pabrik."
+            )
+
+        # Build and send frame
+        req = cls.build_change_parameter_extended_frame([(param_id, value)], flag=1, target_extra=0)
+        resp = cls._exchange(host, port, req, timeout=3.5)
+
+        # Validate response
+        cls._validate_frame(resp, 137, 41)
+
+        return {
+            "status": "success",
+            "machine_no": "DA01",
+            "param_id": param_id,
+            "parameter_name": parameter_name or f"Param {param_id}",
+            "value_applied": value,
+            "message": f"Berhasil mengirim Intervent parameter {param_id} = {value} ke kontroler SETEX mesin DA01 via Port 50000 (Svc 137 / Obj 41)."
+        }
 
     @classmethod
     def read_active_function(cls, host: str, port: int, function_id: int = 141, timeout: float = 3.0) -> Dict[str, Any]:
@@ -227,6 +301,95 @@ class SetexTcpClient:
             logger.debug(f"Could not read IW block from {host}:{port}: {e}")
 
         return snapshot
+
+    @classmethod
+    def read_iw_telemetry(cls, host: str, port: int = 50000, count: int = 80, machine_no: str = "", timeout: float = 1.5) -> Dict[str, Any]:
+        """
+        Reads live IW (Object 1025 / Info Words) directly from SETEX Controller TCP Port 50000.
+        Decodes operational registers using each machine's specific TYPECONF.CNF configuration and linear calibration.
+        """
+        try:
+            from .typeconf_iw_service import TypeconfIwService
+            words = cls.read_block(host, port, 1025, 1, min(count, 240), timeout=timeout)
+
+            # Convert every word using the machine's own TYPECONF formula
+            decoded_registers = []
+            non_zero = {}
+            for idx, raw_val in enumerate(words):
+                reg_num = idx + 1
+                conv = TypeconfIwService.convert_register(machine_no, reg_num, raw_val)
+                decoded_registers.append(conv)
+                if raw_val != 0:
+                    non_zero[f"IW_{reg_num}"] = raw_val
+
+            # Key measurements decoded through machine TYPECONF
+            # IW 1: act.Temp.
+            t1 = decoded_registers[0]["conv_val"] if len(decoded_registers) > 0 and 0 <= decoded_registers[0]["conv_val"] <= 150 else None
+            # IW 12: level machine (%) / pump act
+            level_act = decoded_registers[11]["conv_val"] if len(decoded_registers) > 11 else None
+            # IW 21: speed main pump (%)
+            pump_sp = decoded_registers[20]["conv_val"] if len(decoded_registers) > 20 else None
+            # IW 22: winch speed (m/dak)
+            reel_act = decoded_registers[21]["conv_val"] if len(decoded_registers) > 21 else None
+
+            return {
+                "online": True,
+                "machine_no": machine_no,
+                "host": host,
+                "port": port,
+                "word_count": len(words),
+                "iw_t1_pv": t1,
+                "iw_level_act": level_act,
+                "iw_pump_act": level_act,  # fallback parity
+                "iw_pump_sp": pump_sp,
+                "iw_reel_act": reel_act,
+                "raw_words": words,
+                "decoded_registers": decoded_registers,
+                "non_zero": non_zero
+            }
+        except Exception as e:
+            return {
+                "online": False,
+                "machine_no": machine_no,
+                "host": host,
+                "port": port,
+                "error": str(e),
+                "word_count": 0,
+                "raw_words": [],
+                "decoded_registers": [],
+                "non_zero": {}
+            }
+
+    @classmethod
+    def read_live_alarm_status(cls, host: str, port: int, timeout: float = 2.0) -> Dict[str, Any]:
+        """
+        Queries Controller Service 112 (Object 0) directly via TCP Port 50000.
+        Returns authentic live alarm state directly from controller CPU without relying on stale files.
+        """
+        try:
+            frame = bytearray(cls.build_read_frame(1, 1025, 1))
+            frame[20:] = bytes(len(frame) - 20)
+            frame[15] = 112  # Service 112
+            struct.pack_into('<HHH', frame, 16, 0, 0, 0)
+            struct.pack_into('<H', frame, 2, 16)
+
+            resp = cls._exchange(host, port, bytes(frame), timeout=timeout)
+            if len(resp) != FRAME_SIZE:
+                return {"is_alarm_active": False, "alarm_count": 0, "priority": 0}
+
+            priority, count = struct.unpack_from('<HH', resp, 399)
+            if priority > 2000 or count > 2000:
+                return {"is_alarm_active": False, "alarm_count": 0, "priority": 0}
+
+            return {
+                "is_alarm_active": count > 0,
+                "alarm_count": count,
+                "priority": priority,
+                "stop": int(resp[404]),
+                "halt": int(resp[405])
+            }
+        except Exception as e:
+            return {"is_alarm_active": False, "alarm_count": 0, "priority": 0, "error": str(e)}
 
     @classmethod
     def write_setpoint(cls, host: str, port: int, obj: int, address: int, value: int) -> Dict[str, Any]:

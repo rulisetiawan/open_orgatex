@@ -6,12 +6,15 @@ const TempCurveChart = ({
   series, 
   categories, 
   title = "Profil Kurva Suhu Pencelupan (°C)",
-  height = 360 
+  height = 360,
+  annotations = {}
 }) => {
   const { theme } = useTheme();
   const isDark = theme === 'dark' || (typeof document !== 'undefined' && document.documentElement.classList.contains('dark'));
 
-  // SMM Automation refined industrial palette
+  // SMM Automation refined industrial palette:
+  // Series 0: T1 Suhu Bejana (PV) -> Red / Rose (#f43f5e / #e11d48)
+  // Series 1: Setpoint Target (SP) -> Blue / Cyan (#38bdf8 / #2563eb)
   const chartColors = isDark 
     ? ['#f43f5e', '#38bdf8', '#10b981', '#fbbf24', '#a855f7'] 
     : ['#e11d48', '#2563eb', '#059669', '#d97706', '#7c3aed'];
@@ -53,6 +56,11 @@ const TempCurveChart = ({
         },
       },
     },
+    annotations: {
+      xaxis: annotations.xaxis || [],
+      yaxis: annotations.yaxis || [],
+      points: annotations.points || [],
+    },
     theme: {
       mode: isDark ? 'dark' : 'light',
     },
@@ -60,7 +68,7 @@ const TempCurveChart = ({
     stroke: {
       width: [2.5, 2, 2, 1.8],
       curve: 'smooth',
-      dashArray: [0, 4, 0, 2],
+      dashArray: [0, 5, 0, 2],
     },
     title: {
       text: title,
@@ -160,7 +168,7 @@ const TempCurveChart = ({
         fontFamily: "'Inter', sans-serif",
       },
       y: {
-        formatter: (val) => (val !== undefined && val !== null ? `${val} °C` : '-'),
+        formatter: (val) => (val !== undefined && val !== null ? `${val} °C` : '- (Tanpa Target SP)'),
       },
     },
     markers: {

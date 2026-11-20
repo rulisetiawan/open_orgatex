@@ -65,7 +65,10 @@ TARGET_CONFIG_FILES = [
     "CONFTEXT.CNF",
     "MACHCONF.CNF",
     "FNLEGEND.CNF",
-    "TYPECONT.CNF"
+    "TYPECONT.CNF",
+    "TYPEFORM.CNF",
+    "USERCONF.CNF",
+    "PASSCODE.CNF"
 ]
 
 def normalize_folder_name(machine_no: str) -> str:
@@ -184,14 +187,19 @@ def sync_machine_ready_config(machine_no: str, ip_address: Optional[str] = None)
         except Exception:
             pass
 
+    raw_files = os.listdir(raw_dir) if os.path.exists(raw_dir) else []
+    awl_files = [f for f in raw_files if f.upper().endswith(".AWL")]
+
     prof_data.update({
         "machine_no": machine_no.upper(),
         "folder_name": folder_name,
         "ip_address": ip_address or prof_data.get("ip_address", ""),
         "has_custom_hmi_config": (has_tc and has_ct),
+        "has_awl_plc_program": len(awl_files) > 0,
+        "awl_files": awl_files,
         "status": "ready" if (has_tc and has_ct) else "baseline_ready",
         "last_synced_at": datetime.now().isoformat(),
-        "files_in_hmi_dir": os.listdir(raw_dir) if os.path.exists(raw_dir) else []
+        "files_in_hmi_dir": raw_files
     })
 
     with open(prof_file, "w", encoding="utf-8") as f:
@@ -201,10 +209,12 @@ def fetch_machine_config_from_hmi(
     ip: str,
     machine_no: str,
     ftp_port: int = 21,
+    remote_dir: Optional[str] = None,
     timeout: float = 4.0
 ) -> Dict[str, Any]:
     """
-    Connects to SETEX HMI via FTP and downloads TYPECONF.CNF, CONFTEXT.CNF, MACHCONF.CNF, etc.
+    Connects to SETEX HMI via FTP and downloads TYPECONF.CNF, CONFTEXT.CNF, MACHCONF.CNF,
+    as well as all PLC program statement list files (.AWL).
     Saves them to WORKSPACE_PROGRAM_MESIN/<NAMA_MESIN>/01_CONFIG_DARI_HMI/
     and runs synchronization to 02_CONFIG_SIAP_PAKAI/.
     """
@@ -212,7 +222,7 @@ def fetch_machine_config_from_hmi(
     m_dir = ensure_machine_workspace(machine_no)
     raw_dir = os.path.join(m_dir, "01_CONFIG_DARI_HMI")
 
-    logger.info(f"Starting auto-fetch config for {machine_no} ({folder_name}) at {ip}:{ftp_port}")
+    logger.info(f"Starting auto-fetch config & AWL for {machine_no} ({folder_name}) at {ip}:{ftp_port}")
 
     downloaded = []
     failed = []
@@ -251,9 +261,15 @@ def fetch_machine_config_from_hmi(
 
         ftp.voidcmd("TYPE I")  # Binary mode
 
-        # Step 2: Auto-detect remote directory where .CNF files reside
+        # Step 2: Auto-detect remote directory where .CNF & .AWL files reside
+        check_dirs = list(CANDIDATE_CONFIG_DIRS)
+        if remote_dir:
+            normalized_remote = remote_dir.rstrip("/")
+            if normalized_remote and normalized_remote not in check_dirs:
+                check_dirs.insert(0, normalized_remote)
+
         remote_files_map = {}
-        for cand_dir in CANDIDATE_CONFIG_DIRS:
+        for cand_dir in check_dirs:
             try:
                 nlst = ftp.nlst(cand_dir)
                 cand_map = {}
@@ -261,8 +277,10 @@ def fetch_machine_config_from_hmi(
                     base_name = os.path.basename(item.replace("\\", "/"))
                     cand_map[base_name.upper()] = base_name
                 
-                # Check if TYPECONF.CNF or CONFTEXT.CNF is in this candidate folder
-                if any(target in cand_map for target in TARGET_CONFIG_FILES):
+                # Check if TYPECONF.CNF, CONFTEXT.CNF, or any .CNF/.AWL is in this candidate folder
+                has_target = any(target in cand_map for target in TARGET_CONFIG_FILES)
+                has_awl_or_cnf = any(f.endswith(".AWL") or f.endswith(".CNF") for f in cand_map)
+                if has_target or has_awl_or_cnf:
                     resolved_remote_dir = cand_dir
                     remote_files_map = cand_map
                     break
@@ -273,7 +291,7 @@ def fetch_machine_config_from_hmi(
             try:
                 cur_nlst = ftp.nlst()
                 cand_map = {os.path.basename(i.replace("\\", "/")).upper(): os.path.basename(i.replace("\\", "/")) for i in cur_nlst}
-                if any(target in cand_map for target in TARGET_CONFIG_FILES):
+                if any(target in cand_map for target in TARGET_CONFIG_FILES) or any(f.endswith(".AWL") or f.endswith(".CNF") for f in cand_map):
                     resolved_remote_dir = "/"
                     remote_files_map = cand_map
             except Exception:
@@ -281,33 +299,47 @@ def fetch_machine_config_from_hmi(
 
         if not resolved_remote_dir or not remote_files_map:
             raise FileNotFoundError(
-                f"Tidak ditemukan folder konfigurasi HMI yang berisi file .CNF pada kontroler {ip}. "
-                f"Direktori yang dicek: {', '.join(CANDIDATE_CONFIG_DIRS)}"
+                f"Tidak ditemukan folder konfigurasi HMI yang berisi file .CNF / .AWL pada kontroler {ip}. "
+                f"Direktori yang dicek: {', '.join(check_dirs)}"
             )
 
-        # Step 3: Change directory to resolved_remote_dir and download
+        # Step 3: Change directory to resolved_remote_dir and download .CNF and .AWL files
         try:
             ftp.cwd(resolved_remote_dir)
         except Exception:
             pass
 
-        for target in TARGET_CONFIG_FILES:
+        # Identify all files to download: Standard TARGET_CONFIG_FILES + all *.CNF + all *.AWL
+        download_targets = set(TARGET_CONFIG_FILES)
+        for fname_upper in remote_files_map:
+            if fname_upper.endswith(".CNF") or fname_upper.endswith(".AWL"):
+                download_targets.add(fname_upper)
+
+        # Sort so primary CNFs come first, then AWLs
+        sorted_targets = sorted(
+            download_targets,
+            key=lambda x: (0 if x in TARGET_CONFIG_FILES else (1 if x.endswith(".AWL") else 2), x)
+        )
+
+        for target in sorted_targets:
             if target in remote_files_map:
                 filename = remote_files_map[target]
-                local_file = os.path.join(raw_dir, target)
+                local_file = os.path.join(raw_dir, filename)
                 try:
                     with open(local_file, "wb") as f_out:
                         ftp.retrbinary(f"RETR {filename}", f_out.write)
                     size = os.path.getsize(local_file)
+                    file_category = "AWL" if target.endswith(".AWL") else "CNF"
                     downloaded.append({
-                        "filename": target,
+                        "filename": filename,
+                        "type": file_category,
                         "size_bytes": size,
                         "remote_path": f"{resolved_remote_dir}/{filename}"
                     })
-                    logger.info(f"Downloaded {target} ({size} bytes) from {resolved_remote_dir}/{filename}")
+                    logger.info(f"Downloaded {file_category} {filename} ({size} bytes) from {resolved_remote_dir}/{filename}")
                 except Exception as dl_err:
-                    failed.append({"filename": target, "error": str(dl_err)})
-                    logger.warning(f"Failed to download {target}: {dl_err}")
+                    failed.append({"filename": filename, "error": str(dl_err)})
+                    logger.warning(f"Failed to download {filename}: {dl_err}")
 
     except (socket.timeout, TimeoutError):
         msg = f"Koneksi timeout ke HMI di {ip}:{ftp_port}. Kontroler offline atau tidak merespon dalam {timeout}s."

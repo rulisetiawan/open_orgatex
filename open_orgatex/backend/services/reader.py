@@ -542,24 +542,26 @@ class SetexFolderReader:
                 if 1 <= fn_val <= 2000:
                     function_code = fn_val
 
-            # Analog readings at offset 20, 22, 24 (16-bit short / 10.0)
-            pv = 40.0
-            sp = 90.0
-            t2 = 25.0
+            # Analog readings: Note that STATUS.ACT offset 20 is an internal controller status word (0x0300 / 768),
+            # NOT temperature! Real sensor telemetry is read from cyclic datalog PR<batch>.LOG.
+            pv = None
+            sp = None
+            t2 = None
             if size >= 26:
                 w_pv, w_sp, w_t2 = struct.unpack_from("<3h", data, 20)
-                if 100 <= w_pv <= 1500:
+                # Strictly filter out internal controller status word 768 (0x0300) and 1536 (0x0600)
+                if 100 <= w_pv <= 1500 and w_pv != 768:
                     pv = round(w_pv / 10.0, 1)
-                if 100 <= w_sp <= 1500:
+                if 100 <= w_sp <= 1500 and w_sp != 768:
                     sp = round(w_sp / 10.0, 1)
-                if 100 <= w_t2 <= 1500:
+                if 100 <= w_t2 <= 1500 and w_t2 not in (768, 1536):
                     t2 = round(w_t2 / 10.0, 1)
 
             # Check if 32-bit floats exist in cyclic record block (offset 366..)
             if size >= 370:
                 try:
                     f_sp = struct.unpack_from("<f", data, 366)[0]
-                    if 20.0 <= f_sp <= 145.0:
+                    if 20.0 <= f_sp <= 145.0 and abs(f_sp - 76.8) > 0.1 and abs(f_sp - 90.0) > 0.1:
                         sp = round(f_sp, 1)
                 except Exception:
                     pass

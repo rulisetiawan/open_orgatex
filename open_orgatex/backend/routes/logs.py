@@ -10,9 +10,10 @@ from sqlalchemy.orm import Session
 from sqlalchemy import desc, func
 
 from ..database import get_db
-from ..models.schema_pg import Machine, DatalogCyclicRecord, DatalogAlarm, BatchHeader, OperatorIntervention
+from ..models.schema_pg import Machine, DatalogCyclicRecord, DatalogAlarm, BatchHeader, OperatorIntervention, BatchConsumption
 from ..services.ingestion import LogIngestionService
 from ..services.reader import SetexFolderReader
+from ..services.setex_tcp_client import SetexTcpClient
 
 router = APIRouter(prefix="/api/logs", tags=["Logs & Ingestion"])
 
@@ -340,6 +341,56 @@ def get_batch_history_detail(
             st["time_status"] = "ON_TRACK"
             st["delta_text"] = "✓ Selesai"
 
+        # Attach telemetry data and determine if this step has temperature setpoint
+        step_pts = [p for p in curve if p.get("step_no") == s_no]
+        if step_pts:
+            pv_vals = [float(p["temp_pv"]) for p in step_pts if p.get("temp_pv") is not None]
+            sp_vals = [float(p["temp_sp"]) for p in step_pts if p.get("temp_sp") is not None]
+            t2_vals = [float(p["temp_pt100_t2"]) for p in step_pts if p.get("temp_pt100_t2") is not None]
+            pump_vals = [float(p["pump_speed_percent"]) for p in step_pts if p.get("pump_speed_percent") is not None]
+            reel_vals = [float(p["reel_speed_mpm"]) for p in step_pts if p.get("reel_speed_mpm") is not None]
+
+            has_temp_target = False
+            st_type = str(st.get("type") or "").upper()
+            if st_type in ("HEAT", "COOL", "HOLD", "TEMP"):
+                has_temp_target = True
+            elif st.get("func_id") in (140, 141, 142, 145, 146, 121, 131, 150):
+                has_temp_target = True
+            else:
+                for sub in st.get("sub_steps", []):
+                    sub_type = str(sub.get("type") or "").upper()
+                    if sub_type in ("HEAT", "COOL", "HOLD", "TEMP") or sub.get("func_id") in (140, 141, 142, 145, 146, 121, 131, 150):
+                        has_temp_target = True
+                        break
+                    if any(p.get("unit") == "°C" for p in sub.get("params", [])):
+                        has_temp_target = True
+                        break
+                    if "°C" in str(sub.get("p1") or "") or "°C" in str(sub.get("p2") or ""):
+                        has_temp_target = True
+                        break
+            if not has_temp_target:
+                if "°C" in str(st.get("p1") or "") or "°C" in str(st.get("p2") or ""):
+                    has_temp_target = True
+                elif any(p.get("unit") == "°C" for p in st.get("params", [])):
+                    has_temp_target = True
+
+            st["has_temp_target"] = has_temp_target
+            st["telemetry"] = {
+                "point_count": len(step_pts),
+                "pv_start": round(pv_vals[0], 1) if pv_vals else None,
+                "pv_end": round(pv_vals[-1], 1) if pv_vals else None,
+                "pv_min": round(min(pv_vals), 1) if pv_vals else None,
+                "pv_max": round(max(pv_vals), 1) if pv_vals else None,
+                "pv_avg": round(sum(pv_vals) / len(pv_vals), 1) if pv_vals else None,
+                "sp": (round(sp_vals[-1], 1) if sp_vals else None) if has_temp_target else None,
+                "t2_avg": round(sum(t2_vals) / len(t2_vals), 1) if t2_vals else None,
+                "pump_avg": round(sum(pump_vals) / len(pump_vals), 1) if pump_vals else None,
+                "reel_avg": round(sum(reel_vals) / len(reel_vals), 1) if reel_vals else None,
+            }
+        else:
+            st["has_temp_target"] = False
+            st["telemetry"] = None
+
     # Ambil alarm untuk batch ini
     alarms_db = db.query(DatalogAlarm).filter(
         DatalogAlarm.batch_ref_no == ref_clean
@@ -388,6 +439,18 @@ def get_batch_history_detail(
     start_str = curve[0]["timestamp"] if curve else "-"
     end_str = curve[-1]["timestamp"] if curve else "-"
 
+    # Ambil data konsumsi utilitas batch (Object 1035) jika ada
+    consumption_db = db.query(BatchConsumption).filter(
+        BatchConsumption.batch_ref_no == ref_clean
+    ).order_by(desc(BatchConsumption.recorded_at)).first()
+
+    consumption_data = {
+        "water_liters": float(consumption_db.water_liters) if consumption_db and consumption_db.water_liters is not None else 0.0,
+        "power_kwh": float(consumption_db.power_kwh) if consumption_db and consumption_db.power_kwh is not None else 0.0,
+        "steam_kg": float(consumption_db.steam_kg) if consumption_db and consumption_db.steam_kg is not None else 0.0,
+        "runtime_minutes": float(consumption_db.runtime_minutes) if consumption_db and consumption_db.runtime_minutes is not None else 0.0
+    } if consumption_db else None
+
     batch_display = bh.batch_no if bh and bh.batch_no else f"LOT-{ref_clean}"
     recipe_display = bh.recipe_name if bh and bh.recipe_name else "Reactive Dyeing Standard"
 
@@ -422,7 +485,8 @@ def get_batch_history_detail(
         "curve": curve,
         "steps": recipe_steps,
         "alarms": formatted_alarms,
-        "interventions": formatted_interventions
+        "interventions": formatted_interventions,
+        "consumption": consumption_data
     }
 
 @router.get("/alarms/{machine_no}")
@@ -566,4 +630,28 @@ def get_recorded_interventions(
             }
             for r in records
         ]
+    }
+
+@router.get("/iw/{machine_no}")
+def get_live_machine_iw(
+    machine_no: str,
+    ip: Optional[str] = Query(None, description="Optional override IP"),
+    count: int = Query(default=80, le=240, description="Jumlah register IW (1..240)"),
+    db: Session = Depends(get_db)
+):
+    """
+    Mengambil data live register IW (Info Words / Objek 1025) langsung dari Controller SETEX via TCP Port 50000.
+    """
+    mach_clean = machine_no.upper()
+    m = db.query(Machine).filter(Machine.machine_no == mach_clean).first()
+    host = ip or (m.ip_address if m else "172.16.110.101")
+    port = (m.tcp_port if m and m.tcp_port else 50000)
+
+    iw_data = SetexTcpClient.read_iw_telemetry(host, port, count=count, machine_no=mach_clean, timeout=2.5)
+    return {
+        "status": "success" if iw_data.get("online") else "error",
+        "machine_no": mach_clean,
+        "controller_ip": host,
+        "controller_port": port,
+        **iw_data
     }
