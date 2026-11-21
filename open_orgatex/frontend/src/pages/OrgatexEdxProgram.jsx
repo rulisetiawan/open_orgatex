@@ -689,7 +689,7 @@ export default function OrgatexEdxProgram() {
   const activeTreatment = procedureTreatments[selectedPosition] || null;
 
   return (
-    <div className="mx-auto max-w-7xl p-4 md:p-6 space-y-6">
+    <div className="w-full space-y-6">
       {/* Toast Notification */}
       {notification && (
         <div className={`fixed top-4 right-4 z-50 flex items-center gap-3 px-5 py-3 rounded-lg shadow-xl text-white font-medium transition-all ${notification.type === 'error' ? 'bg-rose-600' : 'bg-emerald-600'

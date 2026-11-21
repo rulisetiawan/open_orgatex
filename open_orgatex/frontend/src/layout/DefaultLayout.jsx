@@ -25,7 +25,7 @@ const DefaultLayout = ({ children }) => {
 
           {/* Main Content with smooth page entry animation */}
           <main className="page-enter flex-1">
-            <div className="mx-auto max-w-screen-2xl p-4 md:p-6 2xl:p-10">
+            <div className="w-full p-4 md:p-6 2xl:p-8">
               {children}
             </div>
           </main>

@@ -28,7 +28,7 @@ const Header = ({ sidebarOpen, setSidebarOpen, darkMode, setDarkMode }) => {
 
   return (
     <header className="sticky top-0 z-999 flex w-full border-b border-stroke bg-white/95 backdrop-blur shadow-sm dark:border-strokedark dark:bg-boxdark/95 transition-colors duration-200">
-      <div className="flex flex-grow items-center justify-between px-4 py-3 md:px-6 2xl:px-10">
+      <div className="flex flex-grow items-center justify-between px-4 py-3 md:px-6 2xl:px-8">
         <div className="flex items-center gap-3 sm:gap-4">
           {/* Hamburger Toggle for Mobile */}
           <button
