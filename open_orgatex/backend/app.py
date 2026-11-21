@@ -138,11 +138,12 @@ for candidate in frontend_dist_candidates:
         frontend_dist = candidate
         break
 
+from fastapi.responses import FileResponse, HTMLResponse
+from fastapi import HTTPException
+
 if frontend_dist:
     print(f"[UI] Frontend Web Dashboard aktif dari: {frontend_dist}")
     from fastapi.staticfiles import StaticFiles
-    from fastapi.responses import FileResponse
-    from fastapi import HTTPException
 
     assets_dir = os.path.join(frontend_dist, "assets")
     if os.path.isdir(assets_dir):
@@ -169,6 +170,31 @@ if frontend_dist:
         raise HTTPException(status_code=404, detail="Halaman tidak ditemukan")
 else:
     print("[WARN] Folder 'frontend/dist' tidak ditemukan. Frontend SPA tidak aktif.")
+
+    @app.get("/")
+    async def serve_missing_frontend():
+        return HTMLResponse(
+            status_code=200,
+            content="""
+            <html>
+            <head><title>OpenOrgaTEX - Frontend Setup</title></head>
+            <body style="font-family:sans-serif; padding:40px; line-height:1.6; background:#1e1e2e; color:#cdd6f4;">
+                <h2 style="color:#f38ba8;">⚠️ Folder 'frontend/dist' Belum Tersalin ke Mini PC</h2>
+                <p>Backend API Python sudah <strong>BERHASIL AKTIF</strong>, namun file tampilan web belum ditemukan.</p>
+                <div style="background:#313244; padding:15px; border-radius:8px; margin:20px 0;">
+                    <p style="margin:0 0 10px 0;"><strong>Cara Mengatasinya:</strong></p>
+                    <ol style="margin:0; padding-left:20px;">
+                        <li>Di laptop Anda, buka folder: <code>DA-TEX\\open_orgatex\\frontend\\dist</code></li>
+                        <li>Salin (copy) folder <strong>dist</strong> tersebut ke Flashdisk.</li>
+                        <li>Di Mini PC, tempelkan (paste) folder tersebut ke: <code>D:\\SETEX\\open_orgatex\\frontend\\dist</code></li>
+                        <li>Restart <code>JALANKAN_APLIKASI.bat</code>.</li>
+                    </ol>
+                </div>
+                <p>Dokumentasi API tetap dapat diakses di: <a style="color:#89b4fa;" href="/docs">/docs</a> atau <a style="color:#89b4fa;" href="/api/health">/api/health</a></p>
+            </body>
+            </html>
+            """
+        )
 
 if __name__ == "__main__":
     import uvicorn
