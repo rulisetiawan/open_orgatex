@@ -35,10 +35,11 @@ echo.
 echo Membuka browser otomatis...
 start http://localhost:8743
 
-echo Memulai server backend & frontend di port 8743...
+echo Memulai server backend dan frontend di port 8743...
 echo Tekan Ctrl+C untuk menghentikan server.
 echo.
 
+set "PYTHONPATH=%~dp0;%~dp0..;%PYTHONPATH%"
 python -m uvicorn open_orgatex.backend.app:app --host 0.0.0.0 --port 8743
 
 pause

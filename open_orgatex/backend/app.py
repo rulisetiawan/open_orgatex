@@ -125,8 +125,21 @@ def health_check():
 # SERVE FRONTEND (STATIC ASSETS & SPA ROUTING)
 # Memungkinkan aplikasi berjalan penuh (Backend + Frontend) tanpa Docker / Nginx
 # ==============================================================================
-frontend_dist = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "frontend", "dist"))
-if os.path.isdir(frontend_dist):
+frontend_dist_candidates = [
+    os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "frontend", "dist")),
+    os.path.abspath(os.path.join(os.path.dirname(__file__), "frontend", "dist")),
+    os.path.abspath("./open_orgatex/frontend/dist"),
+    os.path.abspath("./frontend/dist")
+]
+
+frontend_dist = None
+for candidate in frontend_dist_candidates:
+    if os.path.isdir(candidate) and os.path.isfile(os.path.join(candidate, "index.html")):
+        frontend_dist = candidate
+        break
+
+if frontend_dist:
+    print(f"[UI] Frontend Web Dashboard aktif dari: {frontend_dist}")
     from fastapi.staticfiles import StaticFiles
     from fastapi.responses import FileResponse
     from fastapi import HTTPException
@@ -134,6 +147,11 @@ if os.path.isdir(frontend_dist):
     assets_dir = os.path.join(frontend_dist, "assets")
     if os.path.isdir(assets_dir):
         app.mount("/assets", StaticFiles(directory=assets_dir), name="assets")
+
+    @app.get("/")
+    async def serve_root():
+        index_file = os.path.join(frontend_dist, "index.html")
+        return FileResponse(index_file)
 
     @app.get("/{full_path:path}")
     async def serve_frontend_spa(full_path: str):
@@ -148,7 +166,9 @@ if os.path.isdir(frontend_dist):
         if os.path.isfile(index_file):
             return FileResponse(index_file)
         
-        raise HTTPException(status_code=404, detail="Frontend index.html tidak ditemukan")
+        raise HTTPException(status_code=404, detail="Halaman tidak ditemukan")
+else:
+    print("[WARN] Folder 'frontend/dist' tidak ditemukan. Frontend SPA tidak aktif.")
 
 if __name__ == "__main__":
     import uvicorn
