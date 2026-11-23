@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log/slog"
+	"math"
 	"os"
 	"os/signal"
 	"path/filepath"
@@ -258,6 +259,128 @@ func main() {
 					Raw:       rawVal,
 					Unit:      mapping.Unit,
 					Role:      role,
+					Quality:   192,
+					Timestamp: now,
+				})
+			}
+
+			// Read Dedicated Setpoints from Object 1009 (SET) and Object 6 (Active Step Parameters)
+			var tempSP, holdingTimeSP, gradientSP, levelSP, speedSP float64
+			setWords, errSet := tcpClient.ReadSETBlock(1, 20)
+			if errSet == nil && len(setWords) > 0 {
+				if setWords[0] > 0 {
+					tempSP = float64(setWords[0]) / 10.0
+				}
+				if len(setWords) > 4 && setWords[4] > 0 {
+					speedSP = float64(setWords[4]) / 10.0
+				}
+				if len(setWords) > 8 && setWords[8] > 0 {
+					levelSP = float64(setWords[8])
+				}
+			}
+
+			// Read Active Function 141 (Temperature Control: Target Temp, Gradient, Holding Time)
+			f141Vals, _, errF141 := tcpClient.ReadActiveFunction(141)
+			if errF141 == nil && len(f141Vals) >= 3 {
+				if f141Vals[0] > 0 {
+					tempSP = float64(f141Vals[0])
+				}
+				if f141Vals[1] >= 0 {
+					gradientSP = float64(f141Vals[1])
+				}
+				if f141Vals[2] > 0 {
+					holdingTimeSP = float64(f141Vals[2])
+				}
+			}
+
+			// Read Active Function 713 (Fill Level: Target Fill Volume)
+			f713Vals, _, errF713 := tcpClient.ReadActiveFunction(713)
+			if errF713 == nil && len(f713Vals) >= 2 {
+				if f713Vals[1] > 0 {
+					levelSP = float64(f713Vals[1])
+				}
+			}
+
+			// Register SV Setpoint Tags into Telemetry and SCADA
+			svItems := []struct {
+				TagName string
+				Value   float64
+				Unit    string
+				Raw     uint16
+				Role    string
+				Field   string
+				Note    string
+			}{
+				{
+					TagName: fmt.Sprintf("SMM.%s.MAIN_TANK.TEMPERATURE_SV", cfg.PilotMachine.AssetID),
+					Value:   math.Round(tempSP*10) / 10,
+					Unit:    "°C",
+					Raw:     uint16(tempSP * 10),
+					Role:    "SV",
+					Field:   "temp_setpoint",
+					Note:    "Target Temperature Setpoint (Obj 1009 / Func 141)",
+				},
+				{
+					TagName: fmt.Sprintf("SMM.%s.MAIN_TANK.LEVEL_SV", cfg.PilotMachine.AssetID),
+					Value:   levelSP,
+					Unit:    "L",
+					Raw:     uint16(levelSP),
+					Role:    "SV",
+					Field:   "level_setpoint",
+					Note:    "Target Fill Volume / Level Setpoint (Obj 1009 / Func 713)",
+				},
+				{
+					TagName: fmt.Sprintf("SMM.%s.MAIN_MOTOR.SPEED_SV", cfg.PilotMachine.AssetID),
+					Value:   speedSP,
+					Unit:    "%",
+					Raw:     uint16(speedSP * 10),
+					Role:    "SV",
+					Field:   "speed_setpoint",
+					Note:    "Target Pump / Winch Speed Setpoint (Obj 1009)",
+				},
+				{
+					TagName: fmt.Sprintf("SMM.%s.PROCESS.HOLDING_TIME_SV", cfg.PilotMachine.AssetID),
+					Value:   holdingTimeSP,
+					Unit:    "min",
+					Raw:     uint16(holdingTimeSP),
+					Role:    "SV",
+					Field:   "holding_time_setpoint",
+					Note:    "Target Holding Time Setpoint (Func 141 P3)",
+				},
+				{
+					TagName: fmt.Sprintf("SMM.%s.PROCESS.GRADIENT_SV", cfg.PilotMachine.AssetID),
+					Value:   gradientSP,
+					Unit:    "°C/min",
+					Raw:     uint16(gradientSP * 10),
+					Role:    "SV",
+					Field:   "gradient_setpoint",
+					Note:    "Target Temperature Gradient Setpoint (Func 141 P2)",
+				},
+			}
+
+			for _, sv := range svItems {
+				tagsMap[sv.TagName] = mqtt.TagMetric{
+					Value:   sv.Value,
+					Raw:     sv.Raw,
+					Unit:    sv.Unit,
+					Role:    sv.Role,
+					Quality: 192,
+				}
+				jsonTelemetry[sv.TagName] = map[string]interface{}{
+					"value":      sv.Value,
+					"raw":        sv.Raw,
+					"unit":       sv.Unit,
+					"role":       sv.Role,
+					"quality":    192,
+					"field_name": sv.Field,
+					"notes":      sv.Note,
+				}
+				tagRecords = append(tagRecords, storage.TagValueRecord{
+					TagName:   sv.TagName,
+					Value:     sv.Value,
+					Raw:       sv.Raw,
+					Unit:      sv.Unit,
+					Role:      sv.Role,
 					Quality:   192,
 					Timestamp: now,
 				})

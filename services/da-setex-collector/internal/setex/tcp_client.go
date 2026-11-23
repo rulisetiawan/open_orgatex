@@ -4,6 +4,7 @@ import (
 	"encoding/binary"
 	"fmt"
 	"io"
+	"math"
 	"net"
 	"time"
 )
@@ -137,4 +138,50 @@ func (c *TCPClient) ReadBlock(obj uint16, startAddress uint16, count uint16) ([]
 	}
 
 	return words, resp, nil
+}
+
+// ReadSETBlock reads target setpoint registers (Object 1009 SET/SOLL words).
+func (c *TCPClient) ReadSETBlock(startAddress uint16, count uint16) ([]uint16, error) {
+	words, _, err := c.ReadBlock(1009, startAddress, count)
+	return words, err
+}
+
+// ReadActiveFunction reads active function parameters from Object 6 (e.g. Func 141 Temp Control, Func 713 Fill).
+func (c *TCPClient) ReadActiveFunction(funcID uint16) ([]float32, []uint16, error) {
+	frame := make([]byte, FrameSize)
+	binary.LittleEndian.PutUint16(frame[0:2], 2)
+	binary.LittleEndian.PutUint16(frame[2:4], 80)
+	frame[4] = 10
+	frame[5] = 12
+	frame[6] = 0
+	binary.LittleEndian.PutUint16(frame[9:11], 1)
+	frame[14] = 1 // Message Type: 1 = Request
+	frame[15] = 1 // Service: 1 = SV_READ
+	binary.LittleEndian.PutUint16(frame[16:18], 6)  // Object 6
+	binary.LittleEndian.PutUint16(frame[18:20], 64) // Payload Length 64
+	frame[20] = 0                                  // Active line 0
+	binary.LittleEndian.PutUint16(frame[21:23], funcID)
+
+	resp, err := c.Exchange(frame)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	if _, err := ValidateFrame(resp, 1, 6); err != nil {
+		return nil, nil, err
+	}
+
+	values := make([]float32, 6)
+	paramIDs := make([]uint16, 6)
+	for i := 0; i < 6; i++ {
+		offsetVal := 25 + 8*i
+		offsetPID := 29 + 8*i
+		if offsetPID+2 <= len(resp) {
+			bits := binary.LittleEndian.Uint32(resp[offsetVal : offsetVal+4])
+			values[i] = math.Float32frombits(bits)
+			paramIDs[i] = binary.LittleEndian.Uint16(resp[offsetPID : offsetPID+2])
+		}
+	}
+
+	return values, paramIDs, nil
 }

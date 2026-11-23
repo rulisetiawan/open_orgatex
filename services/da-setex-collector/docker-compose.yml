@@ -1,0 +1,38 @@
+version: '3.8'
+
+services:
+  da-setex-collector:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: da-setex-collector:1.0.0
+    container_name: da_setex_collector
+    restart: always
+
+    # Mode Host Network direkomendasikan pada host Linux (DA-SETEX)
+    # agar kontainer dapat langsung mengakses controller SETEX (172.16.x.x),
+    # EMQX broker (192.168.100.30:1883), dan PostgreSQL tanpa latensi NAT docker.
+    network_mode: "host"
+
+    environment:
+      - TZ=Asia/Jakarta
+      - CONFIG_PATH=/app/config.yaml
+
+    volumes:
+      - ./config.yaml:/app/config.yaml:ro
+      - ../../WORKSPACE_PROGRAM_MESIN:/app/WORKSPACE_PROGRAM_MESIN:ro
+
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'        # Maksimal 1 Core CPU (service Go sangat ringan < 5% CPU)
+          memory: 256M       # Maksimal 256 MB RAM (penggunaan aktual Go ~20MB)
+        reservations:
+          cpus: '0.1'
+          memory: 64M
+
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "20m"      # Batas rotasi log per file
+        max-file: "5"        # Maksimal 5 file log disimpan
