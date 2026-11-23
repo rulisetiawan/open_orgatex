@@ -1,11 +1,14 @@
 import os
 import json
 import logging
+from datetime import datetime
 from typing import List, Optional, Dict, Any
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 from sqlalchemy import text
 from ..database import get_db
+from ..services.setex_tcp_client import SetexTcpClient
+from ..models.schema_pg import Machine
 
 logger = logging.getLogger("orgatex.iw_telemetry")
 
@@ -66,19 +69,25 @@ def get_iw_machines(db: Session = Depends(get_db)):
         raise HTTPException(status_code=500, detail=str(e))
 
 @router.get("/mapping/{machine_id}")
-def get_machine_tag_mapping(machine_id: str, db: Session = Depends(get_db)):
+def get_machine_tag_mapping(
+    machine_id: str,
+    direct: bool = Query(False, description="Baca live data langsung dari Controller TCP 50000"),
+    db: Session = Depends(get_db)
+):
     """
     Mengambil seluruh daftar mapping register IW ke Tag SCADA untuk mesin tertentu,
-    dilengkapi nilai aktual/live terkini jika service pengumpul sedang aktif.
+    dilengkapi nilai aktual/live terkini jika service pengumpul sedang aktif atau via direct read TCP 50000.
     """
     try:
-        # 1. Ambil data live telemetry
+        mach_clean = machine_id.upper().strip()
+
+        # 1. Ambil data live telemetry dari database
         live_query = text("""
             SELECT last_updated, connection_status, batch_no, step_no, program_no, telemetry_json
             FROM live_iw_telemetry
             WHERE machine_id = :machine_id;
         """)
-        live_row = db.execute(live_query, {"machine_id": machine_id}).fetchone()
+        live_row = db.execute(live_query, {"machine_id": mach_clean}).fetchone()
         
         live_meta = None
         telemetry_map = {}
@@ -88,12 +97,41 @@ def get_machine_tag_mapping(machine_id: str, db: Session = Depends(get_db)):
                 "connection_status": live_row[1],
                 "batch_no": live_row[2],
                 "step_no": live_row[3],
-                "program_no": live_row[4]
+                "program_no": live_row[4],
+                "source": "COLLECTOR_DAEMON"
             }
             if isinstance(live_row[5], dict):
                 telemetry_map = live_row[5]
 
-        # 2. Ambil daftar konfigurasi tag
+        # 2. Jika diminta direct=true atau data collector belum ada/kosong, coba baca langsung via TCP Port 50000
+        direct_by_index: Dict[int, Dict[str, Any]] = {}
+        if direct or len(telemetry_map) == 0:
+            m = db.query(Machine).filter(Machine.machine_no == mach_clean).first()
+            host = m.ip_address if m and m.ip_address else ("172.16.110.160" if mach_clean == "10B" else None)
+            port = m.tcp_port if m and m.tcp_port else 50000
+            
+            if host:
+                try:
+                    iw_direct = SetexTcpClient.read_iw_telemetry(host, port, count=94, machine_no=mach_clean, timeout=2.0)
+                    if iw_direct.get("online"):
+                        live_meta = {
+                            "last_updated": datetime.now().isoformat(),
+                            "connection_status": f"ONLINE (Direct TCP:{port})",
+                            "source": "DIRECT_TCP_CONTROLLER",
+                            "host": host,
+                            "port": port,
+                            "batch_no": live_meta.get("batch_no") if live_meta else None,
+                            "step_no": live_meta.get("step_no") if live_meta else None,
+                            "program_no": live_meta.get("program_no") if live_meta else None
+                        }
+                        for d in iw_direct.get("decoded_registers", []):
+                            idx = d.get("index")
+                            if idx is not None:
+                                direct_by_index[idx] = d
+                except Exception as e:
+                    logger.debug(f"Direct controller read skipped/failed for {mach_clean}: {e}")
+
+        # 3. Ambil daftar konfigurasi tag
         map_query = text("""
             SELECT 
                 id,
@@ -118,18 +156,29 @@ def get_machine_tag_mapping(machine_id: str, db: Session = Depends(get_db)):
             WHERE machine_id = :machine_id
             ORDER BY register_index ASC;
         """)
-        rows = db.execute(map_query, {"machine_id": machine_id}).fetchall()
+        rows = db.execute(map_query, {"machine_id": mach_clean}).fetchall()
         
         mappings = []
         for r in rows:
+            reg_idx = r[3]
             tag_name = r[5]
             live_info = telemetry_map.get(tag_name, {}) if isinstance(telemetry_map, dict) else {}
+            
+            # Direct reading takes priority if available
+            d_val = None
+            d_raw = None
+            if reg_idx in direct_by_index:
+                d_val = direct_by_index[reg_idx].get("conv_val")
+                d_raw = direct_by_index[reg_idx].get("raw_val")
+            elif live_info:
+                d_val = live_info.get("value")
+                d_raw = live_info.get("raw")
             
             mappings.append({
                 "id": r[0],
                 "machine_id": r[1],
                 "asset_id": r[2],
-                "register_index": r[3],
+                "register_index": reg_idx,
                 "iw_number": r[4],
                 "tag_name": tag_name,
                 "tag_role": r[6],
@@ -144,14 +193,14 @@ def get_machine_tag_mapping(machine_id: str, db: Session = Depends(get_db)):
                 "is_active": r[15],
                 "notes": r[16],
                 "updated_at": r[17].isoformat() if r[17] else None,
-                "live_value": live_info.get("value"),
-                "live_raw": live_info.get("raw"),
-                "quality": live_info.get("quality", 192)
+                "live_value": d_val,
+                "live_raw": d_raw,
+                "quality": 192 if d_val is not None else live_info.get("quality", 192)
             })
 
         return {
             "status": "success",
-            "machine_id": machine_id,
+            "machine_id": mach_clean,
             "total_tags": len(mappings),
             "live_meta": live_meta,
             "data": mappings

@@ -10,6 +10,7 @@ import {
   Database,
   Flame,
   Play,
+  Pause,
   Clock,
   PauseCircle,
   ShieldAlert,
@@ -1355,9 +1356,26 @@ const Logs = ({ defaultTab = 'active' }) => {
                 <span>Batch & Program</span>
                 <Play className="h-4 w-4 text-meta-3" />
               </div>
-              <h3 className="mt-1.5 text-lg font-bold text-black dark:text-white font-mono truncate">
-                #{effectiveData?.batch_no || '-'}
-              </h3>
+              <div className="flex items-center justify-between gap-1 mt-1.5">
+                <h3 className="text-lg font-bold text-black dark:text-white font-mono truncate">
+                  #{effectiveData?.batch_no || '-'}
+                </h3>
+                {effectiveData?.program_code && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (effectiveMachine) {
+                        localStorage.setItem('selected_dyeing_machine', effectiveMachine);
+                      }
+                      navigate(`/programs?prg=${encodeURIComponent(effectiveData.program_code)}`);
+                    }}
+                    className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-amber-500/15 text-amber-600 dark:text-amber-400 hover:bg-amber-500/25 border border-amber-500/30 transition-all flex items-center gap-1 cursor-pointer"
+                    title="Buka dan edit program ini di Program Studio"
+                  >
+                    ✏️ Edit
+                  </button>
+                )}
+              </div>
               <span className="text-[10px] text-meta-5 font-semibold truncate block">
                 {effectiveData?.program_code ? `${effectiveData.program_code} (${effectiveData.program_name || effectiveData.recipe_name || ''})` : 'Program Standar'}
               </span>
@@ -1688,11 +1706,41 @@ const Logs = ({ defaultTab = 'active' }) => {
               </button>
             )}
 
-            {/* Indikator Status Waktu Refresh */}
+            {/* Indikator Status Waktu Refresh & Tombol Pause Realtime */}
             <div className="flex items-center gap-2 text-xs font-mono">
+              {!isArchiveMode && (
+                <button
+                  type="button"
+                  onClick={() => setRefreshInterval((prev) => (prev === 0 ? 3000 : 0))}
+                  className={`px-2.5 py-1 rounded border flex items-center gap-1.5 font-sans font-bold text-xs transition-all cursor-pointer ${
+                    refreshInterval === 0
+                      ? 'bg-amber-500 hover:bg-amber-600 text-white border-amber-600 shadow-xs'
+                      : 'bg-white dark:bg-boxdark hover:bg-gray-100 dark:hover:bg-meta-4 text-gray-700 dark:text-gray-200 border-stroke dark:border-strokedark shadow-xs'
+                  }`}
+                  title={refreshInterval === 0 ? 'Klik untuk melanjutkan pembaruan realtime' : 'Klik untuk menjeda pembaruan realtime'}
+                >
+                  {refreshInterval === 0 ? (
+                    <>
+                      <Play className="w-3.5 h-3.5 fill-current text-white" />
+                      <span>Resume Realtime</span>
+                    </>
+                  ) : (
+                    <>
+                      <Pause className="w-3.5 h-3.5 fill-current text-amber-500" />
+                      <span>Pause Realtime</span>
+                    </>
+                  )}
+                </button>
+              )}
+
               {isArchiveMode ? (
                 <span className="bg-gray-100 dark:bg-meta-4 px-2.5 py-1 rounded border border-stroke dark:border-strokedark font-medium text-gray-500">
                   Total: {displayChartCategories.length} Titik
+                </span>
+              ) : refreshInterval === 0 ? (
+                <span className="bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-800 px-2.5 py-1 rounded flex items-center gap-1.5 font-medium">
+                  <PauseCircle className="w-3.5 h-3.5 text-amber-500" />
+                  Realtime Dijeda
                 </span>
               ) : isRealtimeTrend ? (
                 <span className="bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 px-2.5 py-1 rounded flex items-center gap-1.5 font-medium">
@@ -2102,7 +2150,7 @@ const Logs = ({ defaultTab = 'active' }) => {
 
       {/* MODAL POPUP: SETEX SECOM PROGRAM LIST & SUB-STEP DETAIL (PARITY WITH HMI POPUP) */}
       {selectedStepDetail && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4 animate-in fade-in duration-200">
+        <div className="fixed inset-0 z-99999 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4 animate-in fade-in duration-200">
           <div className="bg-white dark:bg-boxdark border border-stroke dark:border-strokedark rounded-xl shadow-2xl w-full max-w-4xl max-h-[92vh] flex flex-col overflow-hidden font-sans">
 
             {/* HMI Classic Window Header */}
@@ -2128,6 +2176,20 @@ const Logs = ({ defaultTab = 'active' }) => {
                 </span>
               </div>
               <div className="flex items-center gap-2 shrink-0">
+                <button
+                  type="button"
+                  onClick={() => {
+                    const prgCode = effectiveData?.program_code || effectiveData?.program_no || '';
+                    if (effectiveMachine) {
+                      localStorage.setItem('selected_dyeing_machine', effectiveMachine);
+                    }
+                    navigate(`/programs${prgCode ? `?prg=${encodeURIComponent(prgCode)}` : ''}`);
+                  }}
+                  className="px-2.5 py-1 text-xs font-bold rounded bg-amber-500 hover:bg-amber-600 text-white transition-all flex items-center gap-1 shadow-xs cursor-pointer active:scale-95"
+                  title="Buka atau edit program resep ini di Program Studio"
+                >
+                  ✏️ Edit Program
+                </button>
                 <button
                   type="button"
                   onClick={() => {
@@ -2311,8 +2373,12 @@ const Logs = ({ defaultTab = 'active' }) => {
                             {activeParams.length > 0 ? (
                               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-1.5">
                                 {activeParams.map((p, pi) => (
-                                  <div key={pi} className="flex items-center justify-between px-2 py-1 rounded bg-white dark:bg-boxdark border border-stroke dark:border-strokedark text-[11px] font-mono shadow-2xs">
-                                    <span className="text-gray-500 truncate mr-1.5" title={p.name}>{p.name}:</span>
+                                  <div
+                                    key={pi}
+                                    className="flex items-center justify-between px-2 py-1 rounded bg-white dark:bg-boxdark border border-stroke dark:border-strokedark text-[11px] font-mono shadow-2xs hover:border-primary/40 transition-colors"
+                                    title={`${p.name}: ${p.formatted}`}
+                                  >
+                                    <span className="text-gray-500 truncate mr-1.5 max-w-[110px]" title={p.name}>{p.name}:</span>
                                     <span className="font-bold text-black dark:text-white shrink-0">{p.formatted}</span>
                                   </div>
                                 ))}
@@ -2329,6 +2395,14 @@ const Logs = ({ defaultTab = 'active' }) => {
                             ) : isMain && selectedStepDetail.telemetry?.pv_end ? (
                               <div className="text-emerald-600 dark:text-emerald-400 font-mono font-bold text-[11px]">
                                 PV: {selectedStepDetail.telemetry.pv_end} °C
+                              </div>
+                            ) : (line.func_id === 404 || line.name?.toLowerCase().includes('pump')) && selectedStepDetail.telemetry?.pump_avg ? (
+                              <div className="text-emerald-600 dark:text-emerald-400 font-mono font-bold text-[11px]" title="Rata-rata kecepatan pompa aktual">
+                                Pompa: {selectedStepDetail.telemetry.pump_avg} %
+                              </div>
+                            ) : (line.func_id === 712 || line.func_id === 411 || line.name?.toLowerCase().includes('flow') || line.name?.toLowerCase().includes('reel')) && selectedStepDetail.telemetry?.reel_avg ? (
+                              <div className="text-emerald-600 dark:text-emerald-400 font-mono font-bold text-[11px]" title="Rata-rata kecepatan reel kain aktual">
+                                Reel: {selectedStepDetail.telemetry.reel_avg} m/min
                               </div>
                             ) : isMain ? (
                               <span className="text-emerald-600 dark:text-emerald-400 text-[11px] font-medium">Sesuai Resep</span>

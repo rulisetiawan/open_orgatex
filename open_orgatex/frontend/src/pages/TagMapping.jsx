@@ -28,6 +28,7 @@ const TagMapping = () => {
   const [roleFilter, setRoleFilter] = useState('ALL');
   const [copiedTag, setCopiedTag] = useState(null);
   const [autoRefresh, setAutoRefresh] = useState(true);
+  const [directMode, setDirectMode] = useState(false);
 
   // 1. Fetch available machines
   const fetchMachines = async () => {
@@ -42,11 +43,12 @@ const TagMapping = () => {
   };
 
   // 2. Fetch mapping and live data for selected machine
-  const fetchMappingData = async (showLoading = false) => {
+  const fetchMappingData = async (showLoading = false, useDirect = directMode) => {
     if (showLoading) setLoading(true);
     setRefreshing(true);
     try {
-      const res = await axios.get(`/api/iw-telemetry/mapping/${selectedMachine}`);
+      const q = useDirect ? '?direct=true' : '';
+      const res = await axios.get(`/api/iw-telemetry/mapping/${selectedMachine}${q}`);
       if (res.data && res.data.data) {
         setMappings(res.data.data);
         setLiveMeta(res.data.live_meta);
@@ -142,6 +144,24 @@ const TagMapping = () => {
             </select>
           </div>
 
+          {/* Direct Controller Read Button */}
+          <button
+            onClick={() => {
+              const next = !directMode;
+              setDirectMode(next);
+              fetchMappingData(false, next);
+            }}
+            className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-bold transition-all ${
+              directMode 
+                ? 'bg-meta-3 text-white shadow-xs' 
+                : 'bg-gray dark:bg-meta-4/40 text-body dark:text-bodydark border border-stroke dark:border-strokedark hover:text-black dark:hover:text-white'
+            }`}
+            title="Membaca 80 Info Words langsung dari Controller SETEX via TCP Port 50000 (sama dengan modal Logs)"
+          >
+            <Cpu className="h-3.5 w-3.5" />
+            <span>{directMode ? 'Direct TCP 50000 ON' : 'Direct TCP 50000'}</span>
+          </button>
+
           {/* Auto Refresh Toggle */}
           <button
             onClick={() => setAutoRefresh(!autoRefresh)}
@@ -211,10 +231,12 @@ const TagMapping = () => {
           </div>
           <div className="mt-2 text-base font-extrabold text-black dark:text-white flex items-center gap-1.5">
             <span className={`inline-block h-2.5 w-2.5 rounded-full ${liveMeta ? 'bg-success animate-ping' : 'bg-gray-400'}`}></span>
-            <span>{liveMeta ? 'ONLINE (Port 50000)' : 'STANDBY'}</span>
+            <span className="truncate">{liveMeta?.connection_status || (liveMeta ? 'ONLINE (Port 50000)' : 'STANDBY')}</span>
           </div>
           <p className="text-[10px] text-body dark:text-bodydark mt-0.5 truncate">
-            {liveMeta?.last_updated ? new Date(liveMeta.last_updated).toLocaleTimeString() : 'Menunggu service collector'}
+            {liveMeta?.source === 'DIRECT_TCP_CONTROLLER' 
+              ? `Direct TCP ${liveMeta.host}:${liveMeta.port}` 
+              : (liveMeta?.last_updated ? new Date(liveMeta.last_updated).toLocaleTimeString() : 'Menunggu service collector')}
           </p>
         </div>
       </div>

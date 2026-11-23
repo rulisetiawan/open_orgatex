@@ -149,6 +149,9 @@ func (w *PGWriter) WriteLiveTelemetry(
 		br := w.scadaPool.SendBatch(ctx, batch)
 		if err := br.Close(); err != nil {
 			w.logger.Warn("Error batch updating tag_latest in pt_smm_scada", "error", err)
+		} else {
+			// Trigger Jetflow asset_snapshot calculation
+			_, _ = w.scadaPool.Exec(ctx, "SELECT sync_jetflow_asset_snapshot($1);", assetID)
 		}
 	}
 

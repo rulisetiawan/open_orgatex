@@ -189,8 +189,8 @@ func main() {
 			cycleCount++
 			now := time.Now()
 
-			// Read 94 words from Object 1025 (IW) starting at address 0
-			words, rawFrame, err := tcpClient.ReadBlock(1025, 0, 94)
+			// Read 94 words from Object 1025 (IW) starting at address 1 (SETEX IW is 1-based)
+			words, rawFrame, err := tcpClient.ReadBlock(1025, 1, 94)
 			if err != nil {
 				logger.Warn("Failed to read IW block from controller",
 					"host", cfg.PilotMachine.ControllerIP,
@@ -212,8 +212,9 @@ func main() {
 
 			var currentTemp float64
 
-			for idx, rawVal := range words {
-				mapping, exists := tcMap[idx]
+			for offset, rawVal := range words {
+				regNum := offset + 1 // 1-based IW register number (IW 1 = words[0])
+				mapping, exists := tcMap[regNum]
 				if !exists {
 					continue
 				}
@@ -221,7 +222,7 @@ func main() {
 				calibrated := mapping.Calibrate(rawVal)
 				tagName := mapping.TagName
 				if tagName == "" {
-					tagName = fmt.Sprintf("SMM.%s.CONTROLLER.IW_%d_PV", cfg.PilotMachine.AssetID, idx)
+					tagName = fmt.Sprintf("SMM.%s.CONTROLLER.IW_%d_PV", cfg.PilotMachine.AssetID, regNum)
 				}
 
 				role := mapping.TagRole
@@ -229,8 +230,8 @@ func main() {
 					role = "PV"
 				}
 
-				// Check primary temperature PV
-				if idx == 1 {
+				// Check primary temperature PV (IW 1)
+				if regNum == 1 {
 					currentTemp = calibrated
 				}
 

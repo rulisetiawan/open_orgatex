@@ -67,11 +67,11 @@ func LoadTypeconfFromFile(path string) (TypeconfMap, error) {
 	result := make(TypeconfMap)
 	for k, v := range rawMap {
 		idx, err := strconv.Atoi(k)
-		if err != nil {
+		if err != nil || idx <= 0 {
 			continue
 		}
 		v.Index = idx
-		v.IWNumber = idx + 1
+		v.IWNumber = idx
 		result[idx] = v
 	}
 
