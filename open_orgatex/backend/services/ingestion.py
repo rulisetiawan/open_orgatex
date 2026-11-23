@@ -468,36 +468,39 @@ class LogIngestionService:
             if live_sp is not None and recipe_steps:
                 target_step = next((s for s in recipe_steps if s.get("no") == curr_step_no), None)
                 if target_step:
-                    planned_sp_str = target_step.get("p1", "")
-                    m_val = re.search(r'[-+]?\d*\.?\d+', planned_sp_str)
-                    if m_val:
-                        planned_sp = float(m_val.group(0))
-                        delta_sp = round(live_sp - planned_sp, 1)
-                        if abs(delta_sp) >= 1.0:  # Real deviation detected!
-                            existing = db.query(OperatorIntervention).filter(
-                                OperatorIntervention.machine_no == machine.machine_no,
-                                OperatorIntervention.batch_no == batch_no,
-                                OperatorIntervention.step_no == curr_step_no,
-                                OperatorIntervention.parameter_name == "Target Temperature"
-                            ).order_by(desc(OperatorIntervention.timestamp)).first()
+                    # Ramping heating/cooling is not an operator intervention
+                    is_ramp = target_step.get("type") in ("HEAT", "COOL") or target_step.get("func_id") in (140, 141, 145, 131, 146)
+                    if not is_ramp:
+                        planned_sp_str = target_step.get("p1", "")
+                        m_val = re.search(r'[-+]?\d*\.?\d+', planned_sp_str)
+                        if m_val:
+                            planned_sp = float(m_val.group(0))
+                            delta_sp = round(live_sp - planned_sp, 1)
+                            if abs(delta_sp) >= 1.0:  # Real deviation detected!
+                                existing = db.query(OperatorIntervention).filter(
+                                    OperatorIntervention.machine_no == machine.machine_no,
+                                    OperatorIntervention.batch_no == batch_no,
+                                    OperatorIntervention.step_no == curr_step_no,
+                                    OperatorIntervention.parameter_name == "Target Temperature"
+                                ).order_by(desc(OperatorIntervention.timestamp)).first()
 
-                            if not existing or abs(float(existing.value_after) - live_sp) >= 0.5:
-                                new_inv = OperatorIntervention(
-                                    machine_no=machine.machine_no,
-                                    batch_no=batch_no,
-                                    step_no=curr_step_no,
-                                    trigger_source="SETPOINT_OVERRIDE",
-                                    function_id=target_step.get("func_id", 141),
-                                    parameter_name="Target Temperature",
-                                    unit="°C",
-                                    value_before=planned_sp,
-                                    value_after=live_sp,
-                                    delta=delta_sp,
-                                    notes=f"Intervensi Operator: Target Suhu diubah dari {planned_sp:.1f} °C ke {live_sp:.1f} °C (Δ {delta_sp:+} °C)"
-                                )
-                                db.add(new_inv)
-                                db.commit()
-                                logger.warning(f"Recorded operator intervention: {new_inv.notes}")
+                                if not existing or abs(float(existing.value_after) - live_sp) >= 0.5:
+                                    new_inv = OperatorIntervention(
+                                        machine_no=machine.machine_no,
+                                        batch_no=batch_no,
+                                        step_no=curr_step_no,
+                                        trigger_source="SETPOINT_OVERRIDE",
+                                        function_id=target_step.get("func_id", 141),
+                                        parameter_name="Target Temperature",
+                                        unit="°C",
+                                        value_before=planned_sp,
+                                        value_after=live_sp,
+                                        delta=delta_sp,
+                                        notes=f"Intervensi Operator: Target Suhu diubah dari {planned_sp:.1f} °C ke {live_sp:.1f} °C (Δ {delta_sp:+} °C)"
+                                    )
+                                    db.add(new_inv)
+                                    db.commit()
+                                    logger.warning(f"Recorded operator intervention: {new_inv.notes}")
 
             # Query all interventions for current batch (excluding bogus 76.8 entries)
             if db:
@@ -703,17 +706,15 @@ class LogIngestionService:
                 step_invs = [i for i in active_interventions if i.get("step_no") == s_no]
                 st["interventions"] = step_invs
 
-                # Determine accurate target temperature (from intervention if modified, or from planned recipe params)
+                # Determine accurate target temperature (from recipe parameters or verified operator intervention)
                 step_temp_sp = None
                 if st.get("has_temp_target"):
-                    # 1. Check if operator intervened on temperature (ignore bogus 76.8 status word)
-                    for inv in step_invs:
-                        if any(k in str(inv.get("parameter_name", "")).lower() for k in ("temp", "suhu")):
-                            if inv.get("value_after") is not None and abs(float(inv.get("value_after")) - 76.8) > 0.05:
-                                step_temp_sp = float(inv.get("value_after"))
-                                break
+                    # 1. Check recipe planned parameters directly (p1 / p2 string)
+                    if st.get("p1") and "°C" in str(st.get("p1")):
+                        m_p1 = re.search(r'[-+]?\d*\.?\d+', str(st.get("p1")))
+                        if m_p1:
+                            step_temp_sp = float(m_p1.group(0))
 
-                    # 2. Check recipe planned parameters
                     if step_temp_sp is None:
                         for p in st.get("params", []):
                             if p.get("unit") == "°C" or any(k in str(p.get("name", "")).lower() for k in ("temp", "suhu")):
@@ -722,8 +723,14 @@ class LogIngestionService:
                                     break
                                 except Exception:
                                     pass
+
                     if step_temp_sp is None:
                         for sub in st.get("sub_steps", []):
+                            if sub.get("p1") and "°C" in str(sub.get("p1")):
+                                m_sub = re.search(r'[-+]?\d*\.?\d+', str(sub.get("p1")))
+                                if m_sub:
+                                    step_temp_sp = float(m_sub.group(0))
+                                    break
                             for p in sub.get("params", []):
                                 if p.get("unit") == "°C" or any(k in str(p.get("name", "")).lower() for k in ("temp", "suhu")):
                                     try:
@@ -733,6 +740,14 @@ class LogIngestionService:
                                         pass
                             if step_temp_sp is not None:
                                 break
+
+                    # 2. Check operator intervention if no parameter found or explicitly adjusted
+                    if step_temp_sp is None:
+                        for inv in step_invs:
+                            if any(k in str(inv.get("parameter_name", "")).lower() for k in ("temp", "suhu")):
+                                if inv.get("value_after") is not None and abs(float(inv.get("value_after")) - 76.8) > 0.05:
+                                    step_temp_sp = float(inv.get("value_after"))
+                                    break
 
                     # 3. Fallback to telemetry SP only if valid (> 0 and not generic 90.0 or 76.8)
                     if step_temp_sp is None and step_pts:
@@ -858,13 +873,18 @@ class LogIngestionService:
         if active_step_obj:
             active_sp = (active_step_obj.get("telemetry") or {}).get("sp")
             if active_sp is None and active_step_obj.get("has_temp_target"):
-                for p in active_step_obj.get("params", []):
-                    if p.get("unit") == "°C":
-                        try:
-                            active_sp = float(p.get("value", 0))
-                            break
-                        except Exception:
-                            pass
+                if active_step_obj.get("p1") and "°C" in str(active_step_obj.get("p1")):
+                    m_p1 = re.search(r'[-+]?\d*\.?\d+', str(active_step_obj.get("p1")))
+                    if m_p1:
+                        active_sp = float(m_p1.group(0))
+                if active_sp is None:
+                    for p in active_step_obj.get("params", []):
+                        if p.get("unit") == "°C":
+                            try:
+                                active_sp = float(p.get("value", 0))
+                                break
+                            except Exception:
+                                pass
 
         return {
             "machine_no": machine.machine_no,

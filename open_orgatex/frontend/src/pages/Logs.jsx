@@ -57,11 +57,46 @@ const isStepWithTempSetpoint = (step) => {
 // Helper untuk mengekstrak target/setpoint suhu sejati dari resep (atau intervensi operator)
 const getStepTargetTemp = (step) => {
   if (!step) return null;
-  // 1. Cek nilai telemetri sp jika sudah dihitung backend dengan benar (bukan default 90 atau status word 76.8)
-  if (step.telemetry?.sp !== undefined && step.telemetry?.sp !== null && step.telemetry.sp > 0 && Math.abs(step.telemetry.sp - 90.0) > 0.01 && Math.abs(step.telemetry.sp - 76.8) > 0.01) {
-    return Number(step.telemetry.sp);
+  // 1. Cek parameter resep langsung dari step.p1 / step.p2 (Prioritas Ground-Truth Resep)
+  if (typeof step.p1 === 'string' && step.p1.includes('°C')) {
+    const m = step.p1.match(/[-+]?\d*\.?\d+/);
+    if (m) return parseFloat(m[0]);
   }
-  // 2. Cek intervensi operator untuk suhu (filter out bogus 76.8)
+  if (typeof step.p2 === 'string' && step.p2.includes('°C')) {
+    const m = step.p2.match(/[-+]?\d*\.?\d+/);
+    if (m) return parseFloat(m[0]);
+  }
+  // 2. Cek parameter resep terstruktur (params P1 - P6)
+  if (Array.isArray(step.params)) {
+    const tempParam = step.params.find(p => 
+      p.unit === '°C' || 
+      (p.name && (p.name.toLowerCase().includes('temp') || p.name.toLowerCase().includes('suhu'))) ||
+      (p.formatted && p.formatted.includes('°C'))
+    );
+    if (tempParam && tempParam.value !== undefined && tempParam.value > 0) {
+      return Number(tempParam.value);
+    }
+  }
+  // 3. Cek sub_steps
+  if (Array.isArray(step.sub_steps)) {
+    for (const sub of step.sub_steps) {
+      if (typeof sub.p1 === 'string' && sub.p1.includes('°C')) {
+        const m = sub.p1.match(/[-+]?\d*\.?\d+/);
+        if (m) return parseFloat(m[0]);
+      }
+      if (Array.isArray(sub.params)) {
+        const subP = sub.params.find(p => 
+          p.unit === '°C' || 
+          (p.name && (p.name.toLowerCase().includes('temp') || p.name.toLowerCase().includes('suhu'))) ||
+          (p.formatted && p.formatted.includes('°C'))
+        );
+        if (subP && subP.value !== undefined && subP.value > 0) {
+          return Number(subP.value);
+        }
+      }
+    }
+  }
+  // 4. Cek intervensi operator untuk suhu jika ada
   if (Array.isArray(step.interventions) && step.interventions.length > 0) {
     const tempInv = step.interventions.find(i => 
       ((i.parameter_name && i.parameter_name.toLowerCase().includes('temp')) ||
@@ -76,42 +111,8 @@ const getStepTargetTemp = (step) => {
     const num = parseFloat(step.actual_p1);
     if (!isNaN(num) && num > 0) return num;
   }
-  // 3. Cek parameter resep (P1 - P6)
-  if (Array.isArray(step.params)) {
-    const tempParam = step.params.find(p => 
-      p.unit === '°C' || 
-      (p.name && (p.name.toLowerCase().includes('temp') || p.name.toLowerCase().includes('suhu'))) ||
-      (p.formatted && p.formatted.includes('°C'))
-    );
-    if (tempParam && tempParam.value !== undefined && tempParam.value > 0) {
-      return Number(tempParam.value);
-    }
-  }
-  // 4. Cek sub_steps
-  if (Array.isArray(step.sub_steps)) {
-    for (const sub of step.sub_steps) {
-      if (Array.isArray(sub.params)) {
-        const subP = sub.params.find(p => 
-          p.unit === '°C' || 
-          (p.name && (p.name.toLowerCase().includes('temp') || p.name.toLowerCase().includes('suhu'))) ||
-          (p.formatted && p.formatted.includes('°C'))
-        );
-        if (subP && subP.value !== undefined && subP.value > 0) {
-          return Number(subP.value);
-        }
-      }
-    }
-  }
-  // 5. Cek string p1 / p2
-  if (typeof step.p1 === 'string' && step.p1.includes('°C')) {
-    const p1Val = parseFloat(step.p1);
-    if (!isNaN(p1Val) && p1Val > 0) return p1Val;
-  }
-  if (typeof step.p2 === 'string' && step.p2.includes('°C')) {
-    const p2Val = parseFloat(step.p2);
-    if (!isNaN(p2Val) && p2Val > 0) return p2Val;
-  }
-  if (step.telemetry?.sp !== undefined && step.telemetry?.sp !== null && step.telemetry.sp > 0) {
+  // 5. Cek telemetri sp jika fungsi memang memiliki target suhu
+  if (isStepWithTempSetpoint(step) && step.telemetry?.sp !== undefined && step.telemetry?.sp !== null && step.telemetry.sp > 0 && Math.abs(step.telemetry.sp - 90.0) > 0.01 && Math.abs(step.telemetry.sp - 76.8) > 0.01) {
     return Number(step.telemetry.sp);
   }
   return null;
@@ -1322,8 +1323,9 @@ const Logs = ({ defaultTab = 'active' }) => {
               </div>
               <h3 className="mt-1.5 text-xl font-extrabold text-primary font-mono">
                 {(() => {
-                  const activeSt = stepsList.find((s) => s.no === (effectiveData?.current_step || currentStepNo));
-                  if (activeSt && !isStepWithTempSetpoint(activeSt)) {
+                  const activeStepNum = effectiveData?.current_step || currentStepNo;
+                  const activeSt = stepsList.find((s) => s.no === activeStepNum);
+                  if (!activeSt || !isStepWithTempSetpoint(activeSt)) {
                     return '-';
                   }
                   const stTarget = getStepTargetTemp(activeSt);
@@ -1333,14 +1335,17 @@ const Logs = ({ defaultTab = 'active' }) => {
                   if (effectiveData?.current_sp !== undefined && effectiveData.current_sp > 0 && Math.abs(effectiveData.current_sp - 90.0) > 0.1) {
                     return `${effectiveData.current_sp} °C`;
                   }
-                  const lastSpVal = displayChartSeries[1]?.data?.slice(-1)[0];
-                  return (lastSpVal !== undefined && lastSpVal !== null && lastSpVal > 0 && Math.abs(lastSpVal - 90.0) > 0.1) ? `${lastSpVal} °C` : '-';
+                  return '-';
                 })()}
               </h3>
               <span className="text-[10px] text-gray-400">
                 {(() => {
-                  const activeSt = stepsList.find((s) => s.no === (effectiveData?.current_step || currentStepNo));
-                  return (activeSt && !isStepWithTempSetpoint(activeSt)) ? 'Tanpa Target Suhu' : 'Target Resep Saat Ini';
+                  const activeStepNum = effectiveData?.current_step || currentStepNo;
+                  const activeSt = stepsList.find((s) => s.no === activeStepNum);
+                  if (!activeSt || !isStepWithTempSetpoint(activeSt)) {
+                    return 'Tanpa Target Suhu';
+                  }
+                  return `Target Step #${activeSt.no} (${activeSt.name})`;
                 })()}
               </span>
             </div>
