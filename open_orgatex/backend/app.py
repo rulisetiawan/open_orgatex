@@ -4,7 +4,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from .database import init_db
-from .routes import machines, programs, recipes, planning, logs, third_party_api, orgatex_exact_api, ftp, setpoints
+from .routes import machines, programs, recipes, planning, logs, third_party_api, orgatex_exact_api, ftp, setpoints, iw_telemetry
 from .services.event_broker import broker
 from .services.intervention_service import InterventionService
 from .services.db_sync_service import DBSyncService
@@ -97,6 +97,7 @@ app.include_router(third_party_api.router)
 app.include_router(orgatex_exact_api.router)
 app.include_router(ftp.router)
 app.include_router(setpoints.router)
+app.include_router(iw_telemetry.router)
 
 @app.get("/api/database/sync-status")
 def get_db_sync_status():

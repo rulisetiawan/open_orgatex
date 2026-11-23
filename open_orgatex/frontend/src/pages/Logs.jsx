@@ -584,8 +584,8 @@ const Logs = ({ defaultTab = 'active' }) => {
             }
           }
 
-          // Real-time parity guarantee: if active step's func_id differs from live HMI function_code, auto-align
-          if (s.no === currentStepNo && liveData?.function_code && s.func_id && Number(s.func_id) !== Number(liveData.function_code)) {
+          // Real-time parity: Only auto-align if step has NO valid recipe function or is a generic placeholder
+          if (s.no === currentStepNo && liveData?.function_code && (!s.func_id || s.func_id === 0 || s.name?.startsWith('Langkah #') || s.name?.startsWith('Step #'))) {
             const match = FUNCTION_MAP[liveData.function_code];
             if (match) {
               stepObj = { ...stepObj, name: match.name, type: match.type, icon: String(liveData.function_code), func_id: liveData.function_code };

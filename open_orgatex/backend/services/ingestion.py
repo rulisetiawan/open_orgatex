@@ -403,40 +403,21 @@ class LogIngestionService:
                     prog_no=status_info.get("prog_no")
                 )
 
-            # AUTOMATIC PARITY VERIFICATION & SELF-HEALING:
-            # Compare recipe's active step with the ground-truth function_code from HMI STATUS.ACT.
+            # AUTOMATIC PARITY VERIFICATION:
+            # Verify recipe's active step with the ground-truth function_code from HMI STATUS.ACT.
             curr_step_no = machine.current_step or status_info.get("current_step") or 1
             live_func_code = status_info.get("function_code") or 0
 
             if recipe_steps and live_func_code > 0:
-                active_st = next((s for s in recipe_steps if s.get("no") == curr_step_no), None)
-                if active_st and active_st.get("func_id") and active_st["func_id"] != live_func_code:
-                    logger.warning(
-                        f"[AUTOMATIC SELF-HEALING] Recipe mismatch on Machine {machine.machine_no} Step #{curr_step_no}: "
-                        f"Recipe has func_id {active_st['func_id']} ({active_st.get('name')}), but HMI STATUS.ACT "
-                        f"reports live function_code {live_func_code}! Purging cache and force-reloading PRG..."
-                    )
-                    SetexFolderReader.invalidate_recipe_cache(batch_no, status_info.get("prog_no"))
-                    fresh_steps = SetexFolderReader.get_recipe_steps(
-                        ip=machine.ip_address,
-                        ftp_port=machine.ftp_port or 21,
-                        batch_no=batch_no,
-                        folder_path=target_folder,
-                        prog_no=status_info.get("prog_no"),
-                        force_reload=True
-                    )
-                    if fresh_steps:
-                        recipe_steps = fresh_steps
-                        active_st = next((s for s in recipe_steps if s.get("no") == curr_step_no), None)
-
-                    # Fail-safe auto-align so user NEVER sees the wrong process name
-                    if active_st and active_st.get("func_id") != live_func_code:
+                active_st = next((s for s in recipe_steps if s.get("no") == curr_step_no or s.get("step_no") == curr_step_no), None)
+                if active_st:
+                    is_generic = not active_st.get("func_id") or str(active_st.get("name", "")).startswith("Step #")
+                    if is_generic:
                         catalog = SetexFolderReader.get_function_catalog()
-                        # Only auto-align if live_func_code is recognized in the function catalog
                         if str(live_func_code) in catalog or live_func_code in SetexFolderReader.FALLBACK_FUNCTION_NAMES:
                             correct_name = SetexFolderReader.get_fallback_function_name(live_func_code)
-                            logger.warning(
-                                f"[AUTO-ALIGN] Aligning active step #{curr_step_no} to ground truth: {correct_name} [F{live_func_code}]"
+                            logger.info(
+                                f"[AUTO-ALIGN] Setting generic active step #{curr_step_no} to controller function: {correct_name} [F{live_func_code}]"
                             )
                             active_st["func_id"] = live_func_code
                             active_st["icon"] = str(live_func_code)
@@ -444,6 +425,11 @@ class LogIngestionService:
                             if active_st.get("sub_steps") and len(active_st["sub_steps"]) > 0:
                                 active_st["sub_steps"][0]["name"] = correct_name
                                 active_st["sub_steps"][0]["func_id"] = live_func_code
+                    elif active_st.get("func_id") != live_func_code:
+                        logger.info(
+                            f"[PARITY NOTE] Machine {machine.machine_no} active step #{curr_step_no}: "
+                            f"Recipe PRG specifies {active_st.get('name')} [F{active_st['func_id']}], controller status reports F{live_func_code}."
+                        )
         except Exception as e:
             logger.warning(f"Gagal mengekstrak langkah resep batch {batch_no}: {e}")
 

@@ -525,22 +525,27 @@ class SetexFolderReader:
                     if not program_code:
                         program_code = f"M_{prog_no:04d}"
 
-            # Step number: SETEX Secom 777 format (10104 bytes -> offset 0x15C, 10188 bytes -> offset 0x15E)
-            step_offset = 0x15E if size == 10188 else 0x15C
-            if size >= step_offset + 2:
-                s_val = struct.unpack_from("<H", data, step_offset)[0]
-                if 1 <= s_val <= 200:
-                    step_no = s_val
-
-            # Function code: 797CE (size 10188) has active func_id at 0x166
-            if size == 10188 and size >= 0x168:
-                fn_val = struct.unpack_from("<H", data, 0x166)[0]
-                if 1 <= fn_val <= 2000:
-                    function_code = fn_val
-            elif size >= step_offset and step_offset > 2:
-                fn_val = struct.unpack_from("<H", data, step_offset - 2)[0]
-                if 1 <= fn_val <= 2000:
-                    function_code = fn_val
+            # Step number:
+            # - SETEX 797CE (Windows CE, size 10188): Step No at 0x164, Function Code at 0x166
+            # - SECOM 777   (Windows CE, size 10104): Step No at 0x162, Function Code at 0x164
+            if size == 10188:
+                if size >= 0x166:
+                    s_val = struct.unpack_from("<H", data, 0x164)[0]
+                    if 1 <= s_val <= 250:
+                        step_no = s_val
+                if size >= 0x168:
+                    fn_val = struct.unpack_from("<H", data, 0x166)[0]
+                    if 1 <= fn_val <= 2000:
+                        function_code = fn_val
+            else:
+                if size >= 0x164:
+                    s_val = struct.unpack_from("<H", data, 0x162)[0]
+                    if 1 <= s_val <= 250:
+                        step_no = s_val
+                if size >= 0x166:
+                    fn_val = struct.unpack_from("<H", data, 0x164)[0]
+                    if 1 <= fn_val <= 2000:
+                        function_code = fn_val
 
             # Analog readings: Note that STATUS.ACT offset 20 is an internal controller status word (0x0300 / 768),
             # NOT temperature! Real sensor telemetry is read from cyclic datalog PR<batch>.LOG.

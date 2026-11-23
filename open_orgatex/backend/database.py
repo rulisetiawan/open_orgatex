@@ -246,6 +246,91 @@ def ensure_queue_tables(target_engine, is_postgres: bool = False):
     except Exception as e:
         logger.warning(f"ensure_queue_tables notice: {e}")
 
+def ensure_iw_tables(target_engine, is_postgres: bool = False):
+    """
+    Memastikan tabel cfg_machine_iw_tag_mapping dan live_iw_telemetry tersedia di database.
+    """
+    try:
+        prefix = "public." if is_postgres else ""
+        with target_engine.connect() as conn:
+            if not is_postgres:
+                conn.execute(text("""
+                    CREATE TABLE IF NOT EXISTS cfg_machine_iw_tag_mapping (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT,
+                        machine_id TEXT NOT NULL,
+                        asset_id TEXT NOT NULL,
+                        register_index INTEGER NOT NULL,
+                        iw_number INTEGER NOT NULL,
+                        tag_name TEXT NOT NULL,
+                        tag_role TEXT NOT NULL,
+                        field_name TEXT NOT NULL,
+                        unit TEXT,
+                        data_type TEXT DEFAULT 'FLOAT',
+                        raw_min REAL DEFAULT 0.0,
+                        raw_max REAL DEFAULT 1000.0,
+                        eng_min REAL DEFAULT 0.0,
+                        eng_max REAL DEFAULT 100.0,
+                        scale_factor REAL DEFAULT 1.0,
+                        is_active INTEGER DEFAULT 1,
+                        notes TEXT,
+                        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                        UNIQUE(machine_id, register_index)
+                    );
+                """))
+                conn.execute(text("""
+                    CREATE TABLE IF NOT EXISTS live_iw_telemetry (
+                        machine_id TEXT PRIMARY KEY,
+                        asset_id TEXT NOT NULL,
+                        last_updated TIMESTAMP NOT NULL,
+                        connection_status TEXT DEFAULT 'ONLINE',
+                        batch_no TEXT,
+                        step_no INTEGER,
+                        program_no TEXT,
+                        raw_buffer_hex TEXT,
+                        telemetry_json TEXT NOT NULL
+                    );
+                """))
+            else:
+                conn.execute(text(f"""
+                    CREATE TABLE IF NOT EXISTS {prefix}cfg_machine_iw_tag_mapping (
+                        id SERIAL PRIMARY KEY,
+                        machine_id VARCHAR(50) NOT NULL,
+                        asset_id VARCHAR(50) NOT NULL,
+                        register_index INT NOT NULL,
+                        iw_number INT NOT NULL,
+                        tag_name VARCHAR(150) NOT NULL,
+                        tag_role VARCHAR(20) NOT NULL,
+                        field_name VARCHAR(100) NOT NULL,
+                        unit VARCHAR(20),
+                        data_type VARCHAR(20) DEFAULT 'FLOAT',
+                        raw_min DOUBLE PRECISION DEFAULT 0.0,
+                        raw_max DOUBLE PRECISION DEFAULT 1000.0,
+                        eng_min DOUBLE PRECISION DEFAULT 0.0,
+                        eng_max DOUBLE PRECISION DEFAULT 100.0,
+                        scale_factor DOUBLE PRECISION DEFAULT 1.0,
+                        is_active BOOLEAN DEFAULT TRUE,
+                        notes TEXT,
+                        created_at TIMESTAMPTZ DEFAULT NOW(),
+                        updated_at TIMESTAMPTZ DEFAULT NOW(),
+                        CONSTRAINT uq_machine_register UNIQUE(machine_id, register_index)
+                    );
+                    CREATE TABLE IF NOT EXISTS {prefix}live_iw_telemetry (
+                        machine_id VARCHAR(50) PRIMARY KEY,
+                        asset_id VARCHAR(50) NOT NULL,
+                        last_updated TIMESTAMPTZ NOT NULL,
+                        connection_status VARCHAR(20) DEFAULT 'ONLINE',
+                        batch_no VARCHAR(50),
+                        step_no INT,
+                        program_no VARCHAR(50),
+                        raw_buffer_hex TEXT,
+                        telemetry_json JSONB NOT NULL
+                    );
+                """))
+            conn.commit()
+    except Exception as e:
+        logger.warning(f"ensure_iw_tables notice: {e}")
+
 def is_pg_reachable(url: str, timeout: float = 0.5) -> bool:
     try:
         parsed = urlparse(url)
@@ -271,6 +356,7 @@ def init_db(retries=1, delay=1):
         ensure_batch_header_columns(engine, is_postgres=False)
         ensure_essential_machines(engine, is_postgres=False)
         ensure_queue_tables(engine, is_postgres=False)
+        ensure_iw_tables(engine, is_postgres=False)
         logger.info(f"OpenOrgaTEX Local SQLite database initialized: {sqlite_target}")
         return
 
@@ -304,6 +390,7 @@ def init_db(retries=1, delay=1):
             ensure_batch_header_columns(engine, is_postgres=True)
             ensure_essential_machines(engine, is_postgres=True)
             ensure_queue_tables(engine, is_postgres=True)
+            ensure_iw_tables(engine, is_postgres=True)
             return
         except Exception as e:
             logger.warning(f"PostgreSQL connection attempt failed: {e}")
@@ -319,6 +406,7 @@ def init_db(retries=1, delay=1):
     ensure_batch_header_columns(engine, is_postgres=False)
     ensure_essential_machines(engine, is_postgres=False)
     ensure_queue_tables(engine, is_postgres=False)
+    ensure_iw_tables(engine, is_postgres=False)
     logger.info(f"SQLite local fallback database initialized at: {local_db_path}")
 
 def get_db():
