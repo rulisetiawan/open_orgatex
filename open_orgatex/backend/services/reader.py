@@ -526,26 +526,17 @@ class SetexFolderReader:
                         program_code = f"M_{prog_no:04d}"
 
             # Step number:
-            # - SETEX 797CE (Windows CE, size 10188): Step No at 0x164, Function Code at 0x166
-            # - SECOM 777   (Windows CE, size 10104): Step No at 0x162, Function Code at 0x164
-            if size == 10188:
-                if size >= 0x166:
-                    s_val = struct.unpack_from("<H", data, 0x164)[0]
-                    if 1 <= s_val <= 250:
-                        step_no = s_val
-                if size >= 0x168:
-                    fn_val = struct.unpack_from("<H", data, 0x166)[0]
-                    if 1 <= fn_val <= 2000:
-                        function_code = fn_val
-            else:
-                if size >= 0x164:
-                    s_val = struct.unpack_from("<H", data, 0x162)[0]
-                    if 1 <= s_val <= 250:
-                        step_no = s_val
-                if size >= 0x166:
-                    fn_val = struct.unpack_from("<H", data, 0x164)[0]
-                    if 1 <= fn_val <= 2000:
-                        function_code = fn_val
+            # - SETEX 797CE (Windows CE, size 10188): offset 0x15E
+            # - SECOM 777   (Windows CE, size 10104): offset 0x15C
+            step_offset = 0x15E if size == 10188 else 0x15C
+            if size >= step_offset + 2:
+                s_val = struct.unpack_from("<H", data, step_offset)[0]
+                if 1 <= s_val <= 250:
+                    step_no = s_val
+
+            # Function code is defined authentically by the compiled recipe (.PRG).
+            # Do not inject arbitrary function codes from status memory to avoid corrupting recipe steps.
+            function_code = 0
 
             # Analog readings: Note that STATUS.ACT offset 20 is an internal controller status word (0x0300 / 768),
             # NOT temperature! Real sensor telemetry is read from cyclic datalog PR<batch>.LOG.
