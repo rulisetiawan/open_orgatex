@@ -115,16 +115,46 @@ class LogIngestionService:
                 ftp_port=machine.ftp_port or 21
             )
 
-        # Real-time Controller CPU Alarm Check via Port 50000 (eliminates stale ALARM.ACT false alarms)
-        if machine.ip_address and getattr(machine, "tcp_port", 0) == 50000:
+        # Real-time Controller CPU Alarm & IW Telemetry Check via Port 50000
+        iw_data = None
+        iw_t1 = None
+        iw_pump = None
+        iw_reel = None
+        iw_level = None
+        if machine.ip_address:
+            tcp_p = getattr(machine, "tcp_port", 0) or 50000
             try:
-                tcp_alarm = SetexTcpClient.read_live_alarm_status(machine.ip_address, machine.tcp_port, timeout=1.5)
+                tcp_alarm = SetexTcpClient.read_live_alarm_status(machine.ip_address, tcp_p, timeout=1.5)
                 if not tcp_alarm.get("error"):
                     alarm_act["is_alarm_active"] = tcp_alarm.get("is_alarm_active", False)
                     if not alarm_act["is_alarm_active"]:
                         alarm_act["active_alarms"] = []
             except Exception as e_tcp_al:
                 logger.debug(f"TCP alarm check notice: {e_tcp_al}")
+
+            try:
+                iw_data = SetexTcpClient.read_iw_telemetry(
+                    machine.ip_address,
+                    tcp_p,
+                    count=80,
+                    machine_no=machine.machine_no,
+                    timeout=1.5
+                )
+                if iw_data and iw_data.get("online"):
+                    iw_t1 = iw_data.get("iw_t1_pv")
+                    iw_pump = iw_data.get("iw_pump_sp") or iw_data.get("iw_pump_act")
+                    iw_reel = iw_data.get("iw_reel_act")
+                    iw_level = iw_data.get("iw_level_act")
+                    if iw_t1 is not None and 10.0 <= float(iw_t1) <= 150.0:
+                        status_info["temp_pv"] = float(iw_t1)
+                        status_info["data_source"] = f"tcp://{machine.ip_address}:{tcp_p} (IW Realtime)"
+                        status_info["is_iw_live"] = True
+                        logger.info(
+                            f"[IW REALTIME] Mesin {machine.machine_no} ({machine.ip_address}): "
+                            f"T1={iw_t1}°C, Pump={iw_pump}%, Reel={iw_reel} m/min, Level={iw_level}%"
+                        )
+            except Exception as e_iw:
+                logger.debug(f"Direct IW read from {machine.ip_address} notice: {e_iw}")
 
         if ftp_bundle and ftp_bundle.get("alarms_log_bytes"):
             alarm_history = SetexFolderReader.read_alarms_log(raw_bytes=ftp_bundle["alarms_log_bytes"], limit=50)
@@ -166,9 +196,23 @@ class LogIngestionService:
                 recs = SetexFolderReader.read_cyclic_log_file(lf)
                 telemetry_records.extend(recs)
 
-        # 3.3 If still no points but we have verified live STATUS.ACT analog reading, create point
-        if not telemetry_records and status_info.get("temp_pv") is not None and abs(float(status_info["temp_pv"]) - 76.8) > 0.1:
-            now_str = datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")
+        # 3.3 Synthesize live point from IW (Priority) or verified live STATUS.ACT reading
+        now_str = datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")
+        live_step = status_info.get("current_step") or machine.current_step or 1
+
+        if iw_data and iw_data.get("online") and iw_t1 is not None and 10.0 <= float(iw_t1) <= 150.0:
+            live_iw_pt = {
+                "timestamp": now_str,
+                "temp_pv": float(iw_t1),
+                "temp_sp": status_info.get("temp_sp"),
+                "temp_pt100_t2": status_info.get("temp_pt100_t2") or 0.0,
+                "pump_speed_percent": float(iw_pump) if iw_pump is not None else 85.0,
+                "reel_speed_mpm": float(iw_reel) if iw_reel is not None else 240.0,
+                "step_no": live_step,
+                "source": "IW_REALTIME"
+            }
+            telemetry_records.append(live_iw_pt)
+        elif not telemetry_records and status_info.get("temp_pv") is not None and abs(float(status_info["temp_pv"]) - 76.8) > 0.1:
             telemetry_records.append({
                 "timestamp": now_str,
                 "temp_pv": status_info.get("temp_pv", 40.0),
@@ -176,7 +220,7 @@ class LogIngestionService:
                 "temp_pt100_t2": status_info.get("temp_pt100_t2"),
                 "pump_speed_percent": 85.0,
                 "reel_speed_mpm": 240.0,
-                "step_no": status_info.get("current_step", 1)
+                "step_no": live_step
             })
 
         # Deduplicate memory points by timestamp
@@ -195,11 +239,12 @@ class LogIngestionService:
         # Update Machine record
         machine.status = "RUNNING" if status_info.get("status") == "RUNNING" else "ONLINE"
         machine.current_batch = batch_no
-        live_step = status_info.get("current_step") or 1
         machine.current_step = live_step
         machine.last_ping_time = datetime.utcnow()
 
-        if unique_telemetry:
+        if iw_t1 is not None and 10.0 <= float(iw_t1) <= 150.0:
+            machine.current_temp = float(iw_t1)
+        elif unique_telemetry:
             last_pt = unique_telemetry[-1]
             machine.current_temp = last_pt.get("temp_pv")
             if live_step <= 1 and last_pt.get("step_no") and last_pt["step_no"] > 1:
@@ -821,17 +866,6 @@ class LogIngestionService:
                         except Exception:
                             pass
 
-        # Real-Time Acquisition of IW Registers (Object 1025 / Info Words) via TCP Port 50000
-        iw_data = None
-        if machine.ip_address:
-            try:
-                iw_data = SetexTcpClient.read_iw_telemetry(machine.ip_address, machine.tcp_port or 50000, count=80, machine_no=machine.machine_no, timeout=1.0)
-                if iw_data and iw_data.get("online") and iw_data.get("iw_t1_pv") is not None:
-                    # Update machine temperature with high-speed direct IW read if available
-                    machine.current_temp = iw_data["iw_t1_pv"]
-            except Exception as e_iw:
-                logger.debug(f"Direct IW read from {machine.ip_address}:50000 skipped or timed out: {e_iw}")
-
         return {
             "machine_no": machine.machine_no,
             "status": machine.status,
@@ -859,5 +893,11 @@ class LogIngestionService:
             "alarms": final_alarms,
             "steps": recipe_steps,
             "interventions": active_interventions,
-            "iw_telemetry": iw_data
+            "iw_telemetry": iw_data,
+            "iw_source": bool(iw_data and iw_data.get("online") and iw_t1 is not None),
+            "iw_online": bool(iw_data and iw_data.get("online")),
+            "iw_t1_pv": iw_t1,
+            "iw_pump": iw_pump,
+            "iw_reel": iw_reel,
+            "iw_level": iw_level
         }

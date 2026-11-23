@@ -204,7 +204,17 @@ export default function Programs() {
   const [createMachineCode, setCreateMachineCode] = useState(() => {
     return localStorage.getItem('selected_dyeing_machine') || 'TD12';
   });
-  const [createTemplateType, setCreateTemplateType] = useState('STANDARD'); // 'STANDARD' | 'BLANK'
+  const [createTemplateType, setCreateTemplateType] = useState('STANDARD'); // 'STANDARD' | 'BLANK' | 'COPY_EXISTING'
+  const [createSourceProgramNo, setCreateSourceProgramNo] = useState('');
+  const [sourceSearchTerm, setSourceSearchTerm] = useState('');
+  const [isCopyingProgram, setIsCopyingProgram] = useState(false);
+
+  // Editor Import Modal State
+  const [showEditorImportModal, setShowEditorImportModal] = useState(false);
+  const [editorImportSourceNo, setEditorImportSourceNo] = useState('');
+  const [editorImportSearchTerm, setEditorImportSearchTerm] = useState('');
+  const [editorImportMode, setEditorImportMode] = useState('REPLACE'); // 'REPLACE' | 'APPEND'
+  const [isLoadingImport, setIsLoadingImport] = useState(false);
 
   // Editor State (Linear Step Studio & Hierarchical Sub-Program Model)
   const [programNo, setProgramNo] = useState(182);
@@ -622,6 +632,30 @@ export default function Programs() {
     });
   }, [programList, searchTerm, filterType, filterMachineScope, activeMachine]);
 
+  // Filter programs for Copy/Clone modal
+  const filteredSourcePrograms = useMemo(() => {
+    if (!sourceSearchTerm.trim()) return programList;
+    const term = sourceSearchTerm.toLowerCase();
+    return programList.filter(p => {
+      const pNoStr = String(p.program_number || '');
+      const pName = (p.program_name || '').toLowerCase();
+      const pMach = (p.machine_code || '').toLowerCase();
+      return pNoStr.includes(term) || pName.includes(term) || pMach.includes(term);
+    });
+  }, [programList, sourceSearchTerm]);
+
+  // Filter programs for Editor Import modal
+  const filteredEditorImportPrograms = useMemo(() => {
+    if (!editorImportSearchTerm.trim()) return programList;
+    const term = editorImportSearchTerm.toLowerCase();
+    return programList.filter(p => {
+      const pNoStr = String(p.program_number || '');
+      const pName = (p.program_name || '').toLowerCase();
+      const pMach = (p.machine_code || '').toLowerCase();
+      return pNoStr.includes(term) || pName.includes(term) || pMach.includes(term);
+    });
+  }, [programList, editorImportSearchTerm]);
+
   // Open Editor for an Existing Program
   const openEditorForProgram = async (pNo) => {
     try {
@@ -672,16 +706,113 @@ export default function Programs() {
     setCreateProgramName(`RESEP MESIN ${activeMachine}`);
     setCreateMachineCode(activeMachine);
     setCreateTemplateType('STANDARD');
+    
+    // Default source program to the first program matching active machine, or the first overall
+    const machinePrg = programList.find(p => (p.machine_code || '').toUpperCase() === activeMachine.toUpperCase());
+    const defaultSrc = machinePrg || programList[0];
+    setCreateSourceProgramNo(defaultSrc ? defaultSrc.program_number : '');
+    setSourceSearchTerm('');
+    setShowCreateModal(true);
+  };
+
+  // Pilih program sumber saat opsi Salin/Impor dipilih di modal
+  const handleSelectSourceProgram = (srcNo) => {
+    setCreateSourceProgramNo(srcNo);
+    const found = programList.find(p => p.program_number === Number(srcNo));
+    if (found) {
+      if (
+        createProgramName.startsWith('RESEP MESIN') ||
+        createProgramName === 'PROGRAM RESEP BARU' ||
+        createProgramName.endsWith('COPY') ||
+        createProgramName.endsWith('SALINAN')
+      ) {
+        const base = (found.program_name || `M_${found.program_number}`).trim();
+        let copyName = `${base} COPY`;
+        if (copyName.length > 20) copyName = copyName.slice(0, 20);
+        setCreateProgramName(copyName.toUpperCase());
+      }
+    }
+  };
+
+  // Duplikat / Salin Program langsung dari Tabel Program
+  const handleDuplicateProgram = (srcPrg) => {
+    const existingNos = programList
+      .map(p => p.program_number)
+      .filter(n => Number.isInteger(n) && n >= 1 && n <= 9999);
+    const nextNo = existingNos.length > 0 ? Math.min(Math.max(...existingNos) + 1, 9999) : 1;
+    setCreateProgramNo(nextNo);
+    
+    const cleanName = (srcPrg.program_name || `M_${srcPrg.program_number}`).trim();
+    let copyName = `${cleanName} COPY`;
+    if (copyName.length > 20) copyName = copyName.slice(0, 20);
+    setCreateProgramName(copyName.toUpperCase());
+    setCreateMachineCode(srcPrg.machine_code || activeMachine);
+    setCreateTemplateType('COPY_EXISTING');
+    setCreateSourceProgramNo(srcPrg.program_number);
+    setSourceSearchTerm('');
     setShowCreateModal(true);
   };
 
   // Confirm and Create New Program
-  const handleConfirmCreateProgram = () => {
+  const handleConfirmCreateProgram = async () => {
     const pNo = parseInt(createProgramNo, 10);
     if (isNaN(pNo) || pNo < 1 || pNo > 9999) {
       alert("Nomor program harus antara 1 sampai 9999 (format SETEX M_xxxx.PRG).");
       return;
     }
+
+    // MODE: SALIN / IMPOR DARI PROGRAM YANG SUDAH ADA
+    if (createTemplateType === 'COPY_EXISTING') {
+      const srcNo = parseInt(createSourceProgramNo, 10);
+      if (isNaN(srcNo)) {
+        alert("Silakan pilih program sumber yang ingin diimpor / disalin.");
+        return;
+      }
+      setIsCopyingProgram(true);
+      try {
+        const res = await axios.get(`/api/programs/${srcNo}`);
+        const data = res.data;
+        const rawSteps = data.steps && data.steps.length > 0
+          ? JSON.parse(JSON.stringify(data.steps))
+          : [
+              { step_no: 1, label: 'Program Start', functions: [{ function_id: 1, column: 1, flags: 0, params: [0, 0, 0, 0, 0, 0] }] },
+              { step_no: 2, label: 'Program End', functions: [{ function_id: 2, column: 1, flags: 0, params: [0, 0, 0, 0, 0, 0] }] }
+            ];
+
+        // Ensure sequential 1-based step numbering
+        rawSteps.forEach((s, idx) => {
+          s.step_no = idx + 1;
+        });
+
+        setProgramNo(pNo);
+        setProgramName(createProgramName.trim().toUpperCase() || `PROGRAM #${pNo}`);
+        setMachineCode(createMachineCode);
+        setSteps(rawSteps);
+
+        if (data.sub_programs && data.sub_programs.length > 0) {
+          setSubPrograms(JSON.parse(JSON.stringify(data.sub_programs)));
+        } else {
+          setSubPrograms(autoPartitionStepsToSubPrograms(rawSteps));
+        }
+
+        setSelectedStepIdx(0);
+        setActiveSubIdx(0);
+        setShowCreateModal(false);
+        setViewMode('EDITOR');
+        setNotification({
+          type: 'success',
+          title: 'Program Berhasil Diimpor!',
+          message: `Langkah resep berhasil disalin dari Program #${srcNo} ke Program #${pNo}. Silakan modifikasi parameter resep sesuai kebutuhan.`
+        });
+        setTimeout(() => setNotification(null), 5000);
+      } catch (err) {
+        alert("Gagal mengimpor langkah dari program asal: " + (err.response?.data?.detail || err.message));
+      } finally {
+        setIsCopyingProgram(false);
+      }
+      return;
+    }
+
     setProgramNo(pNo);
     setProgramName(createProgramName.trim().toUpperCase() || `PROGRAM #${pNo}`);
     setMachineCode(createMachineCode);
@@ -707,6 +838,85 @@ export default function Programs() {
     setActiveSubIdx(0);
     setShowCreateModal(false);
     setViewMode('EDITOR');
+  };
+
+  // Impor langkah program lain ke dalam Editor yang sedang terbuka
+  const handleImportProgramIntoEditor = async () => {
+    const srcNo = parseInt(editorImportSourceNo, 10);
+    if (isNaN(srcNo)) {
+      alert("Pilih program sumber yang valid.");
+      return;
+    }
+    setIsLoadingImport(true);
+    try {
+      const res = await axios.get(`/api/programs/${srcNo}`);
+      const data = res.data;
+      const importedSteps = data.steps && data.steps.length > 0
+        ? JSON.parse(JSON.stringify(data.steps))
+        : [];
+
+      if (importedSteps.length === 0) {
+        alert("Program yang dipilih tidak memiliki daftar langkah yang valid.");
+        return;
+      }
+
+      if (editorImportMode === 'REPLACE') {
+        importedSteps.forEach((s, idx) => { s.step_no = idx + 1; });
+        setSteps(importedSteps);
+        if (data.sub_programs && data.sub_programs.length > 0) {
+          setSubPrograms(JSON.parse(JSON.stringify(data.sub_programs)));
+        } else {
+          setSubPrograms(autoPartitionStepsToSubPrograms(importedSteps));
+        }
+        setSelectedStepIdx(0);
+        setActiveSubIdx(0);
+        setNotification({
+          type: 'success',
+          title: 'Langkah Berhasil Ditimpa!',
+          message: `Seluruh langkah editor digantikan dengan langkah dari Program #${srcNo} (${data.program_name || ''}).`
+        });
+      } else {
+        // APPEND: Sisipkan langkah proses sebelum langkah Program End (F2) jika ada
+        let stepsToAppend = [...importedSteps];
+        // Lepas Start F1 awal dan End F2 akhir dari program yang diimpor jika ada
+        if (stepsToAppend.length > 0 && stepsToAppend[0].functions?.some(f => f.column === 1 && f.function_id === 1)) {
+          stepsToAppend.shift();
+        }
+        if (stepsToAppend.length > 0 && stepsToAppend[stepsToAppend.length - 1].functions?.some(f => f.column === 1 && f.function_id === 2)) {
+          stepsToAppend.pop();
+        }
+
+        let newSteps = [...steps];
+        const lastIdx = newSteps.length - 1;
+        const lastIsEnd = lastIdx >= 0 && newSteps[lastIdx].functions?.some(f => f.column === 1 && f.function_id === 2);
+
+        if (lastIsEnd) {
+          newSteps = [
+            ...newSteps.slice(0, lastIdx),
+            ...stepsToAppend,
+            newSteps[lastIdx]
+          ];
+        } else {
+          newSteps = [...newSteps, ...stepsToAppend];
+        }
+
+        newSteps.forEach((s, idx) => { s.step_no = idx + 1; });
+        setSteps(newSteps);
+        setSubPrograms(autoPartitionStepsToSubPrograms(newSteps));
+        setNotification({
+          type: 'success',
+          title: 'Langkah Berhasil Disisipkan!',
+          message: `${stepsToAppend.length} langkah dari Program #${srcNo} berhasil disisipkan ke editor.`
+        });
+      }
+
+      setShowEditorImportModal(false);
+      setTimeout(() => setNotification(null), 5000);
+    } catch (err) {
+      alert("Gagal mengimpor langkah: " + (err.response?.data?.detail || err.message));
+    } finally {
+      setIsLoadingImport(false);
+    }
   };
 
   // Save Program
@@ -1437,6 +1647,14 @@ export default function Programs() {
                     <td className="py-3 px-4 text-right">
                       <div className="flex items-center justify-end gap-2">
                         <button
+                          onClick={() => handleDuplicateProgram(prg)}
+                          className="flex items-center gap-1 px-2.5 py-1 text-xs font-semibold text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/40 hover:bg-emerald-100 dark:hover:bg-emerald-900/40 rounded border border-emerald-300 dark:border-emerald-800 transition shadow-xs"
+                          title={`Salin / Kloning Program #${prg.program_number} untuk membuat resep baru`}
+                        >
+                          <Copy className="h-3.5 w-3.5" />
+                          <span>Salin</span>
+                        </button>
+                        <button
                           onClick={() => setFtpTransferModal(prg)}
                           className="flex items-center gap-1 px-2.5 py-1 text-xs font-bold text-indigo-700 dark:text-indigo-300 bg-indigo-50 dark:bg-indigo-950/40 hover:bg-indigo-100 dark:hover:bg-indigo-900/40 rounded border border-indigo-300 dark:border-indigo-800 transition"
                           title={`Tulis biner M_${String(prg.program_number).padStart(4, '0')}.PRG ke FTP Mesin ${prg.machine_code || activeMachine}`}
@@ -1468,10 +1686,10 @@ export default function Programs() {
           </table>
         </div>
 
-        {/* MODAL BUAT PROGRAM BARU DENGAN PILIHAN MESIN */}
+        {/* MODAL BUAT PROGRAM BARU DENGAN PILIHAN MESIN & IMPOR PROGRAM */}
         {showCreateModal && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-            <div className="bg-white dark:bg-boxdark rounded-lg border border-stroke dark:border-strokedark shadow-2xl max-w-lg w-full p-6 space-y-5 animate-in fade-in duration-200">
+            <div className="bg-white dark:bg-boxdark rounded-lg border border-stroke dark:border-strokedark shadow-2xl max-w-xl w-full p-6 space-y-4 max-h-[90vh] overflow-y-auto animate-in fade-in duration-200">
               <div className="flex items-center justify-between border-b border-stroke dark:border-strokedark pb-3">
                 <div className="flex items-center gap-2.5">
                   <div className="p-2 bg-primary/10 rounded text-primary">
@@ -1481,7 +1699,7 @@ export default function Programs() {
                     <h3 className="text-sm font-bold uppercase tracking-wider text-black dark:text-white">
                       Buat Program Resep Baru
                     </h3>
-                    <p className="text-[11px] text-gray-500">Konfigurasi awal program dan penugasan mesin celup</p>
+                    <p className="text-[11px] text-gray-500">Konfigurasi awal program, impor dari program lama, dan penugasan mesin</p>
                   </div>
                 </div>
                 <button
@@ -1525,7 +1743,7 @@ export default function Programs() {
                 <div className="grid grid-cols-3 gap-3">
                   <div className="col-span-1">
                     <label className="block text-xs font-bold uppercase tracking-wider text-gray-700 dark:text-gray-300 mb-1.5">
-                      Nomor (ID):
+                      Nomor (ID) Baru:
                     </label>
                     <input
                       type="number"
@@ -1555,12 +1773,31 @@ export default function Programs() {
                   </div>
                 </div>
 
-                {/* TEMPLATE AWAL */}
+                {/* STRUKTUR AWAL LANGKAH */}
                 <div>
                   <label className="block text-xs font-bold uppercase tracking-wider text-gray-700 dark:text-gray-300 mb-2">
                     Struktur Awal Langkah:
                   </label>
-                  <div className="grid grid-cols-2 gap-2.5">
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+                    {/* OPSI 1: SALIN / IMPOR DARI PROGRAM LAMA */}
+                    <label className={`flex flex-col p-3 rounded-lg border cursor-pointer transition ${createTemplateType === 'COPY_EXISTING' ? 'border-emerald-500 bg-emerald-50/60 dark:bg-emerald-950/30' : 'border-stroke dark:border-strokedark hover:bg-gray-50 dark:hover:bg-meta-4/40'}`}>
+                      <div className="flex items-center justify-between mb-1">
+                        <span className="text-xs font-bold text-emerald-800 dark:text-emerald-300 flex items-center gap-1">
+                          <Copy className="h-3.5 w-3.5 text-emerald-600" />
+                          <span>Salin Program Lain</span>
+                        </span>
+                        <input
+                          type="radio"
+                          name="createTemplate"
+                          checked={createTemplateType === 'COPY_EXISTING'}
+                          onChange={() => setCreateTemplateType('COPY_EXISTING')}
+                          className="text-emerald-600 focus:ring-0"
+                        />
+                      </div>
+                      <span className="text-[10px] text-gray-500">Kloning resep yang sudah ada sebelumnya & tinggal edit</span>
+                    </label>
+
+                    {/* OPSI 2: STANDAR 4-LANGKAH */}
                     <label className={`flex flex-col p-3 rounded-lg border cursor-pointer transition ${createTemplateType === 'STANDARD' ? 'border-primary bg-primary/5 dark:bg-primary/10' : 'border-stroke dark:border-strokedark hover:bg-gray-50 dark:hover:bg-meta-4/40'}`}>
                       <div className="flex items-center justify-between mb-1">
                         <span className="text-xs font-bold text-black dark:text-white">Standar 4-Langkah</span>
@@ -1572,9 +1809,10 @@ export default function Programs() {
                           className="text-primary focus:ring-0"
                         />
                       </div>
-                      <span className="text-[10px] text-gray-400">Start (F1) → Isi Air (F713) → Panas 98°C (F141) → End (F2)</span>
+                      <span className="text-[10px] text-gray-400">Start (F1) → Isi Air → Panas 98°C → End (F2)</span>
                     </label>
 
+                    {/* OPSI 3: MINIMAL KOSONG */}
                     <label className={`flex flex-col p-3 rounded-lg border cursor-pointer transition ${createTemplateType === 'BLANK' ? 'border-primary bg-primary/5 dark:bg-primary/10' : 'border-stroke dark:border-strokedark hover:bg-gray-50 dark:hover:bg-meta-4/40'}`}>
                       <div className="flex items-center justify-between mb-1">
                         <span className="text-xs font-bold text-black dark:text-white">Minimal Kosong</span>
@@ -1586,10 +1824,89 @@ export default function Programs() {
                           className="text-primary focus:ring-0"
                         />
                       </div>
-                      <span className="text-[10px] text-gray-400">Hanya Program Start (F1) & Program End (F2)</span>
+                      <span className="text-[10px] text-gray-400">Hanya Program Start (F1) & End (F2)</span>
                     </label>
                   </div>
                 </div>
+
+                {/* BAGIAN PEMILIHAN PROGRAM SUMBER UNTUK DISALIN */}
+                {createTemplateType === 'COPY_EXISTING' && (
+                  <div className="p-3.5 bg-emerald-50/70 dark:bg-emerald-950/30 rounded-lg border border-emerald-500/30 space-y-2.5 animate-in fade-in">
+                    <div className="flex items-center justify-between">
+                      <label className="text-xs font-bold uppercase tracking-wider text-emerald-800 dark:text-emerald-300 flex items-center gap-1.5">
+                        <Copy className="h-3.5 w-3.5 text-emerald-600" />
+                        <span>Pilih Program Sumber:</span>
+                      </label>
+                      <span className="text-[10px] text-gray-500 font-mono">
+                        {filteredSourcePrograms.length} program tersedia
+                      </span>
+                    </div>
+
+                    {/* Input Pencarian Program */}
+                    <div className="relative">
+                      <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-gray-400" />
+                      <input
+                        type="text"
+                        value={sourceSearchTerm}
+                        onChange={(e) => setSourceSearchTerm(e.target.value)}
+                        placeholder="Cari ID, nama resep, atau mesin..."
+                        className="w-full pl-8 pr-3 py-1.5 text-xs rounded-md border border-stroke dark:border-strokedark bg-white dark:bg-boxdark text-black dark:text-white outline-none focus:border-primary"
+                      />
+                    </div>
+
+                    {/* Daftar Program Sumber */}
+                    <div className="max-h-44 overflow-y-auto divide-y divide-stroke dark:divide-strokedark border rounded-md border-stroke dark:border-strokedark bg-white dark:bg-boxdark">
+                      {filteredSourcePrograms.length === 0 ? (
+                        <div className="p-3 text-center text-xs text-gray-400">
+                          Tidak ditemukan program yang sesuai kata kunci.
+                        </div>
+                      ) : (
+                        filteredSourcePrograms.map((p) => {
+                          const isSelected = String(createSourceProgramNo) === String(p.program_number);
+                          return (
+                            <div
+                              key={p.program_number}
+                              onClick={() => handleSelectSourceProgram(p.program_number)}
+                              className={`p-2.5 flex items-center justify-between cursor-pointer transition text-xs ${
+                                isSelected
+                                  ? 'bg-emerald-100/70 dark:bg-emerald-900/40 text-emerald-900 dark:text-emerald-200 font-semibold'
+                                  : 'hover:bg-gray-50 dark:hover:bg-meta-4/40 text-black dark:text-white'
+                              }`}
+                            >
+                              <div className="flex items-center gap-2">
+                                <input
+                                  type="radio"
+                                  name="selectedSourcePrg"
+                                  checked={isSelected}
+                                  onChange={() => handleSelectSourceProgram(p.program_number)}
+                                  className="text-emerald-600 focus:ring-0"
+                                />
+                                <div>
+                                  <div className="flex items-center gap-1.5">
+                                    <span className="font-mono font-bold text-primary dark:text-emerald-400">
+                                      #{String(p.program_number).padStart(4, '0')}
+                                    </span>
+                                    <span className="font-semibold">{p.program_name}</span>
+                                  </div>
+                                  <div className="text-[10px] text-gray-400 font-mono">
+                                    Mesin: {p.machine_code || 'TD12'} · {p.filename || `M_${String(p.program_number).padStart(4, '0')}.PRG`}
+                                  </div>
+                                </div>
+                              </div>
+                              <span className="text-[11px] font-mono px-2 py-0.5 rounded bg-gray-100 dark:bg-meta-4 text-gray-600 dark:text-gray-300">
+                                {p.total_steps || '-'} Steps
+                              </span>
+                            </div>
+                          );
+                        })
+                      )}
+                    </div>
+
+                    <p className="text-[10px] text-emerald-700 dark:text-emerald-300 leading-relaxed">
+                      💡 Seluruh susunan langkah & fasa dari program sumber akan di-copy ke Program #{createProgramNo}. Program asal tetap aman tidak tersentuh.
+                    </p>
+                  </div>
+                )}
               </div>
 
               <div className="flex items-center justify-end gap-2.5 pt-3 border-t border-stroke dark:border-strokedark">
@@ -1603,10 +1920,20 @@ export default function Programs() {
                 <button
                   type="button"
                   onClick={handleConfirmCreateProgram}
-                  className="flex items-center gap-1.5 px-4 py-2 text-xs font-bold text-white bg-primary hover:bg-primary/90 rounded-lg shadow transition active:scale-95"
+                  disabled={isCopyingProgram}
+                  className="flex items-center gap-1.5 px-4 py-2 text-xs font-bold text-white bg-primary hover:bg-primary/90 rounded-lg shadow transition active:scale-95 disabled:opacity-50"
                 >
-                  <span>Buka Editor Program</span>
-                  <ChevronRight className="h-4 w-4" />
+                  {isCopyingProgram ? (
+                    <>
+                      <RefreshCw className="h-4 w-4 animate-spin" />
+                      <span>Mengimpor Program...</span>
+                    </>
+                  ) : (
+                    <>
+                      <span>Buka Editor Program</span>
+                      <ChevronRight className="h-4 w-4" />
+                    </>
+                  )}
                 </button>
               </div>
             </div>
@@ -1818,6 +2145,20 @@ export default function Programs() {
           >
             <BookOpen className="h-3.5 w-3.5 text-indigo-500" />
             <span>+ Tambah Fasa (Sub)</span>
+          </button>
+
+          <button
+            onClick={() => {
+              const defaultSrc = programList.find(p => p.program_number !== programNo) || programList[0];
+              setEditorImportSourceNo(defaultSrc ? defaultSrc.program_number : '');
+              setEditorImportSearchTerm('');
+              setShowEditorImportModal(true);
+            }}
+            className="flex items-center gap-1.5 px-3 py-2 text-xs font-semibold bg-cyan-50 dark:bg-cyan-950/40 text-cyan-700 dark:text-cyan-300 border border-cyan-500/30 rounded shadow-sm hover:bg-cyan-100 dark:hover:bg-cyan-900/40 transition active:scale-95"
+            title="Impor atau salin langkah-langkah dari program yang sudah ada ke editor ini"
+          >
+            <Copy className="h-3.5 w-3.5 text-cyan-600 dark:text-cyan-400" />
+            <span>Impor Program Lain</span>
           </button>
 
           <button
@@ -2619,6 +2960,149 @@ export default function Programs() {
                 className="px-4 py-2 text-xs font-semibold bg-gray-100 dark:bg-meta-4 hover:bg-gray-200 rounded"
               >
                 Tutup
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL IMPOR PROGRAM LAIN DI DALAM EDITOR */}
+      {showEditorImportModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+          <div className="bg-white dark:bg-boxdark rounded-lg border border-stroke dark:border-strokedark shadow-2xl max-w-lg w-full p-6 space-y-4 animate-in fade-in">
+            <div className="flex items-center justify-between border-b border-stroke dark:border-strokedark pb-3">
+              <div className="flex items-center gap-2.5">
+                <div className="p-2 bg-cyan-500/10 text-cyan-600 rounded-lg">
+                  <Copy className="h-5 w-5" />
+                </div>
+                <div>
+                  <h3 className="text-sm font-bold uppercase tracking-wider text-black dark:text-white">
+                    Impor Langkah Dari Program Lain
+                  </h3>
+                  <p className="text-[11px] text-gray-500">Salin struktur langkah dari program sebelumnya ke editor aktif (#{programNo})</p>
+                </div>
+              </div>
+              <button onClick={() => setShowEditorImportModal(false)} className="text-gray-400 hover:text-gray-600">
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+
+            <div className="space-y-3">
+              {/* Mode Impor */}
+              <div>
+                <label className="block text-xs font-bold uppercase tracking-wider text-gray-700 dark:text-gray-300 mb-1.5">
+                  Metode Penerapan:
+                </label>
+                <div className="grid grid-cols-2 gap-2">
+                  <label className={`p-2.5 rounded-lg border cursor-pointer text-xs transition ${editorImportMode === 'REPLACE' ? 'border-primary bg-primary/5 dark:bg-primary/10 font-bold text-primary' : 'border-stroke dark:border-strokedark text-gray-600 dark:text-gray-300'}`}>
+                    <input
+                      type="radio"
+                      name="editorImportMode"
+                      checked={editorImportMode === 'REPLACE'}
+                      onChange={() => setEditorImportMode('REPLACE')}
+                      className="mr-2 text-primary focus:ring-0"
+                    />
+                    <span>Timpa Semua Langkah</span>
+                    <p className="text-[10px] text-gray-400 font-normal mt-0.5">Ganti seluruh langkah saat ini dengan resep yang diimpor</p>
+                  </label>
+                  <label className={`p-2.5 rounded-lg border cursor-pointer text-xs transition ${editorImportMode === 'APPEND' ? 'border-primary bg-primary/5 dark:bg-primary/10 font-bold text-primary' : 'border-stroke dark:border-strokedark text-gray-600 dark:text-gray-300'}`}>
+                    <input
+                      type="radio"
+                      name="editorImportMode"
+                      checked={editorImportMode === 'APPEND'}
+                      onChange={() => setEditorImportMode('APPEND')}
+                      className="mr-2 text-primary focus:ring-0"
+                    />
+                    <span>Sisipkan ke Resep Ini</span>
+                    <p className="text-[10px] text-gray-400 font-normal mt-0.5">Tambahkan langkah proses sebelum langkah Program End</p>
+                  </label>
+                </div>
+              </div>
+
+              {/* Cari & Pilih Program Sumber */}
+              <div>
+                <label className="block text-xs font-bold uppercase tracking-wider text-gray-700 dark:text-gray-300 mb-1.5">
+                  Pilih Program Sumber:
+                </label>
+                <div className="relative mb-2">
+                  <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-gray-400" />
+                  <input
+                    type="text"
+                    value={editorImportSearchTerm}
+                    onChange={(e) => setEditorImportSearchTerm(e.target.value)}
+                    placeholder="Cari ID, nama program, atau mesin..."
+                    className="w-full pl-8 pr-3 py-1.5 text-xs rounded-md border border-stroke dark:border-strokedark bg-gray-50 dark:bg-meta-4 text-black dark:text-white outline-none focus:border-primary"
+                  />
+                </div>
+
+                <div className="max-h-48 overflow-y-auto divide-y divide-stroke dark:divide-strokedark border rounded-md border-stroke dark:border-strokedark bg-white dark:bg-boxdark">
+                  {filteredEditorImportPrograms.length === 0 ? (
+                    <div className="p-3 text-center text-xs text-gray-400">Tidak ada program yang ditemukan.</div>
+                  ) : (
+                    filteredEditorImportPrograms.map(p => {
+                      const isSelected = String(editorImportSourceNo) === String(p.program_number);
+                      return (
+                        <div
+                          key={p.program_number}
+                          onClick={() => setEditorImportSourceNo(p.program_number)}
+                          className={`p-2.5 flex items-center justify-between cursor-pointer transition text-xs ${
+                            isSelected
+                              ? 'bg-cyan-50 dark:bg-cyan-950/40 text-cyan-900 dark:text-cyan-200 font-bold'
+                              : 'hover:bg-gray-50 dark:hover:bg-meta-4/40 text-black dark:text-white'
+                          }`}
+                        >
+                          <div className="flex items-center gap-2">
+                            <input
+                              type="radio"
+                              name="editorImportPrg"
+                              checked={isSelected}
+                              onChange={() => setEditorImportSourceNo(p.program_number)}
+                              className="text-cyan-600 focus:ring-0"
+                            />
+                            <div>
+                              <div className="flex items-center gap-1.5">
+                                <span className="font-mono text-primary font-bold">#{String(p.program_number).padStart(4, '0')}</span>
+                                <span>{p.program_name}</span>
+                              </div>
+                              <span className="text-[10px] text-gray-400 font-mono">Mesin: {p.machine_code || 'TD12'}</span>
+                            </div>
+                          </div>
+                          <span className="text-[11px] font-mono px-2 py-0.5 rounded bg-gray-100 dark:bg-meta-4">
+                            {p.total_steps || '-'} Steps
+                          </span>
+                        </div>
+                      );
+                    })
+                  )}
+                </div>
+              </div>
+            </div>
+
+            <div className="flex items-center justify-end gap-2.5 pt-3 border-t border-stroke dark:border-strokedark">
+              <button
+                type="button"
+                onClick={() => setShowEditorImportModal(false)}
+                className="px-4 py-2 text-xs font-semibold text-gray-600 dark:text-gray-300 bg-gray-100 dark:bg-meta-4 hover:bg-gray-200 rounded-lg transition"
+              >
+                Batal
+              </button>
+              <button
+                type="button"
+                onClick={handleImportProgramIntoEditor}
+                disabled={isLoadingImport}
+                className="flex items-center gap-1.5 px-4 py-2 text-xs font-bold text-white bg-cyan-600 hover:bg-cyan-700 rounded-lg shadow transition active:scale-95 disabled:opacity-50"
+              >
+                {isLoadingImport ? (
+                  <>
+                    <RefreshCw className="h-4 w-4 animate-spin" />
+                    <span>Mengimpor...</span>
+                  </>
+                ) : (
+                  <>
+                    <Copy className="h-4 w-4" />
+                    <span>Terapkan ke Editor</span>
+                  </>
+                )}
               </button>
             </div>
           </div>

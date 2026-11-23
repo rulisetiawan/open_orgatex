@@ -1299,13 +1299,20 @@ const Logs = ({ defaultTab = 'active' }) => {
           <div className="grid grid-cols-2 md:grid-cols-5 gap-3.5">
             <div className="rounded border border-stroke bg-white p-3.5 shadow-sm dark:border-strokedark dark:bg-boxdark">
               <div className="flex items-center justify-between text-gray-500 text-[11px]">
-                <span>Suhu Bejana T1 (PV)</span>
+                <div className="flex items-center gap-1.5">
+                  <span>Suhu Bejana T1 (PV)</span>
+                  {effectiveData?.iw_source && (
+                    <span className="text-[9px] font-bold text-emerald-600 bg-emerald-500/10 px-1 py-0.2 rounded border border-emerald-500/20">
+                      ⚡ IW 50000
+                    </span>
+                  )}
+                </div>
                 <Flame className="h-4 w-4 text-danger" />
               </div>
               <h3 className="mt-1.5 text-xl font-extrabold text-danger font-mono">
                 {effectiveData?.current_temp !== undefined ? `${effectiveData.current_temp} °C` : '-'}
               </h3>
-              <span className="text-[10px] text-gray-400">{isArchiveMode ? 'Suhu Puncak / Akhir' : 'Sensor Bejana Utama T1'}</span>
+              <span className="text-[10px] text-gray-400">{isArchiveMode ? 'Suhu Puncak / Akhir' : (effectiveData?.iw_source ? 'Sensor IW Objek 1025' : 'Sensor Bejana Utama T1')}</span>
             </div>
 
             <div className="rounded border border-stroke bg-white p-3.5 shadow-sm dark:border-strokedark dark:bg-boxdark">
@@ -2334,9 +2341,14 @@ const Logs = ({ defaultTab = 'active' }) => {
               {/* Physical Sensor Telemetry Snapshot During This Step */}
               <div className="p-3 rounded-lg bg-gray-50 dark:bg-meta-4/30 border border-stroke dark:border-strokedark">
                 <div className="text-[11px] font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider mb-2 flex items-center justify-between">
-                  <span className="flex items-center gap-1.5">
+                  <span className="flex items-center gap-1.5 flex-wrap">
                     <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span>
                     Pembacaan Telemetri Sensor Aktual Pada Langkah Ini
+                    {liveData?.iw_source && selectedStepDetail.no === currentStepNo && (
+                      <span className="ml-1 text-[9px] font-bold text-emerald-600 bg-emerald-500/10 px-1.5 py-0.5 rounded border border-emerald-500/20">
+                        ⚡ Real-Time IW (Object 1025)
+                      </span>
+                    )}
                   </span>
                   {selectedStepDetail.telemetry?.point_count ? (
                     <span className="text-[10px] text-gray-500 font-mono bg-white dark:bg-boxdark px-1.5 py-0.5 rounded border border-stroke dark:border-strokedark">

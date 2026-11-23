@@ -1,0 +1,1126 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Panduan Tag &amp; Uji Kartu</title>
+<style>
+  :root {
+    --bg: #f6f8fa; --surface: #ffffff; --surface-2: #f0f3f6; --border: #dde3ea;
+    --ink: #101828; --ink-2: #475467; --ink-3: #667085;
+    --brand: #0f766e; --brand-bg: #e6f4f1; --warn: #b54708; --warn-bg: #fef3e2;
+    --bad: #b42318; --bad-bg: #fdecea; --code-bg: #0f172a; --code-ink: #e2e8f0;
+    --mono: ui-monospace, "Cascadia Code", Consolas, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #0d1117; --surface: #161b22; --surface-2: #1c232c; --border: #2a323d;
+      --ink: #e6edf3; --ink-2: #b3bdc8; --ink-3: #8b97a4;
+      --brand: #46b8a2; --brand-bg: #12302b; --warn: #f0a548; --warn-bg: #33250f;
+      --bad: #f07a6f; --bad-bg: #3a1714; --code-bg: #0a0e14; --code-ink: #dbe4ee;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #0d1117; --surface: #161b22; --surface-2: #1c232c; --border: #2a323d;
+    --ink: #e6edf3; --ink-2: #b3bdc8; --ink-3: #8b97a4;
+    --brand: #46b8a2; --brand-bg: #12302b; --warn: #f0a548; --warn-bg: #33250f;
+    --bad: #f07a6f; --bad-bg: #3a1714; --code-bg: #0a0e14; --code-ink: #dbe4ee;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.6 system-ui, "Segoe UI", Roboto, sans-serif; }
+  .wrap { max-width: 1080px; margin: 0 auto; padding: 32px 16px 80px; }
+  header.top { border-bottom: 1px solid var(--border); padding-bottom: 20px; margin-bottom: 8px; }
+  header.top h1 { font-size: 28px; line-height: 1.25; margin: 0 0 6px; }
+  header.top p { margin: 0; color: var(--ink-2); max-width: 70ch; }
+  .meta { color: var(--ink-3); font-size: 13px; margin-top: 10px; }
+  nav.toc { display: flex; flex-wrap: wrap; gap: 6px 14px; margin: 18px 0 8px; font-size: 14px; }
+  nav.toc a { color: var(--brand); text-decoration: none; }
+  nav.toc a:hover { text-decoration: underline; }
+  section { margin-top: 44px; }
+  h2 { font-size: 21px; margin: 0 0 10px; padding-top: 4px; }
+  h3 { font-size: 16px; margin: 24px 0 8px; }
+  p { margin: 8px 0; }
+  .lead { color: var(--ink-2); max-width: 75ch; }
+  code { font-family: var(--mono); font-size: 0.9em; background: var(--surface-2); border: 1px solid var(--border); border-radius: 4px; padding: 0 4px; }
+  .table-wrap { overflow-x: auto; border: 1px solid var(--border); border-radius: 8px; background: var(--surface); margin: 10px 0; }
+  table { border-collapse: collapse; width: 100%; font-size: 14px; }
+  th, td { text-align: left; padding: 8px 12px; border-bottom: 1px solid var(--border); vertical-align: top; }
+  th { background: var(--surface-2); color: var(--ink-2); font-weight: 600; font-size: 13px; white-space: nowrap; }
+  tr:last-child td { border-bottom: 0; }
+  td code { white-space: nowrap; }
+  .note { border-left: 3px solid var(--brand); background: var(--brand-bg); padding: 10px 14px; border-radius: 0 6px 6px 0; margin: 12px 0; }
+  .note.warn { border-color: var(--warn); background: var(--warn-bg); }
+  .note.bad { border-color: var(--bad); background: var(--bad-bg); }
+  .note b { display: block; margin-bottom: 2px; }
+  .flow { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(150px, 100%), 1fr)); gap: 8px; margin: 14px 0; counter-reset: step; }
+  .flow div { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px; font-size: 13px; color: var(--ink-2); position: relative; }
+  .flow div b { display: block; color: var(--ink); font-size: 14px; margin-bottom: 2px; }
+  .flow div::before { counter-increment: step; content: counter(step); position: absolute; top: 8px; right: 10px; color: var(--ink-3); font-size: 12px; font-weight: 600; }
+  .fmt { font-family: var(--mono); font-size: 15px; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 14px 16px; overflow-x: auto; white-space: nowrap; }
+  .fmt span { padding: 1px 3px; border-radius: 3px; }
+  .s1 { background: var(--brand-bg); } .s2 { background: var(--warn-bg); } .s3 { background: var(--surface-2); outline: 1px solid var(--border); }
+  .pill { display: inline-block; font-size: 12px; padding: 1px 8px; border-radius: 999px; border: 1px solid var(--border); background: var(--surface-2); color: var(--ink-2); white-space: nowrap; }
+  .pill.sensor { border-color: var(--brand); color: var(--brand); background: var(--brand-bg); }
+  .pill.hidden { border-style: dashed; }
+  /* generator */
+  .gen { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 18px; margin-top: 14px; }
+  .gen-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(220px, 100%), 1fr)); gap: 14px; }
+  label.f { display: block; font-size: 13px; color: var(--ink-2); font-weight: 600; }
+  label.f input, label.f select { display: block; width: 100%; margin-top: 4px; font: inherit; font-size: 14px; color: var(--ink); background: var(--bg); border: 1px solid var(--border); border-radius: 6px; padding: 7px 9px; }
+  label.f small { display: block; font-weight: 400; color: var(--ink-3); margin-top: 3px; }
+  fieldset { border: 1px solid var(--border); border-radius: 8px; margin: 16px 0 0; padding: 10px 14px 12px; }
+  legend { font-size: 13px; font-weight: 600; color: var(--ink-2); padding: 0 6px; }
+  .checks { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(240px, 100%), 1fr)); gap: 6px 16px; }
+  .checks label { font-size: 14px; display: flex; gap: 8px; align-items: flex-start; cursor: pointer; }
+  .checks input { margin-top: 4px; }
+  .checks small { color: var(--ink-3); display: block; font-size: 12px; }
+  .tabs { display: flex; flex-wrap: wrap; gap: 4px; margin: 20px 0 0; border-bottom: 1px solid var(--border); }
+  .tabs button { font: inherit; font-size: 14px; background: none; border: 0; border-bottom: 2px solid transparent; color: var(--ink-2); padding: 8px 12px; cursor: pointer; margin-bottom: -1px; }
+  .tabs button[aria-selected="true"] { color: var(--brand); border-color: var(--brand); font-weight: 600; }
+  .panel-desc { color: var(--ink-2); font-size: 14px; margin: 12px 0 8px; }
+  .code { position: relative; }
+  .code pre { margin: 0; background: var(--code-bg); color: var(--code-ink); border-radius: 8px; padding: 14px 16px; overflow: auto; max-height: 520px; font: 13px/1.55 var(--mono); }
+  .copy { position: absolute; top: 8px; right: 8px; font: inherit; font-size: 12px; border-radius: 6px; border: 1px solid #3a4655; background: #1e2835; color: #dbe4ee; padding: 4px 10px; cursor: pointer; }
+  .copy:hover { background: #2a3646; }
+  .btn-row { display: flex; gap: 8px; margin-top: 8px; flex-wrap: wrap; }
+  .btn-row button { font: inherit; font-size: 13px; border: 1px solid var(--border); background: var(--surface-2); color: var(--ink); border-radius: 6px; padding: 5px 10px; cursor: pointer; }
+  ol.steps { padding-left: 20px; } ol.steps li { margin: 6px 0; }
+  .theme-toggle { float: right; font: inherit; font-size: 13px; border: 1px solid var(--border); background: var(--surface); color: var(--ink-2); border-radius: 6px; padding: 4px 10px; cursor: pointer; }
+  .flow div, .gen, section { min-width: 0; }
+  p code, li code, .note code, .flow code, .panel-desc code { overflow-wrap: anywhere; word-break: break-word; }
+  .theme-toggle + h1 { clear: both; }
+  @media (max-width: 640px) {
+    .wrap { padding-top: 20px; }
+    header.top h1 { font-size: 23px; }
+    th, td { padding: 7px 9px; }
+    .gen { padding: 14px; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="top">
+  <button class="theme-toggle" id="themeBtn" type="button">Ganti tema</button>
+  <h1>Panduan tag, kartu dinamis, dan trigger uji</h1>
+  <p>Cara menambah sensor atau parameter baru ke mesin produksi, mesin utilitas, dan peralatan energi sampai kartunya muncul di dashboard. Bagian 7 berisi generator trigger untuk mendaftarkan tag uji, mengirim nilai, memeriksa hasil, lalu menghapusnya lagi. Bagian 10 menjelaskan data step celup (resep, batch, eksekusi step) beserta trigger ujinya.</p>
+  <div class="meta">Versi 1.0 · 21 November 2026 · Berlaku untuk backend NestJS + PostgreSQL/TimescaleDB, parser tag versi 2</div>
+  <nav class="toc" aria-label="Daftar isi">
+    <a href="#alur">1. Alur data</a>
+    <a href="#tabel">2. Tabel database</a>
+    <a href="#nama">3. Format nama tag</a>
+    <a href="#kartu">4. Aturan kartu</a>
+    <a href="#mesin">5. Per mesin &amp; energi</a>
+    <a href="#mode">6. Mode data</a>
+    <a href="#trigger">7. Generator trigger</a>
+    <a href="#cek">8. Checklist hasil</a>
+    <a href="#masalah">9. Masalah umum</a>
+    <a href="#celup">10. Step celup (Jetflow)</a>
+  </nav>
+</header>
+
+<section id="alur">
+  <h2>1. Alur data dari PLC sampai kartu</h2>
+  <p class="lead">Tidak ada kode frontend yang perlu diubah untuk menambah kartu. Kartu dibentuk dari daftar tag yang terdaftar untuk satu aset, dan jenis kartunya ditentukan dari nama tag.</p>
+  <div class="flow">
+    <div><b>Daftarkan tag</b>Baris baru di <code>tag_definition</code> dengan <code>asset_id</code> mesin.</div>
+    <div><b>Kirim nilai</b>Gateway/Node-RED memanggil <code>POST /api/v1/telemetry/ingest</code>.</div>
+    <div><b>Simpan</b>Sampel masuk ke <code>telemetry_sample</code>; trigger database memperbarui <code>tag_latest</code>.</div>
+    <div><b>Bentuk kartu</b><code>GET /api/v1/assets/{id}/model</code> mem-parse nama tag dan mengelompokkan per section.</div>
+    <div><b>Tampil</b>Tab "Sensor &amp; Tren" memuat ulang model tiap 10 detik.</div>
+    <div><b>Tren</b>Rollup 1m/15m/harian diperbarui tiap 5 menit dari <code>telemetry_sample</code>.</div>
+  </div>
+  <div class="note">
+    <b>Dua jalur kirim nilai</b>
+    <code>POST /api/v1/telemetry/ingest</code> menyimpan histori dan nilai terakhir, jadi tren ikut terisi. Pakai ini untuk sensor dan parameter.
+    <code>POST /api/v1/ingestion/live-values</code> hanya menimpa <code>tag_latest</code> tanpa histori. Pakai untuk nilai yang cepat berubah dan tidak perlu tren, misalnya loadcell dispensing.
+  </div>
+</section>
+
+<section id="tabel">
+  <h2>2. Tabel database yang terlibat</h2>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Tabel</th><th>Isi</th><th>Kolom penting</th></tr></thead>
+    <tbody>
+      <tr><td><code>asset</code></td><td>Satu baris per mesin atau peralatan. Tag hanya bisa didaftarkan ke aset yang sudah ada (foreign key).</td><td><code>asset_id</code>, <code>process_type</code>, <code>display_name</code>, <code>data_source</code> (<code>LIVE</code>/<code>DUMMY</code>)</td></tr>
+      <tr><td><code>tag_definition</code></td><td>Registry tag. Satu baris = satu sinyal.</td><td><code>tag_code</code> (PK), <code>asset_id</code>, <code>signal_role</code>, <code>engineering_unit</code>, <code>active</code>, <code>kategori</code>, <code>address</code>, <code>stale_after_seconds</code> (default 30)</td></tr>
+      <tr><td><code>tag_definition</code> (kolom parser)</td><td>Diisi parser saat backend start atau lewat <code>POST /api/v1/tag-registry/sync</code>.</td><td><code>section_code</code>, <code>quantity_code</code>, <code>qualifier</code>, <code>role_code</code>, <code>canonical_code</code>, <code>parse_status</code></td></tr>
+      <tr><td><code>tag_definition</code> (override kartu)</td><td>Opsional, untuk mengubah tampilan tanpa mengganti nama tag.</td><td><code>card_enabled</code>, <code>card_type</code>, <code>card_group</code>, <code>card_order</code>, <code>display_name</code>, <code>decimals</code>, <code>range_min</code>, <code>range_max</code>, <code>trend_enabled</code></td></tr>
+      <tr><td><code>telemetry_sample</code></td><td>Histori semua sampel. Unik per (<code>message_id</code>, <code>tag_code</code>).</td><td><code>asset_id</code>, <code>tag_code</code>, <code>source_ts</code>, <code>value_number</code>, <code>value_text</code>, <code>quality</code>, <code>gateway_id</code></td></tr>
+      <tr><td><code>tag_latest</code></td><td>Nilai terakhir per tag. Diisi trigger <code>sync_tag_latest_from_telemetry</code>; nilai lebih lama tidak menimpa yang baru.</td><td><code>tag_code</code>, <code>value_number</code>, <code>quality</code>, <code>source_ts</code></td></tr>
+      <tr><td><code>telemetry_cagg_1m</code>, <code>_15m</code>, <code>_daily</code></td><td>Rollup untuk grafik tren (min/avg/max per bucket).</td><td><code>bucket_start</code>, <code>avg_value</code>, <code>min_value</code>, <code>max_value</code></td></tr>
+      <tr><td><code>tag_alias</code></td><td>Nama lama ↔ nama kanonik. Ingest menerima keduanya; histori tetap di <code>tag_code</code> yang tersimpan.</td><td><code>alias_code</code>, <code>tag_code</code></td></tr>
+      <tr><td><code>quantity_dictionary</code>, <code>role_dictionary</code>, <code>qualifier_dictionary</code>, <code>display_rule</code></td><td>Kamus parser dan urutan aturan kartu (migrasi 0042). Parser juga punya salinan di kode, jadi tetap jalan saat offline.</td><td>—</td></tr>
+      <tr><td><code>alarm_rule</code></td><td>Batas alarm per tag. Kartu hanya berwarna peringatan untuk tag yang punya aturan aktif.</td><td><code>tag_code</code>, <code>rule_type</code>, <code>threshold_value</code>, <code>severity</code>, <code>enabled</code></td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section id="nama">
+  <h2>3. Format nama tag</h2>
+  <div class="fmt">SMM.<span class="s1">{ASSET_ID}</span>.<span class="s2">{SECTION}</span>.<span class="s3">{QUANTITY}[_{QUALIFIER}]_{ROLE}</span></div>
+  <p>Contoh: <code>SMM.KL-DPN-02.HEATING.TEMPERATURE_PV</code>, <code>SMM.CP-CSD122-01.FEEDWATER.TEMPERATURE_IN_PV</code>, <code>SMM.KL-DPN-02.POWERMETER.CURRENT_L1_PV</code>.</p>
+  <ul>
+    <li><b>ASSET_ID</b> harus sama persis dengan <code>asset.asset_id</code> dan dengan <code>asset_id</code> yang dikirim di payload.</li>
+    <li><b>SECTION</b> menjadi judul kelompok kartu. Section yang sudah punya label: <code>HEATING</code> (Pemanasan), <code>MAIN_TANK</code> (Bak utama), <code>MAIN_MOTOR</code>, <code>POWERMETER</code> (Power meter), <code>STEAM</code> (Uap), <code>FEEDWATER</code> (Air umpan), <code>WATER</code> (Air), <code>PRODUCTION</code> (Produksi), <code>MACHINE</code> (Mesin), <code>QUALITY</code>, <code>CAMERA</code>, <code>PLAITER</code>, <code>DANCER</code>. Section lain ditampilkan sebagai judul biasa, misalnya <code>LINE</code> → "Line".</li>
+    <li>Huruf kapital, pemisah titik antarbagian dan garis bawah di dalam bagian.</li>
+  </ul>
+
+  <h3>Quantity yang dikenali</h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Quantity</th><th>Label</th><th>Satuan default</th><th>Catatan</th></tr></thead>
+    <tbody>
+      <tr><td><code>TEMPERATURE</code></td><td>Suhu</td><td>°C</td><td></td></tr>
+      <tr><td><code>PRESSURE</code></td><td>Tekanan</td><td>bar</td><td></td></tr>
+      <tr><td><code>FLOW</code></td><td>Aliran</td><td>L/h</td><td><code>FLOW_TOTAL</code> dengan satuan m³ dibaca sebagai water meter</td></tr>
+      <tr><td><code>LEVEL</code>, <code>POSITION</code>, <code>PH</code>, <code>DO</code>, <code>POWER_FACTOR</code></td><td>Level, posisi, pH, DO, faktor daya</td><td>%, %, pH, mg/L, —</td><td>Rentang tetap → kartu GAUGE</td></tr>
+      <tr><td><code>SPEED</code> / <code>MOTOR_SPEED</code></td><td>Kecepatan / putaran</td><td>m/min / rpm</td><td></td></tr>
+      <tr><td><code>CURRENT</code>, <code>VOLTAGE</code>, <code>FREQUENCY</code></td><td>Arus, tegangan, frekuensi</td><td>A, V, Hz</td><td></td></tr>
+      <tr><td><code>ACTIVE_POWER</code>, <code>REACTIVE_POWER</code>, <code>APPARENT_POWER</code></td><td>Daya</td><td>kW, kVAR, kVA</td><td></td></tr>
+      <tr><td><code>ACTIVE_ENERGY</code></td><td>Energi aktif</td><td>kWh</td><td>Rollup DELTA</td></tr>
+      <tr><td><code>VALVE</code></td><td>Bukaan valve</td><td>%</td><td>→ kartu VALVE</td></tr>
+      <tr><td><code>LENGTH</code>, <code>MASS</code>, <code>WEIGHT</code>, <code>WIDTH</code>, <code>OVERFEED</code>, <code>TORQUE</code>, <code>DOSING</code></td><td></td><td>m, kg, kg, cm, %, %, ml/jam</td><td></td></tr>
+      <tr><td><code>RUN</code>, <code>FAULT</code>, <code>OPEN</code>, <code>MODE</code>, <code>STEP</code>, <code>COUNT</code></td><td>Status/alarm</td><td>—</td><td>Biasanya dipasangkan dengan role <code>ST</code> atau <code>ALM</code></td></tr>
+      <tr><td><code>HEARTBEAT</code></td><td>Heartbeat</td><td>—</td><td>Tidak pernah menjadi kartu</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>Role dan qualifier</h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Role</th><th>Arti</th><th>Qualifier</th><th>Arti</th></tr></thead>
+    <tbody>
+      <tr><td><code>PV</code></td><td>Nilai aktual dari sensor</td><td><code>L1</code> <code>L2</code> <code>L3</code></td><td>Fasa R, S, T</td></tr>
+      <tr><td><code>SV</code></td><td>Setpoint dari PLC/HMI</td><td><code>IN</code> / <code>OUTLET</code></td><td>Masuk / keluar</td></tr>
+      <tr><td><code>TOTAL</code>, <code>CNT</code></td><td>Totalizer / hitungan</td><td><code>SUPPLY</code> / <code>RETURN</code></td><td>Supply / return</td></tr>
+      <tr><td><code>ST</code>, <code>FB</code>, <code>STATE</code>, <code>CODE</code></td><td>Status digital atau berkode</td><td><code>UPPER</code> / <code>LOWER</code></td><td>Atas / bawah</td></tr>
+      <tr><td><code>ALM</code></td><td>Alarm aktif</td><td><code>LEFT</code> / <code>RIGHT</code></td><td>Kiri / kanan</td></tr>
+      <tr><td><code>CALC</code></td><td>Hasil rumus (KPI)</td><td></td><td></td></tr>
+      <tr><td><code>RAW</code>, <code>CMD</code>, <code>KP</code> <code>KI</code> <code>KD</code> <code>TI</code> <code>TD</code>, <code>HH</code> <code>HI</code> <code>LO</code> <code>LL</code></td><td>Tidak menjadi kartu. Tuning PID dan batas alarm tampil di tab Konfigurasi Mesin.</td><td></td><td></td></tr>
+    </tbody>
+  </table></div>
+  <div class="note warn">
+    <b>Pakai <code>OUTLET</code>, bukan <code>OUT</code>, untuk sisi keluar</b>
+    <code>OUT</code> dibaca sebagai role "output kontrol", sehingga <code>TEMPERATURE_OUT_PV</code> tidak dipasangkan dengan <code>TEMPERATURE_IN_PV</code>. Tulis <code>TEMPERATURE_OUTLET_PV</code>.
+  </div>
+</section>
+
+<section id="kartu">
+  <h2>4. Aturan pembentukan kartu</h2>
+  <p class="lead">Aturan dicek dari atas ke bawah. Tag pertama kali dicocokkan berpasangan (SETPOINT, PHASE3, DELTA_PAIR, MOTOR); sisanya menjadi kartu tunggal. Hasil di bawah ini sudah dijalankan langsung lewat parser dan pembentuk kartu di backend.</p>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Kartu</th><th>Syarat</th><th>Contoh tag</th><th>Di tab tren</th></tr></thead>
+    <tbody>
+      <tr><td><b>SETPOINT</b></td><td>PV dan SV dengan section, quantity, qualifier sama</td><td><code>HEATING.TEMPERATURE_PV</code> + <code>HEATING.TEMPERATURE_SV</code></td><td><span class="pill sensor">Sensor</span> chip tren + kartu sensor realtime</td></tr>
+      <tr><td><b>PHASE3</b></td><td>Tiga tag <code>_L1_</code> <code>_L2_</code> <code>_L3_</code> dengan quantity sama</td><td><code>POWERMETER.CURRENT_L1_PV</code>, <code>_L2_PV</code>, <code>_L3_PV</code></td><td><span class="pill">Parameter</span> per fasa</td></tr>
+      <tr><td><b>DELTA_PAIR</b></td><td>Pasangan IN/OUTLET atau SUPPLY/RETURN</td><td><code>FEEDWATER.TEMPERATURE_IN_PV</code> + <code>_OUTLET_PV</code></td><td><span class="pill">Parameter</span></td></tr>
+      <tr><td><b>MOTOR</b></td><td>Section berisi minimal dua dari arus, frekuensi, putaran, status jalan (tanpa qualifier fasa)</td><td><code>MAIN_MOTOR.CURRENT_PV</code>, <code>FREQUENCY_PV</code>, <code>MOTOR_SPEED_PV</code>, <code>RUN_ST</code></td><td><span class="pill">Parameter</span> per bagian</td></tr>
+      <tr><td><b>VALVE</b></td><td>Quantity <code>VALVE</code></td><td><code>STEAM.VALVE_PV</code></td><td><span class="pill">Parameter</span></td></tr>
+      <tr><td><b>COUNTER</b></td><td>Role <code>TOTAL</code> atau <code>CNT</code></td><td><code>PRODUCTION.LENGTH_TOTAL</code>, <code>POWERMETER.ACTIVE_ENERGY_TOTAL</code></td><td><span class="pill">Parameter</span></td></tr>
+      <tr><td><b>STATUS</b></td><td>Role <code>ST</code>, <code>FB</code>, <code>STATE</code>, <code>CODE</code></td><td><code>MACHINE.MODE_ST</code></td><td><span class="pill hidden">Tidak masuk tren</span></td></tr>
+      <tr><td><b>ALARM</b></td><td>Quantity <code>FAULT</code> atau role <code>ALM</code></td><td><code>MACHINE.FAULT_ALM</code></td><td><span class="pill hidden">Tidak masuk tren</span></td></tr>
+      <tr><td><b>KPI</b></td><td>Role <code>CALC</code></td><td><code>PRODUCTION.LENGTH_CALC</code></td><td><span class="pill">Parameter</span></td></tr>
+      <tr><td><b>GAUGE</b></td><td>Quantity level, posisi, pH, DO, faktor daya</td><td><code>MAIN_TANK.LEVEL_PV</code></td><td><span class="pill">Parameter</span></td></tr>
+      <tr><td><b>VALUE</b></td><td>Selain di atas</td><td><code>LINE.SPEED_PV</code> (tanpa SV)</td><td><span class="pill">Parameter</span></td></tr>
+    </tbody>
+  </table></div>
+  <div class="note">
+    <b>Sensor atau parameter</b>
+    Hanya kartu SETPOINT (punya PV dan SV) yang dihitung sebagai sensor dan masuk chip tren. Nilai tanpa SV masuk ke kartu "Parameter mesin". Tiap daftar dibatasi 12 item dengan kotak cari. Pengecualian: mesin yang sama sekali tidak punya pasangan PV/SV tetap menampilkan semua nilainya di tren.
+  </div>
+
+  <h3>Override tanpa mengganti nama tag</h3>
+  <div class="code"><pre>-- Sembunyikan satu kartu
+UPDATE tag_definition SET card_enabled = FALSE WHERE tag_code = 'SMM.KL-DPN-02.LINE.SPEED_PV';
+
+-- Ganti judul kartu dan paksa jenisnya
+UPDATE tag_definition SET display_name = 'Suhu oli', card_type = 'GAUGE', range_min = 0, range_max = 300
+ WHERE tag_code = 'SMM.KL-DPN-02.HEATING.TEMPERATURE_PV';
+
+-- Pindahkan ke kelompok lain
+UPDATE tag_definition SET card_group = 'HEATING' WHERE tag_code = 'SMM.KL-DPN-02.MACHINE.OIL_TEMPERATURE_PV';
+
+-- Nama lama yang tidak bisa di-parse: isi atributnya manual, parser tidak akan menimpanya
+UPDATE tag_definition
+   SET parse_status = 'MANUAL', section_code = 'HEATING', quantity_code = 'TEMPERATURE', role_code = 'PV'
+ WHERE tag_code = 'SUHU_OLI_ZONA1';</pre></div>
+</section>
+
+<section id="mesin">
+  <h2>5. Per jenis mesin dan peralatan energi</h2>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Kelompok</th><th>Contoh asset_id</th><th>Di mana kartu tampil</th><th>Yang perlu diperhatikan</th></tr></thead>
+    <tbody>
+      <tr><td>Kalender</td><td><code>KL-DPN-01…07</code>, <code>KL-BLK-01…07</code>, <code>KL-TMR-01…07</code></td><td>Detail mesin › Sensor &amp; Tren</td><td>Aset sudah ada.</td></tr>
+      <tr><td>Calator</td><td><code>CL-BLK-01…09</code>, <code>CL-DPN-01…03</code>, <code>CL-TMR-01…07</code></td><td>Detail mesin › Sensor &amp; Tren</td><td>Aset sudah ada.</td></tr>
+      <tr><td>Continuous, Inspecting, Setting, Finishing</td><td><code>CT-FIN-01…04</code>, <code>INSP-FIN-01…12</code>, <code>SD-FIN-01…04</code>, <code>FIN-FIN-01</code></td><td>Detail mesin › Sensor &amp; Tren</td><td>Aset sudah ada (migrasi 0024).</td></tr>
+      <tr><td>Dryer, Jetflow</td><td><code>DR-BLK-01</code>, <code>DR-TMR-01</code>, <code>JF-LA-01</code>, <code>JF-LB-01</code></td><td>Detail mesin › Sensor &amp; Tren</td><td>Aset sudah ada.</td></tr>
+      <tr><td>Kompresor, boiler, slitting</td><td><code>CP-CSD122-01</code>, <code>CP-ATC90-01</code>, <code>BL-ACT-01</code>, <code>BL-TMX-01</code>, <code>SL-BIA-01</code></td><td>Utilitas › detail mesin › Sensor &amp; Tren</td><td>Didaftarkan di <code>config/utility-machines.json</code>. Jika belum ada baris di tabel <code>asset</code>, buat dulu sebelum mendaftarkan tag. Begitu baris aset ada, halaman memakai data database, bukan data contoh dari config.</td></tr>
+      <tr><td>Power meter (energi listrik)</td><td>Aset mana pun, section <code>POWERMETER</code>, <code>PM</code>, atau <code>ENERGY_METER</code></td><td>Kartu di mesinnya + Utilitas › Monitoring power meter</td><td>Halaman monitoring membaca nilai dari <code>signal_role</code>, bukan dari nama tag. Lihat tabel di bawah.</td></tr>
+      <tr><td>Water meter / kWh meter (metering)</td><td>Tag satuan <code>kWh</code>, atau tag <code>…FLOW_TOTAL</code> satuan m³/L</td><td>Utilitas › Pemakaian energi &amp; air</td><td>Tag otomatis muncul sebagai calon meter. Tambahkan <code>"tag_code"</code> ke node di <code>config/utility-metering.json</code> agar dihitung di hierarki.</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>signal_role untuk halaman monitoring power meter</h3>
+  <p>Nama tag tetap kanonik (supaya kartunya benar), tetapi <code>signal_role</code> harus diisi seperti ini dan satuannya harus cocok:</p>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Nama tag (kartu)</th><th>signal_role</th><th>Satuan</th><th>Field di halaman</th></tr></thead>
+    <tbody>
+      <tr><td><code>POWERMETER.CURRENT_L1_PV</code> / <code>L2</code> / <code>L3</code></td><td><code>CURRENT_A</code> / <code>CURRENT_B</code> / <code>CURRENT_C</code></td><td>A</td><td>Arus R / S / T</td></tr>
+      <tr><td><code>POWERMETER.VOLTAGE_L1_PV</code> / <code>L2</code> / <code>L3</code></td><td><code>VOLTAGE_A</code> / <code>VOLTAGE_B</code> / <code>VOLTAGE_C</code></td><td>V</td><td>Tegangan R / S / T</td></tr>
+      <tr><td><code>POWERMETER.ACTIVE_POWER_PV</code></td><td><code>TOTAL_ACTIVE_POWER</code></td><td>kW</td><td>Daya aktif</td></tr>
+      <tr><td><code>POWERMETER.ACTIVE_ENERGY_TOTAL</code></td><td><code>TOTAL_ACTIVE_ENERGY</code></td><td>kWh</td><td>Totalizer energi</td></tr>
+      <tr><td><code>POWERMETER.POWER_FACTOR_PV</code></td><td><code>POWER_FACTOR</code></td><td>(kosong)</td><td>Faktor daya</td></tr>
+      <tr><td><code>POWERMETER.FREQUENCY_PV</code></td><td><code>FREQUENCY</code></td><td>Hz</td><td>Frekuensi</td></tr>
+    </tbody>
+  </table></div>
+  <div class="note warn">
+    <b>signal_role default tidak terbaca</b>
+    Jika tag didaftarkan dengan <code>signal_role = 'MEASUREMENT'</code> (default API), kartunya tetap muncul di mesin, tetapi nilainya kosong di halaman monitoring power meter.
+  </div>
+
+  <h3>Menambahkan meter ke hierarki pemakaian</h3>
+  <div class="code"><pre>// config/utility-metering.json → di dalam "nodes"
+{
+  "id": "kl-dpn-02-pm",
+  "name": "Kalender Depan 02",
+  "utility": "electricity",
+  "level": "machine",
+  "parent_id": "cubical-3",
+  "tag_code": "SMM.KL-DPN-02.POWERMETER.ACTIVE_ENERGY_TOTAL"
+}</pre></div>
+  <p>Satu node hanya boleh punya satu sumber (<code>tag_code</code> atau <code>equipment_id</code>), dan satu tag tidak boleh dipakai dua node.</p>
+</section>
+
+<section id="mode">
+  <h2>6. Mode data Real dan Contoh</h2>
+  <div class="table-wrap"><table>
+    <thead><tr><th></th><th>Mode Real</th><th>Mode Contoh</th></tr></thead>
+    <tbody>
+      <tr><td>Kartu</td><td>Hanya untuk tag terdaftar</td><td>Tag terdaftar + galeri satu contoh tiap jenis kartu</td></tr>
+      <tr><td>Nilai</td><td>Dari <code>tag_latest</code>; kosong jika belum ada kiriman</td><td>Dari <code>tag_latest</code>; nilai contoh jika belum ada kiriman</td></tr>
+      <tr><td>Aset <code>DUMMY</code></td><td>Kartu tampil tanpa nilai</td><td>Kartu dan nilai tampil</td></tr>
+    </tbody>
+  </table></div>
+  <div class="note warn">
+    <b>Uji di mesin DUMMY</b>
+    Sebagian besar mesin masih <code>data_source = 'DUMMY'</code>. Untuk melihat nilai uji di mode Real, ubah sementara ke <code>LIVE</code> dan kembalikan setelah selesai. Backend membaca daftar ini saat start, jadi restart backend setelah mengubahnya. Alternatifnya, uji di mode Contoh.
+  </div>
+</section>
+
+<section id="trigger">
+  <h2>7. Generator trigger uji</h2>
+  <p class="lead">Pilih aset dan jenis kartu, lalu salin perintahnya berurutan dari tab 1 sampai 5. Semua tag uji ditandai <code>address = 'TEST-CARD'</code> agar bisa dihapus bersih tanpa menyentuh tag asli.</p>
+
+  <div class="gen">
+    <div class="gen-grid">
+      <label class="f">Aset
+        <select id="assetSel"></select>
+        <small>Daftar dari migrasi dan config utilitas</small>
+      </label>
+      <label class="f">atau asset_id lain
+        <input id="assetCustom" placeholder="mis. KL-BLK-05" autocomplete="off">
+        <small>Diisi = menggantikan pilihan di kiri</small>
+      </label>
+      <label class="f">Paket
+        <select id="packSel">
+          <option value="produksi">Mesin produksi</option>
+          <option value="utilitas">Utilitas (boiler/kompresor)</option>
+          <option value="energi">Power meter (energi listrik)</option>
+          <option value="air">Water meter</option>
+        </select>
+      </label>
+      <label class="f">URL backend
+        <input id="baseUrl" value="http://localhost:8788">
+        <small>Sesuaikan dengan PORT di .env</small>
+      </label>
+      <label class="f">X-API-Key
+        <input id="apiKey" value="" placeholder="isi INGEST_API_KEY" autocomplete="off">
+        <small>Tidak disimpan; hanya dimasukkan ke teks perintah</small>
+      </label>
+      <label class="f">Jumlah putaran kirim
+        <input id="rounds" type="number" min="1" max="720" value="72">
+        <small>Tiap 5 detik; 72 putaran = 6 menit</small>
+      </label>
+    </div>
+    <fieldset>
+      <legend>Kartu yang diuji</legend>
+      <div class="checks" id="scenarioBox"></div>
+    </fieldset>
+    <label class="checks" style="margin-top:12px; display:flex"><span><input type="checkbox" id="createAsset"> Buat baris <code>asset</code> jika belum ada <small>Perlu untuk kompresor/boiler/slitting yang baru ada di config</small></span></label>
+
+    <div class="tabs" role="tablist" id="tabs"></div>
+    <div id="tabBody"></div>
+  </div>
+</section>
+
+<section id="cek">
+  <h2>8. Checklist hasil</h2>
+  <p class="lead">Buka detail mesin, tab "Sensor &amp; Tren". Daftar ini mengikuti pilihan di generator.</p>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Kelompok kartu</th><th>Jenis</th><th>Judul kartu</th><th>Tag</th><th>Di tren</th></tr></thead>
+    <tbody id="expectBody"></tbody>
+  </table></div>
+  <ol class="steps">
+    <li>Kartu muncul dalam 10 detik setelah tag didaftarkan, walaupun nilai belum dikirim (mode Real menampilkan tanda strip).</li>
+    <li>Nilai muncul dalam 10 detik setelah kiriman pertama. Kualitas berubah menjadi basi setelah <code>stale_after_seconds</code> tanpa kiriman.</li>
+    <li>Grafik tren terisi setelah rollup berikutnya (maksimal 5 menit), atau langsung setelah menjalankan <code>refresh_telemetry_rollups</code> di tab 4.</li>
+    <li>Paket power meter: aset muncul di Utilitas › Monitoring power meter dengan arus, tegangan, daya, PF, dan frekuensi terisi.</li>
+    <li>Paket water meter dan <code>ACTIVE_ENERGY_TOTAL</code>: tag muncul sebagai calon meter di pengaturan metering.</li>
+  </ol>
+</section>
+
+<section id="masalah">
+  <h2>9. Masalah umum</h2>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Gejala</th><th>Penyebab</th><th>Solusi</th></tr></thead>
+    <tbody>
+      <tr><td><code>400 Tag tidak terdaftar dalam tag_definition</code></td><td>Tag belum didaftarkan atau salah ketik</td><td>Jalankan tab 1 dulu. Cek huruf kapital dan titik.</td></tr>
+      <tr><td><code>400 Asset tidak terdaftar</code></td><td>Tidak ada baris di tabel <code>asset</code></td><td>Centang "Buat baris asset" atau tambah lewat menu Asset.</td></tr>
+      <tr><td><code>401 X-API-Key tidak valid</code></td><td>Key berbeda dengan <code>INGEST_API_KEY</code> di .env backend</td><td>Samakan key.</td></tr>
+      <tr><td>Kartu ada, nilai selalu strip</td><td>Aset <code>DUMMY</code> di mode Real</td><td>Uji di mode Contoh, atau set <code>LIVE</code> sementara lalu restart backend.</td></tr>
+      <tr><td>Nilai tidak berubah walau dikirim ulang</td><td><code>source_ts</code> lebih lama dari nilai tersimpan, atau <code>message_id</code> sama</td><td>Kirim <code>source_ts</code> waktu sekarang dan jangan pakai <code>message_id</code> statis.</td></tr>
+      <tr><td>PV dan SV muncul sebagai dua kartu VALUE</td><td>Section, quantity, atau qualifier berbeda</td><td>Samakan semua bagian kecuali role terakhir.</td></tr>
+      <tr><td>Pasangan masuk/keluar tidak tergabung</td><td>Memakai <code>_OUT_</code></td><td>Ganti ke <code>_OUTLET_</code>.</td></tr>
+      <tr><td>Tag tidak tampil sama sekali</td><td><code>active = FALSE</code>, <code>card_enabled = FALSE</code>, <code>parse_status = 'INVALID'</code>, atau role tersembunyi</td><td>Cek kolom tersebut di tab 4.</td></tr>
+      <tr><td>Grafik tren kosong</td><td>Rollup belum berjalan, atau tag bukan sensor PV/SV</td><td>Jalankan refresh rollup; pastikan ada pasangan SV.</td></tr>
+      <tr><td>Power meter kosong di halaman monitoring</td><td><code>signal_role</code> masih <code>MEASUREMENT</code> atau satuan tidak cocok</td><td>Isi <code>signal_role</code> sesuai tabel di bagian 5.</td></tr>
+      <tr><td>Kolom <code>section_code</code> dan sejenisnya NULL</td><td>Parser hanya mengisi kolom ini saat backend start</td><td>Restart backend atau panggil <code>POST /api/v1/tag-registry/sync</code> saat login. Kartu tetap terbentuk karena nama di-parse ulang setiap permintaan.</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section id="celup">
+  <h2>10. Step celup (Jetflow)</h2>
+  <p class="lead">Step celup bukan kartu. Kartu cukup dibentuk dari tag, sedangkan step celup adalah data batch: resep yang direncanakan, batch yang berjalan di mesin, dan step yang benar-benar terjadi beserta waktunya. Datanya disimpan di tabel MES, bukan di <code>tag_definition</code>.</p>
+
+  <h3>10.1 Empat lapis data</h3>
+  <div class="flow">
+    <div><b>Resep (rencana)</b><code>process_program_version</code> + <code>process_program_step</code>: urutan step, setpoint, dan durasi standar. Satu resep bisa punya beberapa versi.</div>
+    <div><b>Batch</b><code>production_batch</code>: nomor batch, pelanggan, jenis kain.</div>
+    <div><b>Run di mesin</b><code>batch_process_run</code>: batch X diproses di mesin Y dengan versi resep Z. Hanya boleh satu run aktif per mesin.</div>
+    <div><b>Eksekusi step (aktual)</b><code>process_step_execution</code>: step yang berjalan, jam mulai dan selesai, setpoint dan nilai aktualnya.</div>
+    <div><b>Transisi</b><code>process_transition_event</code>: catatan perpindahan dari step lama ke step baru beserta alasannya.</div>
+  </div>
+  <p>Resep ditulis sekali per versi. Run dibuat sekali per batch. Eksekusi step dan transisi bertambah setiap kali mesin pindah step.</p>
+
+  <h3>10.2 Kolom penting</h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Tabel</th><th>Kolom</th><th>Isi</th></tr></thead>
+    <tbody>
+      <tr><td><code>process_program_version</code></td><td><code>program_code</code>, <code>version_no</code> (unik bersama), <code>process_type</code>, <code>recipe_code</code>, <code>version_status</code></td><td>Identitas resep. Versi yang dipakai produksi berstatus <code>RELEASED</code>.</td></tr>
+      <tr><td><code>process_program_step</code></td><td><code>sequence_no</code> (unik per versi), <code>step_code</code>, <code>step_name</code>, <code>setpoint_json</code>, <code>expected_duration_seconds</code>, <code>completion_rule</code></td><td>Rencana per step. Contoh <code>setpoint_json</code>: <code>{"temperature_sv_c": 130, "duration_min": 45}</code>.</td></tr>
+      <tr><td><code>production_batch</code></td><td><code>batch_no</code> (PK), <code>batch_status</code>, <code>customer_name</code>, <code>fabric_type</code></td><td>Status batch: <code>PLANNED</code>, <code>IN_PROCESS</code>, <code>HOLD</code>, <code>COMPLETED</code>, <code>CANCELLED</code>.</td></tr>
+      <tr><td><code>batch_process_run</code></td><td><code>process_run_id</code>, <code>batch_no</code>, <code>asset_id</code>, <code>program_version_id</code>, <code>run_status</code>, <code>started_at</code>, <code>ended_at</code>, <code>progress_percent</code>, <code>source_system</code>, <code>external_run_id</code></td><td>Status run: <code>PLANNED</code>, <code>RUNNING</code>, <code>HOLD</code>, <code>COMPLETED</code>, <code>CANCELLED</code>, <code>FAILED</code>.</td></tr>
+      <tr><td><code>process_step_execution</code></td><td><code>process_run_id</code>, <code>step_no</code> (unik per run), <code>step_code</code>, <code>step_name</code>, <code>program_step_id</code>, <code>status</code>, <code>started_at</code>, <code>ended_at</code>, <code>setpoint_json</code>, <code>actual_json</code></td><td>Status step yang dipakai data yang ada: <code>PENDING</code>, <code>IN_PROGRESS</code>, <code>COMPLETED</code>.</td></tr>
+      <tr><td><code>process_transition_event</code></td><td><code>from_step_execution_id</code>, <code>to_step_execution_id</code>, <code>transition_type</code>, <code>reason_code</code>, <code>source_signal</code>, <code>source_ts</code></td><td>Konvensi: <code>transition_type = 'AUTOMATIC'</code> untuk perpindahan dari PLC, <code>reason_code = 'PLC_STEP_COMPLETE'</code>.</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>10.3 Siapa yang memakai data step</h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Pemakai</th><th>Yang dibaca</th></tr></thead>
+    <tbody>
+      <tr><td><code>GET /api/v1/batch/process-runs/{id}/program</code></td><td>Run, versi resep, daftar eksekusi step (digabung dengan rencana step), dan daftar transisi.</td></tr>
+      <tr><td><code>GET /api/v1/batch/process-runs/{id}/context</code></td><td>Konteks lengkap satu run, termasuk step, untuk tampilan aktivitas batch dan export.</td></tr>
+      <tr><td>Mesin deviasi proses</td><td>Aturan dengan <code>step_code</code> hanya dievaluasi saat step itu sedang berjalan (waktu sampel di antara <code>started_at</code> dan <code>ended_at</code>). Jika aturan tidak punya tag SV, setpoint diambil dari <code>setpoint_json[setpoint_key]</code> milik step yang berjalan.</td></tr>
+      <tr><td>Export batch (Excel/PDF)</td><td>Daftar step dan transisi per run.</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>10.4 Kondisi integrasi saat ini</h3>
+  <div class="note bad">
+    <b>Belum ada jalur kirim step dari PLC</b>
+    Tabel di atas hanya bisa diisi lewat SQL. <code>POST /api/v1/batch/process-runs</code> membuat atau memperbarui kepala run, tetapi tidak menulis step. Tabel proses di detail Jetflow membaca <code>machine.program</code> dan <code>machine.step</code> yang belum diisi backend, sehingga di mode Real tampil "Tidak ada data yang terkoneksi" dan di mode Contoh tampil resep contoh dari kode.
+  </div>
+  <div class="note warn">
+    <b>Tag step hanya menjadi kartu angka</b>
+    <code>SMM.{ASSET}.PROCESS.STEP_CODE</code> menjadi kartu status "Step proses", dan <code>PROCESS.STEP_MINUTES_TOTAL</code> menjadi kartu counter "Durasi". Keduanya tidak membuat baris <code>process_step_execution</code>. <code>PROCESS.PROGRAM_CODE</code> berstatus <code>PENDING_REVIEW</code> karena quantity-nya tidak dikenali; isi <code>quantity_code</code> manual bila tag ini dipakai.
+  </div>
+  <p>Dua cara mengisinya secara otomatis nanti, keduanya belum dibuat:</p>
+  <ul>
+    <li><b>Dari tag PLC:</b> setiap nilai <code>PROCESS.STEP_CODE</code> berubah, backend menutup step lama, membuka step baru, dan mencatat transisi. Generator di bawah meniru langkah ini dengan SQL "pindah step".</li>
+    <li><b>Dari MES/sistem lain:</b> endpoint baru untuk mengirim step per run.</li>
+  </ul>
+
+  <h3>10.5 Generator trigger step celup</h3>
+  <p class="lead">Mensimulasikan satu batch celup dari awal sampai selesai: buat resep, mulai batch, pindahkan step satu per satu, kirim suhu untuk memicu mesin deviasi, lalu tutup dan hapus. Semua data uji memakai penanda <code>TEST-CELUP</code>. URL backend dan X-API-Key diambil dari isian di generator bagian 7.</p>
+  <div class="gen">
+    <div class="gen-grid">
+      <label class="f">Mesin Jetflow
+        <select id="cAsset"></select>
+      </label>
+      <label class="f">atau asset_id lain
+        <input id="cAssetCustom" placeholder="mis. JF-LC-04" autocomplete="off">
+      </label>
+      <label class="f">Nomor batch uji
+        <input id="cBatch" value="TEST-CELUP-01" autocomplete="off">
+        <small>Diawali TEST-CELUP agar mudah dibersihkan</small>
+      </label>
+      <label class="f">Kode program
+        <input id="cProgram" value="TEST-CELUP" autocomplete="off">
+      </label>
+    </div>
+    <fieldset>
+      <legend>Resep uji (dari resep contoh di tabel proses Jetflow)</legend>
+      <div class="table-wrap" style="margin:0"><table>
+        <thead><tr><th>#</th><th>step_code</th><th>Nama</th><th>SV suhu</th><th>Durasi</th></tr></thead>
+        <tbody id="cRecipe"></tbody>
+      </table></div>
+    </fieldset>
+    <div class="tabs" role="tablist" id="cTabs"></div>
+    <div id="cTabBody"></div>
+  </div>
+
+  <h3>10.6 Hasil yang diharapkan</h3>
+  <ol class="steps">
+    <li>Setelah tab 2, nomor batch uji muncul di kartu mesin karena run dibuat lewat API, yang ikut memperbarui <code>asset_snapshot</code>. Untuk mesin <code>DUMMY</code>, nomor ini hanya terlihat di mode Contoh (lihat bagian 6).</li>
+    <li>Setiap kali tab 3 dijalankan, step aktif maju satu: step lama menjadi <code>COMPLETED</code> dengan <code>ended_at</code>, step baru <code>IN_PROGRESS</code>, satu baris transisi bertambah, dan <code>progress_percent</code> naik.</li>
+    <li>Saat step <code>DYEING</code> berjalan dan suhu yang dikirim di tab 4 keluar dari ±3 °C terhadap SV resep (130 °C), mesin deviasi membuat target dan event deviasi untuk run tersebut. Di luar step <code>DYEING</code>, aturan diabaikan.</li>
+    <li>Endpoint <code>/program</code> (tab 5) mengembalikan 11 step rencana dan eksekusi yang sudah terjadi.</li>
+    <li>Tabel proses di detail Jetflow belum berubah di mode Real; itu sesuai kondisi 10.4.</li>
+  </ol>
+</section>
+
+</div>
+
+<script>
+(function () {
+  // Theme toggle
+  var root = document.documentElement;
+  document.getElementById("themeBtn").addEventListener("click", function () {
+    var dark = root.getAttribute("data-theme") ? root.getAttribute("data-theme") === "dark" : window.matchMedia("(prefers-color-scheme: dark)").matches;
+    root.setAttribute("data-theme", dark ? "light" : "dark");
+  });
+
+  var range = function (prefix, a, b) { var out = []; for (var i = a; i <= b; i++) out.push(prefix + (i < 10 ? "0" : "") + i); return out; };
+  var ASSETS = [
+    ["Kalender", range("KL-DPN-", 1, 7).concat(range("KL-BLK-", 1, 7), range("KL-TMR-", 1, 7)), "produksi"],
+    ["Calator", range("CL-BLK-", 1, 9).concat(range("CL-DPN-", 1, 3), range("CL-TMR-", 1, 7)), "produksi"],
+    ["Continuous", range("CT-FIN-", 1, 4), "produksi"],
+    ["Inspecting", range("INSP-FIN-", 1, 12), "produksi"],
+    ["Setting Dongnam", range("SD-FIN-", 1, 4), "produksi"],
+    ["Finishing", ["FIN-FIN-01"], "produksi"],
+    ["Dryer", ["DR-BLK-01", "DR-BLK-02", "DR-DPN-01", "DR-TMR-01", "DR-TMR-02", "DR-TMR-03"], "produksi"],
+    ["Jetflow", range("JF-LA-", 1, 6).concat(range("JF-LB-", 1, 18)), "produksi"],
+    ["Kompresor", ["CP-CSD122-01", "CP-CSD125-01", "CP-CSD125-02", "CP-CSD205-01", "CP-ATC90-01"], "utilitas"],
+    ["Boiler", ["BL-ACT-01", "BL-ACT-02", "BL-ACT-03", "BL-TMX-01", "BL-TMX-02", "BL-TMX-03"], "utilitas"],
+    ["Slitting", ["SL-BIA-01"], "produksi"],
+    ["WWTP", ["WWTP-PLANT"], "air"]
+  ];
+  var PROCESS = { Kompresor: "compressor", Boiler: "boiler", Slitting: "slitting" };
+  var SECTION_LABEL = { POWERMETER: "Power meter", MAIN_TANK: "Bak utama", MACHINE: "Mesin", HEATING: "Pemanasan", STEAM: "Uap", FEEDWATER: "Air umpan", WATER: "Air", PRODUCTION: "Produksi", MAIN_MOTOR: "Main motor", LINE: "Line", PROCESS: "Proses" };
+  var t = function (sec, par, unit, kind, base, amp, role) { return { sec: sec, par: par, unit: unit, kind: kind, base: base, amp: amp, role: role || "MEASUREMENT" }; };
+
+  // kind: walk = acak di sekitar base ±amp, count = naik amp per putaran, const = tetap
+  var PACKS = {
+    produksi: [
+      { id: "sp", label: "Sensor suhu PV/SV", type: "SETPOINT", title: "Suhu", tags: [t("HEATING", "TEMPERATURE_PV", "°C", "walk", 180, 2.5), t("HEATING", "TEMPERATURE_SV", "°C", "const", 180)], on: true },
+      { id: "sp2", label: "Sensor kecepatan PV/SV", type: "SETPOINT", title: "Kecepatan", tags: [t("LINE", "SPEED_PV", "m/min", "walk", 35, 1.2), t("LINE", "SPEED_SV", "m/min", "const", 35)], on: true },
+      { id: "val", label: "Parameter tekanan (tanpa SV)", type: "VALUE", title: "Tekanan", tags: [t("PROCESS", "PRESSURE_PV", "bar", "walk", 2.5, 0.2)], on: true },
+      { id: "gauge", label: "Level bak", type: "GAUGE", title: "Level", tags: [t("MAIN_TANK", "LEVEL_PV", "%", "walk", 62, 4)], on: true },
+      { id: "motor", label: "Motor utama", type: "MOTOR", title: "Main motor", tags: [t("MAIN_MOTOR", "CURRENT_PV", "A", "walk", 42, 2), t("MAIN_MOTOR", "FREQUENCY_PV", "Hz", "walk", 48, 0.5), t("MAIN_MOTOR", "MOTOR_SPEED_PV", "rpm", "walk", 1420, 15), t("MAIN_MOTOR", "RUN_ST", null, "const", 1)], on: true },
+      { id: "valve", label: "Valve uap", type: "VALVE", title: "Bukaan valve", tags: [t("STEAM", "VALVE_PV", "%", "walk", 45, 6)], on: false },
+      { id: "count", label: "Panjang produksi (counter)", type: "COUNTER", title: "Panjang", tags: [t("PRODUCTION", "LENGTH_TOTAL", "m", "count", 12000, 3)], on: true },
+      { id: "status", label: "Mode mesin (status)", type: "STATUS", title: "Mode", tags: [t("MACHINE", "MODE_ST", null, "const", 1)], on: false },
+      { id: "alarm", label: "Alarm gangguan", type: "ALARM", title: "Gangguan", tags: [t("MACHINE", "FAULT_ALM", null, "const", 0)], on: false }
+    ],
+    utilitas: [
+      { id: "sp", label: "Tekanan PV/SV", type: "SETPOINT", title: "Tekanan", tags: [t("STEAM", "PRESSURE_PV", "bar", "walk", 7, 0.3), t("STEAM", "PRESSURE_SV", "bar", "const", 7)], on: true },
+      { id: "delta", label: "Suhu masuk/keluar", type: "DELTA_PAIR", title: "Suhu masuk/keluar", tags: [t("FEEDWATER", "TEMPERATURE_IN_PV", "°C", "walk", 85, 1.5), t("FEEDWATER", "TEMPERATURE_OUTLET_PV", "°C", "walk", 105, 1.5)], on: true },
+      { id: "gauge", label: "Level air umpan", type: "GAUGE", title: "Level", tags: [t("FEEDWATER", "LEVEL_PV", "%", "walk", 55, 3)], on: true },
+      { id: "motor", label: "Motor", type: "MOTOR", title: "Main motor", tags: [t("MAIN_MOTOR", "CURRENT_PV", "A", "walk", 120, 5), t("MAIN_MOTOR", "FREQUENCY_PV", "Hz", "walk", 50, 0.3), t("MAIN_MOTOR", "RUN_ST", null, "const", 1)], on: true },
+      { id: "hours", label: "Jam jalan (counter)", type: "COUNTER", title: "Durasi", tags: [t("MACHINE", "RUN_HOURS_TOTAL", "h", "count", 5120, 0.0014)], on: false },
+      { id: "alarm", label: "Alarm gangguan", type: "ALARM", title: "Gangguan", tags: [t("MACHINE", "FAULT_ALM", null, "const", 0)], on: false }
+    ],
+    energi: [
+      { id: "i3", label: "Arus 3 fasa", type: "PHASE3", title: "Arus 3 fasa", tags: [t("POWERMETER", "CURRENT_L1_PV", "A", "walk", 85, 3, "CURRENT_A"), t("POWERMETER", "CURRENT_L2_PV", "A", "walk", 83, 3, "CURRENT_B"), t("POWERMETER", "CURRENT_L3_PV", "A", "walk", 87, 3, "CURRENT_C")], on: true },
+      { id: "v3", label: "Tegangan 3 fasa", type: "PHASE3", title: "Tegangan 3 fasa", tags: [t("POWERMETER", "VOLTAGE_L1_PV", "V", "walk", 228, 2, "VOLTAGE_A"), t("POWERMETER", "VOLTAGE_L2_PV", "V", "walk", 229, 2, "VOLTAGE_B"), t("POWERMETER", "VOLTAGE_L3_PV", "V", "walk", 227, 2, "VOLTAGE_C")], on: true },
+      { id: "kw", label: "Daya aktif", type: "VALUE", title: "Daya aktif", tags: [t("POWERMETER", "ACTIVE_POWER_PV", "kW", "walk", 55, 4, "TOTAL_ACTIVE_POWER")], on: true },
+      { id: "kwh", label: "Energi aktif (totalizer)", type: "COUNTER", title: "Energi aktif", tags: [t("POWERMETER", "ACTIVE_ENERGY_TOTAL", "kWh", "count", 184500, 0.08, "TOTAL_ACTIVE_ENERGY")], on: true },
+      { id: "pf", label: "Faktor daya", type: "GAUGE", title: "Faktor daya", tags: [t("POWERMETER", "POWER_FACTOR_PV", null, "walk", 0.9, 0.03, "POWER_FACTOR")], on: true },
+      { id: "hz", label: "Frekuensi", type: "VALUE", title: "Frekuensi", tags: [t("POWERMETER", "FREQUENCY_PV", "Hz", "walk", 50, 0.05, "FREQUENCY")], on: true }
+    ],
+    air: [
+      { id: "flow", label: "Totalizer air", type: "COUNTER", title: "Aliran", tags: [t("WATER", "FLOW_TOTAL", "m3", "count", 3200, 0.02)], on: true },
+      { id: "flowpv", label: "Debit aktual", type: "VALUE", title: "Aliran", tags: [t("WATER", "FLOW_PV", "L/h", "walk", 1400, 60)], on: false }
+    ]
+  };
+
+  var $ = function (id) { return document.getElementById(id); };
+  var assetSel = $("assetSel");
+  ASSETS.forEach(function (g) {
+    var og = document.createElement("optgroup"); og.label = g[0];
+    g[1].forEach(function (id) { var o = document.createElement("option"); o.value = id; o.textContent = id; o.dataset.group = g[0]; o.dataset.pack = g[2]; og.appendChild(o); });
+    assetSel.appendChild(og);
+  });
+  assetSel.value = "KL-DPN-02";
+
+  var checked = {};
+  function renderScenarios() {
+    var pack = $("packSel").value;
+    var box = $("scenarioBox"); box.innerHTML = "";
+    PACKS[pack].forEach(function (s) {
+      var key = pack + ":" + s.id;
+      if (!(key in checked)) checked[key] = s.on;
+      var l = document.createElement("label");
+      var c = document.createElement("input"); c.type = "checkbox"; c.checked = checked[key];
+      c.addEventListener("change", function () { checked[key] = c.checked; render(); });
+      var span = document.createElement("span");
+      span.innerHTML = s.label + "<small>" + s.type + " · " + s.tags.map(function (x) { return x.sec + "." + x.par; }).join(", ") + "</small>";
+      l.appendChild(c); l.appendChild(span); box.appendChild(l);
+    });
+  }
+
+  function state() {
+    var asset = ($("assetCustom").value || assetSel.value).trim().toUpperCase();
+    var opt = assetSel.selectedOptions[0];
+    var group = $("assetCustom").value.trim() ? null : opt && opt.dataset.group;
+    var pack = $("packSel").value;
+    var scen = PACKS[pack].filter(function (s) { return checked[pack + ":" + s.id]; });
+    var tags = [];
+    scen.forEach(function (s) { s.tags.forEach(function (x) { tags.push(Object.assign({ code: "SMM." + asset + "." + x.sec + "." + x.par, scen: s }, x)); }); });
+    return {
+      asset: asset, group: group, pack: pack, scen: scen, tags: tags,
+      base: $("baseUrl").value.replace(/\/+$/, ""), key: $("apiKey").value || "ISI_INGEST_API_KEY",
+      rounds: Math.max(1, Math.min(720, parseInt($("rounds").value, 10) || 72)),
+      createAsset: $("createAsset").checked
+    };
+  }
+
+  var q = function (s) { return s == null ? "NULL" : "'" + String(s).replace(/'/g, "''") + "'"; };
+  var codeList = function (st) { return st.tags.map(function (x) { return "  " + q(x.code); }).join(",\n"); };
+
+  function sqlRegister(st) {
+    var out = ["-- 1. Daftarkan tag uji untuk " + st.asset, "BEGIN;", ""];
+    if (st.createAsset) {
+      var proc = PROCESS[st.group] || "utility";
+      out.push("-- Baris aset (dilewati bila sudah ada). Sesuaikan area_code/area_name.",
+        "INSERT INTO asset (asset_id, process_type, area_code, area_name, display_name, config_json, active, created_at, updated_at, data_source)",
+        "VALUES (" + [q(st.asset), q(proc), q("UTL"), q("Utilitas"), q(st.asset)].join(", ") + ", '{}'::jsonb, TRUE, now(), now(), 'DUMMY')",
+        "ON CONFLICT (asset_id) DO NOTHING;", "");
+    }
+    out.push("INSERT INTO tag_definition",
+      "  (tag_code, asset_id, signal_role, engineering_unit, source_status, active, kategori, address, stale_after_seconds, created_at)",
+      "VALUES");
+    out.push(st.tags.map(function (x) {
+      return "  (" + [q(x.code), q(st.asset), q(x.role), q(x.unit), "'MAPPED'", "TRUE", "'sensor'", "'TEST-CARD'", "60", "clock_timestamp()"].join(", ") + ")";
+    }).join(",\n"));
+    out.push("ON CONFLICT (tag_code) DO UPDATE SET",
+      "  active = TRUE,",
+      "  signal_role = EXCLUDED.signal_role,",
+      "  engineering_unit = EXCLUDED.engineering_unit;", "", "COMMIT;", "",
+      "-- Tag yang sudah ada sebelumnya tidak diberi tanda TEST-CARD, jadi tidak ikut terhapus di tab 5.");
+    return out.join("\n");
+  }
+
+  function apiRegister(st) {
+    var lines = ["# 1b. Alternatif tanpa akses SQL: daftarkan lewat API (PowerShell)", "$Base = \"" + st.base + "\"", "$Key  = \"" + st.key + "\"", "$Tags = @("];
+    lines.push(st.tags.map(function (x) {
+      return "  @{ tag_code = \"" + x.code + "\"; asset_id = \"" + st.asset + "\"; signal_role = \"" + x.role + "\"; engineering_unit = \"" + (x.unit || "") + "\"; kategori = \"sensor\"; address = \"TEST-CARD\" }";
+    }).join(",\n"));
+    lines.push(")", "foreach ($t in $Tags) {",
+      "  $r = Invoke-RestMethod -Method Post -Uri \"$Base/api/v1/tag-definitions\" -Headers @{ \"X-API-Key\" = $Key } -ContentType \"application/json\" -Body ($t | ConvertTo-Json)",
+      "  Write-Host \"$($r.status)  $($t.tag_code)\"", "}",
+      "# Catatan: API tidak membuat baris asset; aset harus sudah ada.");
+    return lines.join("\n");
+  }
+
+  function psTagArray(st) {
+    return st.tags.map(function (x) {
+      return "  @{ tag = \"" + x.code + "\"; kind = \"" + x.kind + "\"; base = " + x.base + "; amp = " + (x.amp || 0) + " }";
+    }).join(",\n");
+  }
+
+  function psIngest(st) {
+    return [
+      "# 2. Kirim nilai uji tiap 5 detik (PowerShell). Ctrl+C untuk berhenti.",
+      "$Base   = \"" + st.base + "\"",
+      "$Key    = \"" + st.key + "\"",
+      "$Asset  = \"" + st.asset + "\"",
+      "$Rounds = " + st.rounds,
+      "$Tags = @(",
+      psTagArray(st),
+      ")",
+      "for ($i = 0; $i -lt $Rounds; $i++) {",
+      "  $now = (Get-Date).ToUniversalTime().ToString(\"o\")",
+      "  $samples = foreach ($t in $Tags) {",
+      "    $v = switch ($t.kind) {",
+      "      \"walk\"  { [math]::Round($t.base + ((Get-Random -Minimum -1000 -Maximum 1000) / 1000) * $t.amp, 3) }",
+      "      \"count\" { [math]::Round($t.base + $i * $t.amp, 3) }",
+      "      default { $t.base }",
+      "    }",
+      "    @{ asset_id = $Asset; tag_code = $t.tag; value_number = $v; quality = \"GOOD\"; source_ts = $now; gateway_id = \"TEST-CARD\" }",
+      "  }",
+      "  $body = @{ samples = @($samples) } | ConvertTo-Json -Depth 4",
+      "  try {",
+      "    $r = Invoke-RestMethod -Method Post -Uri \"$Base/api/v1/telemetry/ingest\" -Headers @{ \"X-API-Key\" = $Key } -ContentType \"application/json\" -Body $body",
+      "    Write-Host (\"[{0}/{1}] {2} dari {3} sampel masuk\" -f ($i + 1), $Rounds, $r.inserted, $r.received)",
+      "  } catch {",
+      "    Write-Host \"Gagal: $($_.ErrorDetails.Message)\" -ForegroundColor Red; break",
+      "  }",
+      "  Start-Sleep -Seconds 5",
+      "}"
+    ].join("\n");
+  }
+
+  function sampleValue(x) { return x.kind === "walk" ? Math.round((x.base + (Math.random() * 2 - 1) * x.amp) * 1000) / 1000 : x.base; }
+
+  function curlOnce(st) {
+    var body = { samples: st.tags.map(function (x) { return { asset_id: st.asset, tag_code: x.code, value_number: sampleValue(x), quality: "GOOD", gateway_id: "TEST-CARD" }; }) };
+    return [
+      "# 2b. Kirim satu kali (bash / Git Bash). source_ts dan message_id diisi server.",
+      "curl -sS -X POST \"" + st.base + "/api/v1/telemetry/ingest\" \\",
+      "  -H \"Content-Type: application/json\" \\",
+      "  -H \"X-API-Key: " + st.key + "\" \\",
+      "  --data-binary @- <<'JSON'",
+      JSON.stringify(body, null, 2),
+      "JSON"
+    ].join("\n");
+  }
+
+  function nodeRed(st) {
+    var fn = [
+      "const asset = " + JSON.stringify(st.asset) + ";",
+      "const tags = " + JSON.stringify(st.tags.map(function (x) { return { tag: x.code, kind: x.kind, base: x.base, amp: x.amp || 0 }; })) + ";",
+      "const n = (context.get('n') || 0) + 1;",
+      "context.set('n', n);",
+      "const now = new Date().toISOString();",
+      "msg.headers = { 'Content-Type': 'application/json', 'X-API-Key': " + JSON.stringify(st.key) + " };",
+      "msg.payload = { samples: tags.map(t => ({",
+      "  asset_id: asset, tag_code: t.tag, quality: 'GOOD', source_ts: now, gateway_id: 'TEST-CARD',",
+      "  value_number: t.kind === 'walk' ? +(t.base + (Math.random() * 2 - 1) * t.amp).toFixed(3)",
+      "              : t.kind === 'count' ? +(t.base + n * t.amp).toFixed(3) : t.base",
+      "})) };",
+      "return msg;"
+    ].join("\n");
+    var flow = [
+      { id: "tc_inject", type: "inject", name: "Trigger uji kartu (5 dtk)", props: [{ p: "payload" }], repeat: "5", crontab: "", once: false, onceDelay: 0.1, topic: "", payload: "", payloadType: "date", x: 170, y: 80, wires: [["tc_build"]] },
+      { id: "tc_build", type: "function", name: "Bangun sampel " + st.asset, func: fn, outputs: 1, x: 410, y: 80, wires: [["tc_http"]] },
+      { id: "tc_http", type: "http request", name: "POST telemetry/ingest", method: "POST", ret: "obj", paytoqs: "ignore", url: st.base + "/api/v1/telemetry/ingest", tls: "", persist: false, proxy: "", authType: "", x: 650, y: 80, wires: [["tc_debug"]] },
+      { id: "tc_debug", type: "debug", name: "Respons", active: true, tosidebar: true, console: false, complete: "true", targetType: "full", x: 850, y: 80, wires: [] }
+    ];
+    var blocks = [{ text: JSON.stringify(flow, null, 2) }];
+    var meter = st.tags.filter(function (x) { return /ACTIVE_ENERGY_TOTAL$|FLOW_TOTAL$/.test(x.code); })[0];
+    if (meter) {
+      var water = /FLOW/.test(meter.code);
+      blocks.push({
+        note: "Opsional: tambahkan node ini ke \"nodes\" di config/utility-metering.json agar meter ikut dihitung di hierarki pemakaian. Sesuaikan id, name, dan parent_id.",
+        text: JSON.stringify({ id: st.asset.toLowerCase() + "-meter", name: st.asset, utility: water ? "water" : "electricity", level: "machine", parent_id: water ? "hp1" : "cubical-1", tag_code: meter.code }, null, 2)
+      });
+    }
+    return blocks;
+  }
+
+  function sqlVerify(st) {
+    return [
+      "-- 4. Periksa hasil",
+      "-- a. Tag terdaftar dan hasil parser (kolom parser terisi setelah restart backend atau tag-registry/sync)",
+      "SELECT tag_code, signal_role, engineering_unit, parse_status, section_code, quantity_code, qualifier, role_code, card_enabled",
+      "  FROM tag_definition WHERE tag_code IN (", codeList(st), ") ORDER BY tag_code;", "",
+      "-- b. Nilai terakhir (dipakai kartu)",
+      "SELECT tag_code, value_number, quality, source_ts, now() - source_ts AS umur",
+      "  FROM tag_latest WHERE tag_code IN (", codeList(st), ") ORDER BY tag_code;", "",
+      "-- c. Jumlah histori (dipakai tren)",
+      "SELECT tag_code, count(*) AS sampel, min(source_ts) AS pertama, max(source_ts) AS terakhir",
+      "  FROM telemetry_sample WHERE asset_id = " + q(st.asset) + " AND gateway_id = 'TEST-CARD' GROUP BY tag_code ORDER BY tag_code;", "",
+      "-- d. Isi rollup tren sekarang (tanpa menunggu 5 menit)",
+      "SELECT refresh_telemetry_rollups(now() - interval '1 hour', now());", "",
+      "-- e. Status sumber data aset (DUMMY = nilai disembunyikan di mode Real)",
+      "SELECT asset_id, process_type, display_name, data_source FROM asset WHERE asset_id = " + q(st.asset) + ";", "",
+      "-- f. (opsional) Tampilkan nilai di mode Real; kembalikan ke DUMMY setelah uji, lalu restart backend",
+      "-- UPDATE asset SET data_source = 'LIVE' WHERE asset_id = " + q(st.asset) + ";", "",
+      "-- Di browser (sudah login): " + st.base + "/api/v1/assets/" + st.asset + "/model?mode=real",
+      "-- summary.registered = jumlah tag, summary.connected = tag yang sudah punya nilai, groups[].cards[].type = jenis kartu"
+    ].join("\n");
+  }
+
+  function sqlCleanup(st) {
+    return [
+      "-- 5. Hapus semua tag uji untuk " + st.asset + " (hanya yang bertanda TEST-CARD)",
+      "BEGIN;",
+      "CREATE TEMP TABLE test_tags ON COMMIT DROP AS",
+      "  SELECT tag_code FROM tag_definition WHERE asset_id = " + q(st.asset) + " AND address = 'TEST-CARD';", "",
+      "-- Event alarm dulu, lalu setiap tabel yang punya foreign key ke tag_definition",
+      "-- (tag_latest, telemetry_sample, tag_alias, alarm_rule, rollup, topologi, dll.)",
+      "DELETE FROM alarm_event WHERE tag_code IN (SELECT tag_code FROM test_tags);",
+      "DO $$",
+      "DECLARE r record;",
+      "BEGIN",
+      "  FOR r IN",
+      "    SELECT c.conrelid::regclass AS tbl, a.attname AS col",
+      "      FROM pg_constraint c",
+      "      JOIN pg_attribute a ON a.attrelid = c.conrelid AND a.attnum = ANY (c.conkey)",
+      "     WHERE c.contype = 'f' AND c.confrelid = 'tag_definition'::regclass",
+      "  LOOP",
+      "    EXECUTE format('DELETE FROM %s WHERE %I IN (SELECT tag_code FROM test_tags)', r.tbl, r.col);",
+      "  END LOOP;",
+      "END $$;",
+      "DELETE FROM tag_definition WHERE tag_code IN (SELECT tag_code FROM test_tags);",
+      "COMMIT;", "",
+      "-- Bersihkan rollup tren untuk rentang uji",
+      "SELECT refresh_telemetry_rollups(now() - interval '1 day', now());", "",
+      "-- Jika data_source sempat diubah ke LIVE untuk uji:",
+      "-- UPDATE asset SET data_source = 'DUMMY' WHERE asset_id = " + q(st.asset) + ";", "",
+      "-- Jika penghapusan tetap ditolak, pakai cara lunak (kartu hilang, histori tetap ada):",
+      "-- UPDATE tag_definition SET active = FALSE WHERE asset_id = " + q(st.asset) + " AND address = 'TEST-CARD';"
+    ].join("\n");
+  }
+
+  var TABS = [
+    { id: "reg", label: "1. Daftarkan tag", desc: "Jalankan di psql atau pgAdmin pada database dashboard. Bisa diulang; tag yang sama hanya diperbarui.", gen: function (st) { return sqlRegister(st); } },
+    { id: "api", label: "1b. Lewat API", desc: "Untuk yang tidak punya akses SQL. Endpoint ini tidak perlu login, cukup X-API-Key.", gen: apiRegister },
+    { id: "ps", label: "2. Kirim nilai (PowerShell)", desc: "Mengirim histori + nilai terakhir tiap 5 detik supaya kartu hidup dan grafik tren punya titik.", gen: psIngest },
+    { id: "curl", label: "2b. Kirim sekali (curl)", desc: "Satu kiriman untuk cek cepat bahwa endpoint menerima tag.", gen: curlOnce },
+    { id: "nr", label: "3. Node-RED", desc: "Flow siap impor (inject tiap 5 detik → function → HTTP request → debug), setara dengan trigger dari gateway asli. Di Node-RED: Menu › Import › tempel › Deploy. Hapus atau nonaktifkan flow setelah uji.", gen: nodeRed },
+    { id: "ver", label: "4. Periksa", desc: "Cek registry, nilai terakhir, histori, dan sumber data aset.", gen: sqlVerify },
+    { id: "clean", label: "5. Hapus data uji", desc: "Menghapus hanya tag bertanda TEST-CARD beserta nilai dan historinya.", gen: sqlCleanup }
+  ];
+  var activeTab = "reg";
+
+  function renderTabs() {
+    var bar = $("tabs"); bar.innerHTML = "";
+    TABS.forEach(function (tb) {
+      var b = document.createElement("button");
+      b.type = "button"; b.role = "tab"; b.textContent = tb.label;
+      b.setAttribute("aria-selected", String(tb.id === activeTab));
+      b.addEventListener("click", function () { activeTab = tb.id; render(); });
+      bar.appendChild(b);
+    });
+  }
+
+  function renderExpect(st) {
+    var body = $("expectBody"); body.innerHTML = "";
+    if (!st.scen.length) { body.innerHTML = "<tr><td colspan='5'>Pilih minimal satu kartu di generator.</td></tr>"; return; }
+    st.scen.forEach(function (s) {
+      var tr = document.createElement("tr");
+      var sec = s.tags[0].sec;
+      var trend = s.type === "SETPOINT" ? "<span class='pill sensor'>Sensor</span>" : (s.type === "STATUS" || s.type === "ALARM") ? "<span class='pill hidden'>Tidak masuk</span>" : "<span class='pill'>Parameter</span>";
+      tr.innerHTML = "<td>" + (SECTION_LABEL[sec] || sec.charAt(0) + sec.slice(1).toLowerCase().replace(/_/g, " ")) + "</td><td><b>" + s.type + "</b></td><td>" + s.title + "</td><td>" + s.tags.map(function (x) { return "<code>" + x.par + "</code>"; }).join(" ") + "</td><td>" + trend + "</td>";
+      body.appendChild(tr);
+    });
+  }
+
+  function render() {
+    var st = state();
+    renderTabs();
+    renderExpect(st);
+    var tb = TABS.filter(function (x) { return x.id === activeTab; })[0];
+    var wrap = $("tabBody"); wrap.innerHTML = "";
+    var out = st.tags.length ? tb.gen(st) : "-- Pilih minimal satu kartu.";
+    var blocks = typeof out === "string" ? [{ note: tb.desc, text: out }] : out.map(function (b, i) { return { note: i === 0 ? tb.desc : b.note, text: b.text }; });
+    blocks.forEach(function (b) {
+      var d = document.createElement("p"); d.className = "panel-desc"; d.textContent = b.note; wrap.appendChild(d);
+      var box = document.createElement("div"); box.className = "code";
+      var pre = document.createElement("pre");
+      pre.textContent = b.text;
+      var btn = document.createElement("button"); btn.className = "copy"; btn.type = "button"; btn.textContent = "Salin";
+      btn.addEventListener("click", function () {
+        var done = function () { btn.textContent = "Tersalin"; setTimeout(function () { btn.textContent = "Salin"; }, 1500); };
+        if (navigator.clipboard) navigator.clipboard.writeText(pre.textContent).then(done, function () { selectPre(pre); });
+        else selectPre(pre);
+      });
+      box.appendChild(pre); box.appendChild(btn); wrap.appendChild(box);
+    });
+  }
+  function selectPre(pre) { var r = document.createRange(); r.selectNodeContents(pre); var s = getSelection(); s.removeAllRanges(); s.addRange(r); }
+
+  assetSel.addEventListener("change", function () {
+    var p = assetSel.selectedOptions[0].dataset.pack; $("packSel").value = p;
+    $("createAsset").checked = assetSel.selectedOptions[0].dataset.group in PROCESS;
+    renderScenarios(); render();
+  });
+  $("packSel").addEventListener("change", function () { renderScenarios(); render(); });
+  ["assetCustom", "baseUrl", "apiKey", "rounds"].forEach(function (id) { $(id).addEventListener("input", render); });
+  $("createAsset").addEventListener("change", render);
+
+  renderScenarios();
+  render();
+})();
+
+// Generator step celup (bagian 10)
+(function () {
+  var $ = function (id) { return document.getElementById(id); };
+  var pad = function (i) { return (i < 10 ? "0" : "") + i; };
+  var RECIPE = [
+    ["LOADING", "Loading", 25, 10], ["PRE_TREATMENT", "Pre-treatment", 60, 20], ["RINSING_1", "Rinsing 1", 40, 15],
+    ["HEATING", "Heating", 90, 25], ["DYEING", "Dyeing", 130, 45], ["FIXING", "Fixing", 80, 20],
+    ["SOAPING", "Soaping", 95, 15], ["RINSING_2", "Rinsing 2", 40, 15], ["SOFTENING", "Softening", 45, 20],
+    ["COOLING", "Cooling", 35, 10], ["UNLOADING", "Unloading", 30, 10]
+  ];
+  var sel = $("cAsset");
+  [["Jetflow LA", "JF-LA-", 6], ["Jetflow LB", "JF-LB-", 18], ["Jetflow LC", "JF-LC-", 18]].forEach(function (g) {
+    var og = document.createElement("optgroup"); og.label = g[0];
+    for (var i = 1; i <= g[2]; i++) { var o = document.createElement("option"); o.value = o.textContent = g[1] + pad(i); og.appendChild(o); }
+    sel.appendChild(og);
+  });
+  $("cRecipe").innerHTML = RECIPE.map(function (r, i) { return "<tr><td>" + (i + 1) + "</td><td><code>" + r[0] + "</code></td><td>" + r[1] + "</td><td>" + r[2] + " °C</td><td>" + r[3] + " min</td></tr>"; }).join("");
+
+  var q = function (s) { return "'" + String(s).replace(/'/g, "''") + "'"; };
+  function st() {
+    return {
+      asset: ($("cAssetCustom").value || sel.value).trim().toUpperCase(),
+      batch: ($("cBatch").value || "TEST-CELUP-01").trim().toUpperCase(),
+      program: ($("cProgram").value || "TEST-CELUP").trim().toUpperCase(),
+      base: ($("baseUrl").value || "http://localhost:8788").replace(/\/+$/, ""),
+      key: $("apiKey").value || "ISI_INGEST_API_KEY"
+    };
+  }
+  var runWhere = function (s) { return "batch_no = " + q(s.batch) + " AND asset_id = " + q(s.asset); };
+
+  function tabRecipe(s) {
+    return [{ text: [
+      "-- 1. Resep uji " + s.program + " versi 1 (11 step). Bisa diulang.",
+      "-- gen_random_uuid() bawaan PostgreSQL 13+.",
+      "BEGIN;",
+      "INSERT INTO process_program_version",
+      "  (program_version_id, program_code, version_no, process_type, recipe_code, version_status,",
+      "   change_reason, approved_by, approved_at, effective_from, config_json, created_at)",
+      "VALUES (gen_random_uuid(), " + q(s.program) + ", 1, 'jetflow', " + q(s.program + "-RCP") + ", 'RELEASED',",
+      "   'Uji step celup', 'TEST-CELUP', now(), now(), '{\"source\": \"TEST-CELUP\"}'::jsonb, now())",
+      "ON CONFLICT (program_code, version_no) DO NOTHING;", "",
+      "INSERT INTO process_program_step",
+      "  (program_step_id, program_version_id, sequence_no, step_code, step_name, completion_rule,",
+      "   setpoint_json, expected_duration_seconds, created_at)",
+      "SELECT gen_random_uuid(), v.program_version_id, s.seq, s.code, s.name, 'PLC_STEP_COMPLETE',",
+      "       jsonb_build_object('temperature_sv_c', s.sv, 'duration_min', s.min), s.min * 60, now()",
+      "  FROM process_program_version v",
+      "  CROSS JOIN (VALUES",
+      RECIPE.map(function (r, i) { return "    (" + (i + 1) + ", " + q(r[0]) + ", " + q(r[1]) + ", " + r[2] + ", " + r[3] + ")"; }).join(",\n"),
+      "  ) AS s(seq, code, name, sv, min)",
+      " WHERE v.program_code = " + q(s.program) + " AND v.version_no = 1",
+      "ON CONFLICT (program_version_id, sequence_no) DO UPDATE SET",
+      "  step_code = EXCLUDED.step_code, step_name = EXCLUDED.step_name,",
+      "  setpoint_json = EXCLUDED.setpoint_json, expected_duration_seconds = EXCLUDED.expected_duration_seconds;",
+      "COMMIT;"
+    ].join("\n") }];
+  }
+
+  function tabStart(s) {
+    var ext = s.batch + "|" + s.asset;
+    var ps = [
+      "# 2a. Buat batch dan mulai run lewat API (jalur yang sama dengan sistem produksi)",
+      "$Base = \"" + s.base + "\"",
+      "$H    = @{ \"X-API-Key\" = \"" + s.key + "\" }",
+      "$batch = @{ batch_no = \"" + s.batch + "\"; batch_status = \"IN_PROCESS\"; customer_name = \"UJI STEP CELUP\"; fabric_type = \"Cotton\"; source_system = \"TEST-CELUP\" }",
+      "Invoke-RestMethod -Method Post -Uri \"$Base/api/v1/batch/production-batches\" -Headers $H -ContentType \"application/json\" -Body ($batch | ConvertTo-Json)",
+      "$run = @{ batch_no = \"" + s.batch + "\"; asset_id = \"" + s.asset + "\"; run_status = \"RUNNING\"; recipe_code = \"" + s.program + "-RCP\";",
+      "          started_at = (Get-Date).ToUniversalTime().ToString(\"o\"); progress_percent = 0;",
+      "          source_system = \"TEST-CELUP\"; external_run_id = \"" + ext + "\" }",
+      "Invoke-RestMethod -Method Post -Uri \"$Base/api/v1/batch/process-runs\" -Headers $H -ContentType \"application/json\" -Body ($run | ConvertTo-Json) | ConvertTo-Json -Depth 4"
+    ].join("\n");
+    var link = [
+      "-- 2b. Hubungkan run ke resep (API belum menerima program_version_id)",
+      "UPDATE batch_process_run r",
+      "   SET program_version_id = v.program_version_id, updated_at = clock_timestamp()",
+      "  FROM process_program_version v",
+      " WHERE v.program_code = " + q(s.program) + " AND v.version_no = 1",
+      "   AND r." + runWhere(s).replace(" AND asset_id", " AND r.asset_id") + ";", "",
+      "-- Jika API menolak karena mesin masih punya run aktif lain, lihat run tersebut:",
+      "SELECT process_run_id, batch_no, run_status, started_at FROM batch_process_run",
+      " WHERE asset_id = " + q(s.asset) + " AND run_status IN ('RUNNING', 'HOLD');"
+    ].join("\n");
+    return [{ text: ps }, { note: "2b. Lalu jalankan SQL ini untuk menautkan run ke versi resep.", text: link }];
+  }
+
+  function tabAdvance(s) {
+    var sql = [
+      "-- 3. Pindah ke step berikutnya. Jalankan berulang: sekali = maju satu step.",
+      "--    Run pertama membuka step 1. Setelah step terakhir, lanjut ke tab 6.",
+      "WITH run AS (",
+      "  SELECT process_run_id, program_version_id FROM batch_process_run",
+      "   WHERE " + runWhere(s) + " AND run_status IN ('RUNNING', 'HOLD')",
+      "   ORDER BY started_at DESC LIMIT 1",
+      "), cur AS (",
+      "  SELECT e.* FROM process_step_execution e JOIN run USING (process_run_id)",
+      "   WHERE e.status = 'IN_PROGRESS' ORDER BY e.step_no DESC LIMIT 1",
+      "), nxt AS (",
+      "  SELECT p.* FROM process_program_step p JOIN run r ON p.program_version_id = r.program_version_id",
+      "   WHERE p.sequence_no = COALESCE((SELECT step_no FROM cur), 0) + 1",
+      "), closed AS (",
+      "  UPDATE process_step_execution e",
+      "     SET status = 'COMPLETED', ended_at = clock_timestamp(), updated_at = clock_timestamp(),",
+      "         actual_json = e.actual_json || jsonb_build_object('duration_min', round((extract(epoch FROM clock_timestamp() - e.started_at) / 60)::numeric, 1))",
+      "    FROM cur WHERE e.step_execution_id = cur.step_execution_id",
+      "  RETURNING e.step_execution_id",
+      "), opened AS (",
+      "  INSERT INTO process_step_execution",
+      "    (step_execution_id, process_run_id, program_step_id, step_no, step_code, step_name, status,",
+      "     started_at, setpoint_json, actual_json, created_at, updated_at)",
+      "  SELECT gen_random_uuid(), r.process_run_id, n.program_step_id, n.sequence_no, n.step_code, n.step_name, 'IN_PROGRESS',",
+      "         clock_timestamp(), n.setpoint_json, '{}'::jsonb, clock_timestamp(), clock_timestamp()",
+      "    FROM run r, nxt n",
+      "  RETURNING step_execution_id, process_run_id, step_code",
+      ")",
+      "INSERT INTO process_transition_event",
+      "  (transition_event_id, process_run_id, from_step_execution_id, to_step_execution_id, transition_type,",
+      "   transition_status, reason_code, source_signal, source_ts, requested_by, detail_json, created_at)",
+      "SELECT gen_random_uuid(), o.process_run_id, (SELECT step_execution_id FROM closed), o.step_execution_id, 'AUTOMATIC',",
+      "       'APPLIED', 'PLC_STEP_COMPLETE', " + q("SMM." + s.asset + ".PROCESS.STEP_CODE") + ", clock_timestamp(), 'TEST-CELUP',",
+      "       jsonb_build_object('to_step', o.step_code), clock_timestamp()",
+      "  FROM opened o;", "",
+      "-- Perbarui progres run: step selesai / jumlah step resep",
+      "UPDATE batch_process_run r SET progress_percent = round(100.0 * (",
+      "    SELECT count(*) FROM process_step_execution e WHERE e.process_run_id = r.process_run_id AND e.status = 'COMPLETED')",
+      "    / NULLIF((SELECT count(*) FROM process_program_step p WHERE p.program_version_id = r.program_version_id), 0), 1),",
+      "  updated_at = clock_timestamp()",
+      " WHERE " + runWhere(s).replace("batch_no", "r.batch_no").replace(" asset_id", " r.asset_id") + " AND r.run_status IN ('RUNNING', 'HOLD');", "",
+      "-- Posisi sekarang",
+      "SELECT e.step_no, e.step_code, e.status, e.started_at, e.ended_at, e.setpoint_json->>'temperature_sv_c' AS sv_c",
+      "  FROM process_step_execution e JOIN batch_process_run r USING (process_run_id)",
+      " WHERE " + runWhere(s).replace("batch_no", "r.batch_no").replace(" asset_id", " r.asset_id") + " ORDER BY e.step_no;"
+    ].join("\n");
+    return [{ text: sql }];
+  }
+
+  function tabTemp(s) {
+    var tag = "SMM." + s.asset + ".MAIN_TANK.TEMPERATURE_PV";
+    var reg = [
+      "-- 4a. Tag suhu bak utama + aturan deviasi untuk step DYEING (SV dari resep, toleransi ±3 °C)",
+      "INSERT INTO tag_definition (tag_code, asset_id, signal_role, engineering_unit, source_status, active, kategori, address, stale_after_seconds, created_at)",
+      "VALUES (" + q(tag) + ", " + q(s.asset) + ", 'MEASUREMENT', '°C', 'MAPPED', TRUE, 'sensor', 'TEST-CARD', 60, clock_timestamp())",
+      "ON CONFLICT (tag_code) DO UPDATE SET active = TRUE;", "",
+      "INSERT INTO process_deviation_rule",
+      "  (rule_id, rule_code, rule_name, asset_id, process_type, step_code, pv_tag_code, setpoint_key,",
+      "   deviation_mode, tolerance_low, tolerance_high, deviation_delay_seconds, severity, impact_code,",
+      "   alarm_message, enabled, created_by, updated_by, created_at, updated_at)",
+      "VALUES (gen_random_uuid(), " + q("TEST-CELUP-" + s.asset + "-DYEING-TEMP") + ", 'Uji suhu step Dyeing', " + q(s.asset) + ", 'jetflow', 'DYEING',",
+      "   " + q(tag) + ", 'temperature_sv_c', 'ABSOLUTE', 3, 3, 30, 'WARNING', 'QUALITY',",
+      "   'Suhu Dyeing di luar ±3 °C dari resep', TRUE, 'TEST-CELUP', 'TEST-CELUP', now(), now())",
+      "ON CONFLICT (rule_code) DO NOTHING;",
+      "-- Aturan ini memakai setpoint_key, jadi SV diambil dari setpoint_json step yang sedang berjalan.",
+      "-- Tag MAIN_TANK.TEMPERATURE_SV tidak didaftarkan; kalau ada, SV dari tag yang dipakai."
+    ].join("\n");
+    var ps = [
+      "# 4b. Kirim suhu tiap 5 detik. $Offset = 0 → normal; $Offset = 8 → deviasi (di luar ±3 °C).",
+      "$Base   = \"" + s.base + "\"",
+      "$Key    = \"" + s.key + "\"",
+      "$Sv     = 130   # SV step yang sedang berjalan (lihat hasil tab 3)",
+      "$Offset = 8",
+      "$Rounds = 24    # 2 menit",
+      "for ($i = 0; $i -lt $Rounds; $i++) {",
+      "  $v = [math]::Round($Sv + $Offset + ((Get-Random -Minimum -1000 -Maximum 1000) / 1000) * 0.8, 2)",
+      "  $body = @{ samples = @(@{ asset_id = \"" + s.asset + "\"; tag_code = \"" + tag + "\"; value_number = $v; quality = \"GOOD\";",
+      "            source_ts = (Get-Date).ToUniversalTime().ToString(\"o\"); gateway_id = \"TEST-CELUP\" }) } | ConvertTo-Json -Depth 4",
+      "  $r = Invoke-RestMethod -Method Post -Uri \"$Base/api/v1/telemetry/ingest\" -Headers @{ \"X-API-Key\" = $Key } -ContentType \"application/json\" -Body $body",
+      "  Write-Host (\"[{0}/{1}] suhu {2} °C, masuk {3}\" -f ($i + 1), $Rounds, $v, $r.inserted)",
+      "  Start-Sleep -Seconds 5",
+      "}"
+    ].join("\n");
+    return [{ text: reg }, { note: "4b. Majukan step dengan tab 3 sampai DYEING (5 kali), lalu jalankan skrip ini. Mesin deviasi memeriksa sampel baru tiap detik.", text: ps }];
+  }
+
+  function tabCheck(s) {
+    var w = runWhere(s).replace("batch_no", "r.batch_no").replace(" asset_id", " r.asset_id");
+    return [{ text: [
+      "-- 5. Periksa",
+      "-- a. Run dan resepnya (salin process_run_id untuk URL di bawah)",
+      "SELECT r.process_run_id, r.run_status, r.progress_percent, r.started_at, r.ended_at, v.program_code, v.version_no",
+      "  FROM batch_process_run r LEFT JOIN process_program_version v USING (program_version_id)",
+      " WHERE " + w + ";", "",
+      "-- b. Rencana vs aktual per step",
+      "SELECT p.sequence_no, p.step_code, p.expected_duration_seconds / 60 AS rencana_min,",
+      "       e.status, e.started_at, e.ended_at, e.actual_json->>'duration_min' AS aktual_min",
+      "  FROM batch_process_run r",
+      "  JOIN process_program_step p ON p.program_version_id = r.program_version_id",
+      "  LEFT JOIN process_step_execution e ON e.process_run_id = r.process_run_id AND e.step_no = p.sequence_no",
+      " WHERE " + w + " ORDER BY p.sequence_no;", "",
+      "-- c. Transisi",
+      "SELECT t.source_ts, f.step_code AS dari, o.step_code AS ke, t.transition_type, t.reason_code",
+      "  FROM process_transition_event t JOIN batch_process_run r USING (process_run_id)",
+      "  LEFT JOIN process_step_execution f ON f.step_execution_id = t.from_step_execution_id",
+      "  LEFT JOIN process_step_execution o ON o.step_execution_id = t.to_step_execution_id",
+      " WHERE " + w + " ORDER BY t.source_ts;", "",
+      "-- d. Hasil mesin deviasi (setelah tab 4)",
+      "SELECT d.started_at, d.event_state, d.severity, s.step_code",
+      "  FROM process_deviation_event d JOIN batch_process_run r USING (process_run_id)",
+      "  LEFT JOIN process_step_execution s ON s.step_execution_id = d.step_execution_id",
+      " WHERE " + w + " ORDER BY d.started_at DESC;", "",
+      "-- Di browser (sudah login), ganti {id} dengan process_run_id:",
+      "--   " + s.base + "/api/v1/batch/process-runs/{id}/program",
+      "--   " + s.base + "/api/v1/batch/process-runs/{id}/context"
+    ].join("\n") }];
+  }
+
+  function tabFinish(s) {
+    var close = [
+      "-- 6a. Tutup step yang masih berjalan",
+      "UPDATE process_step_execution e SET status = 'COMPLETED', ended_at = clock_timestamp(), updated_at = clock_timestamp()",
+      "  FROM batch_process_run r",
+      " WHERE e.process_run_id = r.process_run_id AND e.status = 'IN_PROGRESS'",
+      "   AND " + runWhere(s).replace("batch_no", "r.batch_no").replace(" asset_id", " r.asset_id") + ";"
+    ].join("\n");
+    var ps = [
+      "# 6b. Selesaikan run lewat API (run dicocokkan dari source_system + external_run_id)",
+      "$run = @{ batch_no = \"" + s.batch + "\"; asset_id = \"" + s.asset + "\"; run_status = \"COMPLETED\";",
+      "          ended_at = (Get-Date).ToUniversalTime().ToString(\"o\"); source_system = \"TEST-CELUP\"; external_run_id = \"" + s.batch + "|" + s.asset + "\" }",
+      "Invoke-RestMethod -Method Post -Uri \"" + s.base + "/api/v1/batch/process-runs\" -Headers @{ \"X-API-Key\" = \"" + s.key + "\" } -ContentType \"application/json\" -Body ($run | ConvertTo-Json)"
+    ].join("\n");
+    return [{ text: close }, { note: "6b. Lalu tandai run selesai. Progres menjadi 100% dan nomor batch dilepas dari mesin.", text: ps }];
+  }
+
+  function tabClean(s) {
+    return [{ text: [
+      "-- 7. Hapus semua data uji batch " + s.batch + " dan resep " + s.program,
+      "BEGIN;",
+      "CREATE TEMP TABLE t_runs ON COMMIT DROP AS",
+      "  SELECT process_run_id FROM batch_process_run WHERE batch_no = " + q(s.batch) + ";", "",
+      "DELETE FROM alarm_event                   WHERE batch_no = " + q(s.batch) + " OR process_run_id IN (SELECT process_run_id FROM t_runs);",
+      "DELETE FROM process_deviation_event       WHERE process_run_id IN (SELECT process_run_id FROM t_runs);",
+      "DELETE FROM process_setpoint_change_event WHERE process_run_id IN (SELECT process_run_id FROM t_runs);",
+      "DELETE FROM process_deviation_rule_state  WHERE process_run_id IN (SELECT process_run_id FROM t_runs);",
+      "DELETE FROM process_target_execution      WHERE process_run_id IN (SELECT process_run_id FROM t_runs);",
+      "DELETE FROM process_transition_event      WHERE process_run_id IN (SELECT process_run_id FROM t_runs);",
+      "DELETE FROM process_step_execution        WHERE process_run_id IN (SELECT process_run_id FROM t_runs);",
+      "DELETE FROM batch_process_run             WHERE process_run_id IN (SELECT process_run_id FROM t_runs);",
+      "UPDATE asset_snapshot SET batch_no = NULL WHERE asset_id = " + q(s.asset) + " AND batch_no = " + q(s.batch) + ";",
+      "DELETE FROM production_batch              WHERE batch_no = " + q(s.batch) + ";", "",
+      "DELETE FROM process_deviation_rule_audit  WHERE rule_id IN (SELECT rule_id FROM process_deviation_rule WHERE rule_code LIKE 'TEST-CELUP-%');",
+      "DELETE FROM process_deviation_rule        WHERE rule_code LIKE 'TEST-CELUP-%';",
+      "DELETE FROM process_program_version       WHERE program_code = " + q(s.program) + ";  -- step resep ikut terhapus (cascade)",
+      "COMMIT;", "",
+      "-- Tag suhu uji bertanda TEST-CARD: hapus dengan tab 5 di generator bagian 7 untuk aset " + s.asset + "."
+    ].join("\n") }];
+  }
+
+  var TABS = [
+    { id: "r", label: "1. Resep", desc: "Membuat versi resep dan 11 step rencananya.", gen: tabRecipe },
+    { id: "s", label: "2. Mulai batch", desc: "Membuat batch dan run RUNNING lewat API, persis seperti sistem produksi mengirimnya.", gen: tabStart },
+    { id: "a", label: "3. Pindah step", desc: "Meniru perubahan nilai STEP_CODE dari PLC: tutup step aktif, buka step berikutnya, catat transisi.", gen: tabAdvance },
+    { id: "t", label: "4. Suhu & deviasi", desc: "Opsional. Mendaftarkan tag suhu dan aturan deviasi yang hanya aktif di step DYEING.", gen: tabTemp },
+    { id: "c", label: "5. Periksa", desc: "Rencana vs aktual, transisi, dan hasil mesin deviasi.", gen: tabCheck },
+    { id: "f", label: "6. Selesaikan", desc: "Menutup step terakhir dan menandai run selesai.", gen: tabFinish },
+    { id: "x", label: "7. Hapus data uji", desc: "Menghapus batch, run, step, transisi, hasil deviasi, aturan, dan resep uji.", gen: tabClean }
+  ];
+  var active = "r";
+
+  function render() {
+    var s = st();
+    var bar = $("cTabs"); bar.innerHTML = "";
+    TABS.forEach(function (tb) {
+      var b = document.createElement("button");
+      b.type = "button"; b.role = "tab"; b.textContent = tb.label;
+      b.setAttribute("aria-selected", String(tb.id === active));
+      b.addEventListener("click", function () { active = tb.id; render(); });
+      bar.appendChild(b);
+    });
+    var tb = TABS.filter(function (x) { return x.id === active; })[0];
+    var wrap = $("cTabBody"); wrap.innerHTML = "";
+    tb.gen(s).forEach(function (b, i) {
+      var d = document.createElement("p"); d.className = "panel-desc"; d.textContent = i === 0 ? tb.desc : b.note; wrap.appendChild(d);
+      var box = document.createElement("div"); box.className = "code";
+      var pre = document.createElement("pre"); pre.textContent = b.text;
+      var btn = document.createElement("button"); btn.className = "copy"; btn.type = "button"; btn.textContent = "Salin";
+      btn.addEventListener("click", function () {
+        var done = function () { btn.textContent = "Tersalin"; setTimeout(function () { btn.textContent = "Salin"; }, 1500); };
+        var fallback = function () { var r = document.createRange(); r.selectNodeContents(pre); var g = getSelection(); g.removeAllRanges(); g.addRange(r); };
+        if (navigator.clipboard) navigator.clipboard.writeText(pre.textContent).then(done, fallback); else fallback();
+      });
+      box.appendChild(pre); box.appendChild(btn); wrap.appendChild(box);
+    });
+  }
+  ["cAsset", "cAssetCustom", "cBatch", "cProgram", "baseUrl", "apiKey"].forEach(function (id) { $(id).addEventListener("input", render); $(id).addEventListener("change", render); });
+  render();
+})();
+</script>
+</body>
+</html>
