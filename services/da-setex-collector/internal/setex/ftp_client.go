@@ -1,0 +1,184 @@
+package setex
+
+import (
+	"encoding/binary"
+	"fmt"
+	"io"
+	"regexp"
+	"sync"
+	"time"
+
+	"github.com/jlaffaye/ftp"
+)
+
+type FTPClient struct {
+	Host     string
+	Port     int
+	User     string
+	Password string
+	Timeout  time.Duration
+	mu       sync.Mutex
+
+	lastPRSize int64
+	lastALSize int64
+}
+
+type ControllerStatus struct {
+	BatchNo     string    `json:"batch_no"`
+	StepNo      int       `json:"step_no"`
+	ProgramNo   string    `json:"program_no"`
+	StatusText  string    `json:"status_text"`
+	RawBytesLen int       `json:"raw_bytes_len"`
+	Timestamp   time.Time `json:"timestamp"`
+}
+
+func NewFTPClient(host string, port int, user, password string, timeout time.Duration) *FTPClient {
+	if timeout <= 0 {
+		timeout = 4 * time.Second
+	}
+	if port <= 0 {
+		port = 21
+	}
+	return &FTPClient{
+		Host:     host,
+		Port:     port,
+		User:     user,
+		Password: password,
+		Timeout:  timeout,
+	}
+}
+
+func (c *FTPClient) connect() (*ftp.ServerConn, error) {
+	addr := fmt.Sprintf("%s:%d", c.Host, c.Port)
+	client, err := ftp.Dial(addr, ftp.DialWithTimeout(c.Timeout))
+	if err != nil {
+		return nil, fmt.Errorf("dial ftp %s: %w", addr, err)
+	}
+
+	user := c.User
+	pass := c.Password
+	if user == "" {
+		user = "anonymous"
+	}
+	if err := client.Login(user, pass); err != nil {
+		// Try empty password login
+		if err2 := client.Login("", ""); err2 != nil {
+			client.Quit()
+			return nil, fmt.Errorf("ftp login failed: %w", err)
+		}
+	}
+
+	return client, nil
+}
+
+// FetchStatusAct retrieves and decodes STATUS.ACT binary file from controller.
+func (c *FTPClient) FetchStatusAct() (*ControllerStatus, []byte, error) {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+
+	client, err := c.connect()
+	if err != nil {
+		return nil, nil, err
+	}
+	defer client.Quit()
+
+	// Candidate paths
+	paths := []string{
+		"/Flashdisk/SC797CE/STATUS.ACT",
+		"/Storage/sc777ce/STATUS.ACT",
+		"/Network/F/OT/10B/STATUS.ACT",
+		"STATUS.ACT",
+	}
+
+	var statusBytes []byte
+	for _, p := range paths {
+		r, err := client.Retr(p)
+		if err == nil {
+			buf, err := io.ReadAll(r)
+			r.Close()
+			if err == nil && len(buf) > 0 {
+				statusBytes = buf
+				break
+			}
+		}
+	}
+
+	if len(statusBytes) == 0 {
+		return nil, nil, fmt.Errorf("STATUS.ACT not found in candidate paths on %s", c.Host)
+	}
+
+	status := &ControllerStatus{
+		Timestamp:   time.Now(),
+		RawBytesLen: len(statusBytes),
+		StatusText:  "RUNNING",
+	}
+
+	// 1. Extract 6-digit batch number via regex
+	reBatch := regexp.MustCompile(`\b\d{6}\b`)
+	matches := reBatch.FindAll(statusBytes, -1)
+	if len(matches) > 0 {
+		status.BatchNo = string(matches[len(matches)-1])
+	}
+
+	// 2. Extract Program Number from offset 0x15C
+	if len(statusBytes) >= 0x15E {
+		pVal := binary.LittleEndian.Uint16(statusBytes[0x15C:0x15E])
+		if pVal >= 1 && pVal <= 9999 {
+			status.ProgramNo = fmt.Sprintf("%04d", pVal)
+		}
+	}
+
+	// 3. Extract Step Number from offset 0x160 if available
+	if len(statusBytes) >= 0x162 {
+		sVal := binary.LittleEndian.Uint16(statusBytes[0x160:0x162])
+		if sVal >= 1 && sVal <= 255 {
+			status.StepNo = int(sVal)
+		}
+	}
+
+	return status, statusBytes, nil
+}
+
+// FetchBatchLogsDelta checks if PRxxxxxx.LOG or ALxxxxxx.LOG grew in size, and downloads delta.
+func (c *FTPClient) FetchBatchLogsDelta(batchNo string) (prNewBytes []byte, alNewBytes []byte, err error) {
+	if batchNo == "" {
+		return nil, nil, nil
+	}
+
+	c.mu.Lock()
+	defer c.mu.Unlock()
+
+	client, err := c.connect()
+	if err != nil {
+		return nil, nil, err
+	}
+	defer client.Quit()
+
+	prCandidates := []string{
+		fmt.Sprintf("/Flashdisk/SC797CE/BATCH/%s/PR%s.LOG", batchNo, batchNo),
+		fmt.Sprintf("/Storage/sc777ce/BATCH/%s/PR%s.LOG", batchNo, batchNo),
+		fmt.Sprintf("/Network/F/OT/10B/BATCH/%s/PR%s.LOG", batchNo, batchNo),
+	}
+
+	for _, p := range prCandidates {
+		curSize, err := client.FileSize(p)
+		if err == nil && curSize > c.lastPRSize {
+			r, err := client.Retr(p)
+			if err == nil {
+				buf, err := io.ReadAll(r)
+				r.Close()
+				if err == nil && len(buf) > 0 {
+					if int64(len(buf)) > c.lastPRSize {
+						prNewBytes = buf[c.lastPRSize:]
+					} else {
+						prNewBytes = buf
+					}
+					c.lastPRSize = curSize
+					break
+				}
+			}
+		}
+	}
+
+	return prNewBytes, alNewBytes, nil
+}

@@ -1,0 +1,33 @@
+collector:
+  name: "DA-SETEX-GoCollector"
+  log_level: "info" # debug, info, warn, error
+
+emqx:
+  broker_url: "tcp://192.168.100.30:1883"
+  client_id: "da_setex_collector_10b"
+  username: "admin"
+  password: "sensorSMM!"
+  topic_telemetry_prefix: "smm/jetflow"
+  topic_status_prefix: "smm/jetflow"
+
+database:
+  jetflow_url: "postgresql://postgres:sensorSMM!@192.168.100.30:5433/pt_smm_jetflow?sslmode=disable"
+  scada_url: "postgresql://postgres:sensorSMM!@192.168.100.30:5433/pt_smm_scada?sslmode=disable"
+  max_conns: 10
+  min_conns: 2
+
+# Pilot testing configuration for MESIN_10B
+pilot_machine:
+  machine_id: "10B"
+  asset_id: "JF-LB-10"
+  controller_ip: "172.16.110.160"
+  tcp_port: 50000
+  ftp_port: 21
+  ftp_user: ""
+  ftp_password: ""
+  typeconf_json_path: "WORKSPACE_PROGRAM_MESIN/MESIN_10B/02_CONFIG_SIAP_PAKAI/typeconf_iw_map.json"
+  
+  # Polling Intervals
+  telemetry_interval_sec: 2
+  status_act_interval_sec: 5
+  batch_log_interval_sec: 60

@@ -11,6 +11,7 @@ import CalendarView from './pages/Planning/CalendarView';
 import BatchListView from './pages/Planning/BatchListView';
 import FtpManager from './pages/Ftp/FtpManager';
 import Logs from './pages/Logs';
+import TagMapping from './pages/TagMapping';
 
 function App() {
   return (
@@ -22,6 +23,7 @@ function App() {
           <Route path="/batch-history" element={<Logs defaultTab="archive" />} />
           <Route path="/logs" element={<Navigate to="/process-analyser" replace />} />
           <Route path="/machines" element={<Machines />} />
+          <Route path="/tag-mapping" element={<TagMapping />} />
           <Route path="/recipes" element={<Recipes />} />
           <Route path="/programs" element={<Programs />} />
           {/* Sementara dialihkan ke /programs agar tidak bingung */}

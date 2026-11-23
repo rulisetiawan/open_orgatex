@@ -11,7 +11,8 @@ import {
   Layers,
   Server, 
   ListFilter,
-  Clock
+  Clock,
+  Tags
 } from 'lucide-react';
 
 const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
@@ -86,6 +87,11 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
           name: 'Konfigurasi Mesin', 
           path: '/machines', 
           icon: Settings 
+        },
+        { 
+          name: 'Tag Mapping & IW', 
+          path: '/tag-mapping', 
+          icon: Tags 
         },
       ]
     }
