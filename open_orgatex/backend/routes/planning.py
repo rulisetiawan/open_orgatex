@@ -239,10 +239,6 @@ def get_batches(
     batch_records = query.order_by(BatchHeader.position.asc(), BatchHeader.created_at.desc()).all()
     results = [_batch_to_dict(b) for b in batch_records]
 
-    # Sync to planning.json for backup
-    if not machine_no and not status:
-        _sync_planning_json(results)
-
     return results
 
 @router.get("/typeconf-functions")
@@ -436,8 +432,9 @@ def update_batch(batch_id: str, req: UpdateBatchStatusRequest, db: Session = Dep
     except Exception:
         pass
 
+    import threading
     all_batches = [_batch_to_dict(b) for b in db.query(BatchHeader).all()]
-    _sync_planning_json(all_batches)
+    threading.Thread(target=_sync_planning_json, args=(all_batches,), daemon=True).start()
 
     return {"status": "success", "batch": _batch_to_dict(target)}
 
@@ -472,8 +469,9 @@ def delete_batch(batch_id: str, db: Session = Depends(get_db)):
     except Exception:
         pass
 
+    import threading
     all_batches = [_batch_to_dict(b) for b in db.query(BatchHeader).all()]
-    _sync_planning_json(all_batches)
+    threading.Thread(target=_sync_planning_json, args=(all_batches,), daemon=True).start()
 
     return {"status": "success", "message": f"Batch {b_info} telah berhasil dihapus dari database."}
 
