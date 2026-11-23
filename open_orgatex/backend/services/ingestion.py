@@ -465,42 +465,8 @@ class LogIngestionService:
                 if c_sp > 0 and abs(c_sp - 76.8) > 0.1 and abs(c_sp - 90.0) > 0.1:
                     live_sp = c_sp
 
-            if live_sp is not None and recipe_steps:
-                target_step = next((s for s in recipe_steps if s.get("no") == curr_step_no), None)
-                if target_step:
-                    # Ramping heating/cooling is not an operator intervention
-                    is_ramp = target_step.get("type") in ("HEAT", "COOL") or target_step.get("func_id") in (140, 141, 145, 131, 146)
-                    if not is_ramp:
-                        planned_sp_str = target_step.get("p1", "")
-                        m_val = re.search(r'[-+]?\d*\.?\d+', planned_sp_str)
-                        if m_val:
-                            planned_sp = float(m_val.group(0))
-                            delta_sp = round(live_sp - planned_sp, 1)
-                            if abs(delta_sp) >= 1.0:  # Real deviation detected!
-                                existing = db.query(OperatorIntervention).filter(
-                                    OperatorIntervention.machine_no == machine.machine_no,
-                                    OperatorIntervention.batch_no == batch_no,
-                                    OperatorIntervention.step_no == curr_step_no,
-                                    OperatorIntervention.parameter_name == "Target Temperature"
-                                ).order_by(desc(OperatorIntervention.timestamp)).first()
-
-                                if not existing or abs(float(existing.value_after) - live_sp) >= 0.5:
-                                    new_inv = OperatorIntervention(
-                                        machine_no=machine.machine_no,
-                                        batch_no=batch_no,
-                                        step_no=curr_step_no,
-                                        trigger_source="SETPOINT_OVERRIDE",
-                                        function_id=target_step.get("func_id", 141),
-                                        parameter_name="Target Temperature",
-                                        unit="°C",
-                                        value_before=planned_sp,
-                                        value_after=live_sp,
-                                        delta=delta_sp,
-                                        notes=f"Intervensi Operator: Target Suhu diubah dari {planned_sp:.1f} °C ke {live_sp:.1f} °C (Δ {delta_sp:+} °C)"
-                                    )
-                                    db.add(new_inv)
-                                    db.commit()
-                                    logger.warning(f"Recorded operator intervention: {new_inv.notes}")
+            # Interventions are tracked authentically via InterventionService & Controller TCP Object 1030/1009
+            # Cyclic datalog telemetry does not fabricate operator interventions to avoid false alarms (e.g. pump speed 95% or ramp phase)
 
             # Query all interventions for current batch (excluding bogus 76.8 entries)
             if db:
