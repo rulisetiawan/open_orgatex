@@ -2570,11 +2570,11 @@ const Logs = ({ defaultTab = 'active' }) => {
         </div>
       )}
       {/* ========================================================================= */}
-      {/* MODAL SETEX IW (INFO WORDS / OBJEK 1025) VIA TCP PORT 50000 */}
+      {/* MODAL SETEX MULTI-OBJECT & LIVE REGISTER INSPECTOR VIA TCP PORT 50000 */}
       {/* ========================================================================= */}
       {showIwModal && (
         <div className="fixed inset-0 z-99999 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4 animate-fadeIn">
-          <div className="bg-white dark:bg-boxdark rounded-xl shadow-2xl max-w-4xl w-full border border-stroke dark:border-strokedark overflow-hidden flex flex-col max-h-[90vh]">
+          <div className="bg-white dark:bg-boxdark rounded-xl shadow-2xl max-w-5xl w-full border border-stroke dark:border-strokedark overflow-hidden flex flex-col max-h-[92vh]">
             {/* Header */}
             <div className="bg-gray-100 dark:bg-meta-4 px-5 py-4 border-b border-stroke dark:border-strokedark flex items-center justify-between shrink-0">
               <div className="flex items-center gap-2.5">
@@ -2583,13 +2583,16 @@ const Logs = ({ defaultTab = 'active' }) => {
                 </div>
                 <div>
                   <h3 className="text-sm font-bold text-black dark:text-white flex items-center gap-2">
-                    SETEX Controller - Live Register IW (Info Words / Objek 1025)
+                    SETEX Controller - Live Multi-Object & Register Inspector
                     <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-emerald-500 text-white">
                       TCP :50000
                     </span>
+                    <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-primary/20 text-primary border border-primary/30">
+                      Multi-Object (1025, 1009, 1010, 6, 1035)
+                    </span>
                   </h3>
                   <p className="text-xs text-gray-500 font-mono mt-0.5">
-                    Streaming memori 80 Info Words dari Kontroler Mesin {selectedMachine} ({hmiIp}:50000)
+                    Streaming real-time multi-objek dari Kontroler Mesin {selectedMachine} ({hmiIp}:50000)
                   </p>
                 </div>
               </div>
@@ -2601,7 +2604,7 @@ const Logs = ({ defaultTab = 'active' }) => {
                   className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold rounded bg-primary text-white hover:bg-primary/90 transition-all cursor-pointer shadow-xs disabled:opacity-50"
                 >
                   <RefreshCw className={`h-3.5 w-3.5 ${iwLoading ? 'animate-spin' : ''}`} />
-                  Segarkan IW
+                  Segarkan Data
                 </button>
                 <button
                   onClick={() => setShowIwModal(false)}
@@ -2614,168 +2617,553 @@ const Logs = ({ defaultTab = 'active' }) => {
 
             {/* Modal Body */}
             <div className="p-5 overflow-y-auto space-y-4">
-              {/* Summary Cards */}
               {(() => {
                 const currentIw = iwDetail || liveData?.iw_telemetry;
+                const objects = currentIw?.objects || {};
+                const summary = currentIw?.summary || {};
+
+                // Values extraction
+                const tempPv = summary.act_temp_pv ?? currentIw?.iw_t1_pv ?? (currentIw?.raw_words?.[0] ? (currentIw.raw_words[0] / 100).toFixed(2) : null);
+                const tempSv = summary.set_temp_sv ?? (objects.SET_1009?.registers?.find(r => r.address === 3 || r.address === 1)?.calibrated_value ?? null);
+                const gradSv = summary.gradient_sv ?? null;
+                const holdSv = summary.holding_time_sv ?? null;
+
+                const pumpPv = summary.act_pump_pv ?? currentIw?.iw_pump_act ?? (currentIw?.raw_words?.[20] !== undefined ? currentIw.raw_words[20] : null);
+                const pumpSv = summary.set_pump_sp ?? currentIw?.iw_pump_sp ?? (objects.SET_1009?.registers?.find(r => r.address === 5)?.calibrated_value ?? null);
+
+                const levelPv = currentIw?.iw_level_act ?? (currentIw?.raw_words?.[11] !== undefined ? currentIw.raw_words[11] : null);
+                const fillSv = summary.fill_quantity_sv_l ?? (objects.SET_1009?.registers?.find(r => r.address === 9)?.calibrated_value ?? null);
+                const waterMeter = currentIw?.iw_water_counter ?? currentIw?.raw_words?.[12] ?? currentIw?.raw_words?.[14] ?? null;
+
+                const reelPv = summary.reel_act ?? currentIw?.iw_reel_act ?? (currentIw?.raw_words?.[21] !== undefined ? currentIw.raw_words[21] : null);
+
+                // Object registers
+                const iwObj = objects.IW_1025 || {};
+                const setObj = objects.SET_1009 || {};
+                const actObj = objects.ACT_1010 || {};
+                const funcObj = objects.FUNCTION_6 || {};
+                const batchObj = objects.BATCH_1035 || {};
+
+                // Decoded IW rows
+                const decodedIwList = iwObj.registers || currentIw?.decoded_registers || [];
+                const rawWords = currentIw?.raw_words || [];
+
+                let iwRows = [];
+                if (decodedIwList.length > 0) {
+                  for (const reg of decodedIwList) {
+                    const isNonZero = reg.raw_val !== 0;
+                    const isKey = [1, 2, 10, 11, 12, 13, 15, 16, 21, 22, 25, 27, 28, 30, 34].includes(reg.index || reg.address);
+                    if (iwShowAllRegisters || isNonZero || isKey) {
+                      iwRows.push({
+                        num: reg.index || reg.address,
+                        val: reg.raw_val ?? reg.raw,
+                        hex: reg.hex || `0x${((reg.raw_val ?? reg.raw) || 0).toString(16).toUpperCase().padStart(4, '0')}`,
+                        name: reg.name,
+                        converted: reg.formatted || `${reg.conv_val ?? reg.calibrated_value} ${reg.unit || ''}`.trim(),
+                        isNonZero
+                      });
+                    }
+                  }
+                } else if (rawWords.length > 0) {
+                  const IW_DESCRIPTIONS = {
+                    1: { name: 'act.Temp.', conv: (v) => `${(v * 150 / 10000).toFixed(2)} °C` },
+                    2: { name: 'Time', conv: (v) => `${v} min` },
+                    10: { name: 'Set temperature', conv: (v) => `${(v * 100 / 6666).toFixed(1)} °C` },
+                    11: { name: 'level machine dig.', conv: (v) => `${v}` },
+                    12: { name: 'level machine (%)', conv: (v) => `${v} %` },
+                    13: { name: 'quantity machine (L)', conv: (v) => `${v} L` },
+                    15: { name: 'water counter IW', conv: (v) => `${v} L` },
+                    16: { name: 'pressure machine', conv: (v) => `${v} bar` },
+                    21: { name: 'speed main pump', conv: (v) => `${v} %` },
+                    22: { name: 'winch speed', conv: (v) => `${v} m/min` },
+                    25: { name: 'Temperature ST', conv: (v) => `${(v * 150 / 10000).toFixed(2)} °C` },
+                    27: { name: 'level ST [L]', conv: (v) => `${v} L` },
+                    28: { name: 'level ST (%)', conv: (v) => `${v} %` },
+                    30: { name: 'Temperature AT', conv: (v) => `${(v * 150 / 10000).toFixed(2)} °C` },
+                    34: { name: 'start dosing amo AT2', conv: (v) => `${(v / 10).toFixed(1)} L` }
+                  };
+                  for (let idx = 0; idx < rawWords.length; idx++) {
+                    const num = idx + 1;
+                    const val = rawWords[idx];
+                    const meta = IW_DESCRIPTIONS[num];
+                    if (iwShowAllRegisters || val !== 0 || meta) {
+                      iwRows.push({
+                        num,
+                        val,
+                        hex: `0x${val.toString(16).toUpperCase().padStart(4, '0')}`,
+                        name: meta?.name || `Info Word Channel ${num}`,
+                        converted: meta?.conv ? meta.conv(val) : String(val),
+                        isNonZero: val !== 0
+                      });
+                    }
+                  }
+                }
+
+                // Filter search
+                if (iwSearchFilter.trim()) {
+                  const s = iwSearchFilter.toLowerCase().trim();
+                  iwRows = iwRows.filter(r => 
+                    `iw ${r.num}`.includes(s) || 
+                    String(r.name).toLowerCase().includes(s) || 
+                    String(r.converted).toLowerCase().includes(s) || 
+                    String(r.hex).toLowerCase().includes(s)
+                  );
+                }
+
+                // SET rows
+                let setRows = setObj.registers || [];
+                if (iwSearchFilter.trim()) {
+                  const s = iwSearchFilter.toLowerCase().trim();
+                  setRows = setRows.filter(r => 
+                    `set ${r.address}`.includes(s) || 
+                    String(r.name).toLowerCase().includes(s) || 
+                    String(r.name_local || '').toLowerCase().includes(s)
+                  );
+                }
+
+                // ACT rows
+                let actRows = actObj.registers || [];
+                if (iwSearchFilter.trim()) {
+                  const s = iwSearchFilter.toLowerCase().trim();
+                  actRows = actRows.filter(r => 
+                    `act ${r.address}`.includes(s) || 
+                    String(r.hex).toLowerCase().includes(s)
+                  );
+                }
+
+                // BATCH counters
+                const batchCounters = batchObj.counters || [];
+
                 return (
                   <>
+                    {/* Top KPI Cards (Multi-Object Overview) */}
                     <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                      {/* Suhu Bejana PV vs SV */}
                       <div className="p-3.5 rounded-lg bg-emerald-50/50 dark:bg-meta-4 border border-emerald-200 dark:border-strokedark shadow-2xs">
                         <div className="text-[11px] font-bold text-gray-500 uppercase flex items-center justify-between">
-                          <span>IW 1: Suhu Bejana (PV)</span>
+                          <span>Suhu Bejana (PV / SV)</span>
                           <Flame className="h-4 w-4 text-rose-500" />
                         </div>
-                        <div className="text-2xl font-black font-mono text-emerald-600 dark:text-emerald-400 mt-1">
-                          {currentIw?.iw_t1_pv !== undefined && currentIw?.iw_t1_pv !== null
-                            ? `${currentIw.iw_t1_pv} °C`
-                            : (currentIw?.raw_words?.[0] ? `${(currentIw.raw_words[0] / 100).toFixed(2)} °C` : '-')}
+                        <div className="flex items-baseline gap-2 mt-1">
+                          <span className="text-2xl font-black font-mono text-emerald-600 dark:text-emerald-400">
+                            {tempPv !== null ? `${tempPv} °C` : '-'}
+                          </span>
+                          {tempSv !== null && (
+                            <span className="text-xs font-mono font-bold text-gray-500 bg-gray-200 dark:bg-boxdark px-1.5 py-0.5 rounded">
+                              Target: {tempSv} °C
+                            </span>
+                          )}
                         </div>
                         <div className="text-[10px] text-gray-400 font-mono mt-1">
-                          Raw: {currentIw?.raw_words?.[0] || '-'} (Skala 0.01 °C)
+                          {gradSv ? `Gradien: ${gradSv} °C/min | ` : ''}
+                          {holdSv ? `Tahan: ${holdSv} min` : 'Objek 1025 IW 1 & Objek 6'}
                         </div>
                       </div>
 
+                      {/* Pompa Sirkulasi PV vs SV */}
                       <div className="p-3.5 rounded-lg bg-white dark:bg-meta-4 border border-stroke dark:border-strokedark shadow-2xs">
                         <div className="text-[11px] font-bold text-gray-500 uppercase flex items-center justify-between">
-                          <span>IW 12: Pompa Aktual</span>
+                          <span>Pompa Sirkulasi (PV / SV)</span>
                           <Gauge className="h-4 w-4 text-primary" />
                         </div>
-                        <div className="text-2xl font-black font-mono text-primary mt-1">
-                          {currentIw?.iw_pump_act !== undefined && currentIw?.iw_pump_act !== null
-                            ? `${currentIw.iw_pump_act} %`
-                            : (currentIw?.raw_words?.[11] !== undefined ? `${currentIw.raw_words[11]} %` : '-')}
+                        <div className="flex items-baseline gap-2 mt-1">
+                          <span className="text-2xl font-black font-mono text-primary">
+                            {pumpPv !== null ? `${pumpPv} %` : '-'}
+                          </span>
+                          {pumpSv !== null && (
+                            <span className="text-xs font-mono font-bold text-gray-500 bg-gray-200 dark:bg-boxdark px-1.5 py-0.5 rounded">
+                              Target: {pumpSv} %
+                            </span>
+                          )}
                         </div>
                         <div className="text-[10px] text-gray-400 font-mono mt-1">
-                          Kecepatan Sirkulasi Main Kier
+                          Kecepatan Sirkulasi Main Kier (IW 21 & SET)
                         </div>
                       </div>
 
+                      {/* Level & Pengisian Bejana */}
                       <div className="p-3.5 rounded-lg bg-white dark:bg-meta-4 border border-stroke dark:border-strokedark shadow-2xs">
                         <div className="text-[11px] font-bold text-gray-500 uppercase flex items-center justify-between">
-                          <span>IW 21: Pompa Setpoint</span>
+                          <span>Level & Meter Air</span>
                           <Clock className="h-4 w-4 text-meta-5" />
                         </div>
-                        <div className="text-2xl font-black font-mono text-black dark:text-white mt-1">
-                          {currentIw?.iw_pump_sp !== undefined && currentIw?.iw_pump_sp !== null
-                            ? `${currentIw.iw_pump_sp} %`
-                            : (currentIw?.raw_words?.[20] !== undefined ? `${currentIw.raw_words[20]} %` : '-')}
+                        <div className="flex items-baseline gap-2 mt-1">
+                          <span className="text-2xl font-black font-mono text-black dark:text-white">
+                            {levelPv !== null ? `${levelPv} %` : '-'}
+                          </span>
+                          {fillSv !== null && (
+                            <span className="text-xs font-mono font-bold text-gray-500 bg-gray-200 dark:bg-boxdark px-1.5 py-0.5 rounded">
+                              Isi: {fillSv} L
+                            </span>
+                          )}
                         </div>
                         <div className="text-[10px] text-gray-400 font-mono mt-1">
-                          Target Kecepatan Pompa Resep
+                          {waterMeter !== null ? `Total Meter: ${waterMeter} L` : 'Level Mesin (IW 12 & IW 13)'}
                         </div>
                       </div>
 
+                      {/* Material Flow / Winch */}
                       <div className="p-3.5 rounded-lg bg-white dark:bg-meta-4 border border-stroke dark:border-strokedark shadow-2xs">
                         <div className="text-[11px] font-bold text-gray-500 uppercase flex items-center justify-between">
-                          <span>IW 22: Material Flow</span>
+                          <span>Material Flow / Winch</span>
                           <Activity className="h-4 w-4 text-emerald-500" />
                         </div>
                         <div className="text-2xl font-black font-mono text-emerald-600 dark:text-emerald-400 mt-1">
-                          {currentIw?.iw_reel_act !== undefined && currentIw?.iw_reel_act !== null
-                            ? `${currentIw.iw_reel_act} m/min`
-                            : (currentIw?.raw_words?.[21] !== undefined ? `${currentIw.raw_words[21]} m/min` : '-')}
+                          {reelPv !== null ? `${reelPv} m/min` : '-'}
                         </div>
                         <div className="text-[10px] text-gray-400 font-mono mt-1">
-                          Kecepatan Kain Reel Motor
+                          Kecepatan Putaran Kain (IW 22)
                         </div>
                       </div>
                     </div>
 
-                    {/* Table of non-zero and key registers */}
-                    <div className="border border-stroke dark:border-strokedark rounded-lg overflow-hidden">
-                      <div className="bg-gray-50 dark:bg-meta-4 px-4 py-2 border-b border-stroke dark:border-strokedark flex items-center justify-between">
-                        <span className="text-xs font-bold text-black dark:text-white">
-                          Daftar Register IW Aktif & Terkonfigurasi ({Object.keys(currentIw?.non_zero || {}).length} Register Aktif):
-                        </span>
-                        <span className="text-[10px] font-mono text-emerald-600 dark:text-emerald-400 font-bold">
-                          Protokol SC737 Svc 11 / Obj 1025
-                        </span>
+                    {/* Navigation Tabs Multi-Object */}
+                    <div className="border-b border-stroke dark:border-strokedark flex items-center justify-between pt-1">
+                      <div className="flex items-center gap-1 overflow-x-auto">
+                        <button
+                          onClick={() => setIwActiveTab('1025_iw')}
+                          className={`px-3.5 py-2 text-xs font-bold rounded-t-lg transition-all flex items-center gap-1.5 border-b-2 cursor-pointer ${
+                            iwActiveTab === '1025_iw'
+                              ? 'border-emerald-500 text-emerald-600 dark:text-emerald-400 bg-emerald-50/50 dark:bg-meta-4'
+                              : 'border-transparent text-gray-500 hover:text-black dark:hover:text-white'
+                          }`}
+                        >
+                          <Activity className="h-3.5 w-3.5" />
+                          <span>Objek 1025: IW (Sensor PV)</span>
+                          <span className="px-1.5 py-0.2 rounded-full text-[10px] font-mono bg-emerald-500/15 text-emerald-600 dark:text-emerald-400">
+                            {Object.keys(currentIw?.non_zero || {}).length || iwRows.filter(r => r.isNonZero).length}
+                          </span>
+                        </button>
+
+                        <button
+                          onClick={() => setIwActiveTab('1009_set')}
+                          className={`px-3.5 py-2 text-xs font-bold rounded-t-lg transition-all flex items-center gap-1.5 border-b-2 cursor-pointer ${
+                            iwActiveTab === '1009_set'
+                              ? 'border-primary text-primary bg-primary/10'
+                              : 'border-transparent text-gray-500 hover:text-black dark:hover:text-white'
+                          }`}
+                        >
+                          <Sliders className="h-3.5 w-3.5" />
+                          <span>Objek 1009: SET (Target / SOLL)</span>
+                          <span className="px-1.5 py-0.2 rounded-full text-[10px] font-mono bg-primary/15 text-primary">
+                            {setRows.length}
+                          </span>
+                        </button>
+
+                        <button
+                          onClick={() => setIwActiveTab('1010_act')}
+                          className={`px-3.5 py-2 text-xs font-bold rounded-t-lg transition-all flex items-center gap-1.5 border-b-2 cursor-pointer ${
+                            iwActiveTab === '1010_act'
+                              ? 'border-meta-5 text-meta-5 bg-meta-5/10'
+                              : 'border-transparent text-gray-500 hover:text-black dark:hover:text-white'
+                          }`}
+                        >
+                          <Gauge className="h-3.5 w-3.5" />
+                          <span>Objek 1010: ACT (Feedback Loop)</span>
+                          <span className="px-1.5 py-0.2 rounded-full text-[10px] font-mono bg-meta-5/15 text-meta-5">
+                            {actRows.length}
+                          </span>
+                        </button>
+
+                        <button
+                          onClick={() => setIwActiveTab('6_func')}
+                          className={`px-3.5 py-2 text-xs font-bold rounded-t-lg transition-all flex items-center gap-1.5 border-b-2 cursor-pointer ${
+                            iwActiveTab === '6_func'
+                              ? 'border-rose-500 text-rose-500 bg-rose-500/10'
+                              : 'border-transparent text-gray-500 hover:text-black dark:hover:text-white'
+                          }`}
+                        >
+                          <Layers className="h-3.5 w-3.5" />
+                          <span>Objek 6: Resep Aktif (Function)</span>
+                          <span className="px-1.5 py-0.2 rounded-full text-[10px] font-mono bg-rose-500/15 text-rose-500">
+                            {Object.keys(funcObj.functions || {}).length}
+                          </span>
+                        </button>
+
+                        <button
+                          onClick={() => setIwActiveTab('1035_batch')}
+                          className={`px-3.5 py-2 text-xs font-bold rounded-t-lg transition-all flex items-center gap-1.5 border-b-2 cursor-pointer ${
+                            iwActiveTab === '1035_batch'
+                              ? 'border-amber-500 text-amber-500 bg-amber-500/10'
+                              : 'border-transparent text-gray-500 hover:text-black dark:hover:text-white'
+                          }`}
+                        >
+                          <Database className="h-3.5 w-3.5" />
+                          <span>Objek 1035: Konsumsi Batch</span>
+                          <span className="px-1.5 py-0.2 rounded-full text-[10px] font-mono bg-amber-500/15 text-amber-500">
+                            {batchCounters.length}
+                          </span>
+                        </button>
                       </div>
 
-                      <table className="w-full text-xs text-left">
-                        <thead className="bg-gray-100 dark:bg-boxdark text-gray-500 uppercase font-mono text-[10px] border-b border-stroke dark:border-strokedark">
-                          <tr>
-                            <th className="py-2 px-3 w-24">Register</th>
-                            <th className="py-2 px-3">Nama Sinyal / Parameter PLC</th>
-                            <th className="py-2 px-3 w-28 text-right">Nilai Mentah</th>
-                            <th className="py-2 px-3 w-24 text-right">Hex</th>
-                            <th className="py-2 px-3 w-36 text-right">Nilai Terkonversi</th>
-                          </tr>
-                        </thead>
-                        <tbody className="divide-y divide-stroke dark:divide-strokedark font-mono">
-                          {(() => {
-                            const decodedList = currentIw?.decoded_registers || [];
-                            const raw = currentIw?.raw_words || [];
-                            const rows = [];
+                      {/* Filter Search */}
+                      <div className="flex items-center gap-2 pb-1">
+                        <div className="relative">
+                          <Search className="h-3.5 w-3.5 absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-400" />
+                          <input
+                            type="text"
+                            placeholder="Cari parameter / sinyal..."
+                            value={iwSearchFilter}
+                            onChange={(e) => setIwSearchFilter(e.target.value)}
+                            className="pl-8 pr-2.5 py-1 text-xs rounded border border-stroke dark:border-strokedark bg-white dark:bg-boxdark text-black dark:text-white w-48 focus:outline-none focus:border-primary"
+                          />
+                        </div>
+                        {iwActiveTab === '1025_iw' && (
+                          <button
+                            onClick={() => setIwShowAllRegisters(!iwShowAllRegisters)}
+                            className={`px-2.5 py-1 text-[11px] font-bold rounded border transition-colors cursor-pointer ${
+                              iwShowAllRegisters
+                                ? 'bg-primary text-white border-primary'
+                                : 'bg-gray-100 dark:bg-meta-4 text-gray-600 dark:text-gray-300 border-stroke dark:border-strokedark hover:bg-gray-200'
+                            }`}
+                            title="Beralih antara menampilkan semua register terkonfigurasi (1..200) atau hanya register yang sedang aktif / non-zero"
+                          >
+                            {iwShowAllRegisters ? 'Tampil: Semua (1..200)' : 'Tampil: Aktif Saja'}
+                          </button>
+                        )}
+                      </div>
+                    </div>
 
-                            if (decodedList.length > 0) {
-                              // Prioritaskan hasil decode langsung dari TYPECONF resmi mesin
-                              for (const reg of decodedList) {
-                                if (reg.raw_val !== 0 || [1, 2, 10, 12, 13, 15, 16, 21, 22, 25, 30].includes(reg.index)) {
-                                  rows.push({
-                                    num: reg.index,
-                                    val: reg.raw_val,
-                                    hex: `0x${reg.raw_val.toString(16).toUpperCase().padStart(4, '0')}`,
-                                    name: reg.name,
-                                    converted: reg.formatted
-                                  });
-                                }
-                              }
-                            } else {
-                              const IW_DESCRIPTIONS = {
-                                1: { name: 'act.Temp.', conv: (v) => `${(v * 150 / 10000).toFixed(2)} °C` },
-                                2: { name: 'level machine (%)', conv: (v) => `${(v / 10).toFixed(1)} %` },
-                                10: { name: 'Set temperature', conv: (v) => `${(v * 100 / 6666).toFixed(1)} °C` },
-                                11: { name: 'level machine dig.', conv: (v) => `${v}` },
-                                12: { name: 'level machine (%)', conv: (v) => `${v} %` },
-                                13: { name: 'quantity machine (L)', conv: (v) => `${v} L` },
-                                15: { name: 'water counter IW', conv: (v) => `${v} L` },
-                                16: { name: 'pressure machine', conv: (v) => `${v} bar` },
-                                21: { name: 'speed main pump', conv: (v) => `${v} %` },
-                                22: { name: 'winch speed', conv: (v) => `${v} m/min` },
-                                25: { name: 'Temperature ST', conv: (v) => `${(v * 150 / 10000).toFixed(2)} °C` },
-                                30: { name: 'Temperature AT', conv: (v) => `${(v * 150 / 10000).toFixed(2)} °C` }
-                              };
+                    {/* ======================================================= */}
+                    {/* TAB 1: OBJEK 1025 - INFO WORDS (SENSOR PROCESS VALUES) */}
+                    {/* ======================================================= */}
+                    {iwActiveTab === '1025_iw' && (
+                      <div className="border border-stroke dark:border-strokedark rounded-lg overflow-hidden">
+                        <div className="bg-gray-50 dark:bg-meta-4 px-4 py-2 border-b border-stroke dark:border-strokedark flex items-center justify-between">
+                          <span className="text-xs font-bold text-black dark:text-white">
+                            Daftar Register IW Telemetri Sensor Proses ({iwRows.length} Register Ditampilkan, {currentIw?.word_count || 80} Word Dibaca):
+                          </span>
+                          <span className="text-[10px] font-mono text-emerald-600 dark:text-emerald-400 font-bold">
+                            Protokol SC737 Svc 11 / Objek 1025
+                          </span>
+                        </div>
 
-                              for (let idx = 0; idx < raw.length; idx++) {
-                                const num = idx + 1;
-                                const val = raw[idx];
-                                const meta = IW_DESCRIPTIONS[num];
-                                if (val !== 0 || meta) {
-                                  rows.push({
-                                    num,
-                                    val,
-                                    hex: `0x${val.toString(16).toUpperCase().padStart(4, '0')}`,
-                                    name: meta?.name || `Info Word Channel ${num}`,
-                                    converted: meta?.conv ? meta.conv(val) : String(val)
-                                  });
-                                }
-                              }
-                            }
-
-                            if (rows.length === 0) {
-                              return (
-                                <tr>
-                                  <td colSpan={5} className="py-6 text-center text-gray-400 italic">
-                                    {iwLoading ? 'Sedang membaca 80 register IW...' : 'Belum ada data register IW terbaca'}
+                        <table className="w-full text-xs text-left">
+                          <thead className="bg-gray-100 dark:bg-boxdark text-gray-500 uppercase font-mono text-[10px] border-b border-stroke dark:border-strokedark">
+                            <tr>
+                              <th className="py-2 px-3 w-24">Register</th>
+                              <th className="py-2 px-3">Nama Sinyal / Parameter PLC</th>
+                              <th className="py-2 px-3 w-28 text-right">Nilai Mentah</th>
+                              <th className="py-2 px-3 w-24 text-right">Hex</th>
+                              <th className="py-2 px-3 w-36 text-right">Nilai Terkonversi</th>
+                            </tr>
+                          </thead>
+                          <tbody className="divide-y divide-stroke dark:divide-strokedark font-mono">
+                            {iwRows.length === 0 ? (
+                              <tr>
+                                <td colSpan={5} className="py-6 text-center text-gray-400 italic">
+                                  {iwLoading ? 'Sedang membaca data register IW...' : 'Tidak ada register IW yang cocok dengan filter'}
+                                </td>
+                              </tr>
+                            ) : (
+                              iwRows.map((r, i) => (
+                                <tr key={r.num} className={i % 2 === 0 ? 'bg-white dark:bg-boxdark' : 'bg-gray-50/50 dark:bg-meta-4/20'}>
+                                  <td className="py-2 px-3 font-bold text-primary">IW {r.num}</td>
+                                  <td className="py-2 px-3 font-sans text-black dark:text-white font-medium">{r.name}</td>
+                                  <td className="py-2 px-3 text-right font-bold text-black dark:text-white">{r.val}</td>
+                                  <td className="py-2 px-3 text-right text-gray-400 text-[11px]">{r.hex}</td>
+                                  <td className={`py-2 px-3 text-right font-bold ${r.isNonZero ? 'text-emerald-600 dark:text-emerald-400' : 'text-gray-400'}`}>
+                                    {r.converted}
                                   </td>
                                 </tr>
-                              );
-                            }
+                              ))
+                            )}
+                          </tbody>
+                        </table>
+                      </div>
+                    )}
 
-                            return rows.map((r, i) => (
-                              <tr key={r.num} className={i % 2 === 0 ? 'bg-white dark:bg-boxdark' : 'bg-gray-50/50 dark:bg-meta-4/20'}>
-                                <td className="py-2 px-3 font-bold text-primary">IW {r.num}</td>
-                                <td className="py-2 px-3 font-sans text-black dark:text-white font-medium">{r.name}</td>
-                                <td className="py-2 px-3 text-right font-bold text-black dark:text-white">{r.val}</td>
-                                <td className="py-2 px-3 text-right text-gray-400 text-[11px]">{r.hex}</td>
-                                <td className="py-2 px-3 text-right font-bold text-emerald-600 dark:text-emerald-400">{r.converted}</td>
+                    {/* ======================================================= */}
+                    {/* TAB 2: OBJEK 1009 - SET (TARGET SETPOINTS / SOLL)       */}
+                    {/* ======================================================= */}
+                    {iwActiveTab === '1009_set' && (
+                      <div className="border border-stroke dark:border-strokedark rounded-lg overflow-hidden">
+                        <div className="bg-gray-50 dark:bg-meta-4 px-4 py-2 border-b border-stroke dark:border-strokedark flex items-center justify-between">
+                          <span className="text-xs font-bold text-black dark:text-white">
+                            Parameter Target / Setpoint Resep Kontroler ({setRows.length} Parameter):
+                          </span>
+                          <span className="text-[10px] font-mono text-primary font-bold">
+                            Protokol SC737 Svc 11 / Objek 1009 (SET)
+                          </span>
+                        </div>
+
+                        <table className="w-full text-xs text-left">
+                          <thead className="bg-gray-100 dark:bg-boxdark text-gray-500 uppercase font-mono text-[10px] border-b border-stroke dark:border-strokedark">
+                            <tr>
+                              <th className="py-2 px-3 w-28">Alamat SET</th>
+                              <th className="py-2 px-3">Nama Parameter PLC</th>
+                              <th className="py-2 px-3">Deskripsi / Lokal</th>
+                              <th className="py-2 px-3 w-28 text-right">Nilai Mentah</th>
+                              <th className="py-2 px-3 w-24 text-right">Hex</th>
+                              <th className="py-2 px-3 w-36 text-right">Nilai Target (SV)</th>
+                            </tr>
+                          </thead>
+                          <tbody className="divide-y divide-stroke dark:divide-strokedark font-mono">
+                            {setRows.length === 0 ? (
+                              <tr>
+                                <td colSpan={6} className="py-6 text-center text-gray-400 italic">
+                                  {iwLoading ? 'Sedang membaca parameter setpoint...' : 'Belum ada parameter SET yang terbaca'}
+                                </td>
                               </tr>
-                            ));
-                          })()}
-                        </tbody>
-                      </table>
-                    </div>
+                            ) : (
+                              setRows.map((r, i) => (
+                                <tr key={r.address} className={i % 2 === 0 ? 'bg-white dark:bg-boxdark' : 'bg-gray-50/50 dark:bg-meta-4/20'}>
+                                  <td className="py-2 px-3 font-bold text-primary">SET {r.address}</td>
+                                  <td className="py-2 px-3 font-sans text-black dark:text-white font-medium">{r.name}</td>
+                                  <td className="py-2 px-3 font-sans text-gray-500 text-[11px]">{r.name_local || '-'}</td>
+                                  <td className="py-2 px-3 text-right font-bold text-black dark:text-white">{r.raw}</td>
+                                  <td className="py-2 px-3 text-right text-gray-400 text-[11px]">{r.hex}</td>
+                                  <td className="py-2 px-3 text-right font-bold text-primary">
+                                    {r.formatted || `${r.calibrated_value} ${r.unit || ''}`.trim()}
+                                  </td>
+                                </tr>
+                              ))
+                            )}
+                          </tbody>
+                        </table>
+                      </div>
+                    )}
+
+                    {/* ======================================================= */}
+                    {/* TAB 3: OBJEK 1010 - ACT (LOOP FEEDBACK / IST)          */}
+                    {/* ======================================================= */}
+                    {iwActiveTab === '1010_act' && (
+                      <div className="border border-stroke dark:border-strokedark rounded-lg overflow-hidden">
+                        <div className="bg-gray-50 dark:bg-meta-4 px-4 py-2 border-b border-stroke dark:border-strokedark flex items-center justify-between">
+                          <span className="text-xs font-bold text-black dark:text-white">
+                            Feedback Loop Aktual Kontroler ({actRows.length} Register Aktif):
+                          </span>
+                          <span className="text-[10px] font-mono text-meta-5 font-bold">
+                            Protokol SC737 Svc 11 / Objek 1010 (ACT)
+                          </span>
+                        </div>
+
+                        <table className="w-full text-xs text-left">
+                          <thead className="bg-gray-100 dark:bg-boxdark text-gray-500 uppercase font-mono text-[10px] border-b border-stroke dark:border-strokedark">
+                            <tr>
+                              <th className="py-2 px-3 w-28">Alamat ACT</th>
+                              <th className="py-2 px-3">Nama Sinyal</th>
+                              <th className="py-2 px-3 w-32 text-right">Nilai Mentah</th>
+                              <th className="py-2 px-3 w-28 text-right">Hex</th>
+                              <th className="py-2 px-3 w-28 text-right">Peran</th>
+                            </tr>
+                          </thead>
+                          <tbody className="divide-y divide-stroke dark:divide-strokedark font-mono">
+                            {actRows.length === 0 ? (
+                              <tr>
+                                <td colSpan={5} className="py-6 text-center text-gray-400 italic">
+                                  {iwLoading ? 'Sedang membaca feedback loop ACT...' : 'Belum ada register ACT terbaca'}
+                                </td>
+                              </tr>
+                            ) : (
+                              actRows.map((r, i) => (
+                                <tr key={r.address} className={i % 2 === 0 ? 'bg-white dark:bg-boxdark' : 'bg-gray-50/50 dark:bg-meta-4/20'}>
+                                  <td className="py-2 px-3 font-bold text-meta-5">ACT {r.address}</td>
+                                  <td className="py-2 px-3 font-sans text-black dark:text-white font-medium">{r.name}</td>
+                                  <td className="py-2 px-3 text-right font-bold text-black dark:text-white">{r.raw}</td>
+                                  <td className="py-2 px-3 text-right text-gray-400 text-[11px]">{r.hex}</td>
+                                  <td className="py-2 px-3 text-right text-gray-500 text-[11px] font-bold">{r.role || 'PV'}</td>
+                                </tr>
+                              ))
+                            )}
+                          </tbody>
+                        </table>
+                      </div>
+                    )}
+
+                    {/* ======================================================= */}
+                    {/* TAB 4: OBJEK 6 - RESEP LANGKAH AKTIF (FUNCTION 141/713) */}
+                    {/* ======================================================= */}
+                    {iwActiveTab === '6_func' && (
+                      <div className="space-y-3">
+                        <div className="bg-gray-50 dark:bg-meta-4 px-4 py-2 border border-stroke dark:border-strokedark rounded-lg flex items-center justify-between">
+                          <span className="text-xs font-bold text-black dark:text-white">
+                            Resep Langkah Aktif yang Dieksekusi CPU ({Object.keys(funcObj.functions || {}).length} Fungsi):
+                          </span>
+                          <span className="text-[10px] font-mono text-rose-500 font-bold">
+                            Protokol SC737 Svc 1 / Objek 6 (Active Functions)
+                          </span>
+                        </div>
+
+                        {Object.keys(funcObj.functions || {}).length === 0 ? (
+                          <div className="p-8 text-center text-gray-400 italic bg-gray-50/50 dark:bg-meta-4/20 rounded-lg border border-dashed border-stroke dark:border-strokedark">
+                            {iwLoading ? 'Sedang membaca fungsi langkah aktif...' : 'Tidak ada fungsi resep aktif yang sedang berjalan di kontroler'}
+                          </div>
+                        ) : (
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            {Object.entries(funcObj.functions).map(([key, f]) => (
+                              <div key={key} className="border border-stroke dark:border-strokedark rounded-lg p-4 bg-white dark:bg-boxdark space-y-3">
+                                <div className="flex items-center justify-between border-b border-stroke dark:border-strokedark pb-2">
+                                  <div className="flex items-center gap-2">
+                                    <span className="px-2 py-0.5 rounded text-xs font-bold bg-rose-500/15 text-rose-500 font-mono">
+                                      Fungsi {f.function_id}
+                                    </span>
+                                    <span className="text-xs font-bold text-black dark:text-white">
+                                      {f.function_name}
+                                    </span>
+                                  </div>
+                                  <span className="text-[10px] font-mono text-gray-400">
+                                    Langkah: Baris #{f.line}
+                                  </span>
+                                </div>
+
+                                <div className="grid grid-cols-2 gap-2 text-xs">
+                                  {(f.parameters || []).map((p) => (
+                                    <div key={p.param_no} className="p-2 rounded bg-gray-50 dark:bg-meta-4/40 border border-stroke dark:border-strokedark">
+                                      <div className="text-[10px] text-gray-400 truncate">
+                                        P{p.param_no}: {p.name}
+                                      </div>
+                                      <div className="text-base font-bold font-mono text-black dark:text-white mt-0.5">
+                                        {p.value} <span className="text-xs font-normal text-gray-500">{p.unit}</span>
+                                      </div>
+                                    </div>
+                                  ))}
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    )}
+
+                    {/* ======================================================= */}
+                    {/* TAB 5: OBJEK 1035 - KONSUMSI BATCH (DWORD 32-BIT)       */}
+                    {/* ======================================================= */}
+                    {iwActiveTab === '1035_batch' && (
+                      <div className="space-y-3">
+                        <div className="bg-gray-50 dark:bg-meta-4 px-4 py-2 border border-stroke dark:border-strokedark rounded-lg flex items-center justify-between">
+                          <span className="text-xs font-bold text-black dark:text-white">
+                            Akumulasi Konsumsi Sumber Daya Batch (DWORD 32-bit):
+                          </span>
+                          <span className="text-[10px] font-mono text-amber-500 font-bold">
+                            Protokol SC737 Svc 11 / Objek 1035 (BATCH)
+                          </span>
+                        </div>
+
+                        {batchCounters.length === 0 ? (
+                          <div className="p-8 text-center text-gray-400 italic bg-gray-50/50 dark:bg-meta-4/20 rounded-lg border border-dashed border-stroke dark:border-strokedark">
+                            {iwLoading ? 'Sedang membaca akumulasi konsumsi batch...' : 'Tidak ada counter konsumsi yang tersedia'}
+                          </div>
+                        ) : (
+                          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                            {batchCounters.map((c) => (
+                              <div key={c.index} className="p-3.5 rounded-lg border border-stroke dark:border-strokedark bg-white dark:bg-boxdark shadow-2xs">
+                                <div className="text-[11px] font-bold text-gray-500 uppercase flex items-center justify-between">
+                                  <span>{c.name}</span>
+                                  <Database className="h-4 w-4 text-amber-500" />
+                                </div>
+                                <div className="text-xl font-black font-mono text-black dark:text-white mt-1">
+                                  {c.formatted}
+                                </div>
+                                <div className="text-[10px] text-gray-400 font-mono mt-0.5">
+                                  Counter #{c.index} (Nilai Mentah: {c.value})
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    )}
                   </>
                 );
               })()}
@@ -2784,7 +3172,7 @@ const Logs = ({ defaultTab = 'active' }) => {
             {/* Footer */}
             <div className="bg-gray-100 dark:bg-meta-4 px-5 py-3 border-t border-stroke dark:border-strokedark flex items-center justify-between shrink-0">
               <span className="text-xs text-gray-500 font-mono">
-                Port: 50000 | Protokol: SETEX SC737 | Format: 16-bit Little-Endian
+                Port: 50000 | Protokol: SETEX SC737 | Format: Little-Endian | Dukungan Objek: 1025 (IW), 1009 (SET), 1010 (ACT), 1035 (BATCH), 6 (FUNC)
               </span>
               <button
                 onClick={() => setShowIwModal(false)}
