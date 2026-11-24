@@ -19,6 +19,7 @@ services:
       - EMQX_PASS=sensorSMM!
     volumes:
       - ./backend:/app/open_orgatex/backend
+      - ../WORKSPACE_PROGRAM_MESIN:/app/WORKSPACE_PROGRAM_MESIN:ro
       - ../OrgaTex_Share:/app/OrgaTex_Share
       - ../Programs:/app/Programs
       - ../STATUS:/app/STATUS

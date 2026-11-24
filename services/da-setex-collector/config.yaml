@@ -22,7 +22,7 @@ pilot_machine:
   config_base_dir: "WORKSPACE_PROGRAM_MESIN" # Otomatis mencari MESIN_10B/02_CONFIG_SIAP_PAKAI
   
   objects:
-    enable_iw_1025: true      # Sensor PV (94 words)
+    enable_iw_1025: true      # Sensor PV (up to 200 words)
     enable_set_1009: true     # Recipe Setpoint SV (40 words)
     enable_act_1010: true     # Loop Actuals PV (20 words)
     enable_batch_1035: true   # Water/Steam Totalizer (10 DWORDs)
@@ -30,5 +30,5 @@ pilot_machine:
   
   # Polling Intervals
   telemetry_interval_sec: 3
-  status_act_interval_sec: 5
+  status_act_interval_sec: 60 # Polling status/step dari STATUS.ACT per 1 menit (60s)
   batch_log_interval_sec: 60

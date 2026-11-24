@@ -318,12 +318,18 @@ const TagMapping = () => {
                       key={row.id}
                       className="hover:bg-gray-50 dark:hover:bg-meta-4/20 transition-colors group"
                     >
-                      {/* Register Index & IW Number */}
+                      {/* Register Index & IW Number / Object Type */}
                       <td className="py-3 px-4 text-center font-mono font-bold text-black dark:text-white">
-                        <div className="bg-gray dark:bg-meta-4/40 px-2 py-1 rounded text-[11px] border border-stroke dark:border-strokedark">
-                          IW {row.iw_number}
+                        <div className={`px-2 py-1 rounded text-[11px] border ${
+                          row.register_index >= 10000 || row.tag_role === 'SV'
+                            ? 'bg-primary/10 text-primary border-primary/30'
+                            : 'bg-gray dark:bg-meta-4/40 text-black dark:text-white border-stroke dark:border-strokedark'
+                        }`}>
+                          {row.register_index >= 10000 ? `SET ${row.register_index % 10000}` : `IW ${row.iw_number}`}
                         </div>
-                        <span className="text-[10px] text-body dark:text-bodydark font-normal">Idx {row.register_index}</span>
+                        <span className="text-[10px] text-body dark:text-bodydark font-normal">
+                          {row.register_index >= 10000 ? `Objek 1009 (SET)` : `Objek 1025 (Idx ${row.register_index})`}
+                        </span>
                       </td>
 
                       {/* Tag Name with Copy Button */}

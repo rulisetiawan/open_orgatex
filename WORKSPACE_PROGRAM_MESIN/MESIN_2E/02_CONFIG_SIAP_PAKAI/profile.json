@@ -1,0 +1,8 @@
+{
+  "machine_no": "2E",
+  "asset_id": "JF-LE-02",
+  "has_typeconf": true,
+  "registers_count": 93,
+  "source": "STANDARD_NOVATECH_SETEX_PROFILE",
+  "calibration_status": "ready"
+}

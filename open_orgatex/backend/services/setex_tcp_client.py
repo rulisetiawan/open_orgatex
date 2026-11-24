@@ -458,7 +458,16 @@ class SetexTcpClient:
         import json
         clean_mach = machine_no.upper().replace("MESIN_", "")
         folder_name = f"MESIN_{clean_mach}"
-        base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../WORKSPACE_PROGRAM_MESIN"))
+        
+        # Robust multi-path discovery for WORKSPACE_PROGRAM_MESIN
+        candidate_bases = [
+            os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../WORKSPACE_PROGRAM_MESIN")),
+            "/app/sc777ce_root/WORKSPACE_PROGRAM_MESIN",
+            "/app/WORKSPACE_PROGRAM_MESIN",
+            os.path.abspath("./WORKSPACE_PROGRAM_MESIN"),
+            "WORKSPACE_PROGRAM_MESIN"
+        ]
+        base_dir = next((d for d in candidate_bases if os.path.isdir(d)), candidate_bases[0])
         
         # Load parameters metadata (Category 2)
         tf_path = os.path.join(base_dir, folder_name, "02_CONFIG_SIAP_PAKAI", "typeconf_functions.json")
@@ -469,6 +478,16 @@ class SetexTcpClient:
                     params_meta = json.load(f).get("parameters", {})
             except Exception:
                 pass
+        
+        # Fallback to standard global functions map if specific machine config is missing
+        if not params_meta:
+            fallback_tf = os.path.abspath(os.path.join(os.path.dirname(__file__), "../data/typeconf_functions.json"))
+            if os.path.exists(fallback_tf):
+                try:
+                    with open(fallback_tf, "r", encoding="utf-8") as f:
+                        params_meta = json.load(f).get("parameters", {})
+                except Exception:
+                    pass
 
         # Load IW metadata (Category 10)
         from .typeconf_iw_service import TypeconfIwService

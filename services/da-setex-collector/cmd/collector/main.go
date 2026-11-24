@@ -7,6 +7,7 @@ import (
 	"math"
 	"os"
 	"os/signal"
+	"strings"
 	"sync"
 	"syscall"
 	"time"
@@ -177,10 +178,10 @@ func main() {
 			var currentTempPV float64
 
 			// ==========================================
-			// 1. OBJECT 1025: Info Words (Sensor PV)
+			// 1. OBJECT 1025: Info Words (Sensor PV, up to 200 words)
 			// ==========================================
 			if cfg.PilotMachine.Objects.EnableIW1025 {
-				words, _, err := tcpClient.ReadBlock(1025, 1, 94)
+				words, _, err := tcpClient.ReadBlock(1025, 1, 200)
 				if err != nil {
 					logger.Warn("Failed to read Object 1025 (IW)", "host", cfg.PilotMachine.ControllerIP, "error", err)
 				} else {
@@ -188,19 +189,34 @@ func main() {
 						regNum := offset + 1
 						mapping, exists := bundle.IWMap[regNum]
 						if exists {
+							if mapping.Name == "---" || strings.HasSuffix(mapping.TagName, "._PV") {
+								continue
+							}
 							calibrated := mapping.Calibrate(rawVal)
 							tagName := mapping.TagName
 							if tagName == "" {
 								tagName = fmt.Sprintf("SMM.%s.IW_%d_PV", cfg.PilotMachine.AssetID, regNum)
 							}
+							// Normalize alarm tag suffix to _ALM according to Tag Guideline
+							if regNum == 70 && strings.HasSuffix(tagName, "_ALARM") {
+								tagName = strings.TrimSuffix(tagName, "_ALARM") + "_ALM"
+							}
 							if regNum == 1 {
 								currentTempPV = calibrated
+							}
+							role := mapping.TagRole
+							if role == "" || role == "ACTUAL" {
+								role = "PV"
+							} else if role == "SETPOINT" {
+								role = "SV"
+							} else if role == "ALARM" {
+								role = "ALM"
 							}
 							tagsMap[tagName] = mqtt.TagMetric{
 								Value:   calibrated,
 								Raw:     rawVal,
 								Unit:    mapping.Unit,
-								Role:    "PV",
+								Role:    role,
 								Quality: 192,
 							}
 						}
@@ -366,6 +382,26 @@ func main() {
 							Quality: 192,
 						}
 					}
+				}
+			}
+
+			// ==========================================
+			// 6. PROCESS STEP CODE (from STATUS.ACT)
+			// ==========================================
+			if sNo > 0 {
+				tagsMap[fmt.Sprintf("SMM.%s.MACHINE.PROCESS_STEP_CODE", cfg.PilotMachine.AssetID)] = mqtt.TagMetric{
+					Value:   float64(sNo),
+					Raw:     sNo,
+					Unit:    "step",
+					Role:    "PV",
+					Quality: 192,
+				}
+				tagsMap[fmt.Sprintf("SMM.%s.PROCESS.STEP_CODE", cfg.PilotMachine.AssetID)] = mqtt.TagMetric{
+					Value:   float64(sNo),
+					Raw:     sNo,
+					Unit:    "step",
+					Role:    "PV",
+					Quality: 192,
 				}
 			}
 

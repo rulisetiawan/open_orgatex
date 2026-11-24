@@ -115,7 +115,7 @@ def determine_tag_and_role(reg_num: int, name: str, asset_id: str):
     field_name = clean_name.lower()
     return tag_name, field_name, role
 
-def sync_machine(mach_id: str, json_path: str, conn):
+def sync_machine(mach_id: str, json_path: str, conn=None, sqlite_conn=None):
     asset_id = machine_to_asset_id(mach_id)
     with open(json_path, "r", encoding="utf-8") as f:
         data = json.load(f)
@@ -149,7 +149,20 @@ def sync_machine(mach_id: str, json_path: str, conn):
         eng_max = float(meta.get("x2", 100.0))
         factor = float(meta.get("factor", 1.0))
 
-        tag_name, field_name, role = determine_tag_and_role(reg_num, name, asset_id)
+        tag_name = meta.get("tag_name")
+        field_name = meta.get("field_name")
+        role = meta.get("tag_role")
+        if not tag_name or tag_name.endswith("._PV"):
+            tag_name, field_name, role = determine_tag_and_role(reg_num, name, asset_id)
+        if reg_num == 70 and tag_name and tag_name.endswith("_ALARM"):
+            tag_name = tag_name.replace("_ALARM", "_ALM")
+            role = "ALM"
+        if role in ["ACTUAL", ""]:
+            role = "PV"
+        elif role == "SETPOINT":
+            role = "SV"
+        elif role == "ALARM":
+            role = "ALM"
         notes = f"{name} ({name_local}) [IW {reg_num}]".strip() if name_local else f"{name} [IW {reg_num}]"
 
         # IMPORTANT: register_index == iw_number == reg_num
@@ -172,61 +185,206 @@ def sync_machine(mach_id: str, json_path: str, conn):
             notes
         ))
 
-    # Standard Setpoints from Object 1009 (SET)
-    setpoints = [
-        (10092, 10092, f"SMM.{asset_id}.PROCESS.HOLDING_TIME_SV", "SV", "holding_time_setpoint", "min", 0.0, 180.0, 0.0, 180.0, 1.0, "Target Holding Time Setpoint"),
-        (10093, 10093, f"SMM.{asset_id}.PROCESS.GRADIENT_SV", "SV", "gradient_setpoint", "°C/min", 0.0, 10.0, 0.0, 10.0, 1.0, "Target Temperature Gradient Setpoint"),
-        (10094, 10094, f"SMM.{asset_id}.MAIN_MOTOR.SPEED_SV", "SV", "speed_setpoint", "%", 0.0, 100.0, 0.0, 100.0, 1.0, "Target Pump / Winch Speed Setpoint"),
-        (10098, 10098, f"SMM.{asset_id}.MAIN_TANK.LEVEL_SV", "SV", "level_setpoint", "L", 0.0, 5000.0, 0.0, 5000.0, 1.0, "Target Fill Volume / Level Setpoint"),
-    ]
-    for sp in setpoints:
-        records.append((
-            mach_id, asset_id, sp[0], sp[1], sp[2], sp[3], sp[4], sp[5],
-            "FLOAT", sp[6], sp[7], sp[8], sp[9], sp[10], True, sp[11]
-        ))
+    # Standard Setpoints from Object 1009 (SET) via typeconf_functions.json
+    funcs_path = os.path.join(WORKSPACE_DIR, f"MESIN_{mach_id}", "02_CONFIG_SIAP_PAKAI", "typeconf_functions.json")
+    if os.path.exists(funcs_path):
+        try:
+            with open(funcs_path, "r", encoding="utf-8") as f:
+                f_data = json.load(f)
+            params = f_data.get("parameters", {})
+            for pid_str, p_meta in params.items():
+                try:
+                    pid = int(pid_str)
+                except ValueError:
+                    continue
+                if pid <= 0:
+                    continue
 
-    cur = conn.cursor()
-    # Delete existing mappings for this machine
-    cur.execute("DELETE FROM cfg_machine_iw_tag_mapping WHERE machine_id = %s;", (mach_id,))
-    
-    # Bulk insert
-    insert_sql = """
-        INSERT INTO cfg_machine_iw_tag_mapping (
-            machine_id, asset_id, register_index, iw_number,
-            tag_name, tag_role, field_name, unit, data_type,
-            raw_min, raw_max, eng_min, eng_max, scale_factor,
-            is_active, notes, updated_at
-        ) VALUES %s
-        ON CONFLICT (machine_id, register_index) DO UPDATE SET
-            iw_number = EXCLUDED.iw_number,
-            tag_name = EXCLUDED.tag_name,
-            tag_role = EXCLUDED.tag_role,
-            field_name = EXCLUDED.field_name,
-            unit = EXCLUDED.unit,
-            raw_min = EXCLUDED.raw_min,
-            raw_max = EXCLUDED.raw_max,
-            eng_min = EXCLUDED.eng_min,
-            eng_max = EXCLUDED.eng_max,
-            scale_factor = EXCLUDED.scale_factor,
-            notes = EXCLUDED.notes,
-            updated_at = NOW();
-    """
-    
-    template = "(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, NOW())"
-    execute_values(cur, insert_sql, records, template=template)
-    conn.commit()
-    logger.info(f"Synced {len(records)} registers for {mach_id} ({asset_id})")
+                p_name = p_meta.get("name", f"SET {pid}")
+                p_local = p_meta.get("name_local", "")
+                p_unit = p_meta.get("unit", "")
+                if p_unit in ["dak", "dk", "dak."]:
+                    p_unit = "min"
+                elif p_unit in ["m/dak", "m/dk"]:
+                    p_unit = "m/min"
+                elif p_unit in ["d/dak", "d/dk"]:
+                    p_unit = "rpm"
+                elif p_unit in ["Lt", "lt", "LT"]:
+                    p_unit = "L"
+
+                scale = p_meta.get("scale", {})
+                p_raw_min = float(scale.get("y1", 0.0))
+                p_raw_max = float(scale.get("y2", 1000.0))
+                p_eng_min = float(scale.get("x1", 0.0))
+                p_eng_max = float(scale.get("x2", 100.0))
+                p_factor = float(scale.get("factor", 1.0) or 1.0)
+
+                # Tag naming
+                if pid == 1:
+                    tag_name = f"SMM.{asset_id}.PROCESS.SET_TIME_SV"
+                elif pid == 2:
+                    tag_name = f"SMM.{asset_id}.PROCESS.PROTECT_TIME_SV"
+                elif pid == 3:
+                    tag_name = f"SMM.{asset_id}.MAIN_TANK.TEMPERATURE_SV"
+                elif pid == 4:
+                    tag_name = f"SMM.{asset_id}.PROCESS.GRADIENT_SV"
+                elif pid == 5:
+                    tag_name = f"SMM.{asset_id}.PROCESS.HOLDING_TIME_SV"
+                elif pid == 6:
+                    tag_name = f"SMM.{asset_id}.MAIN_TANK.LEVEL_PCT_SV"
+                elif pid == 9:
+                    tag_name = f"SMM.{asset_id}.MAIN_TANK.FILL_VOLUME_SV"
+                elif pid == 14:
+                    tag_name = f"SMM.{asset_id}.MAIN_TANK.RINSE_VOLUME_SV"
+                elif pid == 22:
+                    tag_name = f"SMM.{asset_id}.MAIN_MOTOR.WINCH_SPEED_SV"
+                elif pid == 36:
+                    tag_name = f"SMM.{asset_id}.MAIN_MOTOR.SPEED_SV"
+                elif pid == 53:
+                    tag_name = f"SMM.{asset_id}.VESSEL.NOZZLE_PRESSURE_SV"
+                elif pid == 73:
+                    tag_name = f"SMM.{asset_id}.DOSING.DOSING_TIME_SV"
+                elif pid == 83:
+                    tag_name = f"SMM.{asset_id}.SERVICE_TANK.TEMPERATURE_SV"
+                elif pid == 84:
+                    tag_name = f"SMM.{asset_id}.ADDITION_TANK.TEMPERATURE_SV"
+                else:
+                    name_low = p_name.lower()
+                    if "at1" in name_low:
+                        sec = "DOSING_TANK_01"
+                    elif "at2" in name_low:
+                        sec = "DOSING_TANK_02"
+                    elif "at" in name_low:
+                        sec = "ADDITION_TANK"
+                    elif "st" in name_low:
+                        sec = "SERVICE_TANK"
+                    elif "temp" in name_low:
+                        sec = "MAIN_TANK"
+                    elif "pump" in name_low or "winch" in name_low:
+                        sec = "MAIN_MOTOR"
+                    elif "level" in name_low or "fill" in name_low or "rinse" in name_low:
+                        sec = "MAIN_TANK"
+                    else:
+                        sec = "RECIPE"
+                    tag_name = f"SMM.{asset_id}.{sec}.{clean_tag_segment(p_name)}_SV"
+
+                field_name = clean_tag_segment(p_name).lower()
+                notes = f"{p_name} ({p_local}) [SET {pid}]".strip() if p_local else f"{p_name} [SET {pid}]"
+
+                # register_index = 10000 + pid (Object 1009), iw_number = pid
+                records.append((
+                    mach_id,
+                    asset_id,
+                    10000 + pid,
+                    pid,
+                    tag_name,
+                    "SV",
+                    field_name,
+                    p_unit,
+                    "FLOAT",
+                    p_raw_min,
+                    p_raw_max,
+                    p_eng_min,
+                    p_eng_max,
+                    p_factor,
+                    True,
+                    notes
+                ))
+        except Exception as e:
+            logger.warning(f"Could not load typeconf_functions.json for {mach_id}: {e}")
+    else:
+        # Fallback to minimal setpoints if typeconf_functions.json not found
+        setpoints = [
+            (10002, 2, f"SMM.{asset_id}.PROCESS.HOLDING_TIME_SV", "SV", "holding_time_setpoint", "min", 0.0, 180.0, 0.0, 180.0, 1.0, "Target Holding Time Setpoint [SET 2]"),
+            (10003, 3, f"SMM.{asset_id}.PROCESS.GRADIENT_SV", "SV", "gradient_setpoint", "°C/min", 0.0, 10.0, 0.0, 10.0, 1.0, "Target Temperature Gradient Setpoint [SET 3]"),
+            (10004, 4, f"SMM.{asset_id}.MAIN_MOTOR.SPEED_SV", "SV", "speed_setpoint", "%", 0.0, 100.0, 0.0, 100.0, 1.0, "Target Pump / Winch Speed Setpoint [SET 4]"),
+            (10009, 9, f"SMM.{asset_id}.MAIN_TANK.LEVEL_SV", "SV", "level_setpoint", "L", 0.0, 5000.0, 0.0, 5000.0, 1.0, "Target Fill Volume / Level Setpoint [SET 9]"),
+        ]
+        for sp in setpoints:
+            records.append((
+                mach_id, asset_id, sp[0], sp[1], sp[2], sp[3], sp[4], sp[5],
+                "FLOAT", sp[6], sp[7], sp[8], sp[9], sp[10], True, sp[11]
+            ))
+
+    # 1. Sync to PostgreSQL if connected
+    if conn:
+        try:
+            cur = conn.cursor()
+            cur.execute("DELETE FROM cfg_machine_iw_tag_mapping WHERE machine_id = %s;", (mach_id,))
+            insert_sql = """
+                INSERT INTO cfg_machine_iw_tag_mapping (
+                    machine_id, asset_id, register_index, iw_number,
+                    tag_name, tag_role, field_name, unit, data_type,
+                    raw_min, raw_max, eng_min, eng_max, scale_factor,
+                    is_active, notes, updated_at
+                ) VALUES %s
+                ON CONFLICT (machine_id, register_index) DO UPDATE SET
+                    iw_number = EXCLUDED.iw_number,
+                    tag_name = EXCLUDED.tag_name,
+                    tag_role = EXCLUDED.tag_role,
+                    field_name = EXCLUDED.field_name,
+                    unit = EXCLUDED.unit,
+                    raw_min = EXCLUDED.raw_min,
+                    raw_max = EXCLUDED.raw_max,
+                    eng_min = EXCLUDED.eng_min,
+                    eng_max = EXCLUDED.eng_max,
+                    scale_factor = EXCLUDED.scale_factor,
+                    notes = EXCLUDED.notes,
+                    updated_at = NOW();
+            """
+            template = "(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, NOW())"
+            execute_values(cur, insert_sql, records, template=template)
+            conn.commit()
+            logger.info(f"[PostgreSQL] Synced {len(records)} registers for {mach_id} ({asset_id})")
+        except Exception as e:
+            logger.error(f"[PostgreSQL] Failed to sync {mach_id}: {e}")
+            conn.rollback()
+
+    # 2. Sync to SQLite if connected
+    if sqlite_conn:
+        try:
+            cur = sqlite_conn.cursor()
+            cur.execute("DELETE FROM cfg_machine_iw_tag_mapping WHERE machine_id = ?", (mach_id,))
+            sql_sqlite = """
+                INSERT OR REPLACE INTO cfg_machine_iw_tag_mapping (
+                    machine_id, asset_id, register_index, iw_number,
+                    tag_name, tag_role, field_name, unit, data_type,
+                    raw_min, raw_max, eng_min, eng_max, scale_factor,
+                    is_active, notes, updated_at
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP);
+            """
+            cur.executemany(sql_sqlite, [r[:16] for r in records])
+            sqlite_conn.commit()
+            logger.info(f"[SQLite] Synced {len(records)} registers for {mach_id} ({asset_id})")
+        except Exception as e:
+            logger.error(f"[SQLite] Failed to sync {mach_id}: {e}")
 
 def main():
+    import sqlite3
     if not os.path.exists(WORKSPACE_DIR):
         logger.error(f"Workspace directory not found: {WORKSPACE_DIR}")
         return
 
+    # Connect to SQLite local
+    sqlite_path = os.path.join(BASE_DIR, "open_orgatex", "backend", "data", "orgatex_local.db")
+    sqlite_conn = None
+    if os.path.exists(sqlite_path):
+        try:
+            sqlite_conn = sqlite3.connect(sqlite_path)
+            logger.info(f"Connected to SQLite database: {sqlite_path}")
+        except Exception as e:
+            logger.warning(f"Could not connect to SQLite: {e}")
+
+    # Connect to PostgreSQL
+    pg_conn = None
     try:
-        conn = psycopg2.connect(PG_URL)
+        pg_conn = psycopg2.connect(PG_URL)
         logger.info(f"Connected to PostgreSQL database: {PG_URL.split('@')[-1]}")
     except Exception as e:
-        logger.error(f"Failed to connect to PostgreSQL: {e}")
+        logger.warning(f"PostgreSQL connection unavailable (using SQLite or offline mode): {e}")
+
+    if not sqlite_conn and not pg_conn:
+        logger.error("No database connections available.")
         return
 
     synced_count = 0
@@ -237,13 +395,15 @@ def main():
         json_path = os.path.join(WORKSPACE_DIR, entry, "02_CONFIG_SIAP_PAKAI", "typeconf_iw_map.json")
         if os.path.exists(json_path):
             try:
-                sync_machine(mach_id, json_path, conn)
+                sync_machine(mach_id, json_path, pg_conn, sqlite_conn)
                 synced_count += 1
             except Exception as e:
                 logger.error(f"Failed to sync {mach_id}: {e}")
-                conn.rollback()
 
-    conn.close()
+    if pg_conn:
+        pg_conn.close()
+    if sqlite_conn:
+        sqlite_conn.close()
     logger.info(f"Successfully synchronized {synced_count} machines to cfg_machine_iw_tag_mapping!")
 
 if __name__ == "__main__":

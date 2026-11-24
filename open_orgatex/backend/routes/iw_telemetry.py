@@ -93,7 +93,7 @@ def get_machine_tag_mapping(
         telemetry_map = {}
         if live_row:
             live_meta = {
-                "last_updated": live_row[0].isoformat() if live_row[0] else None,
+                "last_updated": live_row[0].isoformat() if hasattr(live_row[0], 'isoformat') else (str(live_row[0]) if live_row[0] else None),
                 "connection_status": live_row[1],
                 "batch_no": live_row[2],
                 "step_no": live_row[3],
@@ -112,8 +112,8 @@ def get_machine_tag_mapping(
             
             if host:
                 try:
-                    iw_direct = SetexTcpClient.read_iw_telemetry(host, port, count=94, machine_no=mach_clean, timeout=2.0)
-                    if iw_direct.get("online"):
+                    all_direct = SetexTcpClient.read_all_objects_snapshot(host, port, machine_no=mach_clean, timeout=2.5)
+                    if all_direct.get("online"):
                         live_meta = {
                             "last_updated": datetime.now().isoformat(),
                             "connection_status": f"ONLINE (Direct TCP:{port})",
@@ -124,12 +124,22 @@ def get_machine_tag_mapping(
                             "step_no": live_meta.get("step_no") if live_meta else None,
                             "program_no": live_meta.get("program_no") if live_meta else None
                         }
-                        for d in iw_direct.get("decoded_registers", []):
+                        # Objek 1025: IW (Info Words)
+                        for d in all_direct.get("decoded_registers", []):
                             idx = d.get("index")
                             if idx is not None:
                                 direct_by_index[idx] = d
+                        # Objek 1009: SET (Target Setpoints)
+                        if "SET_1009" in all_direct.get("objects", {}):
+                            for r in all_direct["objects"]["SET_1009"].get("registers", []):
+                                addr = r.get("address")
+                                if addr:
+                                    direct_by_index[10000 + addr] = {
+                                        "conv_val": r.get("calibrated_value"),
+                                        "raw_val": r.get("raw")
+                                    }
                 except Exception as e:
-                    logger.debug(f"Direct controller read skipped/failed for {mach_clean}: {e}")
+                    logger.debug(f"Direct controller multi-object read skipped/failed for {mach_clean}: {e}")
 
         # 3. Ambil daftar konfigurasi tag
         map_query = text("""
@@ -192,7 +202,7 @@ def get_machine_tag_mapping(
                 "scale_factor": r[14],
                 "is_active": r[15],
                 "notes": r[16],
-                "updated_at": r[17].isoformat() if r[17] else None,
+                "updated_at": r[17].isoformat() if hasattr(r[17], 'isoformat') else (str(r[17]) if r[17] else None),
                 "live_value": d_val,
                 "live_raw": d_raw,
                 "quality": 192 if d_val is not None else live_info.get("quality", 192)
