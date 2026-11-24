@@ -1,0 +1,819 @@
+[
+  {
+    "folder": "MESIN_10B",
+    "asset_id": "JF-LB-10",
+    "ip": "172.16.110.160",
+    "success": true,
+    "downloaded": [
+      "CP14.AWL",
+      "TYPECONF.CNF",
+      "CONFTEXT.CNF",
+      "MACHCONF.CNF"
+    ],
+    "cp14_sha256": "421ec9f9b088553d4b61849efeedce8c768ce166bb8451146445dee5b7843445",
+    "cp14_size": 369984,
+    "typeconf_sha256": "7ba9ef061cffd6e941f1dab9c47c7147ceb537e55fb59bc80db71115a9e260e5",
+    "registers_count": 93,
+    "setpoints_count": 4,
+    "actuals_count": 53,
+    "error": null
+  },
+  {
+    "folder": "MESIN_10C",
+    "asset_id": "JF-LC-10",
+    "ip": "172.16.130.110",
+    "success": true,
+    "downloaded": [
+      "CP14.AWL",
+      "TYPECONF.CNF",
+      "CONFTEXT.CNF",
+      "MACHCONF.CNF"
+    ],
+    "cp14_sha256": "41dcf0999975beb3f4891917e46556ddf2786095df139e2622c76197946d40b0",
+    "cp14_size": 354202,
+    "typeconf_sha256": "2936ceff7a238bfff4b9512ca602d9cc85f132086d279674311432f424bd9f57",
+    "registers_count": 93,
+    "setpoints_count": 4,
+    "actuals_count": 53,
+    "error": null
+  },
+  {
+    "folder": "MESIN_11B",
+    "asset_id": "JF-LB-11",
+    "ip": "172.16.110.161",
+    "success": true,
+    "downloaded": [
+      "CP14.AWL",
+      "TYPECONF.CNF",
+      "CONFTEXT.CNF",
+      "MACHCONF.CNF"
+    ],
+    "cp14_sha256": "a086a4d3db9a1015bd8bd1408bf785e9acc03c5ae91c82dc9ea0ab5bd8adadd3",
+    "cp14_size": 369698,
+    "typeconf_sha256": "2936ceff7a238bfff4b9512ca602d9cc85f132086d279674311432f424bd9f57",
+    "registers_count": 93,
+    "setpoints_count": 4,
+    "actuals_count": 53,
+    "error": null
+  },
+  {
+    "folder": "MESIN_11C",
+    "asset_id": "JF-LC-11",
+    "ip": "172.16.130.111",
+    "success": true,
+    "downloaded": [
+      "CP14.AWL",
+      "TYPECONF.CNF",
+      "CONFTEXT.CNF",
+      "MACHCONF.CNF"
+    ],
+    "cp14_sha256": "5c87bc1960b6ece4b626fa2f0bac07e23346fbb7d9d154d07e588104be80d01a",
+    "cp14_size": 369960,
+    "typeconf_sha256": "2936ceff7a238bfff4b9512ca602d9cc85f132086d279674311432f424bd9f57",
+    "registers_count": 93,
+    "setpoints_count": 4,
+    "actuals_count": 53,
+    "error": null
+  },
+  {
+    "folder": "MESIN_11D",
+    "asset_id": "JF-LD-11",
+    "ip": "172.16.130.161",
+    "success": true,
+    "downloaded": [
+      "CP14.AWL",
+      "TYPECONF.CNF",
+      "CONFTEXT.CNF",
+      "MACHCONF.CNF"
+    ],
+    "cp14_sha256": "a1636f7d090954841635d5d1edd7b1cbdebd0f3876a2b9a94e766436c0c7b0dd",
+    "cp14_size": 354202,
+    "typeconf_sha256": "2936ceff7a238bfff4b9512ca602d9cc85f132086d279674311432f424bd9f57",
+    "registers_count": 93,
+    "setpoints_count": 4,
+    "actuals_count": 53,
+    "error": null
+  },
+  {
+    "folder": "MESIN_12B",
+    "asset_id": "JF-LB-12",
+    "ip": "172.16.110.162",
+    "success": true,
+    "downloaded": [
+      "CP14.AWL",
+      "TYPECONF.CNF",
+      "CONFTEXT.CNF",
+      "MACHCONF.CNF"
+    ],
+    "cp14_sha256": "a086a4d3db9a1015bd8bd1408bf785e9acc03c5ae91c82dc9ea0ab5bd8adadd3",
+    "cp14_size": 369698,
+    "typeconf_sha256": "2936ceff7a238bfff4b9512ca602d9cc85f132086d279674311432f424bd9f57",
+    "registers_count": 93,
+    "setpoints_count": 4,
+    "actuals_count": 53,
+    "error": null
+  },
+  {
+    "folder": "MESIN_12D",
+    "asset_id": "JF-LD-12",
+    "ip": "172.16.130.162",
+    "success": true,
+    "downloaded": [
+      "CP14.AWL",
+      "TYPECONF.CNF",
+      "CONFTEXT.CNF",
+      "MACHCONF.CNF"
+    ],
+    "cp14_sha256": "a6bb00e889d04dc08a393261866fee4eee457058bb236b111885a244673d7d37",
+    "cp14_size": 354202,
+    "typeconf_sha256": "2936ceff7a238bfff4b9512ca602d9cc85f132086d279674311432f424bd9f57",
+    "registers_count": 93,
+    "setpoints_count": 4,
+    "actuals_count": 53,
+    "error": null
+  },
+  {
+    "folder": "MESIN_13B",
+    "asset_id": "JF-LB-13",
+    "ip": "172.16.110.163",
+    "success": true,
+    "downloaded": [
+      "CP14.AWL",
+      "TYPECONF.CNF",
+      "CONFTEXT.CNF",
+      "MACHCONF.CNF"
+    ],
+    "cp14_sha256": "ec646b77da211e95d467c7d86990ed84dd22141cb12e4c0ab31ecacdfb321c7a",
+    "cp14_size": 353786,
+    "typeconf_sha256": "2936ceff7a238bfff4b9512ca602d9cc85f132086d279674311432f424bd9f57",
+    "registers_count": 93,
+    "setpoints_count": 4,
+    "actuals_count": 53,
+    "error": null
+  },
+  {
+    "folder": "MESIN_13C",
+    "asset_id": "JF-LC-13",
+    "ip": "172.16.130.113",
+    "success": true,
+    "downloaded": [
+      "CP14.AWL",
+      "TYPECONF.CNF",
+      "CONFTEXT.CNF",
+      "MACHCONF.CNF"
+    ],
+    "cp14_sha256": "5c87bc1960b6ece4b626fa2f0bac07e23346fbb7d9d154d07e588104be80d01a",
+    "cp14_size": 369960,
+    "typeconf_sha256": "2936ceff7a238bfff4b9512ca602d9cc85f132086d279674311432f424bd9f57",
+    "registers_count": 93,
+    "setpoints_count": 4,
+    "actuals_count": 53,
+    "error": null
+  },
+  {
+    "folder": "MESIN_13D",
+    "asset_id": "JF-LD-13",
+    "ip": "172.16.130.163",
+    "success": true,
+    "downloaded": [
+      "CP14.AWL",
+      "TYPECONF.CNF",
+      "CONFTEXT.CNF",
+      "MACHCONF.CNF"
+    ],
+    "cp14_sha256": "37497da27abf20e7a7fbbb248b1382bf3af8cc3f0d5fa3f21ebb4dd953bfa21a",
+    "cp14_size": 377594,
+    "typeconf_sha256": "2936ceff7a238bfff4b9512ca602d9cc85f132086d279674311432f424bd9f57",
+    "registers_count": 93,
+    "setpoints_count": 4,
+    "actuals_count": 53,
+    "error": null
+  },
+  {
+    "folder": "MESIN_14B",
+    "asset_id": "JF-LB-14",
+    "ip": "172.16.110.164",
+    "success": true,
+    "downloaded": [
+      "CP14.AWL",
+      "TYPECONF.CNF",
+      "CONFTEXT.CNF",
+      "MACHCONF.CNF"
+    ],
+    "cp14_sha256": "a1636f7d090954841635d5d1edd7b1cbdebd0f3876a2b9a94e766436c0c7b0dd",
+    "cp14_size": 354202,
+    "typeconf_sha256": "2936ceff7a238bfff4b9512ca602d9cc85f132086d279674311432f424bd9f57",
+    "registers_count": 93,
+    "setpoints_count": 4,
+    "actuals_count": 53,
+    "error": null
+  },
+  {
+    "folder": "MESIN_14C",
+    "asset_id": "JF-LC-14",
+    "ip": "172.16.130.114",
+    "success": true,
+    "downloaded": [
+      "CP14.AWL",
+      "TYPECONF.CNF",
+      "CONFTEXT.CNF",
+      "MACHCONF.CNF"
+    ],
+    "cp14_sha256": "37497da27abf20e7a7fbbb248b1382bf3af8cc3f0d5fa3f21ebb4dd953bfa21a",
+    "cp14_size": 377594,
+    "typeconf_sha256": "2936ceff7a238bfff4b9512ca602d9cc85f132086d279674311432f424bd9f57",
+    "registers_count": 93,
+    "setpoints_count": 4,
+    "actuals_count": 53,
+    "error": null
+  },
+  {
+    "folder": "MESIN_14D",
+    "asset_id": "JF-LD-14",
+    "ip": "172.16.130.164",
+    "success": true,
+    "downloaded": [
+      "CP14.AWL",
+      "TYPECONF.CNF",
+      "CONFTEXT.CNF",
+      "MACHCONF.CNF"
+    ],
+    "cp14_sha256": "37497da27abf20e7a7fbbb248b1382bf3af8cc3f0d5fa3f21ebb4dd953bfa21a",
+    "cp14_size": 377594,
+    "typeconf_sha256": "2936ceff7a238bfff4b9512ca602d9cc85f132086d279674311432f424bd9f57",
+    "registers_count": 93,
+    "setpoints_count": 4,
+    "actuals_count": 53,
+    "error": null
+  },
+  {
+    "folder": "MESIN_15B",
+    "asset_id": "JF-LB-15",
+    "ip": "172.16.110.165",
+    "success": true,
+    "downloaded": [
+      "CP14.AWL",
+      "TYPECONF.CNF",
+      "CONFTEXT.CNF",
+      "MACHCONF.CNF"
+    ],
+    "cp14_sha256": "bcaa4f01c52569eba5a0917e794a1fd8670045bd1fe02b4ac0567ae4afc36b14",
+    "cp14_size": 354362,
+    "typeconf_sha256": "2936ceff7a238bfff4b9512ca602d9cc85f132086d279674311432f424bd9f57",
+    "registers_count": 93,
+    "setpoints_count": 4,
+    "actuals_count": 53,
+    "error": null
+  },
+  {
+    "folder": "MESIN_16B",
+    "asset_id": "JF-LB-16",
+    "ip": "172.16.110.166",
+    "success": true,
+    "downloaded": [
+      "CP14.AWL",
+      "TYPECONF.CNF",
+      "CONFTEXT.CNF",
+      "MACHCONF.CNF"
+    ],
+    "cp14_sha256": "a1636f7d090954841635d5d1edd7b1cbdebd0f3876a2b9a94e766436c0c7b0dd",
+    "cp14_size": 354202,
+    "typeconf_sha256": "2936ceff7a238bfff4b9512ca602d9cc85f132086d279674311432f424bd9f57",
+    "registers_count": 93,
+    "setpoints_count": 4,
+    "actuals_count": 53,
+    "error": null
+  },
+  {
+    "folder": "MESIN_16C",
+    "asset_id": "JF-LC-16",
+    "ip": "172.16.110.106",
+    "success": true,
+    "downloaded": [
+      "CP14.AWL",
+      "TYPECONF.CNF",
+      "CONFTEXT.CNF",
+      "MACHCONF.CNF"
+    ],
+    "cp14_sha256": "e39e6fbfc1eaf3749df10399f3b00a52431c2757dfbb7123cf2c81e9e6e43607",
+    "cp14_size": 354202,
+    "typeconf_sha256": "2936ceff7a238bfff4b9512ca602d9cc85f132086d279674311432f424bd9f57",
+    "registers_count": 93,
+    "setpoints_count": 4,
+    "actuals_count": 53,
+    "error": null
+  },
+  {
+    "folder": "MESIN_16D",
+    "asset_id": "JF-LD-16",
+    "ip": "172.16.130.166",
+    "success": true,
+    "downloaded": [
+      "CP14.AWL",
+      "TYPECONF.CNF",
+      "CONFTEXT.CNF",
+      "MACHCONF.CNF"
+    ],
+    "cp14_sha256": "a1636f7d090954841635d5d1edd7b1cbdebd0f3876a2b9a94e766436c0c7b0dd",
+    "cp14_size": 354202,
+    "typeconf_sha256": "2936ceff7a238bfff4b9512ca602d9cc85f132086d279674311432f424bd9f57",
+    "registers_count": 93,
+    "setpoints_count": 4,
+    "actuals_count": 53,
+    "error": null
+  },
+  {
+    "folder": "MESIN_17B",
+    "asset_id": "JF-LB-17",
+    "ip": "172.16.110.167",
+    "success": true,
+    "downloaded": [
+      "CP14.AWL",
+      "TYPECONF.CNF",
+      "CONFTEXT.CNF",
+      "MACHCONF.CNF"
+    ],
+    "cp14_sha256": "879240d703ad7b257e7cef4c62936158eadf80775a60e7b09632bbef48b41337",
+    "cp14_size": 354202,
+    "typeconf_sha256": "2936ceff7a238bfff4b9512ca602d9cc85f132086d279674311432f424bd9f57",
+    "registers_count": 93,
+    "setpoints_count": 4,
+    "actuals_count": 53,
+    "error": null
+  },
+  {
+    "folder": "MESIN_17C",
+    "asset_id": "JF-LC-17",
+    "ip": "172.16.130.117",
+    "success": true,
+    "downloaded": [
+      "CP14.AWL",
+      "TYPECONF.CNF",
+      "CONFTEXT.CNF",
+      "MACHCONF.CNF"
+    ],
+    "cp14_sha256": "37497da27abf20e7a7fbbb248b1382bf3af8cc3f0d5fa3f21ebb4dd953bfa21a",
+    "cp14_size": 377594,
+    "typeconf_sha256": "2936ceff7a238bfff4b9512ca602d9cc85f132086d279674311432f424bd9f57",
+    "registers_count": 93,
+    "setpoints_count": 4,
+    "actuals_count": 53,
+    "error": null
+  },
+  {
+    "folder": "MESIN_18B",
+    "asset_id": "JF-LB-18",
+    "ip": "172.16.110.168",
+    "success": true,
+    "downloaded": [
+      "CP14.AWL",
+      "TYPECONF.CNF",
+      "CONFTEXT.CNF",
+      "MACHCONF.CNF"
+    ],
+    "cp14_sha256": "a1636f7d090954841635d5d1edd7b1cbdebd0f3876a2b9a94e766436c0c7b0dd",
+    "cp14_size": 354202,
+    "typeconf_sha256": "2936ceff7a238bfff4b9512ca602d9cc85f132086d279674311432f424bd9f57",
+    "registers_count": 93,
+    "setpoints_count": 4,
+    "actuals_count": 53,
+    "error": null
+  },
+  {
+    "folder": "MESIN_18D",
+    "asset_id": "JF-LD-18",
+    "ip": "172.16.130.168",
+    "success": true,
+    "downloaded": [
+      "CP14.AWL",
+      "TYPECONF.CNF",
+      "CONFTEXT.CNF",
+      "MACHCONF.CNF"
+    ],
+    "cp14_sha256": "37497da27abf20e7a7fbbb248b1382bf3af8cc3f0d5fa3f21ebb4dd953bfa21a",
+    "cp14_size": 377594,
+    "typeconf_sha256": "2936ceff7a238bfff4b9512ca602d9cc85f132086d279674311432f424bd9f57",
+    "registers_count": 93,
+    "setpoints_count": 4,
+    "actuals_count": 53,
+    "error": null
+  },
+  {
+    "folder": "MESIN_19D",
+    "asset_id": "JF-LD-19",
+    "ip": "172.16.130.169",
+    "success": true,
+    "downloaded": [
+      "CP14.AWL",
+      "TYPECONF.CNF",
+      "CONFTEXT.CNF",
+      "MACHCONF.CNF"
+    ],
+    "cp14_sha256": "37497da27abf20e7a7fbbb248b1382bf3af8cc3f0d5fa3f21ebb4dd953bfa21a",
+    "cp14_size": 377594,
+    "typeconf_sha256": "2936ceff7a238bfff4b9512ca602d9cc85f132086d279674311432f424bd9f57",
+    "registers_count": 93,
+    "setpoints_count": 4,
+    "actuals_count": 53,
+    "error": null
+  },
+  {
+    "folder": "MESIN_1A",
+    "asset_id": "JF-LA-01",
+    "ip": "172.16.110.101",
+    "success": true,
+    "downloaded": [
+      "CP14.AWL",
+      "TYPECONF.CNF",
+      "CONFTEXT.CNF",
+      "MACHCONF.CNF"
+    ],
+    "cp14_sha256": "a7beeb3856ab24529450ae7f91f46931348961788ec41d97014be6c5838e6ed2",
+    "cp14_size": 353844,
+    "typeconf_sha256": "2936ceff7a238bfff4b9512ca602d9cc85f132086d279674311432f424bd9f57",
+    "registers_count": 93,
+    "setpoints_count": 4,
+    "actuals_count": 53,
+    "error": null
+  },
+  {
+    "folder": "MESIN_1C",
+    "asset_id": "JF-LC-01",
+    "ip": "172.16.130.101",
+    "success": true,
+    "downloaded": [
+      "CP14.AWL",
+      "TYPECONF.CNF",
+      "CONFTEXT.CNF",
+      "MACHCONF.CNF"
+    ],
+    "cp14_sha256": "bcaa4f01c52569eba5a0917e794a1fd8670045bd1fe02b4ac0567ae4afc36b14",
+    "cp14_size": 354362,
+    "typeconf_sha256": "2936ceff7a238bfff4b9512ca602d9cc85f132086d279674311432f424bd9f57",
+    "registers_count": 93,
+    "setpoints_count": 4,
+    "actuals_count": 53,
+    "error": null
+  },
+  {
+    "folder": "MESIN_2A",
+    "asset_id": "JF-LA-02",
+    "ip": "172.16.110.102",
+    "success": true,
+    "downloaded": [
+      "CP14.AWL",
+      "TYPECONF.CNF",
+      "CONFTEXT.CNF",
+      "MACHCONF.CNF"
+    ],
+    "cp14_sha256": "a1636f7d090954841635d5d1edd7b1cbdebd0f3876a2b9a94e766436c0c7b0dd",
+    "cp14_size": 354202,
+    "typeconf_sha256": "2936ceff7a238bfff4b9512ca602d9cc85f132086d279674311432f424bd9f57",
+    "registers_count": 93,
+    "setpoints_count": 4,
+    "actuals_count": 53,
+    "error": null
+  },
+  {
+    "folder": "MESIN_2B",
+    "asset_id": "JF-LB-02",
+    "ip": "172.16.110.152",
+    "success": true,
+    "downloaded": [
+      "CP14.AWL",
+      "TYPECONF.CNF",
+      "CONFTEXT.CNF",
+      "MACHCONF.CNF"
+    ],
+    "cp14_sha256": "a086a4d3db9a1015bd8bd1408bf785e9acc03c5ae91c82dc9ea0ab5bd8adadd3",
+    "cp14_size": 369698,
+    "typeconf_sha256": "2936ceff7a238bfff4b9512ca602d9cc85f132086d279674311432f424bd9f57",
+    "registers_count": 93,
+    "setpoints_count": 4,
+    "actuals_count": 53,
+    "error": null
+  },
+  {
+    "folder": "MESIN_2C",
+    "asset_id": "JF-LC-02",
+    "ip": "172.16.130.102",
+    "success": true,
+    "downloaded": [
+      "CP14.AWL",
+      "TYPECONF.CNF",
+      "CONFTEXT.CNF",
+      "MACHCONF.CNF"
+    ],
+    "cp14_sha256": "bcaa4f01c52569eba5a0917e794a1fd8670045bd1fe02b4ac0567ae4afc36b14",
+    "cp14_size": 354362,
+    "typeconf_sha256": "2936ceff7a238bfff4b9512ca602d9cc85f132086d279674311432f424bd9f57",
+    "registers_count": 93,
+    "setpoints_count": 4,
+    "actuals_count": 53,
+    "error": null
+  },
+  {
+    "folder": "MESIN_3A",
+    "asset_id": "JF-LA-03",
+    "ip": "172.16.110.103",
+    "success": true,
+    "downloaded": [
+      "CP14.AWL",
+      "TYPECONF.CNF",
+      "CONFTEXT.CNF",
+      "MACHCONF.CNF"
+    ],
+    "cp14_sha256": "a1636f7d090954841635d5d1edd7b1cbdebd0f3876a2b9a94e766436c0c7b0dd",
+    "cp14_size": 354202,
+    "typeconf_sha256": "2936ceff7a238bfff4b9512ca602d9cc85f132086d279674311432f424bd9f57",
+    "registers_count": 93,
+    "setpoints_count": 4,
+    "actuals_count": 53,
+    "error": null
+  },
+  {
+    "folder": "MESIN_3B",
+    "asset_id": "JF-LB-03",
+    "ip": "172.16.110.153",
+    "success": true,
+    "downloaded": [
+      "CP14.AWL",
+      "TYPECONF.CNF",
+      "CONFTEXT.CNF",
+      "MACHCONF.CNF"
+    ],
+    "cp14_sha256": "a086a4d3db9a1015bd8bd1408bf785e9acc03c5ae91c82dc9ea0ab5bd8adadd3",
+    "cp14_size": 369698,
+    "typeconf_sha256": "2936ceff7a238bfff4b9512ca602d9cc85f132086d279674311432f424bd9f57",
+    "registers_count": 93,
+    "setpoints_count": 4,
+    "actuals_count": 53,
+    "error": null
+  },
+  {
+    "folder": "MESIN_4A",
+    "asset_id": "JF-LA-04",
+    "ip": "172.16.110.104",
+    "success": true,
+    "downloaded": [
+      "CP14.AWL",
+      "TYPECONF.CNF",
+      "CONFTEXT.CNF",
+      "MACHCONF.CNF"
+    ],
+    "cp14_sha256": "a7beeb3856ab24529450ae7f91f46931348961788ec41d97014be6c5838e6ed2",
+    "cp14_size": 353844,
+    "typeconf_sha256": "2936ceff7a238bfff4b9512ca602d9cc85f132086d279674311432f424bd9f57",
+    "registers_count": 93,
+    "setpoints_count": 4,
+    "actuals_count": 53,
+    "error": null
+  },
+  {
+    "folder": "MESIN_4B",
+    "asset_id": "JF-LB-04",
+    "ip": "172.16.110.154",
+    "success": true,
+    "downloaded": [
+      "CP14.AWL",
+      "TYPECONF.CNF",
+      "CONFTEXT.CNF",
+      "MACHCONF.CNF"
+    ],
+    "cp14_sha256": "a086a4d3db9a1015bd8bd1408bf785e9acc03c5ae91c82dc9ea0ab5bd8adadd3",
+    "cp14_size": 369698,
+    "typeconf_sha256": "2936ceff7a238bfff4b9512ca602d9cc85f132086d279674311432f424bd9f57",
+    "registers_count": 93,
+    "setpoints_count": 4,
+    "actuals_count": 53,
+    "error": null
+  },
+  {
+    "folder": "MESIN_4C",
+    "asset_id": "JF-LC-04",
+    "ip": "172.16.130.104",
+    "success": true,
+    "downloaded": [
+      "CP14.AWL",
+      "TYPECONF.CNF",
+      "CONFTEXT.CNF",
+      "MACHCONF.CNF"
+    ],
+    "cp14_sha256": "41dcf0999975beb3f4891917e46556ddf2786095df139e2622c76197946d40b0",
+    "cp14_size": 354202,
+    "typeconf_sha256": "2936ceff7a238bfff4b9512ca602d9cc85f132086d279674311432f424bd9f57",
+    "registers_count": 93,
+    "setpoints_count": 4,
+    "actuals_count": 53,
+    "error": null
+  },
+  {
+    "folder": "MESIN_5A",
+    "asset_id": "JF-LA-05",
+    "ip": "172.16.110.105",
+    "success": true,
+    "downloaded": [
+      "CP14.AWL",
+      "TYPECONF.CNF",
+      "CONFTEXT.CNF",
+      "MACHCONF.CNF"
+    ],
+    "cp14_sha256": "a6bb00e889d04dc08a393261866fee4eee457058bb236b111885a244673d7d37",
+    "cp14_size": 354202,
+    "typeconf_sha256": "2936ceff7a238bfff4b9512ca602d9cc85f132086d279674311432f424bd9f57",
+    "registers_count": 93,
+    "setpoints_count": 4,
+    "actuals_count": 53,
+    "error": null
+  },
+  {
+    "folder": "MESIN_5B",
+    "asset_id": "JF-LB-05",
+    "ip": "172.16.110.155",
+    "success": true,
+    "downloaded": [
+      "CP14.AWL",
+      "TYPECONF.CNF",
+      "CONFTEXT.CNF",
+      "MACHCONF.CNF"
+    ],
+    "cp14_sha256": "a086a4d3db9a1015bd8bd1408bf785e9acc03c5ae91c82dc9ea0ab5bd8adadd3",
+    "cp14_size": 369698,
+    "typeconf_sha256": "2936ceff7a238bfff4b9512ca602d9cc85f132086d279674311432f424bd9f57",
+    "registers_count": 93,
+    "setpoints_count": 4,
+    "actuals_count": 53,
+    "error": null
+  },
+  {
+    "folder": "MESIN_5C",
+    "asset_id": "JF-LC-05",
+    "ip": "172.16.130.105",
+    "success": true,
+    "downloaded": [
+      "CP14.AWL",
+      "TYPECONF.CNF",
+      "CONFTEXT.CNF",
+      "MACHCONF.CNF"
+    ],
+    "cp14_sha256": "b6e60d6fb5878f7323e0965a4d0e7bd5f415010199907323ebc95b95913457cc",
+    "cp14_size": 353954,
+    "typeconf_sha256": "2936ceff7a238bfff4b9512ca602d9cc85f132086d279674311432f424bd9f57",
+    "registers_count": 93,
+    "setpoints_count": 4,
+    "actuals_count": 53,
+    "error": null
+  },
+  {
+    "folder": "MESIN_6A",
+    "asset_id": "JF-LA-06",
+    "ip": "172.16.110.106",
+    "success": true,
+    "downloaded": [
+      "CP14.AWL",
+      "TYPECONF.CNF",
+      "CONFTEXT.CNF",
+      "MACHCONF.CNF"
+    ],
+    "cp14_sha256": "e39e6fbfc1eaf3749df10399f3b00a52431c2757dfbb7123cf2c81e9e6e43607",
+    "cp14_size": 354202,
+    "typeconf_sha256": "2936ceff7a238bfff4b9512ca602d9cc85f132086d279674311432f424bd9f57",
+    "registers_count": 93,
+    "setpoints_count": 4,
+    "actuals_count": 53,
+    "error": null
+  },
+  {
+    "folder": "MESIN_6B",
+    "asset_id": "JF-LB-06",
+    "ip": "172.16.110.156",
+    "success": true,
+    "downloaded": [
+      "CP14.AWL",
+      "TYPECONF.CNF",
+      "CONFTEXT.CNF",
+      "MACHCONF.CNF"
+    ],
+    "cp14_sha256": "a086a4d3db9a1015bd8bd1408bf785e9acc03c5ae91c82dc9ea0ab5bd8adadd3",
+    "cp14_size": 369698,
+    "typeconf_sha256": "2936ceff7a238bfff4b9512ca602d9cc85f132086d279674311432f424bd9f57",
+    "registers_count": 93,
+    "setpoints_count": 4,
+    "actuals_count": 53,
+    "error": null
+  },
+  {
+    "folder": "MESIN_6C",
+    "asset_id": "JF-LC-06",
+    "ip": "172.16.130.106",
+    "success": true,
+    "downloaded": [
+      "CP14.AWL",
+      "TYPECONF.CNF",
+      "CONFTEXT.CNF",
+      "MACHCONF.CNF"
+    ],
+    "cp14_sha256": "5c87bc1960b6ece4b626fa2f0bac07e23346fbb7d9d154d07e588104be80d01a",
+    "cp14_size": 369960,
+    "typeconf_sha256": "2936ceff7a238bfff4b9512ca602d9cc85f132086d279674311432f424bd9f57",
+    "registers_count": 93,
+    "setpoints_count": 4,
+    "actuals_count": 53,
+    "error": null
+  },
+  {
+    "folder": "MESIN_7B",
+    "asset_id": "JF-LB-07",
+    "ip": "172.16.110.157",
+    "success": true,
+    "downloaded": [
+      "CP14.AWL",
+      "TYPECONF.CNF",
+      "CONFTEXT.CNF",
+      "MACHCONF.CNF"
+    ],
+    "cp14_sha256": "a086a4d3db9a1015bd8bd1408bf785e9acc03c5ae91c82dc9ea0ab5bd8adadd3",
+    "cp14_size": 369698,
+    "typeconf_sha256": "2936ceff7a238bfff4b9512ca602d9cc85f132086d279674311432f424bd9f57",
+    "registers_count": 93,
+    "setpoints_count": 4,
+    "actuals_count": 53,
+    "error": null
+  },
+  {
+    "folder": "MESIN_8B",
+    "asset_id": "JF-LB-08",
+    "ip": "172.16.110.158",
+    "success": true,
+    "downloaded": [
+      "CP14.AWL",
+      "TYPECONF.CNF",
+      "CONFTEXT.CNF",
+      "MACHCONF.CNF"
+    ],
+    "cp14_sha256": "a086a4d3db9a1015bd8bd1408bf785e9acc03c5ae91c82dc9ea0ab5bd8adadd3",
+    "cp14_size": 369698,
+    "typeconf_sha256": "2936ceff7a238bfff4b9512ca602d9cc85f132086d279674311432f424bd9f57",
+    "registers_count": 93,
+    "setpoints_count": 4,
+    "actuals_count": 53,
+    "error": null
+  },
+  {
+    "folder": "MESIN_8C",
+    "asset_id": "JF-LC-08",
+    "ip": "172.16.130.108",
+    "success": true,
+    "downloaded": [
+      "CP14.AWL",
+      "TYPECONF.CNF",
+      "CONFTEXT.CNF",
+      "MACHCONF.CNF"
+    ],
+    "cp14_sha256": "5c87bc1960b6ece4b626fa2f0bac07e23346fbb7d9d154d07e588104be80d01a",
+    "cp14_size": 369960,
+    "typeconf_sha256": "2936ceff7a238bfff4b9512ca602d9cc85f132086d279674311432f424bd9f57",
+    "registers_count": 93,
+    "setpoints_count": 4,
+    "actuals_count": 53,
+    "error": null
+  },
+  {
+    "folder": "MESIN_9B",
+    "asset_id": "JF-LB-09",
+    "ip": "172.16.110.159",
+    "success": true,
+    "downloaded": [
+      "CP14.AWL",
+      "TYPECONF.CNF",
+      "CONFTEXT.CNF",
+      "MACHCONF.CNF"
+    ],
+    "cp14_sha256": "a086a4d3db9a1015bd8bd1408bf785e9acc03c5ae91c82dc9ea0ab5bd8adadd3",
+    "cp14_size": 369698,
+    "typeconf_sha256": "2936ceff7a238bfff4b9512ca602d9cc85f132086d279674311432f424bd9f57",
+    "registers_count": 93,
+    "setpoints_count": 4,
+    "actuals_count": 53,
+    "error": null
+  },
+  {
+    "folder": "MESIN_9C",
+    "asset_id": "JF-LC-09",
+    "ip": "172.16.130.109",
+    "success": false,
+    "downloaded": [
+      "CP14.AWL",
+      "TYPECONF.CNF",
+      "CONFTEXT.CNF",
+      "MACHCONF.CNF"
+    ],
+    "cp14_sha256": "5c87bc1960b6ece4b626fa2f0bac07e23346fbb7d9d154d07e588104be80d01a",
+    "cp14_size": 369960,
+    "typeconf_sha256": "2936ceff7a238bfff4b9512ca602d9cc85f132086d279674311432f424bd9f57",
+    "registers_count": 0,
+    "setpoints_count": 0,
+    "actuals_count": 0,
+    "error": "[WinError 10054] An existing connection was forcibly closed by the remote host"
+  }
+]

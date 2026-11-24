@@ -7,7 +7,6 @@ import (
 	"math"
 	"os"
 	"os/signal"
-	"path/filepath"
 	"sync"
 	"syscall"
 	"time"
@@ -15,7 +14,6 @@ import (
 	"da-setex-collector/internal/config"
 	"da-setex-collector/internal/mqtt"
 	"da-setex-collector/internal/setex"
-	"da-setex-collector/internal/storage"
 )
 
 func main() {
@@ -25,7 +23,7 @@ func main() {
 	}))
 	slog.SetDefault(logger)
 
-	logger.Info("Starting DA-SETEX Industrial Telemetry Collector (Go Edition)", "version", "1.0.0")
+	logger.Info("Starting DA-SETEX Multi-Object Telemetry Collector (Pure MQTT Producer)", "version", "2.0.0")
 
 	// 2. Load Configuration
 	cfgPath := "config.yaml"
@@ -39,62 +37,41 @@ func main() {
 	}
 
 	logger.Info("Config loaded successfully",
-		"pilot_machine", cfg.PilotMachine.MachineID,
+		"machine_id", cfg.PilotMachine.MachineID,
 		"asset_id", cfg.PilotMachine.AssetID,
 		"ip", cfg.PilotMachine.ControllerIP,
 		"tcp_port", cfg.PilotMachine.TCPPort,
 		"emqx", cfg.EMQX.BrokerURL,
 	)
 
-	// 5. Initialize PostgreSQL Storage
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
-
-	pgWriter, err := storage.NewPGWriter(
-		ctx,
-		cfg.Database.JetflowURL,
-		cfg.Database.ScadaURL,
-		cfg.Database.MaxConns,
-		cfg.Database.MinConns,
-		logger,
-	)
+	// 3. Dynamic Machine-Aware Configuration Loader (02_CONFIG_SIAP_PAKAI)
+	bundle, err := setex.LoadMachineConfig(cfg.PilotMachine.ConfigBaseDir, cfg.PilotMachine.MachineID)
 	if err != nil {
-		logger.Error("Failed to connect to PostgreSQL", "error", err)
-		os.Exit(1)
-	}
-	defer pgWriter.Close()
-	logger.Info("PostgreSQL connection pools initialized successfully")
-
-	// 6. Load Tag Mappings from PostgreSQL (pt_smm_jetflow.cfg_machine_iw_tag_mapping)
-	tcMap, err := pgWriter.LoadMachineTagMappings(ctx, cfg.PilotMachine.MachineID)
-	if err != nil || len(tcMap) == 0 {
-		logger.Warn("Falling back to local typeconf JSON file", "reason", err)
-		typeconfPath := cfg.PilotMachine.TypeconfJSONPath
-		if !filepath.IsAbs(typeconfPath) {
-			candidates := []string{
-				typeconfPath,
-				filepath.Join("..", "..", typeconfPath),
-				filepath.Join("c:", "Users", "ruli_smm", "DA-TEX", typeconfPath),
-			}
-			for _, c := range candidates {
-				if _, err := os.Stat(c); err == nil {
-					typeconfPath = c
-					break
-				}
-			}
+		logger.Warn("Failed to load machine configuration bundle; using defaults", "error", err)
+		bundle = &setex.MachineConfigBundle{
+			MachineID:  cfg.PilotMachine.MachineID,
+			AssetID:    cfg.PilotMachine.AssetID,
+			IWMap:      make(map[int]*setex.RegisterMapping),
+			Parameters: make(map[int]*setex.ParameterConfig),
+			Functions:  make(map[int]*setex.FunctionConfig),
 		}
-		tcMap, err = setex.LoadTypeconfFromFile(typeconfPath)
-		if err != nil {
-			logger.Error("Failed to load TYPECONF calibration map", "path", typeconfPath, "error", err)
-			os.Exit(1)
+	} else {
+		logger.Info("Loaded machine configuration bundle successfully",
+			"machine", bundle.MachineID,
+			"iw_registers", len(bundle.IWMap),
+			"parameters", len(bundle.Parameters),
+			"functions", len(bundle.Functions),
+		)
+		if bundle.AssetID != "" && cfg.PilotMachine.AssetID == "" {
+			cfg.PilotMachine.AssetID = bundle.AssetID
 		}
 	}
-	logger.Info("Loaded tag calibration map", "total_registers", len(tcMap), "machine", cfg.PilotMachine.MachineID)
 
-	// 7. Initialize MQTT Publisher (EMQX)
+	// 4. Initialize EMQX MQTT Publisher
+	clientID := fmt.Sprintf("%s_%d", cfg.EMQX.ClientID, os.Getpid())
 	mqttPub, err := mqtt.NewPublisher(
 		cfg.EMQX.BrokerURL,
-		cfg.EMQX.ClientID,
+		clientID,
 		cfg.EMQX.Username,
 		cfg.EMQX.Password,
 		logger,
@@ -105,7 +82,7 @@ func main() {
 	}
 	defer mqttPub.Close()
 
-	// 8. Initialize Controller Clients
+	// 5. Initialize Controller Clients
 	tcpClient := setex.NewTCPClient(cfg.PilotMachine.ControllerIP, cfg.PilotMachine.TCPPort, 3*time.Second)
 	ftpClient := setex.NewFTPClient(
 		cfg.PilotMachine.ControllerIP,
@@ -115,13 +92,16 @@ func main() {
 		4*time.Second,
 	)
 
-	// Shared state across pollers
-	var stateMu sync.RWMutex
-	currentBatchNo := "072162"
-	currentStepNo := 9
-	currentProgramNo := "0342"
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
 
-	// 7. Poller 1: STATUS.ACT via FTP (5 seconds)
+	// Shared machine state
+	var stateMu sync.RWMutex
+	currentBatchNo := "000000"
+	currentStepNo := 0
+	currentProgramNo := "0000"
+
+	// 6. Poller 1: STATUS.ACT via FTP (every 5 seconds)
 	go func() {
 		ticker := time.NewTicker(time.Duration(cfg.PilotMachine.StatusActIntervalSec) * time.Second)
 		defer ticker.Stop()
@@ -133,8 +113,7 @@ func main() {
 			case <-ticker.C:
 				st, _, err := ftpClient.FetchStatusAct()
 				if err != nil {
-					// Non-fatal, controller might be busy
-					logger.Debug("FTP STATUS.ACT probe", "error", err)
+					logger.Debug("FTP STATUS.ACT probe error (controller busy)", "error", err)
 					continue
 				}
 
@@ -168,14 +147,13 @@ func main() {
 		}
 	}()
 
-	// 8. Poller 2: Realtime IW Telemetry via TCP Port 50000 (2 seconds)
+	// 7. Poller 2: Multi-Object Telemetry via TCP Port 50000 (every 2 seconds)
 	telemetryTopic := fmt.Sprintf("%s/%s/telemetry", cfg.EMQX.TopicTelemetryPrefix, cfg.PilotMachine.AssetID)
 	telemetryTicker := time.NewTicker(time.Duration(cfg.PilotMachine.TelemetryIntervalSec) * time.Second)
 	defer telemetryTicker.Stop()
 
 	cycleCount := 0
-
-	logger.Info("Starting realtime IW polling stream",
+	logger.Info("Starting multi-object telemetry stream to EMQX",
 		"interval", fmt.Sprintf("%ds", cfg.PilotMachine.TelemetryIntervalSec),
 		"topic", telemetryTopic,
 	)
@@ -189,205 +167,211 @@ func main() {
 			cycleCount++
 			now := time.Now()
 
-			// Read 94 words from Object 1025 (IW) starting at address 1 (SETEX IW is 1-based)
-			words, rawFrame, err := tcpClient.ReadBlock(1025, 1, 94)
-			if err != nil {
-				logger.Warn("Failed to read IW block from controller",
-					"host", cfg.PilotMachine.ControllerIP,
-					"error", err,
-				)
-				continue
-			}
-
 			stateMu.RLock()
 			bNo := currentBatchNo
 			sNo := currentStepNo
 			pNo := currentProgramNo
 			stateMu.RUnlock()
 
-			// Calibrate all registers
 			tagsMap := make(map[string]mqtt.TagMetric)
-			jsonTelemetry := make(map[string]interface{})
-			tagRecords := make([]storage.TagValueRecord, 0, len(words))
+			var currentTempPV float64
 
-			var currentTemp float64
-
-			for offset, rawVal := range words {
-				regNum := offset + 1 // 1-based IW register number (IW 1 = words[0])
-				mapping, exists := tcMap[regNum]
-				if !exists {
-					continue
-				}
-
-				calibrated := mapping.Calibrate(rawVal)
-				tagName := mapping.TagName
-				if tagName == "" {
-					tagName = fmt.Sprintf("SMM.%s.CONTROLLER.IW_%d_PV", cfg.PilotMachine.AssetID, regNum)
-				}
-
-				role := mapping.TagRole
-				if role == "" {
-					role = "PV"
-				}
-
-				// Check primary temperature PV (IW 1)
-				if regNum == 1 {
-					currentTemp = calibrated
-				}
-
-				metric := mqtt.TagMetric{
-					Value:   calibrated,
-					Raw:     rawVal,
-					Unit:    mapping.Unit,
-					Role:    role,
-					Quality: 192,
-				}
-
-				tagsMap[tagName] = metric
-				jsonTelemetry[tagName] = map[string]interface{}{
-					"value":      calibrated,
-					"raw":        rawVal,
-					"unit":       mapping.Unit,
-					"role":       role,
-					"quality":    192,
-					"field_name": mapping.FieldName,
-					"notes":      mapping.Name,
-				}
-
-				tagRecords = append(tagRecords, storage.TagValueRecord{
-					TagName:   tagName,
-					Value:     calibrated,
-					Raw:       rawVal,
-					Unit:      mapping.Unit,
-					Role:      role,
-					Quality:   192,
-					Timestamp: now,
-				})
-			}
-
-			// Read Dedicated Setpoints from Object 1009 (SET) and Object 6 (Active Step Parameters)
-			var tempSP, holdingTimeSP, gradientSP, levelSP, speedSP float64
-			setWords, errSet := tcpClient.ReadSETBlock(1, 20)
-			if errSet == nil && len(setWords) > 0 {
-				if setWords[0] > 0 {
-					tempSP = float64(setWords[0]) / 10.0
-				}
-				if len(setWords) > 4 && setWords[4] > 0 {
-					speedSP = float64(setWords[4]) / 10.0
-				}
-				if len(setWords) > 8 && setWords[8] > 0 {
-					levelSP = float64(setWords[8])
+			// ==========================================
+			// 1. OBJECT 1025: Info Words (Sensor PV)
+			// ==========================================
+			if cfg.PilotMachine.Objects.EnableIW1025 {
+				words, _, err := tcpClient.ReadBlock(1025, 1, 94)
+				if err != nil {
+					logger.Warn("Failed to read Object 1025 (IW)", "host", cfg.PilotMachine.ControllerIP, "error", err)
+				} else {
+					for offset, rawVal := range words {
+						regNum := offset + 1
+						mapping, exists := bundle.IWMap[regNum]
+						if exists {
+							calibrated := mapping.Calibrate(rawVal)
+							tagName := mapping.TagName
+							if tagName == "" {
+								tagName = fmt.Sprintf("SMM.%s.IW_%d_PV", cfg.PilotMachine.AssetID, regNum)
+							}
+							if regNum == 1 {
+								currentTempPV = calibrated
+							}
+							tagsMap[tagName] = mqtt.TagMetric{
+								Value:   calibrated,
+								Raw:     rawVal,
+								Unit:    mapping.Unit,
+								Role:    "PV",
+								Quality: 192,
+							}
+						}
+					}
 				}
 			}
 
-			// Read Active Function 141 (Temperature Control: Target Temp, Gradient, Holding Time)
-			f141Vals, _, errF141 := tcpClient.ReadActiveFunction(141)
-			if errF141 == nil && len(f141Vals) >= 3 {
-				if f141Vals[0] > 0 {
-					tempSP = float64(f141Vals[0])
-				}
-				if f141Vals[1] >= 0 {
-					gradientSP = float64(f141Vals[1])
-				}
-				if f141Vals[2] > 0 {
-					holdingTimeSP = float64(f141Vals[2])
+			// ==========================================
+			// 2. OBJECT 1009: Recipe Setpoints (SV)
+			// ==========================================
+			if cfg.PilotMachine.Objects.EnableSET1009 {
+				setWords, err := tcpClient.ReadSETBlock(1, 40)
+				if err != nil {
+					logger.Debug("Failed to read Object 1009 (SET)", "error", err)
+				} else {
+					for offset, rawVal := range setWords {
+						paramID := offset + 1
+						param, exists := bundle.Parameters[paramID]
+						var val float64
+						var unit string
+						tagName := fmt.Sprintf("SMM.%s.SET_%d_SV", cfg.PilotMachine.AssetID, paramID)
+
+						if exists {
+							val = param.Calibrate(rawVal)
+							unit = param.Unit
+							if param.TagName != "" {
+								tagName = param.TagName
+							}
+						} else {
+							val = float64(rawVal) / 10.0
+						}
+
+						// Standard known setpoint overrides
+						if paramID == 1 { // Temperature Setpoint
+							tagName = fmt.Sprintf("SMM.%s.MAIN_TANK.TEMPERATURE_SV", cfg.PilotMachine.AssetID)
+							unit = "°C"
+						} else if paramID == 5 { // Speed Setpoint
+							tagName = fmt.Sprintf("SMM.%s.MAIN_MOTOR.SPEED_SV", cfg.PilotMachine.AssetID)
+							unit = "%"
+						} else if paramID == 9 { // Level Setpoint
+							tagName = fmt.Sprintf("SMM.%s.MAIN_TANK.LEVEL_SV", cfg.PilotMachine.AssetID)
+							unit = "L"
+						}
+
+						tagsMap[tagName] = mqtt.TagMetric{
+							Value:   math.Round(val*10) / 10,
+							Raw:     rawVal,
+							Unit:    unit,
+							Role:    "SV",
+							Quality: 192,
+						}
+					}
 				}
 			}
 
-			// Read Active Function 713 (Fill Level: Target Fill Volume)
-			f713Vals, _, errF713 := tcpClient.ReadActiveFunction(713)
-			if errF713 == nil && len(f713Vals) >= 2 {
-				if f713Vals[1] > 0 {
-					levelSP = float64(f713Vals[1])
+			// ==========================================
+			// 3. OBJECT 6: Active Step Recipe Function (SV)
+			// ==========================================
+			if cfg.PilotMachine.Objects.EnableFunction6 {
+				// Func 141: Temperature Control (Target Temp, Gradient, Holding Time)
+				if f141Vals, _, err := tcpClient.ReadActiveFunction(141); err == nil && len(f141Vals) >= 3 {
+					if f141Vals[0] > 0 {
+						tagsMap[fmt.Sprintf("SMM.%s.MAIN_TANK.TEMPERATURE_SV", cfg.PilotMachine.AssetID)] = mqtt.TagMetric{
+							Value:   math.Round(float64(f141Vals[0])*10) / 10,
+							Raw:     f141Vals[0],
+							Unit:    "°C",
+							Role:    "SV",
+							Quality: 192,
+						}
+					}
+					if f141Vals[1] >= 0 {
+						tagsMap[fmt.Sprintf("SMM.%s.PROCESS.GRADIENT_SV", cfg.PilotMachine.AssetID)] = mqtt.TagMetric{
+							Value:   math.Round(float64(f141Vals[1])*10) / 10,
+							Raw:     f141Vals[1],
+							Unit:    "°C/min",
+							Role:    "SV",
+							Quality: 192,
+						}
+					}
+					if f141Vals[2] > 0 {
+						tagsMap[fmt.Sprintf("SMM.%s.PROCESS.HOLDING_TIME_SV", cfg.PilotMachine.AssetID)] = mqtt.TagMetric{
+							Value:   math.Round(float64(f141Vals[2])*10) / 10,
+							Raw:     f141Vals[2],
+							Unit:    "min",
+							Role:    "SV",
+							Quality: 192,
+						}
+					}
+				}
+
+				// Func 713: Fill Level
+				if f713Vals, _, err := tcpClient.ReadActiveFunction(713); err == nil && len(f713Vals) >= 2 {
+					if f713Vals[1] > 0 {
+						tagsMap[fmt.Sprintf("SMM.%s.MAIN_TANK.FILL_VOLUME_SV", cfg.PilotMachine.AssetID)] = mqtt.TagMetric{
+							Value:   float64(f713Vals[1]),
+							Raw:     f713Vals[1],
+							Unit:    "L",
+							Role:    "SV",
+							Quality: 192,
+						}
+					}
 				}
 			}
 
-			// Register SV Setpoint Tags into Telemetry and SCADA
-			svItems := []struct {
-				TagName string
-				Value   float64
-				Unit    string
-				Raw     uint16
-				Role    string
-				Field   string
-				Note    string
-			}{
-				{
-					TagName: fmt.Sprintf("SMM.%s.MAIN_TANK.TEMPERATURE_SV", cfg.PilotMachine.AssetID),
-					Value:   math.Round(tempSP*10) / 10,
-					Unit:    "°C",
-					Raw:     uint16(tempSP * 10),
-					Role:    "SV",
-					Field:   "temp_setpoint",
-					Note:    "Target Temperature Setpoint (Obj 1009 / Func 141)",
-				},
-				{
-					TagName: fmt.Sprintf("SMM.%s.MAIN_TANK.LEVEL_SV", cfg.PilotMachine.AssetID),
-					Value:   levelSP,
-					Unit:    "L",
-					Raw:     uint16(levelSP),
-					Role:    "SV",
-					Field:   "level_setpoint",
-					Note:    "Target Fill Volume / Level Setpoint (Obj 1009 / Func 713)",
-				},
-				{
-					TagName: fmt.Sprintf("SMM.%s.MAIN_MOTOR.SPEED_SV", cfg.PilotMachine.AssetID),
-					Value:   speedSP,
-					Unit:    "%",
-					Raw:     uint16(speedSP * 10),
-					Role:    "SV",
-					Field:   "speed_setpoint",
-					Note:    "Target Pump / Winch Speed Setpoint (Obj 1009)",
-				},
-				{
-					TagName: fmt.Sprintf("SMM.%s.PROCESS.HOLDING_TIME_SV", cfg.PilotMachine.AssetID),
-					Value:   holdingTimeSP,
-					Unit:    "min",
-					Raw:     uint16(holdingTimeSP),
-					Role:    "SV",
-					Field:   "holding_time_setpoint",
-					Note:    "Target Holding Time Setpoint (Func 141 P3)",
-				},
-				{
-					TagName: fmt.Sprintf("SMM.%s.PROCESS.GRADIENT_SV", cfg.PilotMachine.AssetID),
-					Value:   gradientSP,
-					Unit:    "°C/min",
-					Raw:     uint16(gradientSP * 10),
-					Role:    "SV",
-					Field:   "gradient_setpoint",
-					Note:    "Target Temperature Gradient Setpoint (Func 141 P2)",
-				},
+			// ==========================================
+			// 4. OBJECT 1010: Loop Control Actuals (PV)
+			// ==========================================
+			if cfg.PilotMachine.Objects.EnableACT1010 {
+				if actWords, err := tcpClient.ReadACTBlock(1, 20); err == nil {
+					for offset, rawVal := range actWords {
+						idx := offset + 1
+						tagName := fmt.Sprintf("SMM.%s.PID_LOOP.ACT_%d_PV", cfg.PilotMachine.AssetID, idx)
+						tagsMap[tagName] = mqtt.TagMetric{
+							Value:   float64(rawVal),
+							Raw:     rawVal,
+							Unit:    "raw",
+							Role:    "PV",
+							Quality: 192,
+						}
+					}
+				}
 			}
 
-			for _, sv := range svItems {
-				tagsMap[sv.TagName] = mqtt.TagMetric{
-					Value:   sv.Value,
-					Raw:     sv.Raw,
-					Unit:    sv.Unit,
-					Role:    sv.Role,
-					Quality: 192,
+			// ==========================================
+			// 5. OBJECT 1035: Batch Consumption Counters (TOTALIZER)
+			// ==========================================
+			if cfg.PilotMachine.Objects.EnableBATCH1035 {
+				if dwords, _, err := tcpClient.ReadDWordBlock(1035, 1, 10); err == nil && len(dwords) >= 4 {
+					tagsMap[fmt.Sprintf("SMM.%s.CONSUMPTION.WATER_L", cfg.PilotMachine.AssetID)] = mqtt.TagMetric{
+						Value:   float64(dwords[0]),
+						Raw:     dwords[0],
+						Unit:    "L",
+						Role:    "TOTALIZER",
+						Quality: 192,
+					}
+					tagsMap[fmt.Sprintf("SMM.%s.CONSUMPTION.CYCLE_COUNT", cfg.PilotMachine.AssetID)] = mqtt.TagMetric{
+						Value:   float64(dwords[1]),
+						Raw:     dwords[1],
+						Unit:    "cycle",
+						Role:    "TOTALIZER",
+						Quality: 192,
+					}
+					tagsMap[fmt.Sprintf("SMM.%s.CONSUMPTION.STEAM_KG", cfg.PilotMachine.AssetID)] = mqtt.TagMetric{
+						Value:   float64(dwords[2]),
+						Raw:     dwords[2],
+						Unit:    "kg",
+						Role:    "TOTALIZER",
+						Quality: 192,
+					}
+					tagsMap[fmt.Sprintf("SMM.%s.CONSUMPTION.POWER_KWH", cfg.PilotMachine.AssetID)] = mqtt.TagMetric{
+						Value:   float64(dwords[3]),
+						Raw:     dwords[3],
+						Unit:    "kWh",
+						Role:    "TOTALIZER",
+						Quality: 192,
+					}
+					if len(dwords) >= 6 && dwords[5] > 0 {
+						tagsMap[fmt.Sprintf("SMM.%s.CONSUMPTION.RUN_TIME_SEC", cfg.PilotMachine.AssetID)] = mqtt.TagMetric{
+							Value:   float64(dwords[5]),
+							Raw:     dwords[5],
+							Unit:    "s",
+							Role:    "TOTALIZER",
+							Quality: 192,
+						}
+					}
 				}
-				jsonTelemetry[sv.TagName] = map[string]interface{}{
-					"value":      sv.Value,
-					"raw":        sv.Raw,
-					"unit":       sv.Unit,
-					"role":       sv.Role,
-					"quality":    192,
-					"field_name": sv.Field,
-					"notes":      sv.Note,
-				}
-				tagRecords = append(tagRecords, storage.TagValueRecord{
-					TagName:   sv.TagName,
-					Value:     sv.Value,
-					Raw:       sv.Raw,
-					Unit:      sv.Unit,
-					Role:      sv.Role,
-					Quality:   192,
-					Timestamp: now,
-				})
 			}
 
-			// 1. Publish to EMQX MQTT Broker
+			// ==========================================
+			// Publish Telemetry Payload to EMQX MQTT
+			// ==========================================
 			telPayload := mqtt.TelemetryPayload{
 				Timestamp: now,
 				AssetID:   cfg.PilotMachine.AssetID,
@@ -402,25 +386,13 @@ func main() {
 				logger.Warn("Failed to publish telemetry to EMQX", "error", err)
 			}
 
-			// 2. Persist to PostgreSQL (pt_smm_jetflow & pt_smm_scada)
-			_ = pgWriter.WriteLiveTelemetry(
-				ctx,
-				cfg.PilotMachine.MachineID,
-				cfg.PilotMachine.AssetID,
-				bNo, sNo, pNo,
-				rawFrame,
-				jsonTelemetry,
-				tagRecords,
-				currentTemp,
-			)
-
-			// Log every 10 cycles (~20s)
+			// Log periodic summary every 10 cycles (~20s)
 			if cycleCount%10 == 1 {
-				logger.Info("Telemetry cycle ok",
+				logger.Info("Multi-object cycle published to EMQX",
 					"cycle", cycleCount,
 					"batch", bNo,
 					"step", sNo,
-					"temp_pv", fmt.Sprintf("%.1f°C", currentTemp),
+					"temp_pv", fmt.Sprintf("%.1f°C", currentTempPV),
 					"total_tags", len(tagsMap),
 					"mqtt_topic", telemetryTopic,
 				)
@@ -430,7 +402,6 @@ func main() {
 }
 
 func init() {
-	// Handle OS Signals for clean exit
 	sigChan := make(chan os.Signal, 1)
 	signal.Notify(sigChan, os.Interrupt, syscall.SIGTERM)
 	go func() {

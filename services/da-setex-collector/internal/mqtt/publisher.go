@@ -16,20 +16,20 @@ type Publisher struct {
 
 type TagMetric struct {
 	Value   float64 `json:"value"`
-	Raw     uint16  `json:"raw"`
+	Raw     any     `json:"raw"`
 	Unit    string  `json:"unit"`
-	Role    string  `json:"role"`
+	Role    string  `json:"role"` // "PV", "SV", "TOTALIZER"
 	Quality int     `json:"quality"`
 }
 
 type TelemetryPayload struct {
-	Timestamp time.Time             `json:"timestamp"`
-	AssetID   string                `json:"asset_id"`
-	MachineID string                `json:"machine_id"`
-	BatchNo   string                `json:"batch_no,omitempty"`
-	StepNo    int                   `json:"step_no,omitempty"`
-	ProgramNo string                `json:"program_no,omitempty"`
-	Tags      map[string]TagMetric  `json:"tags"`
+	Timestamp time.Time            `json:"timestamp"`
+	AssetID   string               `json:"asset_id"`
+	MachineID string               `json:"machine_id"`
+	BatchNo   string               `json:"batch_no,omitempty"`
+	StepNo    int                  `json:"step_no,omitempty"`
+	ProgramNo string               `json:"program_no,omitempty"`
+	Tags      map[string]TagMetric `json:"tags"`
 }
 
 type StatusPayload struct {
@@ -79,7 +79,8 @@ func (p *Publisher) PublishTelemetry(topic string, payload TelemetryPayload) err
 		return fmt.Errorf("marshal telemetry payload: %w", err)
 	}
 
-	token := p.client.Publish(topic, 0, false, bytes)
+	// QoS 1 for reliable delivery to buffer
+	token := p.client.Publish(topic, 1, false, bytes)
 	if token.Wait() && token.Error() != nil {
 		return fmt.Errorf("publish to topic %s: %w", topic, token.Error())
 	}

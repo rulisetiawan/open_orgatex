@@ -8,6 +8,7 @@ from .routes import machines, programs, recipes, planning, logs, third_party_api
 from .services.event_broker import broker
 from .services.intervention_service import InterventionService
 from .services.db_sync_service import DBSyncService
+from .services.background_ingestion_service import BackgroundIngestionService
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -61,9 +62,29 @@ async def lifespan(app: FastAPI):
     except Exception:
         pass
 
+    # Background Periodic Controller Log Ingestion Worker (Delegated to dedicated service: da-batch-worker)
+    ingest_task = None
+    if os.getenv("ENABLE_EMBEDDED_WORKER", "false").lower() in ("true", "1", "yes"):
+        async def periodic_controller_ingestion():
+            await asyncio.sleep(15)
+            while True:
+                try:
+                    await asyncio.to_thread(BackgroundIngestionService.run_cycle)
+                except Exception as e:
+                    print(f"Warning in background controller ingestion: {e}")
+                await asyncio.sleep(60)
+
+        try:
+            ingest_task = asyncio.create_task(periodic_controller_ingestion())
+        except Exception as ie:
+            print(f"Warning starting controller ingestion worker: {ie}")
+
     yield
 
     # Shutdown
+    if ingest_task:
+        ingest_task.cancel()
+
     if sync_task:
         sync_task.cancel()
 

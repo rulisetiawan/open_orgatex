@@ -10,12 +10,6 @@ emqx:
   topic_telemetry_prefix: "smm/jetflow"
   topic_status_prefix: "smm/jetflow"
 
-database:
-  jetflow_url: "postgresql://postgres:sensorSMM!@192.168.100.30:5433/pt_smm_jetflow?sslmode=disable"
-  scada_url: "postgresql://postgres:sensorSMM!@192.168.100.30:5433/pt_smm_scada?sslmode=disable"
-  max_conns: 10
-  min_conns: 2
-
 # Pilot testing configuration for MESIN_10B
 pilot_machine:
   machine_id: "10B"
@@ -25,9 +19,16 @@ pilot_machine:
   ftp_port: 21
   ftp_user: ""
   ftp_password: ""
-  typeconf_json_path: "WORKSPACE_PROGRAM_MESIN/MESIN_10B/02_CONFIG_SIAP_PAKAI/typeconf_iw_map.json"
+  config_base_dir: "WORKSPACE_PROGRAM_MESIN" # Otomatis mencari MESIN_10B/02_CONFIG_SIAP_PAKAI
+  
+  objects:
+    enable_iw_1025: true      # Sensor PV (94 words)
+    enable_set_1009: true     # Recipe Setpoint SV (40 words)
+    enable_act_1010: true     # Loop Actuals PV (20 words)
+    enable_batch_1035: true   # Water/Steam Totalizer (10 DWORDs)
+    enable_function_6: true   # Active Step Function
   
   # Polling Intervals
-  telemetry_interval_sec: 2
+  telemetry_interval_sec: 3
   status_act_interval_sec: 5
   batch_log_interval_sec: 60

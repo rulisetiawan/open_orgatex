@@ -5,13 +5,13 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    image: da-setex-collector:1.0.0
+    image: da-setex-collector:2.0.0
     container_name: da_setex_collector
     restart: always
 
     # Mode Host Network direkomendasikan pada host Linux (DA-SETEX)
-    # agar kontainer dapat langsung mengakses controller SETEX (172.16.x.x),
-    # EMQX broker (192.168.100.30:1883), dan PostgreSQL tanpa latensi NAT docker.
+    # agar kontainer dapat langsung mengakses controller SETEX (172.16.x.x)
+    # dan EMQX broker (192.168.100.30:1883) tanpa latensi NAT docker.
     network_mode: "host"
 
     environment:

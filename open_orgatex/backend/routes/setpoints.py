@@ -62,6 +62,7 @@ def get_broker_diagnostics():
 def get_live_setpoints(
     machine_no: str,
     ip: Optional[str] = Query(None, description="Optional override IP"),
+    all_objects: bool = Query(False, description="Baca seluruh objek controller (SET 1009, ACT 1010, IW 1025, BATCH 1035, FUNC 6)"),
     db: Session = Depends(get_db)
 ):
     """
@@ -71,6 +72,16 @@ def get_live_setpoints(
     m = db.query(Machine).filter(Machine.machine_no == machine_no.upper()).first()
     host = ip or (m.ip_address if m else "172.16.110.101")
     port = (m.tcp_port if m and m.tcp_port else 50000)
+
+    if all_objects:
+        complete_data = SetexTcpClient.read_all_objects_snapshot(host, port, machine_no.upper())
+        return {
+            "status": "success" if complete_data.get("online") else "error",
+            "machine_no": machine_no.upper(),
+            "controller_ip": host,
+            "controller_port": port,
+            **complete_data
+        }
 
     # Acquire snapshot from controller
     snapshot = SetexTcpClient.read_setpoints_snapshot(host, port, machine_no.upper())
@@ -89,6 +100,33 @@ def get_live_setpoints(
         "info_words": snapshot.get("info_words", {}),
         "baseline_comparison": baseline,
         "error": snapshot.get("error")
+    }
+
+@router.get("/{machine_no}/all-objects")
+def get_all_objects_telemetry(
+    machine_no: str,
+    ip: Optional[str] = Query(None, description="Optional override IP"),
+    db: Session = Depends(get_db)
+):
+    """
+    Mengambil data LENGKAP seluruh objek dari Kontroler SETEX (TCP Port 50000):
+    - Objek 1009: SET (Seluruh Setpoint SOLL dari Parameter Kategori 2)
+    - Objek 1010: ACT (Nilai Feedback Loop Aktual IST)
+    - Objek 1025: IW (Telemetri Sensor Proses Kategori 10)
+    - Objek 1035: BATCH (Akumulasi Konsumsi Air & Energi DWORD)
+    - Objek 6: FUNCTION (Resep Langkah Proses Celup yang sedang aktif)
+    """
+    m = db.query(Machine).filter(Machine.machine_no == machine_no.upper()).first()
+    host = ip or (m.ip_address if m else "172.16.110.101")
+    port = (m.tcp_port if m and m.tcp_port else 50000)
+
+    res = SetexTcpClient.read_all_objects_snapshot(host, port, machine_no.upper())
+    return {
+        "status": "success" if res.get("online") else "error",
+        "machine_no": machine_no.upper(),
+        "controller_ip": host,
+        "controller_port": port,
+        **res
     }
 
 @router.get("/{machine_no}/interventions")

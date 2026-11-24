@@ -13,6 +13,10 @@ services:
       - OFFLINE_MODE=false
       - DATABASE_URL=postgresql+psycopg2://postgres:sensorSMM!@192.168.100.30:5433/pt_smm_jetflow
       - WRITE_MODE_ENABLED=false
+      - EMQX_HOST=192.168.100.30
+      - EMQX_PORT=1883
+      - EMQX_USER=admin
+      - EMQX_PASS=sensorSMM!
     volumes:
       - ./backend:/app/open_orgatex/backend
       - ../OrgaTex_Share:/app/OrgaTex_Share

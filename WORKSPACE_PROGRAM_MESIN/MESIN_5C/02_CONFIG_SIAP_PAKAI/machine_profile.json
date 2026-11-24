@@ -6,7 +6,7 @@
   "has_custom_hmi_config": true,
   "status": "ready",
   "ip_address": "172.16.130.105",
-  "last_synced_at": "2026-11-17T08:58:24.578952",
+  "last_synced_at": "2026-11-24T08:18:58.014278",
   "files_in_hmi_dir": [
     "CONFTEXT.CNF",
     "FNLEGEND.CNF",
@@ -14,5 +14,14 @@
     "PETUNJUK_DOWNLOAD_DARI_HMI.txt",
     "TYPECONF.CNF",
     "TYPECONT.CNF"
-  ]
+  ],
+  "asset_id": "JF-LC-05",
+  "has_cp14_awl": true,
+  "cp14_sha256": "b6e60d6fb5878f7323e0965a4d0e7bd5f415010199907323ebc95b95913457cc",
+  "cp14_size_bytes": 353954,
+  "has_typeconf": true,
+  "typeconf_sha256": "2936ceff7a238bfff4b9512ca602d9cc85f132086d279674311432f424bd9f57",
+  "registers_count": 93,
+  "setpoints_count": 4,
+  "actuals_count": 53
 }

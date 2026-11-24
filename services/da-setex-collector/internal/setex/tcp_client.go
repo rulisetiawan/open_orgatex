@@ -140,9 +140,46 @@ func (c *TCPClient) ReadBlock(obj uint16, startAddress uint16, count uint16) ([]
 	return words, resp, nil
 }
 
+// ReadDWordBlock reads a block of 32-bit DWORD registers (e.g. Object 1035 Batch Consumption Totalizer).
+func (c *TCPClient) ReadDWordBlock(obj uint16, startAddress uint16, count uint16) ([]uint32, []byte, error) {
+	if count < 1 || count > 120 {
+		return nil, nil, fmt.Errorf("count must be between 1 and 120 (requested %d)", count)
+	}
+
+	req := BuildReadFrame(11, obj, startAddress, count)
+	resp, err := c.Exchange(req)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	size, err := ValidateFrame(resp, 11, obj)
+	if err != nil {
+		return nil, resp, err
+	}
+
+	expectedBytes := int(count) * 4
+	if size != expectedBytes {
+		return nil, resp, fmt.Errorf("payload size mismatch: expected %d bytes, got %d", expectedBytes, size)
+	}
+
+	dwords := make([]uint32, count)
+	for i := 0; i < int(count); i++ {
+		offset := 20 + i*4
+		dwords[i] = binary.LittleEndian.Uint32(resp[offset : offset+4])
+	}
+
+	return dwords, resp, nil
+}
+
 // ReadSETBlock reads target setpoint registers (Object 1009 SET/SOLL words).
 func (c *TCPClient) ReadSETBlock(startAddress uint16, count uint16) ([]uint16, error) {
 	words, _, err := c.ReadBlock(1009, startAddress, count)
+	return words, err
+}
+
+// ReadACTBlock reads loop actual PID registers (Object 1010 ACT words).
+func (c *TCPClient) ReadACTBlock(startAddress uint16, count uint16) ([]uint16, error) {
+	words, _, err := c.ReadBlock(1010, startAddress, count)
 	return words, err
 }
 

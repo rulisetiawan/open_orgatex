@@ -1,0 +1,21 @@
+worker:
+  name: "DA-Batch-Worker-24x7"
+  poll_interval_sec: 60
+  max_workers: 2
+  socket_timeout_sec: 0.35
+  log_level: "INFO"
+  # Target mesin pilot saat ini: hanya 10B
+  # Jika ingin memproses semua mesin nanti, ubah menjadi [] atau komentari baris ini
+  target_machines:
+    - "10B"
+
+emqx:
+  host: "192.168.100.30"
+  port: 1883
+  username: "admin"
+  password: "sensorSMM!"
+  client_id_prefix: "da_batch_worker"
+
+database:
+  # Digunakan HANYA untuk query info IP mesin (read-only)
+  url: "postgresql://postgres:sensorSMM!@192.168.100.30:5433/pt_smm_jetflow"

@@ -6,7 +6,7 @@
   "has_custom_hmi_config": true,
   "status": "ready",
   "ip_address": "172.16.130.162",
-  "last_synced_at": "2026-11-17T08:58:25.173346",
+  "last_synced_at": "2026-11-24T08:18:35.186416",
   "files_in_hmi_dir": [
     "CONFTEXT.CNF",
     "FNLEGEND.CNF",
@@ -14,5 +14,14 @@
     "PETUNJUK_DOWNLOAD_DARI_HMI.txt",
     "TYPECONF.CNF",
     "TYPECONT.CNF"
-  ]
+  ],
+  "asset_id": "JF-LD-12",
+  "has_cp14_awl": true,
+  "cp14_sha256": "a6bb00e889d04dc08a393261866fee4eee457058bb236b111885a244673d7d37",
+  "cp14_size_bytes": 354202,
+  "has_typeconf": true,
+  "typeconf_sha256": "2936ceff7a238bfff4b9512ca602d9cc85f132086d279674311432f424bd9f57",
+  "registers_count": 93,
+  "setpoints_count": 4,
+  "actuals_count": 53
 }

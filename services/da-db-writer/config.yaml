@@ -1,0 +1,19 @@
+writer:
+  name: "DA-DB-Writer-Service"
+  log_level: "info"
+  batch_flush_interval_ms: 1000
+  batch_max_size: 200
+
+emqx:
+  broker_url: "tcp://192.168.100.30:1883"
+  client_id: "da_db_writer"
+  username: "admin"
+  password: "sensorSMM!"
+  shared_group: "db_writers"
+  topic_filter: "smm/jetflow/#"
+
+database:
+  jetflow_url: "postgresql://postgres:sensorSMM!@192.168.100.30:5433/pt_smm_jetflow?sslmode=disable"
+  scada_url: "postgresql://postgres:sensorSMM!@192.168.100.30:5433/pt_smm_scada?sslmode=disable"
+  max_conns: 15
+  min_conns: 3

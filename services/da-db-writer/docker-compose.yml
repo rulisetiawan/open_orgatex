@@ -1,0 +1,37 @@
+version: '3.8'
+
+services:
+  da-db-writer:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: da-db-writer:1.0.0
+    container_name: da_db_writer
+    restart: always
+
+    # Mode Host Network direkomendasikan pada host Linux
+    # agar kontainer dapat langsung mengakses EMQX broker (192.168.100.30:1883)
+    # dan database PostgreSQL (192.168.100.30:5433) tanpa latensi NAT docker.
+    network_mode: "host"
+
+    environment:
+      - TZ=Asia/Jakarta
+      - CONFIG_PATH=/app/config.yaml
+
+    volumes:
+      - ./config.yaml:/app/config.yaml:ro
+
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'        # Maksimal 1 Core CPU (service Go sangat efisien < 5% CPU)
+          memory: 256M       # Maksimal 256 MB RAM (penggunaan aktual Go ~25MB)
+        reservations:
+          cpus: '0.1'
+          memory: 64M
+
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "20m"      # Batas rotasi log per file
+        max-file: "5"        # Maksimal 5 file log disimpan

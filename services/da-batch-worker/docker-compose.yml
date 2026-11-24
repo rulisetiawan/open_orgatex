@@ -1,0 +1,44 @@
+version: '3.8'
+
+services:
+  da-batch-worker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: da-batch-worker:1.0.0
+    container_name: da_batch_worker
+    restart: always
+
+    # Mode Host Network direkomendasikan pada host Linux
+    # agar kontainer dapat langsung mengakses controller SETEX via FTP (172.16.x.x:21)
+    # dan EMQX broker (192.168.100.30:1883) tanpa overhead NAT docker.
+    network_mode: "host"
+
+    environment:
+      - TZ=Asia/Jakarta
+      - CONFIG_PATH=/app/config.yaml
+      - POLL_INTERVAL_SEC=60
+      - MAX_WORKERS=2
+      - TARGET_MACHINES=10B      # Pilot testing saat ini: hanya 10B
+      - EMQX_HOST=192.168.100.30
+      - EMQX_PORT=1883
+      - DATABASE_URL=postgresql://postgres:sensorSMM!@192.168.100.30:5433/pt_smm_jetflow
+
+    volumes:
+      - ./config.yaml:/app/config.yaml:ro
+      - ../../WORKSPACE_PROGRAM_MESIN:/app/WORKSPACE_PROGRAM_MESIN:ro
+
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'        # Maksimal 1 Core CPU
+          memory: 512M       # Maksimal 512 MB RAM
+        reservations:
+          cpus: '0.1'
+          memory: 128M
+
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "20m"      # Batas rotasi log per file
+        max-file: "5"        # Maksimal 5 file log disimpan

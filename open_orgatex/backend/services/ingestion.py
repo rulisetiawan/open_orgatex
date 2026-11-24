@@ -16,6 +16,7 @@ from sqlalchemy.dialects.postgresql import insert
 from .reader import SetexFolderReader
 from .event_broker import broker
 from .setex_tcp_client import SetexTcpClient
+from .mqtt_service import forward_batch_curve, forward_machine_status, forward_alarms
 from .. import database
 from ..models.schema_pg import Machine, BatchHeader, DatalogCyclicRecord, DatalogAlarm, OperatorIntervention
 
@@ -282,6 +283,22 @@ class LogIngestionService:
                 if needs_update:
                     db.commit()
 
+            # 4.1 Forward Decoded State & Curve to EMQX MQTT Broker
+            asset_code = getattr(machine, "asset_id", None)
+            if not asset_code:
+                m_digits = re.sub(r'[^0-9]', '', machine.machine_no or '')
+                if m_digits:
+                    asset_code = f"JF-LB-{int(m_digits):02d}" if int(m_digits) < 10 else f"JF-LB-{m_digits}"
+                else:
+                    asset_code = f"JF-LB-{machine.machine_no}"
+
+            # Publish Status, Curve, and Alarms to EMQX Message Broker
+            forward_machine_status(asset_code, machine.machine_no, machine.status, batch_no, live_step, real_prog_no)
+            if unique_telemetry:
+                forward_batch_curve(asset_code, machine.machine_no, batch_no, unique_telemetry)
+            if alarm_history:
+                forward_alarms(asset_code, machine.machine_no, alarm_history)
+
             # 4.2 Bulk Upsert Telemetry Records with ON CONFLICT DO NOTHING
             if unique_telemetry:
                 insert_rows = []
@@ -303,21 +320,32 @@ class LogIngestionService:
                         pass
 
                 if insert_rows:
-                    t_stmt = insert(DatalogCyclicRecord).values(insert_rows)
-                    t_stmt = t_stmt.on_conflict_do_update(
-                        index_elements=['log_timestamp', 'machine_no', 'batch_ref_no'],
-                        set_={
-                            'temp_pv': t_stmt.excluded.temp_pv,
-                            'temp_sp': t_stmt.excluded.temp_sp,
-                            'temp_pt100_t2': t_stmt.excluded.temp_pt100_t2,
-                            'pump_speed_percent': t_stmt.excluded.pump_speed_percent,
-                            'reel_speed_mpm': t_stmt.excluded.reel_speed_mpm,
-                            'step_no': t_stmt.excluded.step_no
-                        }
-                    )
-                    db.execute(t_stmt)
+                    # Deduplicate rows by unique constraint to avoid PostgreSQL ON CONFLICT error
+                    dedup_records = {}
+                    for row in insert_rows:
+                        key = (row["log_timestamp"], row["machine_no"], row["batch_ref_no"])
+                        dedup_records[key] = row
+                    clean_rows = list(dedup_records.values())
+
+                    # Chunk in batches of 200 to prevent query parameter limits
+                    chunk_size = 200
+                    for c_idx in range(0, len(clean_rows), chunk_size):
+                        chunk = clean_rows[c_idx:c_idx + chunk_size]
+                        t_stmt = insert(DatalogCyclicRecord).values(chunk)
+                        t_stmt = t_stmt.on_conflict_do_update(
+                            index_elements=['log_timestamp', 'machine_no', 'batch_ref_no'],
+                            set_={
+                                'temp_pv': t_stmt.excluded.temp_pv,
+                                'temp_sp': t_stmt.excluded.temp_sp,
+                                'temp_pt100_t2': t_stmt.excluded.temp_pt100_t2,
+                                'pump_speed_percent': t_stmt.excluded.pump_speed_percent,
+                                'reel_speed_mpm': t_stmt.excluded.reel_speed_mpm,
+                                'step_no': t_stmt.excluded.step_no
+                            }
+                        )
+                        db.execute(t_stmt)
                     db.commit()
-                    points_inserted = len(insert_rows)
+                    points_inserted = len(clean_rows)
 
             # 4.3 Bulk Upsert Alarms with ON CONFLICT DO NOTHING
             if alarm_history:
@@ -338,13 +366,23 @@ class LogIngestionService:
                         pass
 
                 if alarm_rows:
-                    a_stmt = insert(DatalogAlarm).values(alarm_rows)
-                    a_stmt = a_stmt.on_conflict_do_nothing(
-                        index_elements=['machine_no', 'batch_ref_no', 'alarm_timestamp', 'alarm_code']
-                    )
-                    db.execute(a_stmt)
+                    # Deduplicate alarm rows by constraint
+                    dedup_alarms = {}
+                    for a_row in alarm_rows:
+                        a_key = (a_row["machine_no"], a_row["batch_ref_no"], a_row["alarm_timestamp"], a_row["alarm_code"])
+                        dedup_alarms[a_key] = a_row
+                    clean_alarms = list(dedup_alarms.values())
+
+                    chunk_size = 200
+                    for c_idx in range(0, len(clean_alarms), chunk_size):
+                        a_chunk = clean_alarms[c_idx:c_idx + chunk_size]
+                        a_stmt = insert(DatalogAlarm).values(a_chunk)
+                        a_stmt = a_stmt.on_conflict_do_nothing(
+                            index_elements=['machine_no', 'batch_ref_no', 'alarm_timestamp', 'alarm_code']
+                        )
+                        db.execute(a_stmt)
                     db.commit()
-                    alarms_inserted = len(alarm_rows)
+                    alarms_inserted = len(clean_alarms)
 
                     # Check for operator intervention alarms and notify Message Broker
                     for al in alarm_history:

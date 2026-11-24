@@ -437,3 +437,175 @@ class SetexTcpClient:
         if frame[14] != 2:
             raise ConnectionError(f"Controller rejected request (type={frame[14]}). Check controller status.")
         return size
+
+    @classmethod
+    def read_all_objects_snapshot(cls, host: str, port: int = 50000, machine_no: str = "", timeout: float = 2.5) -> Dict[str, Any]:
+        """
+        Universal multi-object reader that polls and decodes ALL controller objects:
+        - Object 1009 (SET / SOLL - All Setpoints from Category 2 parameters)
+        - Object 1010 (ACT / IST - Controller loop actual feedback)
+        - Object 1025 (IW / Info Words - Process telemetry from Category 10)
+        - Object 1035 (Batch Consumption DWORD counters)
+        - Object 6 (Active Step Function parameters: 141, 713, 71)
+        """
+        import json
+        clean_mach = machine_no.upper().replace("MESIN_", "")
+        folder_name = f"MESIN_{clean_mach}"
+        base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../WORKSPACE_PROGRAM_MESIN"))
+        
+        # Load parameters metadata (Category 2)
+        tf_path = os.path.join(base_dir, folder_name, "02_CONFIG_SIAP_PAKAI", "typeconf_functions.json")
+        params_meta = {}
+        if os.path.exists(tf_path):
+            try:
+                with open(tf_path, "r", encoding="utf-8") as f:
+                    params_meta = json.load(f).get("parameters", {})
+            except Exception:
+                pass
+
+        # Load IW metadata (Category 10)
+        from .typeconf_iw_service import TypeconfIwService
+        iw_catalog = TypeconfIwService.get_machine_iw_map(clean_mach)
+
+        result = {
+            "machine_no": clean_mach,
+            "host": host,
+            "port": port,
+            "online": False,
+            "objects": {},
+            "summary": {}
+        }
+
+        # 1. SET (Object 1009 - Target / SOLL)
+        try:
+            set_words = cls.read_block(host, port, 1009, 1, 40, timeout=timeout)
+            result["online"] = True
+            decoded_set = []
+            for i, raw in enumerate(set_words, 1):
+                meta = params_meta.get(str(i), {})
+                factor = meta.get("scale", {}).get("factor", 1.0) or 1.0
+                val = round(raw / factor, 2) if factor > 0 else raw
+                if raw != 0 or i in [1, 2, 3, 4, 5, 9, 73, 83]:
+                    decoded_set.append({
+                        "address": i,
+                        "name": meta.get("name", f"SET_{i}"),
+                        "name_local": meta.get("name_local", ""),
+                        "unit": meta.get("unit", ""),
+                        "raw": raw,
+                        "calibrated_value": val,
+                        "role": "SV",
+                        "data_type": "SETPOINT"
+                    })
+            result["objects"]["SET_1009"] = {
+                "name": "SET (SOLL - Setpoint Target)",
+                "role": "SV",
+                "total_read": len(set_words),
+                "registers": decoded_set
+            }
+        except Exception as e:
+            result["objects"]["SET_1009"] = {"error": str(e)}
+
+        # 2. ACT (Object 1010 - Actuals / IST)
+        try:
+            act_words = cls.read_block(host, port, 1010, 1, 20, timeout=timeout)
+            result["online"] = True
+            decoded_act = []
+            for i, raw in enumerate(act_words, 1):
+                if raw != 0:
+                    decoded_act.append({
+                        "address": i,
+                        "raw": raw,
+                        "role": "PV",
+                        "data_type": "ACTUAL"
+                    })
+            result["objects"]["ACT_1010"] = {
+                "name": "ACT (IST - Loop Actuals)",
+                "role": "PV",
+                "total_read": len(act_words),
+                "registers": decoded_act
+            }
+        except Exception as e:
+            result["objects"]["ACT_1010"] = {"error": str(e)}
+
+        # 3. IW (Object 1025 - Info Words Telemetry)
+        try:
+            iw_words = cls.read_block(host, port, 1025, 1, 80, timeout=timeout)
+            result["online"] = True
+            decoded_iw = []
+            for i, raw in enumerate(iw_words, 1):
+                meta = iw_catalog.get(str(i), {})
+                conv = TypeconfIwService.convert_register(clean_mach, i, raw)
+                if raw != 0 or i in [1, 2, 10, 11, 12, 13, 15, 16, 21, 22]:
+                    decoded_iw.append({
+                        "address": i,
+                        "name": meta.get("name", f"IW_{i}"),
+                        "name_local": meta.get("name_local", ""),
+                        "unit": conv.get("unit", ""),
+                        "raw": raw,
+                        "calibrated_value": conv.get("conv_val", raw),
+                        "role": meta.get("tag_role", "PV"),
+                        "data_type": meta.get("data_type", "ACTUAL")
+                    })
+            result["objects"]["IW_1025"] = {
+                "name": "IW (Info Words Telemetry)",
+                "role": "PV / Telemetry",
+                "total_read": len(iw_words),
+                "registers": decoded_iw
+            }
+        except Exception as e:
+            result["objects"]["IW_1025"] = {"error": str(e)}
+
+        # 4. BATCH (Object 1035 - Batch Consumption DWORD 32-bit)
+        try:
+            batch_words = cls.read_block(host, port, 1035, 1, 10, timeout=timeout)
+            result["online"] = True
+            result["objects"]["BATCH_1035"] = {
+                "name": "BATCH_CONSUMPTION (DWORD 32-bit)",
+                "role": "COUNTER",
+                "counters": {f"Counter_{i}": v for i, v in enumerate(batch_words, 1) if v != 0}
+            }
+        except Exception as e:
+            result["objects"]["BATCH_1035"] = {"error": str(e)}
+
+        # 5. FUNCTION_6 (Active Step Functions: 141, 713, 71)
+        active_funcs = {}
+        for fid in [141, 713, 71]:
+            try:
+                fdata = cls.read_active_function(host, port, fid, timeout=timeout)
+                if fdata.get("parameters"):
+                    active_funcs[f"Function_{fid}"] = fdata
+                    result["online"] = True
+            except Exception:
+                pass
+        result["objects"]["FUNCTION_6"] = {
+            "name": "ACTIVE_FUNCTIONS (Step Recipe Parameters)",
+            "role": "RECIPE_SV",
+            "functions": active_funcs
+        }
+
+        # Build High-level Summary
+        temp_pv = None
+        temp_sv = None
+        if "IW_1025" in result["objects"] and "registers" in result["objects"]["IW_1025"]:
+            for r in result["objects"]["IW_1025"]["registers"]:
+                if r["address"] == 1:
+                    temp_pv = r["calibrated_value"]
+                elif r["address"] == 10 and r["calibrated_value"] > 0:
+                    temp_sv = r["calibrated_value"]
+
+        fill_sv = None
+        if "SET_1009" in result["objects"] and "registers" in result["objects"]["SET_1009"]:
+            for r in result["objects"]["SET_1009"]["registers"]:
+                if r["address"] == 9:
+                    fill_sv = r["calibrated_value"]
+                elif r["address"] == 3 and temp_sv is None and r["calibrated_value"] > 0:
+                    temp_sv = r["calibrated_value"]
+
+        result["summary"] = {
+            "act_temp_pv": temp_pv,
+            "set_temp_sv": temp_sv,
+            "fill_quantity_sv_l": fill_sv,
+            "total_objects_captured": len(result["objects"])
+        }
+
+        return result
