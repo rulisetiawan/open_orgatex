@@ -153,10 +153,13 @@ const Logs = ({ defaultTab = 'active' }) => {
   const [archiveSearch, setArchiveSearch] = useState('');
   const [archiveFilterMach, setArchiveFilterMach] = useState('SEMUA');
 
-  // State Live Register IW (Info Words - Object 1025 via Port 50000)
+  // State Live Register & Multi-Object Inspector (Port 50000)
   const [showIwModal, setShowIwModal] = useState(false);
   const [iwLoading, setIwLoading] = useState(false);
   const [iwDetail, setIwDetail] = useState(null);
+  const [iwActiveTab, setIwActiveTab] = useState('1025_iw'); // 'overview', '1025_iw', '1009_set', '1010_act', '6_func', '1035_batch'
+  const [iwShowAllRegisters, setIwShowAllRegisters] = useState(false);
+  const [iwSearchFilter, setIwSearchFilter] = useState('');
   const [selectedArchiveBatch, setSelectedArchiveBatch] = useState(null);
   const [archiveDetailLoading, setArchiveDetailLoading] = useState(false);
 

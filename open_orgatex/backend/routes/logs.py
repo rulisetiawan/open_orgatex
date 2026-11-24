@@ -636,16 +636,28 @@ def get_recorded_interventions(
 def get_live_machine_iw(
     machine_no: str,
     ip: Optional[str] = Query(None, description="Optional override IP"),
-    count: int = Query(default=80, le=240, description="Jumlah register IW (1..240)"),
+    count: int = Query(default=200, le=240, description="Jumlah register IW (1..240)"),
+    all_objects: bool = Query(default=True, description="Ambil seluruh objek kontroler (1025 IW, 1009 SET, 1010 ACT, 1035 BATCH, Objek 6 FUNCTION)"),
     db: Session = Depends(get_db)
 ):
     """
-    Mengambil data live register IW (Info Words / Objek 1025) langsung dari Controller SETEX via TCP Port 50000.
+    Mengambil data live register IW (Info Words / Objek 1025) serta seluruh objek kontroler
+    (SET 1009, ACT 1010, BATCH 1035, FUNCTION 6) langsung dari Controller SETEX via TCP Port 50000.
     """
     mach_clean = machine_no.upper()
     m = db.query(Machine).filter(Machine.machine_no == mach_clean).first()
     host = ip or (m.ip_address if m else "172.16.110.101")
     port = (m.tcp_port if m and m.tcp_port else 50000)
+
+    if all_objects:
+        complete_data = SetexTcpClient.read_all_objects_snapshot(host, port, machine_no=mach_clean, timeout=2.5)
+        return {
+            "status": "success" if complete_data.get("online") else "error",
+            "machine_no": mach_clean,
+            "controller_ip": host,
+            "controller_port": port,
+            **complete_data
+        }
 
     iw_data = SetexTcpClient.read_iw_telemetry(host, port, count=count, machine_no=mach_clean, timeout=2.5)
     return {

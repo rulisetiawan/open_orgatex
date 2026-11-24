@@ -303,10 +303,11 @@ class SetexTcpClient:
         return snapshot
 
     @classmethod
-    def read_iw_telemetry(cls, host: str, port: int = 50000, count: int = 80, machine_no: str = "", timeout: float = 1.5) -> Dict[str, Any]:
+    def read_iw_telemetry(cls, host: str, port: int = 50000, count: int = 200, machine_no: str = "", timeout: float = 1.5) -> Dict[str, Any]:
         """
         Reads live IW (Object 1025 / Info Words) directly from SETEX Controller TCP Port 50000.
         Decodes operational registers using each machine's specific TYPECONF.CNF configuration and linear calibration.
+        Supports reading up to 240 registers in a single block request.
         """
         try:
             from .typeconf_iw_service import TypeconfIwService
@@ -323,14 +324,18 @@ class SetexTcpClient:
                     non_zero[f"IW_{reg_num}"] = raw_val
 
             # Key measurements decoded through machine TYPECONF
-            # IW 1: act.Temp.
+            # IW 1: act.Temp. (°C)
             t1 = decoded_registers[0]["conv_val"] if len(decoded_registers) > 0 and 0 <= decoded_registers[0]["conv_val"] <= 150 else None
-            # IW 12: level machine (%) / pump act
+            # IW 12: level machine (%)
             level_act = decoded_registers[11]["conv_val"] if len(decoded_registers) > 11 else None
             # IW 21: speed main pump (%)
-            pump_sp = decoded_registers[20]["conv_val"] if len(decoded_registers) > 20 else None
-            # IW 22: winch speed (m/dak)
+            pump_act = decoded_registers[20]["conv_val"] if len(decoded_registers) > 20 else None
+            # IW 22: winch speed (m/min)
             reel_act = decoded_registers[21]["conv_val"] if len(decoded_registers) > 21 else None
+            # IW 13/15: water meter (L)
+            water_cnt = decoded_registers[12]["conv_val"] if len(decoded_registers) > 12 else (
+                decoded_registers[14]["conv_val"] if len(decoded_registers) > 14 else None
+            )
 
             return {
                 "online": True,
@@ -340,9 +345,10 @@ class SetexTcpClient:
                 "word_count": len(words),
                 "iw_t1_pv": t1,
                 "iw_level_act": level_act,
-                "iw_pump_act": level_act,  # fallback parity
-                "iw_pump_sp": pump_sp,
+                "iw_pump_act": pump_act,
+                "iw_pump_sp": pump_act,  # fallback parity
                 "iw_reel_act": reel_act,
+                "iw_water_counter": water_cnt,
                 "raw_words": words,
                 "decoded_registers": decoded_registers,
                 "non_zero": non_zero
@@ -444,9 +450,10 @@ class SetexTcpClient:
         Universal multi-object reader that polls and decodes ALL controller objects:
         - Object 1009 (SET / SOLL - All Setpoints from Category 2 parameters)
         - Object 1010 (ACT / IST - Controller loop actual feedback)
-        - Object 1025 (IW / Info Words - Process telemetry from Category 10)
+        - Object 1025 (IW / Info Words - Process telemetry from Category 10, up to 200 words)
+        - Object 1026 (IB / Info Bits - Digital status flags)
         - Object 1035 (Batch Consumption DWORD counters)
-        - Object 6 (Active Step Function parameters: 141, 713, 71)
+        - Object 6 (Active Step Function parameters: 141, 713, 71, 85, etc.)
         """
         import json
         clean_mach = machine_no.upper().replace("MESIN_", "")
@@ -473,103 +480,193 @@ class SetexTcpClient:
             "port": port,
             "online": False,
             "objects": {},
-            "summary": {}
+            "summary": {},
+            "raw_words": [],
+            "decoded_registers": [],
+            "non_zero": {},
+            "word_count": 0,
+            "iw_t1_pv": None,
+            "iw_level_act": None,
+            "iw_pump_act": None,
+            "iw_pump_sp": None,
+            "iw_reel_act": None,
+            "iw_water_counter": None
         }
 
-        # 1. SET (Object 1009 - Target / SOLL)
+        # 1. SET (Object 1009 - Target / SOLL Setpoints)
         try:
-            set_words = cls.read_block(host, port, 1009, 1, 40, timeout=timeout)
+            set_words = cls.read_block(host, port, 1009, 1, 60, timeout=timeout)
             result["online"] = True
             decoded_set = []
             for i, raw in enumerate(set_words, 1):
                 meta = params_meta.get(str(i), {})
                 factor = meta.get("scale", {}).get("factor", 1.0) or 1.0
                 val = round(raw / factor, 2) if factor > 0 else raw
-                if raw != 0 or i in [1, 2, 3, 4, 5, 9, 73, 83]:
+                unit = meta.get("unit", "")
+                if raw != 0 or i in [1, 2, 3, 4, 5, 9, 10, 16, 18, 22, 36, 53, 60, 73, 75, 83]:
                     decoded_set.append({
                         "address": i,
                         "name": meta.get("name", f"SET_{i}"),
                         "name_local": meta.get("name_local", ""),
-                        "unit": meta.get("unit", ""),
+                        "unit": unit,
                         "raw": raw,
+                        "hex": f"0x{raw:04X}",
                         "calibrated_value": val,
+                        "formatted": f"{val} {unit}".strip(),
                         "role": "SV",
                         "data_type": "SETPOINT"
                     })
             result["objects"]["SET_1009"] = {
-                "name": "SET (SOLL - Setpoint Target)",
+                "name": "SET (SOLL - Setpoint Target Resep)",
                 "role": "SV",
                 "total_read": len(set_words),
                 "registers": decoded_set
             }
         except Exception as e:
-            result["objects"]["SET_1009"] = {"error": str(e)}
+            result["objects"]["SET_1009"] = {"error": str(e), "total_read": 0, "registers": []}
 
-        # 2. ACT (Object 1010 - Actuals / IST)
+        # 2. ACT (Object 1010 - Actuals / IST Loop Feedback)
         try:
-            act_words = cls.read_block(host, port, 1010, 1, 20, timeout=timeout)
+            act_words = cls.read_block(host, port, 1010, 1, 30, timeout=timeout)
             result["online"] = True
             decoded_act = []
             for i, raw in enumerate(act_words, 1):
                 if raw != 0:
                     decoded_act.append({
                         "address": i,
+                        "name": f"ACT_{i}",
                         "raw": raw,
+                        "hex": f"0x{raw:04X}",
                         "role": "PV",
                         "data_type": "ACTUAL"
                     })
             result["objects"]["ACT_1010"] = {
-                "name": "ACT (IST - Loop Actuals)",
+                "name": "ACT (IST - Loop Actuals Feedback)",
                 "role": "PV",
                 "total_read": len(act_words),
                 "registers": decoded_act
             }
         except Exception as e:
-            result["objects"]["ACT_1010"] = {"error": str(e)}
+            result["objects"]["ACT_1010"] = {"error": str(e), "total_read": 0, "registers": []}
 
-        # 3. IW (Object 1025 - Info Words Telemetry)
+        # 3. IW (Object 1025 - Info Words Telemetry - 200 Words)
         try:
-            iw_words = cls.read_block(host, port, 1025, 1, 80, timeout=timeout)
+            iw_words = cls.read_block(host, port, 1025, 1, 200, timeout=timeout)
             result["online"] = True
+            result["raw_words"] = iw_words
+            result["word_count"] = len(iw_words)
+
             decoded_iw = []
+            non_zero = {}
             for i, raw in enumerate(iw_words, 1):
                 meta = iw_catalog.get(str(i), {})
                 conv = TypeconfIwService.convert_register(clean_mach, i, raw)
-                if raw != 0 or i in [1, 2, 10, 11, 12, 13, 15, 16, 21, 22]:
-                    decoded_iw.append({
-                        "address": i,
-                        "name": meta.get("name", f"IW_{i}"),
-                        "name_local": meta.get("name_local", ""),
-                        "unit": conv.get("unit", ""),
-                        "raw": raw,
-                        "calibrated_value": conv.get("conv_val", raw),
-                        "role": meta.get("tag_role", "PV"),
-                        "data_type": meta.get("data_type", "ACTUAL")
-                    })
+                is_cfg = str(i) in iw_catalog
+                
+                reg_item = {
+                    "address": i,
+                    "index": i,
+                    "name": meta.get("name", conv.get("name", f"IW {i}")),
+                    "name_local": meta.get("name_local", ""),
+                    "unit": conv.get("unit", ""),
+                    "raw": raw,
+                    "raw_val": raw,
+                    "hex": f"0x{raw:04X}",
+                    "calibrated_value": conv.get("conv_val", raw),
+                    "conv_val": conv.get("conv_val", raw),
+                    "formatted": conv.get("formatted", str(raw)),
+                    "role": meta.get("tag_role", "PV"),
+                    "data_type": meta.get("data_type", "ACTUAL"),
+                    "is_configured": is_cfg
+                }
+                decoded_iw.append(reg_item)
+                if raw != 0:
+                    non_zero[f"IW_{i}"] = raw
+
+            result["decoded_registers"] = decoded_iw
+            result["non_zero"] = non_zero
+
+            # Top KPIs
+            if len(decoded_iw) > 0 and 0 <= decoded_iw[0]["conv_val"] <= 150:
+                result["iw_t1_pv"] = decoded_iw[0]["conv_val"]
+            if len(decoded_iw) > 11:
+                result["iw_level_act"] = decoded_iw[11]["conv_val"]
+            if len(decoded_iw) > 20:
+                result["iw_pump_act"] = decoded_iw[20]["conv_val"]
+                result["iw_pump_sp"] = decoded_iw[20]["conv_val"]
+            if len(decoded_iw) > 21:
+                result["iw_reel_act"] = decoded_iw[21]["conv_val"]
+            if len(decoded_iw) > 12:
+                result["iw_water_counter"] = decoded_iw[12]["conv_val"]
+
             result["objects"]["IW_1025"] = {
-                "name": "IW (Info Words Telemetry)",
+                "name": "IW (Info Words Telemetry Sensor PV)",
                 "role": "PV / Telemetry",
                 "total_read": len(iw_words),
+                "total_active": len(non_zero),
                 "registers": decoded_iw
             }
         except Exception as e:
-            result["objects"]["IW_1025"] = {"error": str(e)}
+            result["objects"]["IW_1025"] = {"error": str(e), "total_read": 0, "registers": []}
 
-        # 4. BATCH (Object 1035 - Batch Consumption DWORD 32-bit)
+        # 4. IB (Object 1026 - Info Bits / Digital Status Flags)
         try:
-            batch_words = cls.read_block(host, port, 1035, 1, 10, timeout=timeout)
+            ib_words = cls.read_block(host, port, 1026, 1, 20, timeout=timeout)
             result["online"] = True
+            decoded_ib = []
+            for i, raw in enumerate(ib_words, 1):
+                if raw != 0:
+                    decoded_ib.append({
+                        "address": i,
+                        "raw": raw,
+                        "hex": f"0x{raw:04X}",
+                        "bin": bin(raw)[2:].zfill(16),
+                        "role": "FLAG / BIT"
+                    })
+            result["objects"]["IB_1026"] = {
+                "name": "IB (Info Bits - Digital PLC Flags)",
+                "role": "STATUS_FLAG",
+                "total_read": len(ib_words),
+                "registers": decoded_ib
+            }
+        except Exception:
+            pass
+
+        # 5. BATCH (Object 1035 - Batch Consumption DWORD 32-bit)
+        try:
+            batch_words = cls.read_batch_consumption(host, port, 1, 10, timeout=timeout)
+            result["online"] = True
+            BATCH_NAMES = {
+                1: {"name": "Total Air Masuk (Water Total)", "unit": "L"},
+                2: {"name": "Total Air Dibuang (Drain Total)", "unit": "L"},
+                3: {"name": "Konsumsi Uap (Steam)", "unit": "kg"},
+                4: {"name": "Konsumsi Listrik (Power)", "unit": "kWh"},
+                5: {"name": "Air Pendingin (Cooling Water)", "unit": "L"},
+                6: {"name": "Durasi Proses Aktif", "unit": "s"},
+                7: {"name": "Durasi Total Batch", "unit": "min"}
+            }
+            decoded_counters = []
+            for i, v in enumerate(batch_words, 1):
+                meta = BATCH_NAMES.get(i, {"name": f"Counter {i}", "unit": ""})
+                decoded_counters.append({
+                    "index": i,
+                    "name": meta["name"],
+                    "unit": meta["unit"],
+                    "value": v,
+                    "formatted": f"{v:,} {meta['unit']}".replace(',', '.') if meta['unit'] else str(v)
+                })
             result["objects"]["BATCH_1035"] = {
-                "name": "BATCH_CONSUMPTION (DWORD 32-bit)",
+                "name": "BATCH_CONSUMPTION (Akumulasi Konsumsi DWORD 32-bit)",
                 "role": "COUNTER",
-                "counters": {f"Counter_{i}": v for i, v in enumerate(batch_words, 1) if v != 0}
+                "counters": decoded_counters,
+                "raw_values": batch_words
             }
         except Exception as e:
-            result["objects"]["BATCH_1035"] = {"error": str(e)}
+            result["objects"]["BATCH_1035"] = {"error": str(e), "counters": []}
 
-        # 5. FUNCTION_6 (Active Step Functions: 141, 713, 71)
+        # 6. FUNCTION_6 (Active Step Functions: 141, 713, 71, 85)
         active_funcs = {}
-        for fid in [141, 713, 71]:
+        for fid in [141, 713, 71, 85]:
             try:
                 fdata = cls.read_active_function(host, port, fid, timeout=timeout)
                 if fdata.get("parameters"):
@@ -578,33 +675,61 @@ class SetexTcpClient:
             except Exception:
                 pass
         result["objects"]["FUNCTION_6"] = {
-            "name": "ACTIVE_FUNCTIONS (Step Recipe Parameters)",
+            "name": "ACTIVE_FUNCTIONS (Resep Parameter Langkah Aktif)",
             "role": "RECIPE_SV",
             "functions": active_funcs
         }
 
         # Build High-level Summary
-        temp_pv = None
+        temp_pv = result.get("iw_t1_pv")
         temp_sv = None
-        if "IW_1025" in result["objects"] and "registers" in result["objects"]["IW_1025"]:
-            for r in result["objects"]["IW_1025"]["registers"]:
-                if r["address"] == 1:
-                    temp_pv = r["calibrated_value"]
-                elif r["address"] == 10 and r["calibrated_value"] > 0:
-                    temp_sv = r["calibrated_value"]
-
+        gradient_sv = None
+        holding_time_sv = None
+        pump_sp = None
         fill_sv = None
+
+        # Check Active Function 141 first
+        f141 = active_funcs.get("Function_141", {})
+        if f141.get("parameters"):
+            params = f141["parameters"]
+            if len(params) > 0 and params[0]["value"] > 0:
+                temp_sv = params[0]["value"]
+            if len(params) > 1 and params[1]["value"] >= 0:
+                gradient_sv = params[1]["value"]
+            if len(params) > 2 and params[2]["value"] > 0:
+                holding_time_sv = params[2]["value"]
+            if len(params) > 3 and params[3]["value"] > 0:
+                pump_sp = params[3]["value"]
+
+        # Check Active Function 713 (Fill Level)
+        f713 = active_funcs.get("Function_713", {})
+        if f713.get("parameters") and len(f713["parameters"]) > 1:
+            if f713["parameters"][1]["value"] > 0:
+                fill_sv = f713["parameters"][1]["value"]
+
+        # Fallback from SET_1009
         if "SET_1009" in result["objects"] and "registers" in result["objects"]["SET_1009"]:
             for r in result["objects"]["SET_1009"]["registers"]:
-                if r["address"] == 9:
-                    fill_sv = r["calibrated_value"]
-                elif r["address"] == 3 and temp_sv is None and r["calibrated_value"] > 0:
+                if r["address"] == 3 and temp_sv is None and r["calibrated_value"] > 0:
                     temp_sv = r["calibrated_value"]
+                elif r["address"] == 5 and pump_sp is None and r["calibrated_value"] > 0:
+                    pump_sp = r["calibrated_value"]
+                elif r["address"] == 9 and fill_sv is None and r["calibrated_value"] > 0:
+                    fill_sv = r["calibrated_value"]
+
+        if pump_sp is not None:
+            result["iw_pump_sp"] = pump_sp
 
         result["summary"] = {
             "act_temp_pv": temp_pv,
             "set_temp_sv": temp_sv,
+            "gradient_sv": gradient_sv,
+            "holding_time_sv": holding_time_sv,
+            "act_pump_pv": result.get("iw_pump_act"),
+            "set_pump_sp": pump_sp,
+            "reel_act": result.get("iw_reel_act"),
             "fill_quantity_sv_l": fill_sv,
+            "water_counter_pv": result.get("iw_water_counter"),
             "total_objects_captured": len(result["objects"])
         }
 
