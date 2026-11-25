@@ -1,13 +1,11 @@
 worker:
   name: "DA-Batch-Worker-24x7"
   poll_interval_sec: 60
-  max_workers: 2
+  max_workers: 6
   socket_timeout_sec: 0.35
   log_level: "INFO"
-  # Target mesin pilot saat ini: hanya 10B
-  # Jika ingin memproses semua mesin nanti, ubah menjadi [] atau komentari baris ini
-  target_machines:
-    - "10B"
+  # Kosongkan ([]) agar seluruh mesin aktif di tabel machines dipantau otomatis
+  target_machines: []
 
 emqx:
   host: "192.168.100.30"

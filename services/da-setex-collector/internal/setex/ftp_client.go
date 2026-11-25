@@ -84,6 +84,9 @@ func (c *FTPClient) FetchStatusAct() (*ControllerStatus, []byte, error) {
 
 	// Candidate paths
 	paths := []string{
+		"/Storage/sc777ce/STATUS/STATUS.ACT",
+		"/Storage/SC777CE/STATUS/STATUS.ACT",
+		"/Flashdisk/SC797CE/STATUS/STATUS.ACT",
 		"/Flashdisk/SC797CE/STATUS.ACT",
 		"/Storage/sc777ce/STATUS.ACT",
 		"/Network/F/OT/10B/STATUS.ACT",
@@ -113,26 +116,55 @@ func (c *FTPClient) FetchStatusAct() (*ControllerStatus, []byte, error) {
 		StatusText:  "RUNNING",
 	}
 
-	// 1. Extract 6-digit batch number via regex
-	reBatch := regexp.MustCompile(`\b\d{6}\b`)
-	matches := reBatch.FindAll(statusBytes, -1)
-	if len(matches) > 0 {
-		status.BatchNo = string(matches[len(matches)-1])
+	// 1. Extract batch number at offset 36..48 (exact SETEX struct) or regex fallback
+	if len(statusBytes) >= 48 {
+		rawB := string(statusBytes[36:48])
+		// Null terminate
+		for i, ch := range rawB {
+			if ch == 0 {
+				rawB = rawB[:i]
+				break
+			}
+		}
+		rawB = regexp.MustCompile(`[^A-Za-z0-9_-]`).ReplaceAllString(rawB, "")
+		if len(rawB) >= 4 {
+			status.BatchNo = rawB
+		}
 	}
-
-	// 2. Extract Program Number from offset 0x15C
-	if len(statusBytes) >= 0x15E {
-		pVal := binary.LittleEndian.Uint16(statusBytes[0x15C:0x15E])
-		if pVal >= 1 && pVal <= 9999 {
-			status.ProgramNo = fmt.Sprintf("%04d", pVal)
+	if status.BatchNo == "" {
+		reBatch := regexp.MustCompile(`\b\d{6}\b`)
+		matches := reBatch.FindAll(statusBytes, -1)
+		if len(matches) > 0 {
+			status.BatchNo = string(matches[len(matches)-1])
 		}
 	}
 
-	// 3. Extract Step Number from offset 0x160 if available
-	if len(statusBytes) >= 0x162 {
-		sVal := binary.LittleEndian.Uint16(statusBytes[0x160:0x162])
+	// 2. Extract Step Number:
+	// - SETEX 797CE (size 10188): offset 0x15E
+	// - SECOM 777   (size 10104): offset 0x15C
+	stepOffset := 0x15C
+	if len(statusBytes) == 10188 {
+		stepOffset = 0x15E
+	}
+	if len(statusBytes) >= stepOffset+2 {
+		sVal := binary.LittleEndian.Uint16(statusBytes[stepOffset : stepOffset+2])
 		if sVal >= 1 && sVal <= 255 {
 			status.StepNo = int(sVal)
+		}
+	}
+
+	// 3. Extract Program Number from offset 52..64 (name) or fallback
+	if len(statusBytes) >= 64 {
+		rawP := string(statusBytes[52:64])
+		for i, ch := range rawP {
+			if ch == 0 {
+				rawP = rawP[:i]
+				break
+			}
+		}
+		rawP = regexp.MustCompile(`[^A-Za-z0-9_-]`).ReplaceAllString(rawP, "")
+		if rawP != "" {
+			status.ProgramNo = rawP
 		}
 	}
 

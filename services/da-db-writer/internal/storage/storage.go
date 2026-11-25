@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"log/slog"
 	"sort"
+	"strconv"
+	"strings"
 	"time"
 
 	"github.com/jackc/pgx/v5"
@@ -262,6 +264,41 @@ func (s *Storage) IngestTelemetry(ctx context.Context, p TelemetryPayload) error
 	return nil
 }
 
+// ensureBatchHeader auto-registers newly detected batches in batch_headers so they appear on the dashboard.
+func (s *Storage) ensureBatchHeader(ctx context.Context, machineNo, batchRefNo, programNo string) {
+	ref := strings.TrimSpace(batchRefNo)
+	mach := strings.TrimSpace(machineNo)
+	if ref == "" || mach == "" {
+		return
+	}
+
+	progNum := 1
+	if pVal, err := strconv.Atoi(strings.TrimSpace(programNo)); err == nil && pVal > 0 {
+		progNum = pVal
+	}
+
+	batchNo := ref
+	if !strings.HasPrefix(batchNo, "LOT-") {
+		batchNo = "LOT-" + ref
+	}
+	recipeName := fmt.Sprintf("Program %d", progNum)
+
+	query := `
+		INSERT INTO batch_headers
+		(batch_ref_no, batch_no, machine_no, program_no, recipe_name, status, fabric_weight_kg, liquor_ratio, customer)
+		VALUES (
+			$1, $2, $3, $4, $5, 'RUNNING',
+			COALESCE((SELECT capacity_kg FROM machines WHERE machine_no = $3), 350.0),
+			COALESCE((SELECT default_liquor_ratio FROM machines WHERE machine_no = $3), 8.0),
+			'PT. SMM JETFLOW'
+		)
+		ON CONFLICT (batch_ref_no) DO NOTHING;
+	`
+	if _, err := s.jetflowPool.Exec(ctx, query, ref, batchNo, mach, progNum, recipeName); err != nil {
+		s.logger.Warn("Error ensuring batch_headers entry", "batch", ref, "machine", mach, "error", err)
+	}
+}
+
 // IngestStatus updates machine status across tables.
 func (s *Storage) IngestStatus(ctx context.Context, p StatusPayload) error {
 	now := p.Timestamp
@@ -282,6 +319,20 @@ func (s *Storage) IngestStatus(ctx context.Context, p StatusPayload) error {
 	`
 	_, _ = s.jetflowPool.Exec(ctx, queryLive, p.MachineID, p.AssetID, now, p.ConnectionStatus, p.BatchNo, p.StepNo, p.ProgramNo)
 
+	// Update machine current_batch & step in machines table
+	queryMachine := `
+		UPDATE machines
+		SET current_batch = COALESCE(NULLIF($1, ''), current_batch),
+		    current_step = CASE WHEN $2 > 0 THEN $2 ELSE current_step END,
+		    last_ping_time = $3,
+		    status = CASE WHEN $4 = 'ONLINE' THEN 'RUNNING' ELSE status END
+		WHERE machine_no = $5;
+	`
+	_, _ = s.jetflowPool.Exec(ctx, queryMachine, p.BatchNo, p.StepNo, now, p.ConnectionStatus, p.MachineID)
+
+	// Auto-register new batch in batch_headers
+	s.ensureBatchHeader(ctx, p.MachineID, p.BatchNo, p.ProgramNo)
+
 	// Update asset table
 	queryAsset := `
 		UPDATE asset 
@@ -301,6 +352,12 @@ func (s *Storage) IngestBatchCurve(ctx context.Context, p BatchCurvePayload) err
 	if len(p.Points) == 0 {
 		return nil
 	}
+
+	machineNo := p.MachineID
+	if machineNo == "" && len(p.Points) > 0 {
+		machineNo = p.Points[0].MachineNo
+	}
+	s.ensureBatchHeader(ctx, machineNo, p.BatchNo, "")
 
 	// Chunk points in batches of 200 to prevent oversized SQL statements
 	chunkSize := 200
