@@ -3,11 +3,20 @@
   "folder_name": "MESIN_7E",
   "controller_type": "SETEX SECOM 777 (Windows CE)",
   "max_temp_c": 140.0,
-  "has_custom_hmi_config": false,
-  "status": "baseline_ready",
+  "has_custom_hmi_config": true,
+  "status": "ready",
   "ip_address": "172.16.120.107",
-  "last_synced_at": "2026-11-17T08:58:21.453217",
+  "last_synced_at": "2026-11-25T16:59:04.912256",
   "files_in_hmi_dir": [
-    "PETUNJUK_DOWNLOAD_DARI_HMI.txt"
-  ]
+    "CONFTEXT.CNF",
+    "FNLEGEND.CNF",
+    "MACHCONF.CNF",
+    "PETUNJUK_DOWNLOAD_DARI_HMI.txt",
+    "TYPECONF.CNF",
+    "TYPECONT.CNF",
+    "TYPEFORM.CNF",
+    "USERCONF.CNF"
+  ],
+  "has_awl_plc_program": false,
+  "awl_files": []
 }

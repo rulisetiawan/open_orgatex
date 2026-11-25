@@ -32,8 +32,9 @@ pilot_machine:
     enable_act_1010: true     # Loop Actuals PV (20 words)
     enable_batch_1035: true   # Water/Steam Totalizer (10 DWORDs)
     enable_function_6: true   # Active Step Function
+    enable_status_act: false  # NONAKTIF: Matikan penarikan file STATUS.ACT via FTP
   
   # Polling Intervals
   telemetry_interval_sec: 3
-  status_act_interval_sec: 60 # Polling status/step dari STATUS.ACT per 1 menit (60s)
+  status_act_interval_sec: 0 # Dinonaktifkan (0s)
   batch_log_interval_sec: 60

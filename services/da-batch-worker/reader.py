@@ -24,6 +24,8 @@ logger = logging.getLogger("orgatex.reader")
 _FTP_HOST_LOCKS = {}
 _FTP_LOCKS_MUTEX = threading.Lock()
 _FTP_BUNDLE_CACHE = {}
+_FTP_HOST_COOLDOWN = {}
+_PRG_CACHE = {}  # ip -> {"key": "<batch>_<prog>", "bytes": b"..."}
 
 def _get_host_lock(ip: str) -> threading.Lock:
     with _FTP_LOCKS_MUTEX:
@@ -75,80 +77,69 @@ class SetexFolderReader:
         else:
             path_variants.append("/" + clean_path)
 
-        for pasv in (True, False):
-            try:
-                ftp = ftplib.FTP(timeout=timeout)
-                ftp.connect(ip, port or 21)
-                if username:
-                    ftp.login(username, password)
-                else:
-                    ftp.login()
-                ftp.set_pasv(pasv)
+        ftp = None
+        try:
+            ftp = ftplib.FTP(timeout=timeout)
+            ftp.connect(ip, port or 21)
+            if username:
+                ftp.login(username, password)
+            else:
+                ftp.login("", "")
+            ftp.set_pasv(True)
 
-                # 1. Direct RETR attempts
-                for pv in path_variants:
-                    try:
-                        bio = io.BytesIO()
-                        ftp.retrbinary(f"RETR {pv}", bio.write)
-                        data = bio.getvalue()
-                        if data and len(data) > 0:
-                            try:
-                                ftp.quit()
-                            except Exception:
-                                try:
-                                    ftp.close()
-                                except Exception:
-                                    pass
-                            return data
-                    except Exception:
-                        pass
+            # 1. Direct RETR attempts
+            for pv in path_variants:
+                try:
+                    bio = io.BytesIO()
+                    ftp.retrbinary(f"RETR {pv}", bio.write)
+                    data = bio.getvalue()
+                    if data and len(data) > 0:
+                        return data
+                except Exception:
+                    pass
 
-                # 2. CWD into directory then RETR filename (Windows CE robust approach)
-                parts = [p for p in clean_path.strip("/\\").replace("\\", "/").split("/") if p]
-                if len(parts) > 1:
-                    dir_path_slash = "/" + "/".join(parts[:-1])
-                    dir_path_bslash = "\\" + "\\".join(parts[:-1])
-                    fname = parts[-1]
-                    cwd_targets = [
-                        dir_path_slash,
-                        dir_path_slash.lstrip("/"),
-                        dir_path_bslash,
-                        dir_path_bslash.lstrip("\\")
-                    ]
-                    for target_dir in cwd_targets:
-                        try:
-                            ftp.cwd(target_dir)
-                            bio = io.BytesIO()
-                            ftp.retrbinary(f"RETR {fname}", bio.write)
-                            data = bio.getvalue()
-                            if data and len(data) > 0:
-                                try:
-                                    ftp.quit()
-                                except Exception:
-                                    try:
-                                        ftp.close()
-                                    except Exception:
-                                        pass
-                                return data
-                        except Exception:
-                            pass
-
+            # 2. CWD into directory then RETR filename (Windows CE robust approach)
+            parts = [p for p in clean_path.strip("/\\").replace("\\", "/").split("/") if p]
+            if len(parts) > 1:
+                dir_path_slash = "/" + "/".join(parts[:-1])
+                fname = parts[-1]
+                try:
+                    ftp.cwd(dir_path_slash)
+                    bio = io.BytesIO()
+                    ftp.retrbinary(f"RETR {fname}", bio.write)
+                    data = bio.getvalue()
+                    if data and len(data) > 0:
+                        return data
+                except Exception:
+                    pass
+        except Exception:
+            pass
+        finally:
+            if ftp:
                 try:
                     ftp.quit()
                 except Exception:
-                    try:
-                        ftp.close()
-                    except Exception:
-                        pass
-            except Exception:
-                pass
+                    pass
+                try:
+                    ftp.close()
+                except Exception:
+                    pass
         return None
 
     @staticmethod
-    def fetch_live_controller_bundle(ip: str, ftp_port: int = 21, is_797: bool = True, batch_no_hint: Optional[str] = None, timeout: float = 4.0) -> Dict[str, Any]:
+    def fetch_live_controller_bundle(
+        ip: str,
+        ftp_port: int = 21,
+        is_797: bool = True,
+        batch_no_hint: Optional[str] = None,
+        timeout: float = 4.0,
+        db_program_loader=None,
+    ) -> Dict[str, Any]:
         """
         Connects to SETEX 797CE / 777 controller via FTP in a SINGLE connection session,
         robustly retrieves STATUS.ACT, ALARM.ACT, ALARMS.LOG, batch cyclic log, and PRG recipe bytes.
+        If db_program_loader is provided and returns a program already stored in PostgreSQL,
+        skips downloading .PRG over FTP completely.
         Includes per-IP lock and short-lived caching to prevent Windows CE socket congestion.
         """
         result = {
@@ -157,6 +148,8 @@ class SetexFolderReader:
             "alarms_log_bytes": None,
             "batch_log_bytes": None,
             "prg_bytes": None,
+            "db_program": None,
+            "prg_from_db": False,
             "source_url": "",
             "is_ftp_success": False,
             "error": None
@@ -166,6 +159,15 @@ class SetexFolderReader:
 
         cache_key = f"{ip}_{ftp_port or 21}"
         now = time.time()
+        if ip in _FTP_HOST_COOLDOWN:
+            cool_until = _FTP_HOST_COOLDOWN[ip]
+            if now < cool_until:
+                remain = int(cool_until - now)
+                result["error"] = f"Host in cool-down ({remain}s remaining after previous 421/socket error)"
+                return result
+            else:
+                del _FTP_HOST_COOLDOWN[ip]
+
         cached = _FTP_BUNDLE_CACHE.get(cache_key)
         if cached and (now - cached["ts"]) < 1.5:
             return cached["data"]
@@ -257,9 +259,11 @@ class SetexFolderReader:
             except Exception:
                 pass
 
-            # Detect batch number and prog_no from status bytes
+            # Detect batch number, program_code, program_name, and prog_no from status bytes
             batch_no = batch_no_hint
             prog_no = 0
+            program_code = ""
+            program_name = ""
             if result["status_bytes"]:
                 sb = result["status_bytes"]
                 if len(sb) >= 48:
@@ -270,7 +274,19 @@ class SetexFolderReader:
                     batches = sorted(list(set(m.group(0).decode('latin1') for m in re.finditer(rb'\b\d{6}\b', sb))))
                     if batches:
                         batch_no = batches[-1]
-                if len(sb) >= 0x15E:
+                if len(sb) >= 64:
+                    raw_p = sb[52:64].split(b'\0')[0].decode('latin1', errors='ignore').strip()
+                    if raw_p and any(c.isalnum() for c in raw_p):
+                        program_code = raw_p
+                if len(sb) >= 100:
+                    raw_pn = sb[75:100].split(b'\0')[0].decode('latin1', errors='ignore').strip()
+                    raw_pn = re.sub(r'#.*$', '', raw_pn).strip()
+                    if raw_pn:
+                        program_name = raw_pn
+                # PERHATIAN: pada SECOM 777 (STATUS.ACT 10104 byte) offset 0x15C adalah NOMOR STEP,
+                # bukan nomor program. Nomor program asli hanya ada di header file .PRG (offset 8).
+                # Hanya 797CE (10188 byte) yang menaruh nomor program di 0x15C.
+                if len(sb) == 10188:
                     p_val = struct.unpack_from("<H", sb, 0x15C)[0]
                     if 1 <= p_val <= 9999:
                         prog_no = p_val
@@ -302,27 +318,53 @@ class SetexFolderReader:
                 except Exception:
                     continue
 
-            # Also retrieve active recipe PRG in same session
+            # 1. Cek Database terlebih dahulu (Program Studio di PostgreSQL).
+            # Jika program beserta step-stepnya sudah ada di DB, TIDAK PERLU download .PRG via FTP!
+            if db_program_loader is not None and (prog_no or program_name or program_code):
+                try:
+                    db_prog = db_program_loader(prog_no, program_name, program_code)
+                    if db_prog and db_prog.get("scada_steps"):
+                        result["db_program"] = db_prog
+                        result["prg_from_db"] = True
+                except Exception as e_dbp:
+                    logger.debug(f"DB program lookup notice for {ip}: {e_dbp}")
+
+            # 2. PRG hanya perlu diambil SEKALI per batch jika belum ada di DB (salinan resep di folder
+            # BATCH/<batch>/ tidak berubah selama batch berjalan). Kunci cache = nomor batch saja.
+            prg_cache_key = str(batch_no or "")
+            local_batch_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "data", "OT", "BATCH", batch_no or "_"))
+            if not result.get("prg_from_db"):
+                mem_cached = _PRG_CACHE.get(ip)
+                if batch_no and mem_cached and mem_cached.get("key") == prg_cache_key:
+                    result["prg_bytes"] = mem_cached["bytes"]
+                    result["prg_from_cache"] = True
+                elif batch_no and os.path.isdir(local_batch_dir):
+                    for fn_disk in sorted(os.listdir(local_batch_dir)):
+                        if fn_disk.upper().endswith(".PRG"):
+                            try:
+                                with open(os.path.join(local_batch_dir, fn_disk), "rb") as f_disk:
+                                    disk_bytes = f_disk.read()
+                                if len(disk_bytes) >= 384:
+                                    result["prg_bytes"] = disk_bytes
+                                    result["prg_from_cache"] = True
+                                    _PRG_CACHE[ip] = {"key": prg_cache_key, "bytes": disk_bytes}
+                                    break
+                            except Exception:
+                                pass
+
+            # Ambil PRG HANYA dari folder batch aktif jika belum ada di DB dan belum di cache.
+            # Folder Programs/ tidak dipakai: isinya master program lokal HMI, belum tentu resep batch ini.
             candidate_prg_targets = []
-            if is_797:
-                if batch_no:
+            if batch_no and not result.get("prg_from_db") and not result.get("prg_bytes"):
+                if is_797:
                     if prog_no:
                         candidate_prg_targets.append(f"/Flashdisk/SC797CE/BATCH/{batch_no}/M_{prog_no:04d}.PRG")
                     candidate_prg_targets.append(f"/Flashdisk/SC797CE/BATCH/{batch_no}")
-                if prog_no:
-                    candidate_prg_targets.append(f"/Flashdisk/SC797CE/Programs/M_{prog_no:04d}.PRG")
-                candidate_prg_targets.append("/Flashdisk/SC797CE/Programs")
-                candidate_prg_targets.append("/Flashdisk/SC797CE/BATCH")
-            else:
-                if batch_no:
-                    if prog_no:
-                        candidate_prg_targets.append(f"/Storage/sc777ce/BATCH/{batch_no}/M_{prog_no:04d}.PRG")
+                else:
                     candidate_prg_targets.append(f"/Storage/sc777ce/BATCH/{batch_no}")
-                    candidate_prg_targets.append(f"/Storage/sc777ce/BATCH/{batch_no}/M_0342.PRG")
-                if prog_no:
-                    candidate_prg_targets.append(f"/Storage/sc777ce/Programs/M_{prog_no:04d}.PRG")
-                candidate_prg_targets.append("/Storage/sc777ce/Programs")
-                candidate_prg_targets.append("/Storage/sc777ce/BATCH")
+
+            if result.get("prg_bytes"):
+                candidate_prg_targets = []  # sudah ada di cache, skip download
 
             for target in candidate_prg_targets:
                 try:
@@ -358,19 +400,16 @@ class SetexFolderReader:
                 except Exception:
                     continue
 
-            # Cache retrieved PRG locally for offline parity
-            if result.get("prg_bytes") and (prog_no or batch_no):
+            # Simpan PRG yang baru di-download ke cache memori + disk, pakai nomor program ASLI dari header PRG.
+            if result.get("prg_bytes") and batch_no and not result.get("prg_from_cache"):
+                _PRG_CACHE[ip] = {"key": prg_cache_key, "bytes": result["prg_bytes"]}
                 try:
-                    save_name = f"M_{prog_no:04d}.PRG" if prog_no else "active.PRG"
-                    local_compiled = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "data", "compiled_prg"))
-                    os.makedirs(local_compiled, exist_ok=True)
-                    with open(os.path.join(local_compiled, save_name), "wb") as f_save:
-                        f_save.write(result["prg_bytes"])
-                    if batch_no:
-                        local_batch_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "data", "OT", "BATCH", batch_no))
-                        os.makedirs(local_batch_dir, exist_ok=True)
-                        with open(os.path.join(local_batch_dir, save_name), "wb") as f_save:
-                            f_save.write(result["prg_bytes"])
+                    pb = result["prg_bytes"]
+                    real_no = struct.unpack_from("<H", pb, 8)[0] if len(pb) >= 10 else 0
+                    save_name = f"M_{real_no:04d}.PRG" if 1 <= real_no <= 9999 else "active.PRG"
+                    os.makedirs(local_batch_dir, exist_ok=True)
+                    with open(os.path.join(local_batch_dir, save_name), "wb") as f_save:
+                        f_save.write(pb)
                 except Exception:
                     pass
 
@@ -383,13 +422,26 @@ class SetexFolderReader:
                     pass
 
         except Exception as e:
+            err_str = str(e)
+            if "421" in err_str or "closed" in err_str.lower() or "refused" in err_str.lower():
+                logger.warning(f"FTP temporary socket issue on {ip}: {err_str}. Applying 180s cool-down to protect Windows CE sockets.")
+                _FTP_HOST_COOLDOWN[ip] = time.time() + 180
             if not result.get("status_bytes"):
                 logger.warning(f"FTP bundle acquisition failed for {ip}: {e}")
-                result["error"] = str(e)
+                result["error"] = err_str
             else:
                 result["is_ftp_success"] = True
 
         finally:
+            if 'ftp' in locals() and ftp:
+                try:
+                    ftp.quit()
+                except Exception:
+                    pass
+                try:
+                    ftp.close()
+                except Exception:
+                    pass
             try:
                 lock.release()
             except RuntimeError:
@@ -409,7 +461,7 @@ class SetexFolderReader:
 
         # 1. Try FTP if no raw bytes provided but IP is given
         if not data and ip:
-            is_797 = (ip.strip() == "192.168.1.95")
+            is_797 = (ip.strip() in ("192.168.1.95", "172.16.120.102", "172.16.120.103", "172.16.120.105", "172.16.120.108", "172.16.120.109", "172.16.120.154"))
             flashdisk_paths = [
                 "/Flashdisk/SC797CE/STATUS/STATUS.ACT",
                 "/Flashdisk/sc797ce/STATUS/STATUS.ACT",
@@ -587,7 +639,7 @@ class SetexFolderReader:
         """Reads ALARM.ACT for active alarms from raw bytes, FTP (supporting Flashdisk/SC797CE), or local folder."""
         data = raw_bytes
         if not data and ip:
-            is_797 = (ip.strip() == "192.168.1.95")
+            is_797 = (ip.strip() in ("192.168.1.95", "172.16.120.102", "172.16.120.103", "172.16.120.105", "172.16.120.108", "172.16.120.109", "172.16.120.154"))
             flashdisk_alarms = [
                 "/Flashdisk/SC797CE/STATUS/ALARM.ACT",
                 "/Flashdisk/sc797ce/STATUS/ALARM.ACT",
@@ -650,7 +702,7 @@ class SetexFolderReader:
         """Parses ALARMS.LOG from raw bytes, FTP (supporting Flashdisk/SC797CE), or local folder."""
         data = raw_bytes
         if not data and ip:
-            is_797 = (ip.strip() == "192.168.1.95")
+            is_797 = (ip.strip() in ("192.168.1.95", "172.16.120.102", "172.16.120.103", "172.16.120.105", "172.16.120.108", "172.16.120.109", "172.16.120.154"))
             flashdisk_logs = [
                 "/Flashdisk/SC797CE/STATUS/ALARMS.LOG",
                 "/Flashdisk/sc797ce/STATUS/ALARMS.LOG",
@@ -994,7 +1046,7 @@ class SetexFolderReader:
         if not ip or not batch_no:
             return []
 
-        is_797 = (ip.strip() == "192.168.1.95")
+        is_797 = (ip.strip() in ("192.168.1.95", "172.16.120.102", "172.16.120.103", "172.16.120.105", "172.16.120.108", "172.16.120.109", "172.16.120.154"))
 
         flashdisk_batch_logs = [
             f"/Flashdisk/SC797CE/BATCH/{batch_no}/PR{batch_no}.LOG",
@@ -1544,7 +1596,7 @@ class SetexFolderReader:
 
         # 1. Try reading from FTP if IP available
         if ip:
-            is_797 = (ip.strip() == "192.168.1.95")
+            is_797 = (ip.strip() in ("192.168.1.95", "172.16.120.102", "172.16.120.103", "172.16.120.105", "172.16.120.108", "172.16.120.109", "172.16.120.154"))
             candidate_dirs = [
                 f"/Flashdisk/SC797CE/BATCH/{batch_no}" if batch_no else None,
                 "/Flashdisk/SC797CE/Programs",

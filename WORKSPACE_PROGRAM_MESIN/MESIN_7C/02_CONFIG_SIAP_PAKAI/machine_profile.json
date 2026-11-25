@@ -14,5 +14,16 @@
     "PETUNJUK_DOWNLOAD_DARI_HMI.txt",
     "TYPECONF.CNF",
     "TYPECONT.CNF"
-  ]
+  ],
+  "has_awl_plc_program": true,
+  "awl_files": [
+    "CP14.AWL"
+  ],
+  "awl_cpu_types": [
+    "CP14"
+  ],
+  "awl_project_names": [
+    "iS17192_plc_V4.pro"
+  ],
+  "awl_sha256": "5c87bc1960b6ece4b626fa2f0bac07e23346fbb7d9d154d07e588104be80d01a"
 }

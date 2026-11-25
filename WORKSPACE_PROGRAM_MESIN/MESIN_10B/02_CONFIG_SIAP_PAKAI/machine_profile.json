@@ -23,5 +23,16 @@
   "typeconf_sha256": "7ba9ef061cffd6e941f1dab9c47c7147ceb537e55fb59bc80db71115a9e260e5",
   "registers_count": 93,
   "setpoints_count": 4,
-  "actuals_count": 53
+  "actuals_count": 53,
+  "has_awl_plc_program": true,
+  "awl_files": [
+    "CP14.AWL"
+  ],
+  "awl_cpu_types": [
+    "CP14"
+  ],
+  "awl_project_names": [
+    "iS2000kg_CCR_plc.pro"
+  ],
+  "awl_sha256": "421ec9f9b088553d4b61849efeedce8c768ce166bb8451146445dee5b7843445"
 }

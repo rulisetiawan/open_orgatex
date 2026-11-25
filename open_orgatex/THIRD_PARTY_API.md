@@ -44,6 +44,8 @@ Semua URL batch mendukung pemanggilan via `/api/BatchService/...` maupun `/Batch
 
 | Method | URL Persis OrgaTEX | Payload / Parameter Utama | Keterangan Integrasi ERP |
 | :--- | :--- | :--- | :--- |
+| `POST` | `/api/v1/thirdparty/batches/import` | Array `[{Dyelot, Customer, Article, ColourNo, ColourDescript, Color, Redye, Machine, ProcedureNo, Weight, ImportState, LiquorQuantity, Note1, TypeOfProcedureNo, ProcessType1, ProcessType2, LiquorRatio, Length, Parameter11, Parameter15..18, Parameter20}]` | **ERP / Recipe -> OrgaTEX (Bulk/Single)**: Import batch lengkap dengan `COLORREF` 4-byte RGB, auto-release (`ImportState=4`), dan parameter resep `Parameter11..20`. (Memerlukan `X-API-Key`). |
+| `POST` | `/api/BatchService/ImportBatches` | Sama seperti `/api/v1/thirdparty/batches/import` | Alias OrgaTEX Parity untuk bulk/single batch import. |
 | `POST` | `/api/BatchService/CreateBatch` | `BatchNo`, `MachineNo`, `ProgramNo`, `RecipeName`, `FlagBatchWeight`, `FlagLiquorAmount`, `CustomerInfo`, `ColorName`, `ColorNo` | **ERP -> OrgaTEX**: Inject Surat Perintah Kerja (SPK) lot celup baru. |
 | `GET / POST` | `/api/BatchService/GetBatches` | Query/Body: `machineNo`, `status` | **ERP <- OrgaTEX**: Ambil daftar batch aktif & antrian mesin. |
 | `GET` | `/api/BatchService/GetBatchesAsJson` | Query: `machineNo`, `status` | Mengambil seluruh batch dalam format JSON standar OrgaTEX. |

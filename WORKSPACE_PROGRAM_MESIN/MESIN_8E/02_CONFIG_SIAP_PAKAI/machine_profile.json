@@ -1,13 +1,33 @@
 {
   "machine_no": "8E",
   "folder_name": "MESIN_8E",
-  "controller_type": "SETEX SECOM 777 (Windows CE)",
+  "controller_type": "SETEX SECOM 797CE",
   "max_temp_c": 140.0,
-  "has_custom_hmi_config": false,
-  "status": "baseline_ready",
+  "has_custom_hmi_config": true,
+  "status": "ready",
   "ip_address": "172.16.120.108",
-  "last_synced_at": "2026-11-17T08:58:21.460068",
+  "last_synced_at": "2026-11-25T16:18:13.309028",
   "files_in_hmi_dir": [
-    "PETUNJUK_DOWNLOAD_DARI_HMI.txt"
-  ]
+    "CONFTEXT.CNF",
+    "FNLEGEND.CNF",
+    "MACHCONF.CNF",
+    "PETUNJUK_DOWNLOAD_DARI_HMI.txt",
+    "TYPECONF.CNF",
+    "TYPECONT.CNF",
+    "TYPEFORM.CNF",
+    "USERCONF.CNF"
+  ],
+  "has_awl_plc_program": true,
+  "awl_files": [
+    "SC26.AWL"
+  ],
+  "asset_id": "JF-LE-08",
+  "registers_count": 127,
+  "awl_cpu_types": [
+    "UNKNOWN"
+  ],
+  "awl_project_names": [
+    "iSMKM25001_sarana.pro"
+  ],
+  "awl_sha256": "5f08b1e4fc782fe76bd6288b14118af0a6be77f303a4038d1e23cca1b07cf9e3"
 }

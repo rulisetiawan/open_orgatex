@@ -23,5 +23,16 @@
   "typeconf_sha256": "2936ceff7a238bfff4b9512ca602d9cc85f132086d279674311432f424bd9f57",
   "registers_count": 93,
   "setpoints_count": 4,
-  "actuals_count": 53
+  "actuals_count": 53,
+  "has_awl_plc_program": true,
+  "awl_files": [
+    "CP14.AWL"
+  ],
+  "awl_cpu_types": [
+    "CP14"
+  ],
+  "awl_project_names": [
+    "iS16714_plc_V4.pro"
+  ],
+  "awl_sha256": "37497da27abf20e7a7fbbb248b1382bf3af8cc3f0d5fa3f21ebb4dd953bfa21a"
 }

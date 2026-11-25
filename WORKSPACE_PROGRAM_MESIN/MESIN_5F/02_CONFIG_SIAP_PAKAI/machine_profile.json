@@ -3,11 +3,37 @@
   "folder_name": "MESIN_5F",
   "controller_type": "SETEX SECOM 777 (Windows CE)",
   "max_temp_c": 140.0,
-  "has_custom_hmi_config": false,
-  "status": "baseline_ready",
+  "has_custom_hmi_config": true,
+  "status": "ready",
   "ip_address": "172.16.120.155",
-  "last_synced_at": "2026-11-17T08:58:21.899276",
+  "last_synced_at": "2026-11-25T16:59:04.553207",
   "files_in_hmi_dir": [
-    "PETUNJUK_DOWNLOAD_DARI_HMI.txt"
-  ]
+    "CONFTEXT.CNF",
+    "CP14.AWL",
+    "CP16.AWL",
+    "FNLEGEND.CNF",
+    "MACHCONF.CNF",
+    "PETUNJUK_DOWNLOAD_DARI_HMI.txt",
+    "SC20D.AWL",
+    "TYPECONF.CNF",
+    "TYPECONT.CNF",
+    "TYPEFORM.CNF",
+    "USERCONF.CNF"
+  ],
+  "has_awl_plc_program": true,
+  "awl_files": [
+    "CP14.AWL",
+    "CP16.AWL",
+    "SC20D.AWL"
+  ],
+  "awl_cpu_types": [
+    "CP14",
+    "CP16",
+    "UNKNOWN"
+  ],
+  "awl_project_names": [
+    "XDongBao707.pro",
+    "m_SAF5-2T-2AT-1ST-20200925.pro"
+  ],
+  "awl_sha256": "aad1e37d202f84dbf9837123ab38ddeebf2ab09b114f7574f8402fc2e0900cc5"
 }

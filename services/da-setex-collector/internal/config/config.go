@@ -35,11 +35,12 @@ type EMQXConfig struct {
 }
 
 type ObjectsConfig struct {
-	EnableIW1025   bool `yaml:"enable_iw_1025"`
-	EnableSET1009  bool `yaml:"enable_set_1009"`
-	EnableACT1010  bool `yaml:"enable_act_1010"`
+	EnableIW1025    bool `yaml:"enable_iw_1025"`
+	EnableSET1009   bool `yaml:"enable_set_1009"`
+	EnableACT1010   bool `yaml:"enable_act_1010"`
 	EnableBATCH1035 bool `yaml:"enable_batch_1035"`
 	EnableFunction6 bool `yaml:"enable_function_6"`
+	EnableStatusAct bool `yaml:"enable_status_act"` // If false, do NOT poll STATUS.ACT
 }
 
 type PilotMachineConfig struct {
@@ -77,9 +78,6 @@ func LoadConfig(path string) (*Config, error) {
 	}
 	if cfg.PilotMachine.TelemetryIntervalSec <= 0 {
 		cfg.PilotMachine.TelemetryIntervalSec = 3
-	}
-	if cfg.PilotMachine.StatusActIntervalSec <= 0 {
-		cfg.PilotMachine.StatusActIntervalSec = 5
 	}
 	if cfg.PilotMachine.ConfigBaseDir == "" {
 		cfg.PilotMachine.ConfigBaseDir = "WORKSPACE_PROGRAM_MESIN"

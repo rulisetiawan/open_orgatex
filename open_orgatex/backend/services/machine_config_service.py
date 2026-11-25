@@ -720,33 +720,77 @@ def fetch_machine_programs_from_hmi(
     except Exception as e:
         logger.error(f"Failed to write custom store: {e}")
 
-    # Synchronize updated programs to PostgreSQL ProgramComponent (Level 1)
+    # Synchronize updated programs AND their steps/functions/parameters to PostgreSQL
     try:
         from ..database import get_db
-        from ..models.schema_pg import ProgramComponent
+        from ..models.schema_pg import ProgramComponent, Step, StepFunction, StepFunctionParameter
         for db in get_db():
             for p_no_key, parsed in custom_store.items():
-                if parsed.get("machine_code") == clean_no:
-                    p_row = db.query(ProgramComponent).filter(
-                        (ProgramComponent.number == str(p_no_key)),
-                        ProgramComponent.level == 1
-                    ).first()
-                    if p_row:
-                        p_row.machine_code = clean_no
-                        if parsed.get("program_name"):
-                            p_row.name = parsed["program_name"]
-                    else:
-                        db.add(ProgramComponent(
-                            number=str(p_no_key),
-                            name=parsed.get("program_name") or f"PROGRAM #{p_no_key}",
-                            level=1,
-                            type=1,
-                            machine_code=clean_no
-                        ))
+                if parsed.get("machine_code") != clean_no:
+                    continue
+                p_row = db.query(ProgramComponent).filter(
+                    ProgramComponent.number == str(p_no_key),
+                    ProgramComponent.machine_code == clean_no,
+                    ProgramComponent.level == 1
+                ).first()
+                if p_row:
+                    if parsed.get("program_name"):
+                        p_row.name = parsed["program_name"]
+                else:
+                    p_row = ProgramComponent(
+                        number=str(p_no_key),
+                        name=parsed.get("program_name") or f"PROGRAM #{p_no_key}",
+                        level=1,
+                        type=1,
+                        machine_code=clean_no
+                    )
+                    db.add(p_row)
+                    db.flush()
+
+                steps_data = parsed.get("steps") or []
+                if steps_data:
+                    # Replace existing steps cleanly (ORM cascade removes step_functions & parameters)
+                    for old_s in list(p_row.steps):
+                        db.delete(old_s)
+                    db.flush()
+
+                    for st in steps_data:
+                        new_s = Step(
+                            position=int(st.get("step_no") or 1),
+                            parent_component_id=p_row.id,
+                            label=str(st.get("label") or f"Langkah {st.get('step_no', 1)}")[:100],
+                            summary_temp=st.get("summary_temp"),
+                            summary_time_min=st.get("summary_time_min") or 0.0,
+                            summary_water_l=st.get("summary_water_l") or 0.0,
+                        )
+                        db.add(new_s)
+                        db.flush()
+
+                        for fn in st.get("functions") or []:
+                            new_fn = StepFunction(
+                                step_id=new_s.id,
+                                resource_number=int(fn.get("column") or 1),
+                                function_number=int(fn.get("function_id") or 0),
+                                function_name=str(fn.get("name") or "")[:100],
+                                acknowledge=int(fn.get("flags") or 0),
+                            )
+                            db.add(new_fn)
+                            db.flush()
+
+                            for p_idx, p_val in enumerate(fn.get("params") or []):
+                                try:
+                                    f_val = float(p_val)
+                                except Exception:
+                                    f_val = 0.0
+                                db.add(StepFunctionParameter(
+                                    step_function_id=new_fn.id,
+                                    function_parameter_number=p_idx + 1,
+                                    value=f_val,
+                                ))
             db.commit()
             break
     except Exception as e_db:
-        logger.warning(f"Failed to sync ProgramComponent to PostgreSQL: {e_db}")
+        logger.warning(f"Failed to sync ProgramComponent & steps to PostgreSQL: {e_db}")
 
     total_programs = len(parsed_programs)
     success = total_programs > 0 or len(downloaded) > 0

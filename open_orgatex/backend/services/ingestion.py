@@ -38,7 +38,7 @@ class LogIngestionService:
         ingests new data into PostgreSQL/TimescaleDB, and returns live status & curve.
         """
         is_797 = (
-            (machine.ip_address and machine.ip_address.strip() == "192.168.1.95") or
+            (machine.ip_address and machine.ip_address.strip() in ("192.168.1.95", "172.16.120.102", "172.16.120.103", "172.16.120.105", "172.16.120.108", "172.16.120.109", "172.16.120.154")) or
             (machine.controller_type and "797" in machine.controller_type.upper()) or
             "797" in (machine.machine_no or "").upper() or
             (machine.machine_no or "").upper().startswith("DA")

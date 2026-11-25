@@ -1,0 +1,40 @@
+{
+  "machine": "3A",
+  "awl_count": 1,
+  "files": [
+    {
+      "filename": "CP14.AWL",
+      "cpu_type": "CP14",
+      "size_bytes": 354202,
+      "sha256": "a1636f7d090954841635d5d1edd7b1cbdebd0f3876a2b9a94e766436c0c7b0dd",
+      "project_names": [
+        "iSarana_V3_plc.pro"
+      ],
+      "primary_project": "iSarana_V3_plc.pro",
+      "dates_found": [],
+      "plc_symbols_sample": [
+        "Setex35794",
+        "DOS_SC",
+        "DOS_SCinit",
+        "DPID_SC",
+        "DPID_SCinit",
+        "MDOS_SC",
+        "MDOS_SCinit",
+        "PID_SC",
+        "PID_SCinit",
+        "Read_Me_SCTPID",
+        "TPID_SC",
+        "TPID_SCinit",
+        "T_CTRL_DOSinit",
+        "T_CTRL_MDOSinit",
+        "T_CTRL_PIDinit",
+        "T_CTRL_TP_STEPinit",
+        "T_DOS_CTRL_INTERNALinit",
+        "T_DOS_CTRL_PARAMETERinit",
+        "T_DPID_CTRL_INTERNALinit",
+        "T_DPID_CTRL_PARAMETERinit"
+      ],
+      "header_hex_16": "6400000000000800ba290d00801f0700"
+    }
+  ]
+}

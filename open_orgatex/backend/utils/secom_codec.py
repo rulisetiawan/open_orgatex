@@ -54,6 +54,54 @@ def get_template_batchref() -> bytearray:
     return bytearray(762)
 
 
+def colorref_to_hex(color_ref: Optional[int]) -> Optional[str]:
+    """
+    Converts a 4-byte Windows COLORREF integer (0x00BBGGRR, bit 24..31 = 0)
+    into a standard web hex color string '#RRGGBB'.
+    """
+    if color_ref is None:
+        return None
+    val = int(color_ref)
+    if val < 0 or val > 0x00FFFFFF:
+        raise ValueError(f"Invalid COLORREF value: {val}. Must be between 0 and 16777215 (bit 24..31 = 0).")
+    r = val & 0xFF
+    g = (val >> 8) & 0xFF
+    b = (val >> 16) & 0xFF
+    return f"#{r:02X}{g:02X}{b:02X}"
+
+
+def build_batchref_custom_params(
+    fabric_weight: float = 350.0,
+    parameters: Optional[Dict[Any, Any]] = None
+) -> List[Optional[float]]:
+    """
+    Builds a 20-slot parameter array (index 0..19 -> Parameter1..Parameter20)
+    for BATCHREF.REF offset 448..527 (float32 each).
+    Unspecified slots remain None so template defaults are preserved.
+    """
+    slots: List[Optional[float]] = [None] * 20
+    slots[0] = float(fabric_weight)
+    if isinstance(parameters, str) and parameters.strip():
+        try:
+            parameters = json.loads(parameters)
+        except Exception:
+            parameters = None
+    if isinstance(parameters, dict):
+        for k, v in parameters.items():
+            if v is None:
+                continue
+            try:
+                key_str = str(k).strip()
+                if key_str.lower().startswith("parameter"):
+                    key_str = key_str[9:]
+                slot_no = int(key_str)
+                if 1 <= slot_no <= 20:
+                    slots[slot_no - 1] = float(v)
+            except (ValueError, TypeError):
+                continue
+    return slots
+
+
 def create_batchref_binary(
     reference_no: Any,
     machine_no: Optional[str] = None,
@@ -68,7 +116,7 @@ def create_batchref_binary(
     program_title: str = "",
     batch_config: int = 2,
     custom_texts: Optional[Dict[int, str]] = None,
-    custom_params: Optional[List[float]] = None
+    custom_params: Optional[List[Optional[float]]] = None
 ) -> bytes:
     """
     Constructs exact 762-byte BATCHREF.REF structure.
@@ -146,6 +194,8 @@ def create_batchref_binary(
 
     if custom_params:
         for p_idx, val in enumerate(custom_params[:20]):
+            if val is None:
+                continue
             try:
                 struct.pack_into("<f", buf, 448 + p_idx * 4, float(val))
             except Exception:

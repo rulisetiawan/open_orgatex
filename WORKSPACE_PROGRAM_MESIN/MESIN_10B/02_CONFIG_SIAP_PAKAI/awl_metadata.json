@@ -1,0 +1,40 @@
+{
+  "machine": "10B",
+  "awl_count": 1,
+  "files": [
+    {
+      "filename": "CP14.AWL",
+      "cpu_type": "CP14",
+      "size_bytes": 369984,
+      "sha256": "421ec9f9b088553d4b61849efeedce8c768ce166bb8451146445dee5b7843445",
+      "project_names": [
+        "iS2000kg_CCR_plc.pro"
+      ],
+      "primary_project": "iS2000kg_CCR_plc.pro",
+      "dates_found": [],
+      "plc_symbols_sample": [
+        "Setex35794",
+        "DOS_SC",
+        "DOS_SCinit",
+        "DPID_SC",
+        "DPID_SCinit",
+        "MDOS_SC",
+        "MDOS_SCinit",
+        "PID_SC",
+        "PID_SCinit",
+        "Read_Me_SCTPID",
+        "TPID_SC",
+        "TPID_SCinit",
+        "T_CTRL_DOSinit",
+        "T_CTRL_MDOSinit",
+        "T_CTRL_PIDinit",
+        "T_CTRL_TP_STEPinit",
+        "T_DOS_CTRL_INTERNALinit",
+        "T_DOS_CTRL_PARAMETERinit",
+        "T_DPID_CTRL_INTERNALinit",
+        "T_DPID_CTRL_PARAMETERinit"
+      ],
+      "header_hex_16": "64000000000008003c640d00801f0700"
+    }
+  ]
+}

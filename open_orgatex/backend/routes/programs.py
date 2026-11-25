@@ -1161,7 +1161,7 @@ def fetch_programs_from_machine(machine_no: str, req: Optional[FetchFromMachineI
         ip = known_ips.get(clean_code, "172.16.110.160")
 
     is_797 = (
-        ip == "192.168.1.95" or 
+        ip in ("192.168.1.95", "172.16.120.102", "172.16.120.103", "172.16.120.105", "172.16.120.108", "172.16.120.109", "172.16.120.154") or 
         (req and req.controller_type and "797" in req.controller_type.upper()) or
         "797" in clean_code or
         clean_code in ["DA01", "DA1", "DA-01"] or
@@ -1314,7 +1314,7 @@ def transfer_program_to_ftp(program_no: int, req: ProgramFTPTransferIn, db: Sess
         ip = known_ips.get(clean_code, "172.16.110.160")
 
     is_797 = (
-        ip == "192.168.1.95" or 
+        ip in ("192.168.1.95", "172.16.120.102", "172.16.120.103", "172.16.120.105", "172.16.120.108", "172.16.120.109", "172.16.120.154") or 
         (req.controller_type and "797" in req.controller_type.upper()) or
         "797" in clean_code or
         clean_code in ["DA01", "DA1", "DA-01"] or

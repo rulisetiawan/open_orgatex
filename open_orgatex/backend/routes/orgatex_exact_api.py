@@ -46,6 +46,7 @@ from ..models.schema_pg import (
     CfgAlarm, CfgAlarmGroup, CfgStopGroup, CfgFunction,
     CfgFunctionParameter, CfgResource
 )
+from .third_party_api import OrgaTexImportBatchItem, process_orgatex_batch_import
 
 logger = logging.getLogger("orgatex.exact_api")
 
@@ -390,6 +391,19 @@ class OrgaTexBatchDto(BaseModel):
     BatchText_01: Optional[str] = Field(None, description="Keterangan / Artikel Kain")
     Position: Optional[int] = Field(None, description="Urutan Posisi Antrian")
     ForceCreateReDye: Optional[bool] = Field(False, description="Paksa buat ReDye jika sudah ada")
+
+@router.post("/api/BatchService/ImportBatches")
+@router.post("/BatchService/ImportBatches")
+def otx_import_batches(
+    payload: Union[List[OrgaTexImportBatchItem], OrgaTexImportBatchItem] = Body(...),
+    db: Session = Depends(get_db)
+):
+    """
+    Exact Parity: OrgaTEX Batch Import Array (`[{Dyelot, Machine, ProcedureNo, Weight, ImportState, Parameter11..20, ...}]`)
+    """
+    items = payload if isinstance(payload, list) else [payload]
+    return process_orgatex_batch_import(items, db)
+
 
 @router.post("/api/BatchService/CreateBatch")
 @router.post("/BatchService/CreateBatch")

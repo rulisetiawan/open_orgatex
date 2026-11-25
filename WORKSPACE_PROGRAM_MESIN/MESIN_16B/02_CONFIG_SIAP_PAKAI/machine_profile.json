@@ -23,5 +23,16 @@
   "typeconf_sha256": "2936ceff7a238bfff4b9512ca602d9cc85f132086d279674311432f424bd9f57",
   "registers_count": 93,
   "setpoints_count": 4,
-  "actuals_count": 53
+  "actuals_count": 53,
+  "has_awl_plc_program": true,
+  "awl_files": [
+    "CP14.AWL"
+  ],
+  "awl_cpu_types": [
+    "CP14"
+  ],
+  "awl_project_names": [
+    "iSarana_V3_plc.pro"
+  ],
+  "awl_sha256": "a1636f7d090954841635d5d1edd7b1cbdebd0f3876a2b9a94e766436c0c7b0dd"
 }

@@ -409,7 +409,7 @@ class SetexFolderReader:
 
         # 1. Try FTP if no raw bytes provided but IP is given
         if not data and ip:
-            is_797 = (ip.strip() == "192.168.1.95")
+            is_797 = (ip.strip() in ("192.168.1.95", "172.16.120.102", "172.16.120.103", "172.16.120.105", "172.16.120.108", "172.16.120.109", "172.16.120.154"))
             flashdisk_paths = [
                 "/Flashdisk/SC797CE/STATUS/STATUS.ACT",
                 "/Flashdisk/sc797ce/STATUS/STATUS.ACT",
@@ -587,7 +587,7 @@ class SetexFolderReader:
         """Reads ALARM.ACT for active alarms from raw bytes, FTP (supporting Flashdisk/SC797CE), or local folder."""
         data = raw_bytes
         if not data and ip:
-            is_797 = (ip.strip() == "192.168.1.95")
+            is_797 = (ip.strip() in ("192.168.1.95", "172.16.120.102", "172.16.120.103", "172.16.120.105", "172.16.120.108", "172.16.120.109", "172.16.120.154"))
             flashdisk_alarms = [
                 "/Flashdisk/SC797CE/STATUS/ALARM.ACT",
                 "/Flashdisk/sc797ce/STATUS/ALARM.ACT",
@@ -650,7 +650,7 @@ class SetexFolderReader:
         """Parses ALARMS.LOG from raw bytes, FTP (supporting Flashdisk/SC797CE), or local folder."""
         data = raw_bytes
         if not data and ip:
-            is_797 = (ip.strip() == "192.168.1.95")
+            is_797 = (ip.strip() in ("192.168.1.95", "172.16.120.102", "172.16.120.103", "172.16.120.105", "172.16.120.108", "172.16.120.109", "172.16.120.154"))
             flashdisk_logs = [
                 "/Flashdisk/SC797CE/STATUS/ALARMS.LOG",
                 "/Flashdisk/sc797ce/STATUS/ALARMS.LOG",
@@ -994,7 +994,7 @@ class SetexFolderReader:
         if not ip or not batch_no:
             return []
 
-        is_797 = (ip.strip() == "192.168.1.95")
+        is_797 = (ip.strip() in ("192.168.1.95", "172.16.120.102", "172.16.120.103", "172.16.120.105", "172.16.120.108", "172.16.120.109", "172.16.120.154"))
 
         flashdisk_batch_logs = [
             f"/Flashdisk/SC797CE/BATCH/{batch_no}/PR{batch_no}.LOG",
@@ -1509,7 +1509,7 @@ class SetexFolderReader:
 
         # 1. Try reading from FTP if IP available
         if ip:
-            is_797 = (ip.strip() == "192.168.1.95")
+            is_797 = (ip.strip() in ("192.168.1.95", "172.16.120.102", "172.16.120.103", "172.16.120.105", "172.16.120.108", "172.16.120.109", "172.16.120.154"))
             candidate_dirs = [
                 f"/Flashdisk/SC797CE/BATCH/{batch_no}" if batch_no else None,
                 "/Flashdisk/SC797CE/Programs",

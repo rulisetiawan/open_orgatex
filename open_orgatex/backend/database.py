@@ -53,7 +53,17 @@ def ensure_batch_header_columns(target_engine, is_postgres: bool = False):
                     ("article", "VARCHAR(255)"),
                     ("color_code", "VARCHAR(100)"),
                     ("color_name", "VARCHAR(100)"),
-                    ("total_water_l", "NUMERIC(10, 2)"),
+                    ("color_rgb", "INTEGER"),
+                    ("redye", "INTEGER DEFAULT 0"),
+                    ("procedure_no", "VARCHAR(255)"),
+                    ("total_water_l", "NUMERIC(12, 2)"),
+                    ("fabric_length", "NUMERIC(10, 2) DEFAULT 200.0"),
+                    ("import_state", "INTEGER DEFAULT 0"),
+                    ("note1", "TEXT"),
+                    ("type_of_procedure_no", "INTEGER DEFAULT 1"),
+                    ("process_type_1", "INTEGER DEFAULT 1"),
+                    ("process_type_2", "INTEGER DEFAULT 1"),
+                    ("parameters_json", "TEXT"),
                     ("position", "INTEGER DEFAULT 1")
                 ]
                 for col_name, col_type in needed:
@@ -73,11 +83,26 @@ def ensure_batch_header_columns(target_engine, is_postgres: bool = False):
                     ("article", "VARCHAR(255)"),
                     ("color_code", "VARCHAR(100)"),
                     ("color_name", "VARCHAR(100)"),
-                    ("total_water_l", "NUMERIC(10, 2)"),
+                    ("color_rgb", "INT"),
+                    ("redye", "INT DEFAULT 0"),
+                    ("procedure_no", "VARCHAR(255)"),
+                    ("total_water_l", "NUMERIC(12, 2)"),
+                    ("fabric_length", "NUMERIC(10, 2) DEFAULT 200.0"),
+                    ("import_state", "INT DEFAULT 0"),
+                    ("note1", "TEXT"),
+                    ("type_of_procedure_no", "INT DEFAULT 1"),
+                    ("process_type_1", "INT DEFAULT 1"),
+                    ("process_type_2", "INT DEFAULT 1"),
+                    ("parameters_json", "TEXT"),
                     ("position", "INT DEFAULT 1")
                 ]
                 for col_name, col_type in needed:
                     conn.execute(text(f"ALTER TABLE public.batch_headers ADD COLUMN IF NOT EXISTS {col_name} {col_type};"))
+                try:
+                    conn.execute(text("ALTER TABLE public.batch_headers ALTER COLUMN fabric_weight_kg TYPE NUMERIC(12, 2);"))
+                    conn.execute(text("ALTER TABLE public.batch_headers ALTER COLUMN total_water_l TYPE NUMERIC(12, 2);"))
+                except Exception:
+                    pass
                 
                 conn.execute(text("UPDATE public.batch_headers SET batch_no = 'LOT-' || batch_ref_no WHERE batch_no IS NULL OR batch_no = '';"))
                 conn.execute(text("UPDATE public.batch_headers SET recipe_name = 'Reactive Dyeing Standard' WHERE recipe_name IS NULL OR recipe_name = '';"))

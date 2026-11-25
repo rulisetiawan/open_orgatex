@@ -19,7 +19,12 @@ from typing import List, Dict, Any, Optional
 
 from ..database import get_db
 from ..models.schema_pg import BatchHeader, MachineQueue
-from ..utils.secom_codec import create_batchref_binary, build_minimal_prg, generate_queue_btd
+from ..utils.secom_codec import (
+    create_batchref_binary,
+    build_batchref_custom_params,
+    build_minimal_prg,
+    generate_queue_btd
+)
 from ..routes.programs import get_compiled_prg_bytes
 
 logger = logging.getLogger("sync_ftp_batches")
@@ -190,6 +195,11 @@ def sync_all_batches_to_ftp(ftp_host: str = FTP_HOST, ftp_port: int = FTP_PORT) 
         b_status = (b.status or "QUEUED").strip().upper()
 
         # Buat binary BATCHREF.REF (762 byte)
+        custom_params = build_batchref_custom_params(
+            fabric_weight=float(b.fabric_weight_kg or 350.0),
+            parameters=getattr(b, "parameters_json", None)
+        )
+        custom_texts = {8: str(b.note1)} if getattr(b, "note1", None) else None
         batchref_bytes = create_batchref_binary(
             reference_no=ref_no,
             machine_no=mach_no,
@@ -201,7 +211,9 @@ def sync_all_batches_to_ftp(ftp_host: str = FTP_HOST, ftp_port: int = FTP_PORT) 
             color_code=b.color_code or "",
             color_name=b.color_name or "",
             fabric_weight=float(b.fabric_weight_kg or 350.0),
-            program_title=recipe_title
+            program_title=recipe_title,
+            custom_texts=custom_texts,
+            custom_params=custom_params
         )
 
         # Ambil binary program M_xxxx.PRG
@@ -308,6 +320,11 @@ def sync_all_batches_to_ftp(ftp_host: str = FTP_HOST, ftp_port: int = FTP_PORT) 
         for idx, b in enumerate(sorted(m_list, key=lambda x: (int(x.position or 1), str(x.batch_ref_no))), start=1):
             ref_no = str(b.batch_ref_no).strip().zfill(6)
             prog_no = int(b.program_no or 1)
+            q_cparams = build_batchref_custom_params(
+                fabric_weight=float(b.fabric_weight_kg or 350.0),
+                parameters=getattr(b, "parameters_json", None)
+            )
+            q_ctexts = {8: str(b.note1)} if getattr(b, "note1", None) else None
             bref = create_batchref_binary(
                 reference_no=ref_no,
                 machine_no=mach_code,
@@ -319,7 +336,9 @@ def sync_all_batches_to_ftp(ftp_host: str = FTP_HOST, ftp_port: int = FTP_PORT) 
                 color_code=b.color_code or "",
                 color_name=b.color_name or "",
                 fabric_weight=float(b.fabric_weight_kg or 350.0),
-                program_title=b.recipe_name or f"Prog {prog_no}"
+                program_title=b.recipe_name or f"Prog {prog_no}",
+                custom_texts=q_ctexts,
+                custom_params=q_cparams
             )
             q_rec = bytearray(bref[:759])
             struct.pack_into("<HH", q_rec, 755, 0, idx)
@@ -393,6 +412,11 @@ def sync_single_batch_to_ftp(
     b_status = (target_batch.status or "QUEUED").strip().upper()
 
     # 1. Buat binary BATCHREF.REF (762 byte)
+    custom_params = build_batchref_custom_params(
+        fabric_weight=float(target_batch.fabric_weight_kg or 350.0),
+        parameters=getattr(target_batch, "parameters_json", None)
+    )
+    custom_texts = {8: str(target_batch.note1)} if getattr(target_batch, "note1", None) else None
     batchref_bytes = create_batchref_binary(
         reference_no=ref_no,
         machine_no=mach_no,
@@ -404,7 +428,9 @@ def sync_single_batch_to_ftp(
         color_code=target_batch.color_code or "",
         color_name=target_batch.color_name or "",
         fabric_weight=float(target_batch.fabric_weight_kg or 350.0),
-        program_title=recipe_title
+        program_title=recipe_title,
+        custom_texts=custom_texts,
+        custom_params=custom_params
     )
 
     # 2. Ambil binary program M_xxxx.PRG
@@ -458,6 +484,11 @@ def sync_single_batch_to_ftp(
             for idx, b in enumerate(active_da01, start=1):
                 r_no = str(b.batch_ref_no).strip().zfill(6)
                 p_no = int(b.program_no or 1)
+                q_cparams = build_batchref_custom_params(
+                    fabric_weight=float(b.fabric_weight_kg or 350.0),
+                    parameters=getattr(b, "parameters_json", None)
+                )
+                q_ctexts = {8: str(b.note1)} if getattr(b, "note1", None) else None
                 bref = create_batchref_binary(
                     reference_no=r_no,
                     machine_no="DA01",
@@ -469,7 +500,9 @@ def sync_single_batch_to_ftp(
                     color_code=b.color_code or "",
                     color_name=b.color_name or "",
                     fabric_weight=float(b.fabric_weight_kg or 350.0),
-                    program_title=b.recipe_name or f"Prog {p_no}"
+                    program_title=b.recipe_name or f"Prog {p_no}",
+                    custom_texts=q_ctexts,
+                    custom_params=q_cparams
                 )
                 q_rec = bytearray(bref[:759])
                 struct.pack_into("<HH", q_rec, 755, 0, idx)

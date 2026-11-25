@@ -9,5 +9,16 @@
   "last_synced_at": "2026-11-18T08:03:45.916564",
   "files_in_hmi_dir": [
     "PETUNJUK_DOWNLOAD_DARI_HMI.txt"
-  ]
+  ],
+  "has_awl_plc_program": true,
+  "awl_files": [
+    "SC26.AWL"
+  ],
+  "awl_cpu_types": [
+    "UNKNOWN"
+  ],
+  "awl_project_names": [
+    "hSMKM25001_Numune_V1.pro"
+  ],
+  "awl_sha256": "d45241aa0dc07d72e3780b82044e0585e144f1a2cf6ad0b2acdda8a4e3d34a20"
 }

@@ -20,6 +20,8 @@ from ..models.schema_pg import BatchHeader, Machine, MachineQueue
 try:
     from ..utils.secom_codec import (
         create_batchref_binary,
+        build_batchref_custom_params,
+        colorref_to_hex,
         build_minimal_prg,
         generate_batch_zip,
         generate_multi_batch_zip,
@@ -28,6 +30,8 @@ try:
 except (ImportError, ValueError):
     from utils.secom_codec import (
         create_batchref_binary,
+        build_batchref_custom_params,
+        colorref_to_hex,
         build_minimal_prg,
         generate_batch_zip,
         generate_multi_batch_zip,
@@ -84,22 +88,47 @@ def _batch_to_dict(b: BatchHeader, position: Optional[int] = None) -> Dict[str, 
             created_str = str(b.created_at)[:19]
 
     pos = position if position is not None else (b.position or 1)
+    params_dict: Dict[str, Any] = {}
+    if getattr(b, "parameters_json", None):
+        try:
+            params_dict = json.loads(b.parameters_json)
+        except Exception:
+            params_dict = {}
+
+    color_rgb = getattr(b, "color_rgb", None)
+    color_hex = None
+    if color_rgb is not None:
+        try:
+            color_hex = colorref_to_hex(color_rgb)
+        except Exception:
+            color_hex = None
 
     return {
         "id": f"b-{b.batch_ref_no}",
         "db_id": b.id,
         "reference_no": b.batch_ref_no,
         "batch_no": b.batch_no or f"LOT-{b.batch_ref_no}",
+        "redye": getattr(b, "redye", 0) or 0,
         "machine_no": b.machine_no,
         "program_no": b.program_no or 1,
+        "procedure_no": getattr(b, "procedure_no", None),
         "recipe_name": b.recipe_name or "Reactive Dyeing Standard Formula",
         "customer": b.customer or "-",
         "article": b.article or "-",
         "color_code": b.color_code or "-",
         "color_name": b.color_name or "-",
+        "color_rgb": color_rgb,
+        "color_hex": color_hex,
         "fabric_weight_kg": weight,
         "liquor_ratio": lr,
         "total_water_l": water,
+        "fabric_length": float(b.fabric_length) if getattr(b, "fabric_length", None) is not None else 200.0,
+        "import_state": getattr(b, "import_state", 0) or 0,
+        "note1": getattr(b, "note1", None),
+        "type_of_procedure_no": getattr(b, "type_of_procedure_no", 1) or 1,
+        "process_type_1": getattr(b, "process_type_1", 1) or 1,
+        "process_type_2": getattr(b, "process_type_2", 1) or 1,
+        "parameters": params_dict,
         "status": b.status or "QUEUED",
         "position": pos,
         "created_at": created_str
@@ -137,6 +166,11 @@ def sync_local_queue_files(batches_list: List[Dict[str, Any]]):
                 prg_name = f"M_{prog_no:04d}.PRG"
                 recipe_name = b.get("recipe_name", f"Prog {prog_no}")
                 
+                custom_params = build_batchref_custom_params(
+                    fabric_weight=float(b.get("fabric_weight_kg", 350.0)),
+                    parameters=b.get("parameters")
+                )
+                custom_texts = {8: str(b["note1"])} if b.get("note1") else None
                 batchref_bin = create_batchref_binary(
                     reference_no=ref_no,
                     machine_no=mach,
@@ -148,7 +182,9 @@ def sync_local_queue_files(batches_list: List[Dict[str, Any]]):
                     color_code=b.get("color_code", ""),
                     color_name=b.get("color_name", ""),
                     fabric_weight=float(b.get("fabric_weight_kg", 350.0)),
-                    program_title=recipe_name
+                    program_title=recipe_name,
+                    custom_texts=custom_texts,
+                    custom_params=custom_params
                 )
                 q_rec = bytearray(batchref_bin[:759])
                 struct.pack_into("<HH", q_rec, 755, 0, idx)
@@ -588,6 +624,11 @@ def export_machine_queue_btd(machine_no: str, db: Session = Depends(get_db)):
     for idx, b in enumerate(batches_dicts, start=1):
         ref_no = str(b.get("reference_no", "062340")).zfill(6)
         prog_no = int(b.get("program_no", 1))
+        custom_params = build_batchref_custom_params(
+            fabric_weight=float(b.get("fabric_weight_kg", 350.0)),
+            parameters=b.get("parameters")
+        )
+        custom_texts = {8: str(b["note1"])} if b.get("note1") else None
         batchref_bin = create_batchref_binary(
             reference_no=ref_no,
             machine_no=mach,
@@ -599,7 +640,9 @@ def export_machine_queue_btd(machine_no: str, db: Session = Depends(get_db)):
             color_code=b.get("color_code", ""),
             color_name=b.get("color_name", ""),
             fabric_weight=float(b.get("fabric_weight_kg", 350.0)),
-            program_title=b.get("recipe_name", f"Prog {prog_no}")
+            program_title=b.get("recipe_name", f"Prog {prog_no}"),
+            custom_texts=custom_texts,
+            custom_params=custom_params
         )
         q_rec = bytearray(batchref_bin[:759])
         struct.pack_into("<HH", q_rec, 755, 0, idx)

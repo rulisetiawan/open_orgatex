@@ -10,22 +10,25 @@ Designed for 3rd-party integration:
 """
 
 import os
+import re
 import json
 import time
 import logging
+import threading
 from datetime import datetime
-from typing import List, Optional, Dict, Any
+from typing import List, Optional, Dict, Any, Union
 
-from fastapi import APIRouter, HTTPException, Depends, Header, Query, status
+from fastapi import APIRouter, HTTPException, Depends, Header, Query, Body, status
 from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
-from sqlalchemy import desc
+from sqlalchemy import desc, func
 
 from ..database import get_db
 from ..models.schema_pg import (
-    Machine, BatchHeader, Recipe, ProgramHeader,
+    Machine, BatchHeader, MachineQueue, Recipe, ProgramHeader, ProgramComponent,
     DatalogCyclicRecord, DatalogAlarm
 )
+from ..utils.secom_codec import colorref_to_hex
 
 logger = logging.getLogger("orgatex.third_party_api")
 
@@ -107,6 +110,332 @@ class BatchMoveRequest(BaseModel):
     target_machine_no: Optional[str] = Field(None, description="Pindah ke Mesin Lain")
     new_position: Optional[int] = Field(None, description="Urutan Posisi Baru di Antrian")
 
+
+class OrgaTexImportBatchItem(BaseModel):
+    """
+    Payload kontrak pihak ketiga (ERP / Recipe System -> OpenOrgaTEX Batch Import).
+    Mendukung seluruh field standar OrgaTEX Batch Import termasuk COLORREF 4-byte & Parameter1..20.
+    """
+    Dyelot: str = Field(..., min_length=1, description="Nomor data / Dyelot batch")
+    Customer: Optional[str] = Field("", description="Nama Customer")
+    Article: Optional[str] = Field("", description="Jenis Kain")
+    ColourNo: Optional[str] = Field("", description="No Warna")
+    ColourDescript: Optional[str] = Field("", description="Nama Warna")
+    Color: Optional[int] = Field(
+        None,
+        ge=0,
+        le=0x00FFFFFF,
+        description="Windows COLORREF 4-byte RGB (bit 0..7=R, 8..15=G, 16..23=B, 24..31=0)"
+    )
+    Redye: int = Field(0, ge=0, description="Celupan ke berapa, mulai dari 0")
+    Machine: str = Field(..., min_length=1, description="Nama / Kode Mesin")
+    ProcedureNo: Union[str, int] = Field(..., description="Nama atau Nomor Program Celup")
+    Weight: float = Field(..., ge=0, description="Berat Order")
+    ImportState: int = Field(0, description="Isi 4 jika ingin langsung di-release (QUEUED)")
+    LiquorQuantity: Optional[float] = Field(None, ge=0, description="Vlot Air (Liter)")
+    Note1: Optional[str] = Field(None, description="List no data dalam 1 batch")
+    TypeOfProcedureNo: int = Field(1, description="Tipe eksekusi program celup di OrgaTEX, default 1")
+    ProcessType1: int = Field(1, description="Tipe Proses, default 1 (Dyeing)")
+    ProcessType2: int = Field(1, description="Tipe Order, default 1")
+    LiquorRatio: float = Field(6.0, ge=0, description="Liquor Ratio, default 6")
+    Length: float = Field(200.0, ge=0, description="Panjang kain, default 200")
+    Parameter11: Optional[float] = Field(2.0, description="Cycle Time")
+    Parameter15: Optional[float] = Field(None, description="Soda Addition (hasil perhitungan resep)")
+    Parameter16: Optional[float] = Field(None, description="Salt Addition (hasil perhitungan resep)")
+    Parameter17: Optional[float] = Field(None, description="Dye Addition (hasil perhitungan resep)")
+    Parameter18: Optional[float] = Field(None, description="Water Addition (hasil perhitungan resep)")
+    Parameter20: Optional[float] = Field(6.0, description="Fabric Width")
+
+    class Config:
+        extra = "allow"
+
+
+def _resolve_machine(db: Session, machine_raw: str, weight: float, liquor_ratio: float):
+    """Mencocokkan nama/kode mesin ke tabel machines; auto-create bila belum terdaftar."""
+    clean = machine_raw.strip()
+    upper = clean.upper()
+
+    m = db.query(Machine).filter(func.upper(Machine.machine_no) == upper).first()
+    if m:
+        return m, None
+
+    m = db.query(Machine).filter(func.upper(Machine.display_name) == upper).first()
+    if m:
+        return m, None
+
+    is_797 = upper in ("DA01", "M_95") or "797" in upper
+    new_m = Machine(
+        machine_no=upper,
+        display_name=clean if clean != upper else (f"SETEX 797CE Mesin {upper}" if is_797 else f"Mesin {upper}"),
+        ip_address="192.168.1.95" if is_797 else "172.16.110.100",
+        tcp_port=50100 if is_797 else 50000,
+        ftp_port=21,
+        controller_type="SETEX 797CE (Windows CE)" if is_797 else "SECOM 777 (Windows CE)",
+        os_family="WindowsCE",
+        group_name="Dyeing Sample / DA" if is_797 else "Dyeing Section",
+        capacity_kg=weight or 350.0,
+        default_liquor_ratio=liquor_ratio or 6.0,
+        share_folder_path="/Flashdisk/SC797CE" if is_797 else "/Storage/sc777ce",
+        status="ONLINE",
+        is_active=True
+    )
+    db.add(new_m)
+    db.flush()
+    return new_m, f"Mesin '{clean}' belum terdaftar di master, otomatis dibuat sebagai '{upper}'."
+
+
+def _resolve_procedure_no(db: Session, procedure_raw: Union[str, int]):
+    """
+    Resolusi ProcedureNo (nama program celup atau kode angka) ke numeric program_no (1..9999)
+    untuk kompilasi M_xxxx.PRG.
+    """
+    proc_str = str(procedure_raw).strip()
+    if not proc_str:
+        return 1, "", "ProcedureNo kosong, fallback ke program_no=1."
+
+    # 1. Jika langsung angka murni (misal 401 atau "0401")
+    if proc_str.isdigit():
+        return int(proc_str), proc_str, None
+
+    # 2. Cari di ProgramComponent (Level 1 = Procedure) berdasarkan name atau number
+    proc_upper = proc_str.upper()
+    comp = db.query(ProgramComponent).filter(
+        ProgramComponent.level == 1,
+        (func.upper(ProgramComponent.name) == proc_upper) | (func.upper(ProgramComponent.number) == proc_upper)
+    ).first()
+    if comp:
+        digits = re.sub(r"\D", "", str(comp.number or ""))
+        prog_no = int(digits) if digits else int(comp.id)
+        return prog_no, proc_str, None
+
+    # 3. Cari di ProgramHeader berdasarkan program_name
+    hdr = db.query(ProgramHeader).filter(func.upper(ProgramHeader.program_name) == proc_upper).first()
+    if hdr:
+        return int(hdr.program_no), proc_str, None
+
+    # 4. Coba pola seperti "M_0401" atau "PRG 401"
+    m = re.match(r"^(?:M_|PRG[\s_-]*)(\d{1,4})(?:\.PRG)?$", proc_upper)
+    if m:
+        return int(m.group(1)), proc_str, None
+
+    return 1, proc_str, f"ProcedureNo '{proc_str}' tidak ditemukan di master program, menggunakan fallback program_no=1."
+
+
+def _extract_batch_parameters(item: OrgaTexImportBatchItem) -> Dict[str, float]:
+    """Mengumpulkan Parameter1..Parameter20 dari payload (termasuk field ekstra dinamis)."""
+    params: Dict[str, float] = {}
+    raw_dict = item.model_dump() if hasattr(item, "model_dump") else item.dict()
+    for key, val in raw_dict.items():
+        if val is None:
+            continue
+        m = re.match(r"^Parameter(\d{1,2})$", str(key), re.IGNORECASE)
+        if m:
+            slot = int(m.group(1))
+            if 1 <= slot <= 20:
+                params[str(slot)] = float(val)
+    return params
+
+
+def process_orgatex_batch_import(
+    items: List[OrgaTexImportBatchItem],
+    db: Session
+) -> Dict[str, Any]:
+    """
+    Core processor untuk bulk/single import batch dari sistem pihak ketiga.
+    Menulis ke PostgreSQL/SQLite (BatchHeader & MachineQueue), sync local BATCHREF.REF/QUEUE.BTD,
+    dan trigger FTP sync untuk batch DA01 yang langsung di-release (ImportState == 4).
+    """
+    if not items:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Payload batch tidak boleh kosong."
+        )
+
+    # Tentukan nomor referensi 6-digit berikutnya secara aman untuk seluruh item di batch array
+    all_refs = db.query(BatchHeader.batch_ref_no).all()
+    existing_numeric = [int(r[0]) for r in all_refs if r[0] and str(r[0]).isdigit()]
+    next_ref_counter = (max(existing_numeric) if existing_numeric else 62343) + 1
+
+    imported: List[Dict[str, Any]] = []
+    errors: List[Dict[str, Any]] = []
+    created_objects: List[BatchHeader] = []
+    da01_released_refs: List[str] = []
+
+    for idx, item in enumerate(items):
+        dyelot = item.Dyelot.strip()
+        dyelot_upper = dyelot.upper()
+        item_warnings: List[str] = []
+
+        try:
+            # Cek duplikasi kombinasi aktif (Dyelot, Redye)
+            dup = db.query(BatchHeader).filter(
+                func.upper(BatchHeader.batch_no) == dyelot_upper,
+                BatchHeader.redye == item.Redye,
+                ~BatchHeader.status.in_(["FINISHED", "COMPLETED", "CANCELLED"])
+            ).first()
+            if dup:
+                errors.append({
+                    "index": idx,
+                    "dyelot": dyelot,
+                    "redye": item.Redye,
+                    "error": f"Dyelot '{dyelot}' (Redye {item.Redye}) sudah terdaftar aktif di mesin '{dup.machine_no}' (Ref: {dup.batch_ref_no}, Status: {dup.status})."
+                })
+                continue
+
+            machine_obj, mach_warn = _resolve_machine(db, item.Machine, item.Weight, item.LiquorRatio)
+            if mach_warn:
+                item_warnings.append(mach_warn)
+            mach_no = machine_obj.machine_no
+
+            prog_no, proc_str, proc_warn = _resolve_procedure_no(db, item.ProcedureNo)
+            if proc_warn:
+                item_warnings.append(proc_warn)
+
+            ref_no = str(next_ref_counter).zfill(6)
+            next_ref_counter += 1
+
+            # ImportState == 4 -> langsung release ke antrean mesin (QUEUED), selain itu PLANNING
+            batch_status = "QUEUED" if item.ImportState == 4 else "PLANNING"
+
+            max_pos = db.query(func.max(BatchHeader.position)).filter(BatchHeader.machine_no == mach_no).scalar()
+            next_position = (max_pos or 0) + 1
+
+            total_water = (
+                float(item.LiquorQuantity)
+                if item.LiquorQuantity is not None
+                else round(float(item.Weight) * float(item.LiquorRatio), 2)
+            )
+            params_dict = _extract_batch_parameters(item)
+            params_json = json.dumps(params_dict) if params_dict else None
+            color_hex = colorref_to_hex(item.Color) if item.Color is not None else None
+
+            new_batch = BatchHeader(
+                batch_ref_no=ref_no,
+                batch_no=dyelot_upper,
+                machine_no=mach_no,
+                program_no=prog_no,
+                procedure_no=proc_str,
+                recipe_name=proc_str or f"Program {prog_no}",
+                customer=(item.Customer or "-").strip() or "-",
+                article=(item.Article or "-").strip() or "-",
+                color_code=(item.ColourNo or "-").strip() or "-",
+                color_name=(item.ColourDescript or "-").strip() or "-",
+                color_rgb=item.Color,
+                redye=item.Redye,
+                fabric_weight_kg=item.Weight,
+                liquor_ratio=item.LiquorRatio,
+                total_water_l=total_water,
+                fabric_length=item.Length,
+                import_state=item.ImportState,
+                note1=item.Note1,
+                type_of_procedure_no=item.TypeOfProcedureNo,
+                process_type_1=item.ProcessType1,
+                process_type_2=item.ProcessType2,
+                parameters_json=params_json,
+                status=batch_status,
+                position=next_position
+            )
+            db.add(new_batch)
+
+            if batch_status == "QUEUED":
+                db.add(MachineQueue(
+                    machine_no=mach_no,
+                    batch_ref_no=ref_no,
+                    batch_no=dyelot_upper,
+                    program_no=prog_no,
+                    recipe_name=proc_str or f"Program {prog_no}",
+                    customer=(item.Customer or "-").strip() or "-",
+                    article=(item.Article or "-").strip() or "-",
+                    color_code=(item.ColourNo or "-").strip() or "-",
+                    color_name=(item.ColourDescript or "-").strip() or "-",
+                    fabric_weight_kg=item.Weight,
+                    liquor_ratio=item.LiquorRatio,
+                    total_water_l=total_water,
+                    status=batch_status,
+                    position=next_position
+                ))
+
+            db.commit()
+            db.refresh(new_batch)
+            created_objects.append(new_batch)
+
+            if mach_no == "DA01" and batch_status == "QUEUED":
+                da01_released_refs.append(ref_no)
+
+            imported.append({
+                "index": idx,
+                "batch_ref_no": ref_no,
+                "dyelot": dyelot_upper,
+                "redye": item.Redye,
+                "machine_no": mach_no,
+                "procedure_no": proc_str,
+                "program_no": prog_no,
+                "weight": float(item.Weight),
+                "liquor_ratio": float(item.LiquorRatio),
+                "liquor_quantity": total_water,
+                "length": float(item.Length),
+                "import_state": item.ImportState,
+                "status": batch_status,
+                "position": next_position,
+                "color_rgb": item.Color,
+                "color_hex": color_hex,
+                "note1": item.Note1,
+                "parameters": params_dict,
+                "warnings": item_warnings
+            })
+
+        except Exception as e:
+            db.rollback()
+            logger.error(f"Error importing batch index={idx} dyelot={dyelot}: {e}")
+            errors.append({
+                "index": idx,
+                "dyelot": dyelot,
+                "redye": item.Redye,
+                "error": str(e)
+            })
+
+    # Mirror ke SQLite lokal & sinkronisasi file QUEUE.BTD / BATCHREF.REF
+    if created_objects:
+        try:
+            from ..services.db_sync_service import DBSyncService
+            for obj in created_objects:
+                DBSyncService.mirror_batch_to_sqlite(obj)
+        except Exception as se:
+            logger.warning(f"SQLite mirror on import skipped: {se}")
+
+        try:
+            from .planning import _batch_to_dict, _sync_planning_json
+            all_batches = [_batch_to_dict(b) for b in db.query(BatchHeader).order_by(BatchHeader.created_at.desc()).all()]
+            threading.Thread(target=_sync_planning_json, args=(all_batches,), daemon=True).start()
+        except Exception as pe:
+            logger.warning(f"Local planning/QUEUE.BTD sync on import skipped: {pe}")
+
+        if da01_released_refs:
+            def _bg_ftp_sync_imported(refs: List[str]):
+                try:
+                    from ..services.ftp_sync_service import sync_single_batch_to_ftp
+                    for r in refs:
+                        sync_single_batch_to_ftp(r)
+                except Exception as fe:
+                    logger.warning(f"Background FTP sync on import skipped: {fe}")
+
+            threading.Thread(target=_bg_ftp_sync_imported, args=(da01_released_refs,), daemon=True).start()
+
+    overall_status = "success"
+    if errors and imported:
+        overall_status = "partial_success"
+    elif errors and not imported:
+        overall_status = "failed"
+
+    return {
+        "status": overall_status,
+        "total_received": len(items),
+        "total_imported": len(imported),
+        "total_failed": len(errors),
+        "imported": imported,
+        "errors": errors
+    }
+
 # ---------------------------------------------------------------------------
 # API Endpoints
 # ---------------------------------------------------------------------------
@@ -129,6 +458,25 @@ def get_service_info():
 # ===========================================================================
 # 1. BATCH MANAGEMENT (Parity: IBatchService / BatchPoolManager)
 # ===========================================================================
+
+@router.post("/batches/import", status_code=status.HTTP_201_CREATED, dependencies=[Depends(verify_api_key)])
+def import_batches(
+    payload: Union[List[OrgaTexImportBatchItem], OrgaTexImportBatchItem] = Body(...),
+    db: Session = Depends(get_db)
+):
+    """
+    [ERP / Recipe System -> OrgaTEX] Bulk / Single Batch Import.
+    Menerima array JSON `[{Dyelot, Customer, Article, ColourNo, ColourDescript, Color, Redye, Machine,
+    ProcedureNo, Weight, ImportState, LiquorQuantity, Note1, TypeOfProcedureNo, ProcessType1,
+    ProcessType2, LiquorRatio, Length, Parameter11, Parameter15..18, Parameter20}]`.
+
+    - `Color`: 4-byte Windows COLORREF RGB (bit 0..7=R, 8..15=G, 16..23=B, 24..31=0).
+    - `ImportState = 4`: otomatis release ke status `QUEUED` (masuk antrean mesin & QUEUE.BTD).
+    - `Parameter11, 15..18, 20`: otomatis ditulis ke slot parameter float32 `BATCHREF.REF`.
+    """
+    items = payload if isinstance(payload, list) else [payload]
+    return process_orgatex_batch_import(items, db)
+
 
 @router.post("/batches", status_code=status.HTTP_201_CREATED, dependencies=[Depends(verify_api_key)])
 def create_batch(req: BatchCreateRequest, db: Session = Depends(get_db)):

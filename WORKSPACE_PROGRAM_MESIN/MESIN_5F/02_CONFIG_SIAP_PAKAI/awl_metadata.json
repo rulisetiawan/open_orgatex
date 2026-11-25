@@ -1,0 +1,108 @@
+{
+  "machine": "5F",
+  "awl_count": 3,
+  "files": [
+    {
+      "filename": "CP14.AWL",
+      "cpu_type": "CP14",
+      "size_bytes": 370142,
+      "sha256": "aad1e37d202f84dbf9837123ab38ddeebf2ab09b114f7574f8402fc2e0900cc5",
+      "project_names": [
+        "XDongBao707.pro"
+      ],
+      "primary_project": "XDongBao707.pro",
+      "dates_found": [],
+      "plc_symbols_sample": [
+        "Setex35794",
+        "Level",
+        "Drain",
+        "Dosing",
+        "Heating",
+        "Cooling",
+        "Pressure",
+        "batch",
+        "DOS_SC",
+        "DOS_SCinit",
+        "DPID_SC",
+        "DPID_SCinit",
+        "MDOS_SC",
+        "MDOS_SCinit",
+        "PID_SC",
+        "PID_SCinit",
+        "Read_Me_SCTPID",
+        "TPID_SC",
+        "TPID_SCinit",
+        "T_CTRL_DOSinit"
+      ],
+      "header_hex_16": "640000000000080072720d00801f0700"
+    },
+    {
+      "filename": "CP16.AWL",
+      "cpu_type": "CP16",
+      "size_bytes": 370142,
+      "sha256": "aad1e37d202f84dbf9837123ab38ddeebf2ab09b114f7574f8402fc2e0900cc5",
+      "project_names": [
+        "XDongBao707.pro"
+      ],
+      "primary_project": "XDongBao707.pro",
+      "dates_found": [],
+      "plc_symbols_sample": [
+        "Setex35794",
+        "Level",
+        "Drain",
+        "Dosing",
+        "Heating",
+        "Cooling",
+        "Pressure",
+        "batch",
+        "DOS_SC",
+        "DOS_SCinit",
+        "DPID_SC",
+        "DPID_SCinit",
+        "MDOS_SC",
+        "MDOS_SCinit",
+        "PID_SC",
+        "PID_SCinit",
+        "Read_Me_SCTPID",
+        "TPID_SC",
+        "TPID_SCinit",
+        "T_CTRL_DOSinit"
+      ],
+      "header_hex_16": "640000000000080072720d00801f0700"
+    },
+    {
+      "filename": "SC20D.AWL",
+      "cpu_type": "UNKNOWN",
+      "size_bytes": 452800,
+      "sha256": "e0209b20f050154df0a600d816f1506e4e0f2d74f6e5718fb9a52a06e84f0840",
+      "project_names": [
+        "m_SAF5-2T-2AT-1ST-20200925.pro"
+      ],
+      "primary_project": "m_SAF5-2T-2AT-1ST-20200925.pro",
+      "dates_found": [],
+      "plc_symbols_sample": [
+        "Setex35794",
+        "Level",
+        "Drain",
+        "Dosing",
+        "Heating",
+        "Cooling",
+        "Pressure",
+        "batch",
+        "DOS_SC",
+        "DOS_SCinit",
+        "DPID_SC",
+        "DPID_SCinit",
+        "MDOS_SC",
+        "MDOS_SCinit",
+        "PID_SC",
+        "PID_SCinit",
+        "Read_Me_SCTPID",
+        "TPID_SC",
+        "TPID_SCinit",
+        "T_CTRL_DOSinit"
+      ],
+      "header_hex_16": "640000000000080052b00e00801f0700"
+    }
+  ]
+}

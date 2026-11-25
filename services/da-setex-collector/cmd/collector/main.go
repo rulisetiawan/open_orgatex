@@ -266,21 +266,25 @@ func runMachineCollector(ctx context.Context, mCfg config.PilotMachineConfig, gl
 		})
 	}
 
-	// Poller 1: STATUS.ACT via FTP (immediate startup poll + periodic)
-	go func() {
-		pollStatusAct()
-		ticker := time.NewTicker(time.Duration(mCfg.StatusActIntervalSec) * time.Second)
-		defer ticker.Stop()
+	// Poller 1: STATUS.ACT via FTP (Optional - only if enable_status_act is true and interval > 0)
+	if mCfg.Objects.EnableStatusAct && mCfg.StatusActIntervalSec > 0 {
+		go func() {
+			pollStatusAct()
+			ticker := time.NewTicker(time.Duration(mCfg.StatusActIntervalSec) * time.Second)
+			defer ticker.Stop()
 
-		for {
-			select {
-			case <-ctx.Done():
-				return
-			case <-ticker.C:
-				pollStatusAct()
+			for {
+				select {
+				case <-ctx.Done():
+					return
+				case <-ticker.C:
+					pollStatusAct()
+				}
 			}
-		}
-	}()
+		}()
+	} else {
+		logger.Info("STATUS.ACT pulling via FTP is disabled", "machine", mCfg.MachineID)
+	}
 
 	// Poller 2: Multi-Object Telemetry via TCP Port 50000
 	telemetryTopic := fmt.Sprintf("%s/%s/telemetry", globalCfg.EMQX.TopicTelemetryPrefix, mCfg.AssetID)
