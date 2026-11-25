@@ -1,10 +1,12 @@
 package setex
 
 import (
+	"bytes"
 	"encoding/binary"
 	"fmt"
 	"io"
 	"regexp"
+	"sort"
 	"sync"
 	"time"
 
@@ -50,7 +52,7 @@ func NewFTPClient(host string, port int, user, password string, timeout time.Dur
 
 func (c *FTPClient) connect() (*ftp.ServerConn, error) {
 	addr := fmt.Sprintf("%s:%d", c.Host, c.Port)
-	client, err := ftp.Dial(addr, ftp.DialWithTimeout(c.Timeout))
+	client, err := ftp.Dial(addr, ftp.DialWithTimeout(c.Timeout), ftp.DialWithDisabledEPSV(true))
 	if err != nil {
 		return nil, fmt.Errorf("dial ftp %s: %w", addr, err)
 	}
@@ -58,14 +60,15 @@ func (c *FTPClient) connect() (*ftp.ServerConn, error) {
 	user := c.User
 	pass := c.Password
 	if user == "" {
-		user = "anonymous"
-	}
-	if err := client.Login(user, pass); err != nil {
-		// Try empty password login
-		if err2 := client.Login("", ""); err2 != nil {
-			client.Quit()
-			return nil, fmt.Errorf("ftp login failed: %w", err)
+		if err := client.Login("anonymous", "anonymous@"); err != nil {
+			if err2 := client.Login("anonymous", ""); err2 != nil {
+				client.Quit()
+				return nil, fmt.Errorf("ftp login failed: %w", err)
+			}
 		}
+	} else if err := client.Login(user, pass); err != nil {
+		client.Quit()
+		return nil, fmt.Errorf("ftp login failed: %w", err)
 	}
 
 	return client, nil
@@ -116,26 +119,23 @@ func (c *FTPClient) FetchStatusAct() (*ControllerStatus, []byte, error) {
 		StatusText:  "RUNNING",
 	}
 
-	// 1. Extract batch number at offset 36..48 (exact SETEX struct) or regex fallback
+	// 1. Extract batch number at offset 36..48 (skipping leading null bytes in SETEX struct)
 	if len(statusBytes) >= 48 {
-		rawB := string(statusBytes[36:48])
-		// Null terminate
-		for i, ch := range rawB {
-			if ch == 0 {
-				rawB = rawB[:i]
-				break
-			}
+		trimmed := bytes.TrimLeft(statusBytes[36:48], "\x00 ")
+		if idx := bytes.IndexByte(trimmed, 0); idx >= 0 {
+			trimmed = trimmed[:idx]
 		}
-		rawB = regexp.MustCompile(`[^A-Za-z0-9_-]`).ReplaceAllString(rawB, "")
+		rawB := regexp.MustCompile(`[^A-Za-z0-9_-]`).ReplaceAllString(string(trimmed), "")
 		if len(rawB) >= 4 {
 			status.BatchNo = rawB
 		}
 	}
 	if status.BatchNo == "" {
 		reBatch := regexp.MustCompile(`\b\d{6}\b`)
-		matches := reBatch.FindAll(statusBytes, -1)
+		matches := reBatch.FindAllString(string(statusBytes), -1)
 		if len(matches) > 0 {
-			status.BatchNo = string(matches[len(matches)-1])
+			sort.Strings(matches)
+			status.BatchNo = matches[len(matches)-1]
 		}
 	}
 

@@ -17,6 +17,7 @@ services:
     environment:
       - TZ=Asia/Jakarta
       - CONFIG_PATH=/app/config.yaml
+      - DATABASE_URL=postgresql://postgres:sensorSMM!@192.168.100.30:5433/pt_smm_jetflow
 
     volumes:
       - ./config.yaml:/app/config.yaml:ro

@@ -10,12 +10,19 @@ import (
 type Config struct {
 	Collector    CollectorConfig    `yaml:"collector"`
 	EMQX         EMQXConfig         `yaml:"emqx"`
+	Database     DatabaseConfig     `yaml:"database"`
 	PilotMachine PilotMachineConfig `yaml:"pilot_machine"`
 }
 
 type CollectorConfig struct {
-	Name     string `yaml:"name"`
-	LogLevel string `yaml:"log_level"`
+	Name         string `yaml:"name"`
+	LogLevel     string `yaml:"log_level"`
+	MultiMachine bool   `yaml:"multi_machine"`
+	MaxWorkers   int    `yaml:"max_workers"`
+}
+
+type DatabaseConfig struct {
+	URL string `yaml:"url"`
 }
 
 type EMQXConfig struct {
@@ -62,6 +69,12 @@ func LoadConfig(path string) (*Config, error) {
 		return nil, fmt.Errorf("parse yaml config: %w", err)
 	}
 
+	if envDB := os.Getenv("DATABASE_URL"); envDB != "" {
+		cfg.Database.URL = envDB
+	}
+	if cfg.Collector.MaxWorkers <= 0 {
+		cfg.Collector.MaxWorkers = 12
+	}
 	if cfg.PilotMachine.TelemetryIntervalSec <= 0 {
 		cfg.PilotMachine.TelemetryIntervalSec = 3
 	}

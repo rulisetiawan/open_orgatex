@@ -233,6 +233,11 @@ func (s *Storage) IngestTelemetry(ctx context.Context, p TelemetryPayload) error
 		}
 	}
 
+	// 3.1.1 Update SCADA asset_snapshot & batch_process_run so :8788 Digital Automation dashboard shows live batch
+	if p.BatchNo != "" && p.AssetID != "" {
+		s.ensureScadaBatchAndSnapshot(ctx, p.AssetID, p.BatchNo, p.ProgramNo)
+	}
+
 	// 4. Historian insertion to datalog_iw_records for key process metrics
 	if len(p.Tags) > 0 {
 		batchJf := &pgx.Batch{}
@@ -287,9 +292,9 @@ func (s *Storage) ensureBatchHeader(ctx context.Context, machineNo, batchRefNo, 
 		INSERT INTO batch_headers
 		(batch_ref_no, batch_no, machine_no, program_no, recipe_name, status, fabric_weight_kg, liquor_ratio, customer)
 		VALUES (
-			$1, $2, $3, $4, $5, 'RUNNING',
-			COALESCE((SELECT capacity_kg FROM machines WHERE machine_no = $3), 350.0),
-			COALESCE((SELECT default_liquor_ratio FROM machines WHERE machine_no = $3), 8.0),
+			$1, $2, $3::varchar, $4, $5, 'RUNNING',
+			COALESCE((SELECT capacity_kg FROM machines WHERE machine_no = $3::varchar), 350.0),
+			COALESCE((SELECT default_liquor_ratio FROM machines WHERE machine_no = $3::varchar), 8.0),
 			'PT. SMM JETFLOW'
 		)
 		ON CONFLICT (batch_ref_no) DO NOTHING;
@@ -297,6 +302,73 @@ func (s *Storage) ensureBatchHeader(ctx context.Context, machineNo, batchRefNo, 
 	if _, err := s.jetflowPool.Exec(ctx, query, ref, batchNo, mach, progNum, recipeName); err != nil {
 		s.logger.Warn("Error ensuring batch_headers entry", "batch", ref, "machine", mach, "error", err)
 	}
+}
+
+// ensureScadaBatchAndSnapshot syncs active batch & state into pt_smm_scada (production_batch, batch_process_run, asset_snapshot)
+// so the Digital Automation (:8788) dashboard automatically detects new batches and records run history.
+func (s *Storage) ensureScadaBatchAndSnapshot(ctx context.Context, assetID, batchNo, programNo string) {
+	aid := strings.TrimSpace(assetID)
+	bno := strings.TrimSpace(batchNo)
+	if aid == "" || bno == "" || bno == "000000" {
+		return
+	}
+
+	// 1. Ensure production_batch exists (FK requirement for batch_process_run)
+	_, err := s.scadaPool.Exec(ctx, `
+		INSERT INTO production_batch (batch_no, batch_status, source_system, created_at, updated_at)
+		VALUES ($1, 'RUNNING', 'SETEX_COLLECTOR', NOW(), NOW())
+		ON CONFLICT (batch_no) DO UPDATE SET updated_at = NOW();
+	`, bno)
+	if err != nil {
+		s.logger.Debug("Error upserting production_batch", "batch", bno, "error", err)
+		return
+	}
+
+	// 2. Complete any previous RUNNING batch on this asset when a new batch starts
+	_, _ = s.scadaPool.Exec(ctx, `
+		UPDATE batch_process_run
+		SET run_status = 'COMPLETED',
+		    ended_at = COALESCE(ended_at, NOW()),
+		    updated_at = NOW()
+		WHERE asset_id = $1 AND run_status = 'RUNNING' AND batch_no <> $2;
+	`, aid, bno)
+
+	// 3. Upsert current RUNNING batch_process_run for (asset_id, batch_no)
+	progStr := strings.TrimSpace(programNo)
+	if progStr == "" {
+		progStr = "1"
+	}
+	recipeCode := "PROGRAM " + progStr
+	_, err = s.scadaPool.Exec(ctx, `
+		WITH updated AS (
+			UPDATE batch_process_run
+			SET run_status = 'RUNNING',
+			    recipe_code = COALESCE(NULLIF($3, ''), recipe_code),
+			    source_updated_at = NOW(),
+			    updated_at = NOW()
+			WHERE asset_id = $1 AND batch_no = $2
+			RETURNING process_run_id
+		)
+		INSERT INTO batch_process_run
+		(process_run_id, batch_no, asset_id, process_type, recipe_code, run_status, started_at, source_system, source_updated_at, created_at, updated_at, payload_json)
+		SELECT gen_random_uuid(), $2, $1, 'jetflow', $3, 'RUNNING', NOW(), 'SETEX_COLLECTOR', NOW(), NOW(), NOW(),
+		       jsonb_build_object('program_no', $4::text)
+		WHERE NOT EXISTS (SELECT 1 FROM updated)
+		  AND EXISTS (SELECT 1 FROM asset WHERE asset_id = $1);
+	`, aid, bno, recipeCode, progStr)
+	if err != nil {
+		s.logger.Debug("Error upserting batch_process_run", "asset", aid, "batch", bno, "error", err)
+	}
+
+	// 4. Update asset_snapshot.batch_no & machine_state so :8788 UI shows active batch immediately
+	_, _ = s.scadaPool.Exec(ctx, `
+		UPDATE asset_snapshot
+		SET batch_no = $2,
+		    machine_state = 'running',
+		    connected = TRUE,
+		    updated_at = NOW()
+		WHERE asset_id = $1;
+	`, aid, bno)
 }
 
 // IngestStatus updates machine status across tables.
@@ -330,19 +402,11 @@ func (s *Storage) IngestStatus(ctx context.Context, p StatusPayload) error {
 	`
 	_, _ = s.jetflowPool.Exec(ctx, queryMachine, p.BatchNo, p.StepNo, now, p.ConnectionStatus, p.MachineID)
 
-	// Auto-register new batch in batch_headers
+	// Auto-register new batch in batch_headers (pt_smm_jetflow) and SCADA tables (pt_smm_scada)
 	s.ensureBatchHeader(ctx, p.MachineID, p.BatchNo, p.ProgramNo)
-
-	// Update asset table
-	queryAsset := `
-		UPDATE asset 
-		SET connected = ($1 = 'ONLINE'),
-		    batch_ref_no = COALESCE(NULLIF($2, ''), batch_ref_no),
-		    step_no = CASE WHEN $3 > 0 THEN $3 ELSE step_no END,
-		    updated_at = NOW()
-		WHERE asset_id = $4;
-	`
-	_, _ = s.scadaPool.Exec(ctx, queryAsset, p.ConnectionStatus, p.BatchNo, p.StepNo, p.AssetID)
+	if p.ConnectionStatus == "ONLINE" {
+		s.ensureScadaBatchAndSnapshot(ctx, p.AssetID, p.BatchNo, p.ProgramNo)
+	}
 
 	return nil
 }
@@ -411,7 +475,8 @@ func (s *Storage) IngestAlarms(ctx context.Context, p AlarmsPayload) error {
 	query := `
 		INSERT INTO datalog_alarms 
 		(batch_ref_no, machine_no, alarm_timestamp, alarm_code, alarm_text, step_no, operator_id, severity, cleared_at)
-		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9);
+		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+		ON CONFLICT DO NOTHING;
 	`
 	batch := &pgx.Batch{}
 	for _, a := range p.Alarms {
