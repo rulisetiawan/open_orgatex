@@ -165,6 +165,7 @@ func (s *Storage) IngestTelemetry(ctx context.Context, p TelemetryPayload) error
 		(machine_id, asset_id, last_updated, connection_status, batch_no, step_no, program_no, telemetry_json)
 		VALUES ($1, $2, $3, 'ONLINE', $4, $5, $6, $7)
 		ON CONFLICT (machine_id) DO UPDATE SET
+			asset_id = EXCLUDED.asset_id,
 			last_updated = EXCLUDED.last_updated,
 			connection_status = 'ONLINE',
 			batch_no = EXCLUDED.batch_no,
@@ -207,7 +208,8 @@ func (s *Storage) IngestTelemetry(ctx context.Context, p TelemetryPayload) error
 		queryDef := `
 			INSERT INTO tag_definition (tag_code, asset_id, signal_role, engineering_unit, source_status, active, created_at, stale_after_seconds, freshness_mode, display_name)
 			VALUES ($1, $2, $3, $4, 'LIVE', TRUE, NOW(), 60, 'TAG_TIMESTAMP', $1)
-			ON CONFLICT (tag_code) DO NOTHING;
+			ON CONFLICT (tag_code) DO UPDATE SET
+				asset_id = EXCLUDED.asset_id;
 		`
 		for _, tagName := range sortedTagNames {
 			metric := p.Tags[tagName]
@@ -229,6 +231,7 @@ func (s *Storage) IngestTelemetry(ctx context.Context, p TelemetryPayload) error
 			INSERT INTO tag_latest (tag_code, asset_id, value_number, quality, source_ts, ingested_at, updated_at, message_id)
 			VALUES ($1, $2, $3, 'GOOD', $4, NOW(), NOW(), gen_random_uuid())
 			ON CONFLICT (tag_code) DO UPDATE SET
+				asset_id = EXCLUDED.asset_id,
 				value_number = EXCLUDED.value_number,
 				quality = 'GOOD',
 				source_ts = EXCLUDED.source_ts,
@@ -402,6 +405,7 @@ func (s *Storage) IngestStatus(ctx context.Context, p StatusPayload) error {
 		(machine_id, asset_id, last_updated, connection_status, batch_no, step_no, program_no)
 		VALUES ($1, $2, $3, $4, $5, $6, $7)
 		ON CONFLICT (machine_id) DO UPDATE SET
+			asset_id = EXCLUDED.asset_id,
 			last_updated = EXCLUDED.last_updated,
 			connection_status = EXCLUDED.connection_status,
 			batch_no = COALESCE(NULLIF(EXCLUDED.batch_no, ''), live_iw_telemetry.batch_no),

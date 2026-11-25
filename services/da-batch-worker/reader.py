@@ -1135,6 +1135,9 @@ class SetexFolderReader:
         candidate_paths = [
             os.path.join(os.path.dirname(__file__), "..", "data", "typeconf_functions.json"),
             os.path.join(os.path.dirname(__file__), "..", "..", "data", "typeconf_functions.json"),
+            os.path.join(os.path.dirname(__file__), "..", "..", "open_orgatex", "backend", "data", "typeconf_functions.json"),
+            "/app/WORKSPACE_PROGRAM_MESIN/MESIN_10B/02_CONFIG_SIAP_PAKAI/typeconf_functions.json",
+            os.path.join(os.path.dirname(__file__), "..", "..", "WORKSPACE_PROGRAM_MESIN", "MESIN_10B", "02_CONFIG_SIAP_PAKAI", "typeconf_functions.json"),
             "/app/open_orgatex/backend/data/typeconf_functions.json",
             "./data/typeconf_functions.json",
             "typeconf_functions.json"
@@ -1303,8 +1306,36 @@ class SetexFolderReader:
 
         return (formatted, p_name, p_unit)
 
+    _MACHINE_CATALOG_CACHE: Dict[str, Dict[str, Any]] = {}
+
     @classmethod
-    def parse_prg_steps(cls, prg_bytes: bytes, function_catalog: Optional[Dict[str, Any]] = None) -> List[Dict[str, Any]]:
+    def load_machine_catalog(cls, machine_no: Optional[str]) -> Optional[Dict[str, Any]]:
+        """Loads per-machine typeconf_functions.json from WORKSPACE_PROGRAM_MESIN/MESIN_<id>/02_CONFIG_SIAP_PAKAI."""
+        if not machine_no:
+            return None
+        key = str(machine_no).strip().upper()
+        if key in cls._MACHINE_CATALOG_CACHE:
+            return cls._MACHINE_CATALOG_CACHE[key]
+
+        candidates = [
+            os.path.join("/app/WORKSPACE_PROGRAM_MESIN", f"MESIN_{key}", "02_CONFIG_SIAP_PAKAI", "typeconf_functions.json"),
+            os.path.join("WORKSPACE_PROGRAM_MESIN", f"MESIN_{key}", "02_CONFIG_SIAP_PAKAI", "typeconf_functions.json"),
+            os.path.join(os.path.dirname(__file__), "..", "..", "WORKSPACE_PROGRAM_MESIN", f"MESIN_{key}", "02_CONFIG_SIAP_PAKAI", "typeconf_functions.json"),
+        ]
+        for p in candidates:
+            if os.path.exists(p):
+                try:
+                    with open(p, "r", encoding="utf-8") as f:
+                        data = json.load(f)
+                        cls._MACHINE_CATALOG_CACHE[key] = data
+                        return data
+                except Exception as e:
+                    logger.warning(f"Failed loading per-machine typeconf_functions.json for {key}: {e}")
+        cls._MACHINE_CATALOG_CACHE[key] = {}
+        return None
+
+    @classmethod
+    def parse_prg_steps(cls, prg_bytes: bytes, function_catalog: Optional[Dict[str, Any]] = None, machine_no: Optional[str] = None) -> List[Dict[str, Any]]:
         """
         Parses a SETEX Secom .PRG binary recipe to extract every defined step (1..N),
         comments/remarks (Slot 0), all sub-lines (1..16), all 6 parameters (with names and units),
@@ -1316,8 +1347,9 @@ class SetexFolderReader:
         if cls._PARAMETERS_CATALOG is None:
             cls.get_function_catalog()
 
-        catalog = function_catalog or cls._FUNCTION_CATALOG or {}
-        res_catalog = cls._RESOURCES_CATALOG or {}
+        m_data = cls.load_machine_catalog(machine_no) if machine_no else None
+        catalog = function_catalog or (m_data.get("functions") if m_data else None) or cls._FUNCTION_CATALOG or {}
+        res_catalog = (m_data.get("resources") if m_data else None) or cls._RESOURCES_CATALOG or {}
 
         # Read step count from header (offset 33)
         hdr_count = struct.unpack_from("<H", prg_bytes, 33)[0] if len(prg_bytes) >= 384 else 0
@@ -1380,10 +1412,13 @@ class SetexFolderReader:
                     except Exception:
                         pass
 
-                # Unpack 6x 32-bit float parameters
+                # Unpack defined parameters (respecting parameter_count from typeconf_functions.json when available)
+                p_count = int(func_meta.get("parameter_count", 6)) if func_meta else 6
+                if p_count < 0 or p_count > 6:
+                    p_count = 6
                 parsed_params = []
                 fmt_p = []
-                for j in range(6):
+                for j in range(p_count):
                     p_off = 9 + 6 * j
                     val = 0.0
                     if p_off + 4 <= len(rec):

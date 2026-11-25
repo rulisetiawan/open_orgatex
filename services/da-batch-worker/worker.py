@@ -124,7 +124,8 @@ def build_scada_program_steps(raw_steps: List[Dict[str, Any]]) -> List[Dict[str,
                 p_name = str(p.get("name") or "")
                 p_val = p.get("value")
                 p_unit = str(p.get("unit") or "").strip()
-                val_str = f"{p_val} {p_unit}".strip() if p_val is not None else ""
+                p_fmt = str(p.get("formatted") or "").strip()
+                val_str = p_fmt if p_fmt else (f"{p_val} {p_unit}".strip() if p_val is not None else "")
                 params_out.append({"name": p_name, "value": val_str})
                 if temp_sv is None and not bool(sub.get("is_sub")) and ("temperature ma" in p_name.lower() or "suhu" in p_name.lower() or "°c" in p_unit.lower()):
                     try:
@@ -299,7 +300,7 @@ def process_single_machine(m: Dict[str, Any]) -> Dict[str, Any]:
     # 1b. Parse PRG Recipe Steps and publish for SCADA Tabel proses
     if bundle.get("prg_bytes") and batch_no:
         try:
-            raw_steps = SetexFolderReader.parse_prg_steps(bundle["prg_bytes"])
+            raw_steps = SetexFolderReader.parse_prg_steps(bundle["prg_bytes"], machine_no=m_no)
             if raw_steps:
                 scada_steps = build_scada_program_steps(raw_steps)
                 prog_int = int(prog_no) if str(prog_no).isdigit() else 0
