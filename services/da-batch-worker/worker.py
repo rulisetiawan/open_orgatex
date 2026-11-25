@@ -102,11 +102,57 @@ def init_mqtt() -> Optional[mqtt.Client]:
 
 
 def resolve_asset_id(machine_no: str) -> str:
-    """Standardizes asset code (e.g. 10B -> JF-LB-10, 1A -> JF-LB-01)."""
-    digits = re.sub(r'[^0-9]', '', machine_no or '')
+    """Standardizes asset code (e.g. 10B -> JF-LB-10, 10C -> JF-LC-10, 1A -> JF-LA-01)."""
+    clean = (machine_no or '').strip().upper()
+    digits = re.sub(r'[^0-9]', '', clean)
+    letters = re.sub(r'[^A-Z]', '', clean)
     if digits:
-        return f"JF-LB-{int(digits):02d}" if int(digits) < 10 else f"JF-LB-{digits}"
-    return f"JF-LB-{machine_no}"
+        line = letters if len(letters) == 1 else 'B'
+        return f"JF-L{line}-{int(digits):02d}"
+    return f"JF-LB-{clean}"
+
+
+def build_scada_program_steps(raw_steps: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    """Converts parsed PRG steps into the exact JSON format expected by pt_smm_scada Tabel proses."""
+    out = []
+    for st in raw_steps:
+        slots = []
+        temp_sv = None
+        for sub in st.get("sub_steps") or []:
+            params_out = []
+            for p in sub.get("params") or []:
+                p_name = str(p.get("name") or "")
+                p_val = p.get("value")
+                p_unit = str(p.get("unit") or "").strip()
+                val_str = f"{p_val} {p_unit}".strip() if p_val is not None else ""
+                params_out.append({"name": p_name, "value": val_str})
+                if temp_sv is None and not bool(sub.get("is_sub")) and ("temperature ma" in p_name.lower() or "suhu" in p_name.lower() or "°c" in p_unit.lower()):
+                    try:
+                        fv = float(p_val)
+                        if fv > 0:
+                            temp_sv = int(fv) if fv.is_integer() else fv
+                    except Exception:
+                        pass
+            slots.append({
+                "func": sub.get("func_name") or sub.get("name") or "",
+                "main": not bool(sub.get("is_sub")),
+                "slot": int(sub.get("line") or 1),
+                "params": params_out,
+                "func_id": int(sub.get("func_id") or 0),
+                "resource": sub.get("resource_name") or "main tank",
+            })
+        out.append({
+            "no": int(st.get("no") or 0),
+            "sv": temp_sv,
+            "min": int(st.get("set_time") or 0),
+            "step": st.get("name") or "",
+            "slots": slots,
+            "comment": st.get("comment") or None,
+            "func_id": int(st.get("func_id") or 0),
+            "hold_min": int(st.get("hold_time") or 0),
+            "protect_min": int(st.get("protect_time") or 0),
+        })
+    return out
 
 
 def is_controller_online(ip: str, port: int = 21, timeout: float = SOCKET_TIMEOUT) -> bool:
@@ -227,12 +273,14 @@ def process_single_machine(m: Dict[str, Any]) -> Dict[str, Any]:
     batch_no = ""
     step_no = 1
     prog_no = "1"
+    prog_name = ""
     m_state = "ONLINE"
     if bundle.get("status_bytes"):
         st = SetexFolderReader.read_status_act(folder_path="", ip=ip, ftp_port=ftp_port, raw_bytes=bundle["status_bytes"])
         batch_no = st.get("current_batch") or ""
         step_no = st.get("current_step") or 1
         prog_no = st.get("prog_no") or "1"
+        prog_name = st.get("program_name") or st.get("program_code") or ""
         m_state = st.get("status") or "RUNNING"
 
         # Publish Status to EMQX
@@ -247,6 +295,30 @@ def process_single_machine(m: Dict[str, Any]) -> Dict[str, Any]:
             "program_no": str(prog_no)
         }
         _mqtt_client.publish(topic_status, json.dumps(payload_status), qos=1, retain=True)
+
+    # 1b. Parse PRG Recipe Steps and publish for SCADA Tabel proses
+    if bundle.get("prg_bytes") and batch_no:
+        try:
+            raw_steps = SetexFolderReader.parse_prg_steps(bundle["prg_bytes"])
+            if raw_steps:
+                scada_steps = build_scada_program_steps(raw_steps)
+                prog_int = int(prog_no) if str(prog_no).isdigit() else 0
+                topic_prog = f"smm/jetflow/{asset_id}/batch_program"
+                payload_prog = {
+                    "asset_id": asset_id,
+                    "machine_no": m_no,
+                    "batch_no": batch_no,
+                    "program_no": str(prog_no),
+                    "program_name": prog_name,
+                    "program_file": f"M_{prog_int:04d}.PRG" if prog_int > 0 else "",
+                    "program_source": "SETEX_FTP_PRG",
+                    "current_step": int(step_no),
+                    "total_steps": len(scada_steps),
+                    "program": scada_steps,
+                }
+                _mqtt_client.publish(topic_prog, json.dumps(payload_prog), qos=1)
+        except Exception as pe:
+            logger.debug(f"PRG parse notice for {m_no}: {pe}")
 
     # 2. Parse PR<batch>.LOG
     points_count = 0

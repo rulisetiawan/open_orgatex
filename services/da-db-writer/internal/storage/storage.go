@@ -69,6 +69,19 @@ type BatchCurvePayload struct {
 	Points    []CyclicPoint `json:"points"`
 }
 
+type BatchProgramPayload struct {
+	AssetID       string          `json:"asset_id"`
+	MachineNo     string          `json:"machine_no"`
+	BatchNo       string          `json:"batch_no"`
+	ProgramNo     string          `json:"program_no"`
+	ProgramName   string          `json:"program_name"`
+	ProgramFile   string          `json:"program_file"`
+	ProgramSource string          `json:"program_source"`
+	CurrentStep   int             `json:"current_step"`
+	TotalSteps    int             `json:"total_steps"`
+	Program       json.RawMessage `json:"program"`
+}
+
 type AlarmItem struct {
 	BatchRefNo     string     `json:"batch_ref_no"`
 	MachineNo      string     `json:"machine_no"`
@@ -178,8 +191,12 @@ func (s *Storage) IngestTelemetry(ctx context.Context, p TelemetryPayload) error
 		_, _ = s.jetflowPool.Exec(ctx, queryMachine, currentTemp, p.BatchNo, p.StepNo, now, p.MachineID)
 	}
 
-	// 3. Ensure tag definitions exist in pt_smm_scada.tag_definition (Auto-register new SV/PV/TOTALIZER tags)
-	if len(p.Tags) > 0 {
+	// 3. Ensure tag definitions exist in pt_smm_scada.tag_definition (only for assets registered in pt_smm_scada.asset)
+	var assetExists bool
+	if len(p.Tags) > 0 && p.AssetID != "" {
+		_ = s.scadaPool.QueryRow(ctx, "SELECT EXISTS(SELECT 1 FROM asset WHERE asset_id = $1);", p.AssetID).Scan(&assetExists)
+	}
+	if len(p.Tags) > 0 && assetExists {
 		sortedTagNames := make([]string, 0, len(p.Tags))
 		for tagName := range p.Tags {
 			sortedTagNames = append(sortedTagNames, tagName)
@@ -228,6 +245,8 @@ func (s *Storage) IngestTelemetry(ctx context.Context, p TelemetryPayload) error
 		if err := br.Close(); err != nil {
 			s.logger.Warn("Error batch updating tag_latest in pt_smm_scada", "error", err)
 		} else {
+			// Auto-promote asset from DUMMY to LIVE once live telemetry is persisted
+			_, _ = s.scadaPool.Exec(ctx, "UPDATE asset SET data_source = 'LIVE', updated_at = NOW() WHERE asset_id = $1 AND data_source = 'DUMMY';", p.AssetID)
 			// Trigger Jetflow asset snapshot calculation once per telemetry cycle
 			_, _ = s.scadaPool.Exec(ctx, "SELECT sync_jetflow_asset_snapshot($1);", p.AssetID)
 		}
@@ -463,6 +482,70 @@ func (s *Storage) IngestBatchCurve(ctx context.Context, p BatchCurvePayload) err
 		}
 	}
 
+	return nil
+}
+
+// IngestBatchProgram stores parsed PRG recipe steps into pt_smm_scada.batch_process_run.payload_json
+// and refreshes asset_snapshot so "Tabel proses" on /process/jetflow/:assetId renders the live recipe.
+func (s *Storage) IngestBatchProgram(ctx context.Context, p BatchProgramPayload) error {
+	aid := strings.TrimSpace(p.AssetID)
+	bno := strings.TrimSpace(p.BatchNo)
+	if aid == "" || bno == "" || bno == "000000" || len(p.Program) == 0 {
+		return nil
+	}
+
+	// Ensure parent production_batch and batch_process_run rows exist
+	s.ensureScadaBatchAndSnapshot(ctx, aid, bno, p.ProgramNo)
+
+	var progress float64
+	if p.TotalSteps > 0 && p.CurrentStep > 0 {
+		progress = float64(p.CurrentStep) / float64(p.TotalSteps) * 100.0
+		if progress > 100.0 {
+			progress = 100.0
+		}
+	}
+
+	recipeCode := strings.TrimSpace(p.ProgramName)
+	if recipeCode == "" {
+		recipeCode = "PROGRAM " + strings.TrimSpace(p.ProgramNo)
+	}
+
+	payloadObj := map[string]interface{}{
+		"program":         json.RawMessage(p.Program),
+		"program_no":      p.ProgramNo,
+		"program_file":    p.ProgramFile,
+		"program_source":  p.ProgramSource,
+		"total_steps":     p.TotalSteps,
+		"current_step":    p.CurrentStep,
+		"progress_basis":  "step_ratio",
+		"program_read_at": time.Now().UTC().Format(time.RFC3339),
+	}
+	payloadBytes, err := json.Marshal(payloadObj)
+	if err != nil {
+		return err
+	}
+
+	_, err = s.scadaPool.Exec(ctx, `
+		UPDATE batch_process_run
+		SET recipe_code = COALESCE(NULLIF($3, ''), recipe_code),
+		    progress_percent = ROUND($4::numeric, 2),
+		    payload_json = COALESCE(payload_json, '{}'::jsonb) || $5::jsonb,
+		    source_updated_at = NOW(),
+		    updated_at = NOW()
+		WHERE asset_id = $1 AND batch_no = $2;
+	`, aid, bno, recipeCode, progress, payloadBytes)
+	if err != nil {
+		return err
+	}
+
+	_, _ = s.scadaPool.Exec(ctx, `
+		UPDATE asset_snapshot
+		SET progress_percent = ROUND($2::numeric, 2),
+		    updated_at = NOW()
+		WHERE asset_id = $1;
+	`, aid, progress)
+
+	_, _ = s.scadaPool.Exec(ctx, "SELECT sync_jetflow_asset_snapshot($1);", aid)
 	return nil
 }
 

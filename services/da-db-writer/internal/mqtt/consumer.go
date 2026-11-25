@@ -117,6 +117,18 @@ func (c *Consumer) handleIncomingMessage(_ paho.Client, msg paho.Message) {
 			c.logger.Info("Batch curve persisted to DB", "asset", p.AssetID, "batch", p.BatchNo, "points", len(p.Points))
 		}
 
+	case "batch_program":
+		var p storage.BatchProgramPayload
+		if err := json.Unmarshal(payload, &p); err != nil {
+			c.logger.Debug("Unmarshal batch program failed", "topic", topic, "error", err)
+			return
+		}
+		if err := c.storage.IngestBatchProgram(c.ctx, p); err != nil {
+			c.logger.Error("Failed to ingest batch program", "asset", p.AssetID, "batch", p.BatchNo, "error", err)
+		} else {
+			c.logger.Info("Batch program persisted to SCADA", "asset", p.AssetID, "batch", p.BatchNo, "steps", p.TotalSteps)
+		}
+
 	case "alarms":
 		var p storage.AlarmsPayload
 		if err := json.Unmarshal(payload, &p); err != nil {
