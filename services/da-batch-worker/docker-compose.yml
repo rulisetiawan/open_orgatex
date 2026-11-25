@@ -18,8 +18,8 @@ services:
       - TZ=Asia/Jakarta
       - CONFIG_PATH=/app/config.yaml
       - POLL_INTERVAL_SEC=60
-      - MAX_WORKERS=2
-      - TARGET_MACHINES=10B      # Pilot testing saat ini: hanya 10B
+      - MAX_WORKERS=6
+      - TARGET_MACHINES=
       - EMQX_HOST=192.168.100.30
       - EMQX_PORT=1883
       - DATABASE_URL=postgresql://postgres:sensorSMM!@192.168.100.30:5433/pt_smm_jetflow
