@@ -211,7 +211,8 @@ CREATE TABLE IF NOT EXISTS program_step_functions (
 -- =============================================================================
 
 CREATE TABLE IF NOT EXISTS machines (
-    machine_no VARCHAR(50) PRIMARY KEY,      -- Contoh: 'TD12', 'TD13', 'M01'
+    machine_no VARCHAR(50) PRIMARY KEY,      -- Contoh: '1A', '1B', '12C'
+    orgatex_id VARCHAR(50),                  -- ID Mesin di OrgaTEX (Contoh: 'A001', 'B001', 'C012')
     display_name VARCHAR(150) NOT NULL,
     ip_address VARCHAR(50) NOT NULL,
     ftp_port INT DEFAULT 21,

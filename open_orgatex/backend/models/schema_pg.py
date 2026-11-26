@@ -72,6 +72,7 @@ class Machine(Base):
     __tablename__ = 'machines'
 
     machine_no = Column(String(50), primary_key=True)
+    orgatex_id = Column(String(50), nullable=True, index=True)
     display_name = Column(String(150), nullable=False)
     ip_address = Column(String(50), nullable=False)
     tcp_port = Column(Integer, default=50000)

@@ -113,12 +113,19 @@ def ensure_batch_header_columns(target_engine, is_postgres: bool = False):
 
 def ensure_essential_machines(target_engine, is_postgres: bool = False):
     """
-    Ensures essential machines DA01 and M_95 exist in machines table
+    Ensures machines table has orgatex_id column and essential machines DA01 and M_95 exist
     so Foreign Key references in batch_headers always succeed.
     """
     try:
         with target_engine.connect() as conn:
             prefix = "public." if is_postgres else ""
+            if not is_postgres:
+                cols = [r[1] for r in conn.execute(text("PRAGMA table_info(machines)")).fetchall()]
+                if "orgatex_id" not in cols:
+                    conn.execute(text("ALTER TABLE machines ADD COLUMN orgatex_id VARCHAR(50);"))
+            else:
+                conn.execute(text("ALTER TABLE public.machines ADD COLUMN IF NOT EXISTS orgatex_id VARCHAR(50);"))
+                conn.execute(text("CREATE INDEX IF NOT EXISTS idx_public_machines_orgatex_id ON public.machines (orgatex_id);"))
             conn.execute(text(f"""
                 INSERT INTO {prefix}machines (
                     machine_no, display_name, ip_address, tcp_port, ftp_port, 

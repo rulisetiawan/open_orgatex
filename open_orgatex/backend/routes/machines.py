@@ -34,6 +34,7 @@ WRITE_MODE_ENABLED = os.getenv("WRITE_MODE_ENABLED", "false").lower() in ("true"
 
 class MachineCreateSchema(BaseModel):
     machine_no: str
+    orgatex_id: Optional[str] = None
     internal_no: Optional[str] = ""
     display_name: str
     group_name: str = "Dyeing Section A"
@@ -56,6 +57,7 @@ class MachineCreateSchema(BaseModel):
     auto_fetch_config: bool = True
 
 class MachineUpdateSchema(BaseModel):
+    orgatex_id: Optional[str] = None
     internal_no: Optional[str] = None
     display_name: Optional[str] = None
     group_name: Optional[str] = None
@@ -224,6 +226,7 @@ def get_all_machines(db: Session = Depends(get_db)):
             cfg = get_machine_config_summary(no)
             results.append({
                 "machine_no": no,
+                "orgatex_id": m_data.get("orgatex_id"),
                 "display_name": disp_name,
                 "group_name": m_data.get("group", "Dyeing Section A"),
                 "controller_type": m_data.get("type", "SECOM 777 (Windows CE)"),
@@ -276,6 +279,7 @@ def get_all_machines(db: Session = Depends(get_db)):
         is_797 = m.ip_address == "192.168.1.95" or m.machine_no in ("DA01", "M_95") or "797" in (m.controller_type or "")
         results.append({
             "machine_no": m.machine_no,
+            "orgatex_id": m.orgatex_id,
             "display_name": m.display_name,
             "group_name": m.group_name or ("Dyeing Sample / DA" if is_797 else "Dyeing Section A"),
             "controller_type": "SETEX 797CE (Windows CE)" if is_797 else (m.controller_type or "SECOM 777 (Windows CE)"),
@@ -334,6 +338,7 @@ def get_machine(machine_no: str, db: Session = Depends(get_db)):
     is_797 = m.ip_address == "192.168.1.95" or mach_clean in ("DA01", "M_95") or "797" in (m.controller_type or "")
     return {
         "machine_no": m.machine_no,
+        "orgatex_id": m.orgatex_id,
         "display_name": m.display_name,
         "group_name": m.group_name or ("Dyeing Sample / DA" if is_797 else "Dyeing Section A"),
         "controller_type": "SETEX 797CE (Windows CE)" if is_797 else (m.controller_type or "SECOM 777 (Windows CE)"),
@@ -367,6 +372,8 @@ def create_machine(m: MachineCreateSchema, db: Session = Depends(get_db)):
     m_no = m.machine_no.strip().upper()
     existing = db.query(Machine).filter(Machine.machine_no == m_no).first()
     if existing:
+        if m.orgatex_id is not None:
+            existing.orgatex_id = m.orgatex_id.strip().upper() or None
         existing.display_name = m.display_name
         existing.ip_address = m.ip_address
         existing.tcp_port = m.tcp_port
@@ -409,6 +416,7 @@ def create_machine(m: MachineCreateSchema, db: Session = Depends(get_db)):
 
     new_m = Machine(
         machine_no=m_no,
+        orgatex_id=(m.orgatex_id.strip().upper() or None) if m.orgatex_id else None,
         display_name=m.display_name,
         ip_address=m.ip_address,
         tcp_port=m.tcp_port,
