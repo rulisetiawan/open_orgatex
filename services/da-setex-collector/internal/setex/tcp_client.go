@@ -16,6 +16,7 @@ type TCPClient struct {
 	Host    string
 	Port    int
 	Timeout time.Duration
+	conn    net.Conn
 }
 
 func NewTCPClient(host string, port int, timeout time.Duration) *TCPClient {
@@ -26,6 +27,26 @@ func NewTCPClient(host string, port int, timeout time.Duration) *TCPClient {
 		Host:    host,
 		Port:    port,
 		Timeout: timeout,
+	}
+}
+
+// OpenSession opens a single TCP connection to be reused across all object reads in one cycle.
+func (c *TCPClient) OpenSession() error {
+	c.CloseSession()
+	addr := fmt.Sprintf("%s:%d", c.Host, c.Port)
+	conn, err := net.DialTimeout("tcp", addr, c.Timeout)
+	if err != nil {
+		return fmt.Errorf("dial controller %s: %w", addr, err)
+	}
+	c.conn = conn
+	return nil
+}
+
+// CloseSession closes the active cycle TCP connection cleanly.
+func (c *TCPClient) CloseSession() {
+	if c.conn != nil {
+		_ = c.conn.Close()
+		c.conn = nil
 	}
 }
 
@@ -58,29 +79,45 @@ func BuildReadFrame(service byte, obj uint16, startAddress uint16, count uint16)
 	return frame
 }
 
-// Exchange connects to the controller, sends the request frame, and reads the 516-byte response.
+// Exchange sends the request frame and reads the 516-byte response.
+// If OpenSession() is active, reuses the single cycle TCP connection (with transparent reconnect if controller closed it).
 func (c *TCPClient) Exchange(reqFrame []byte) ([]byte, error) {
+	doExchange := func(conn net.Conn) ([]byte, error) {
+		if err := conn.SetDeadline(time.Now().Add(c.Timeout)); err != nil {
+			return nil, fmt.Errorf("set deadline: %w", err)
+		}
+		if _, err := conn.Write(reqFrame); err != nil {
+			return nil, fmt.Errorf("send frame: %w", err)
+		}
+		resp := make([]byte, FrameSize)
+		if _, err := io.ReadFull(conn, resp); err != nil {
+			return nil, fmt.Errorf("read response frame: %w", err)
+		}
+		return resp, nil
+	}
+
+	// 1. Reuse active session socket if opened
+	if c.conn != nil {
+		resp, err := doExchange(c.conn)
+		if err == nil {
+			return resp, nil
+		}
+		// Controller closed idle/single-shot socket; reconnect once cleanly within session
+		c.CloseSession()
+		if errDial := c.OpenSession(); errDial != nil {
+			return nil, err
+		}
+		return doExchange(c.conn)
+	}
+
+	// 2. Standalone fallback if OpenSession() was not called
 	addr := fmt.Sprintf("%s:%d", c.Host, c.Port)
 	conn, err := net.DialTimeout("tcp", addr, c.Timeout)
 	if err != nil {
 		return nil, fmt.Errorf("dial controller %s: %w", addr, err)
 	}
 	defer conn.Close()
-
-	if err := conn.SetDeadline(time.Now().Add(c.Timeout)); err != nil {
-		return nil, fmt.Errorf("set deadline: %w", err)
-	}
-
-	if _, err := conn.Write(reqFrame); err != nil {
-		return nil, fmt.Errorf("send frame: %w", err)
-	}
-
-	resp := make([]byte, FrameSize)
-	if _, err := io.ReadFull(conn, resp); err != nil {
-		return nil, fmt.Errorf("read response frame: %w", err)
-	}
-
-	return resp, nil
+	return doExchange(conn)
 }
 
 // ValidateFrame validates the header of a 516-byte response frame.

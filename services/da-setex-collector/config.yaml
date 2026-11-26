@@ -40,6 +40,6 @@ pilot_machine:
     enable_status_act: false  # NONAKTIF: Matikan penarikan file STATUS.ACT via FTP
   
   # Polling Intervals
-  telemetry_interval_sec: 3
+  telemetry_interval_sec: 5   # 1 koneksi TCP per 5 detik (ramah socket Windows CE)
   status_act_interval_sec: 0 # Dinonaktifkan (0s)
   batch_log_interval_sec: 60

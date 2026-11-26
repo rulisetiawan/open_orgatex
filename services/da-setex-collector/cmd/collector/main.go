@@ -328,10 +328,11 @@ func runMachineCollector(ctx context.Context, mCfg config.PilotMachineConfig, gl
 		case <-ctx.Done():
 			return
 		case <-telemetryTicker.C:
-			if !isPortReachable(mCfg.ControllerIP, mCfg.TCPPort, 350*time.Millisecond) {
+			// Open 1 single TCP connection to Port 50000 for this entire cycle (eliminates redundant dials)
+			if err := tcpClient.OpenSession(); err != nil {
 				if !wasOffline {
 					wasOffline = true
-					logger.Debug("Controller TCP offline", "machine", mCfg.MachineID, "host", mCfg.ControllerIP)
+					logger.Debug("Controller TCP offline", "machine", mCfg.MachineID, "host", mCfg.ControllerIP, "error", err)
 				}
 				continue
 			}
@@ -532,6 +533,9 @@ func runMachineCollector(ctx context.Context, mCfg config.PilotMachineConfig, gl
 					}
 				}
 			}
+
+			// Close the single cycle TCP connection cleanly right after reading all objects
+			tcpClient.CloseSession()
 
 			// 6. PROCESS STEP CODE (from STATUS.ACT)
 			if sNo > 0 {
