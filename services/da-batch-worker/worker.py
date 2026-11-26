@@ -949,10 +949,34 @@ def process_single_machine(m: Dict[str, Any]) -> Dict[str, Any]:
         }
         _mqtt_client.publish(topic_status, json.dumps(payload_status), qos=1, retain=True)
 
+    # 1a. Extract Batch Production Metadata (evt 257/513/1025) & Per-Step Actual Minutes (evt 261) from PR<batch>.LOG
+    pr_meta = {"batch_info": {}, "step_actuals": {}}
+    if bundle.get("batch_log_bytes"):
+        try:
+            pr_meta = SetexFolderReader.parse_pr_log_metadata_and_steps(bundle["batch_log_bytes"])
+        except Exception as me:
+            logger.debug(f"PR metadata parse notice for {m_no}: {me}")
+
+    def _enrich_steps_with_actuals(steps_list: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+        step_actuals = pr_meta.get("step_actuals") or {}
+        if not step_actuals:
+            return steps_list
+        for st_item in steps_list:
+            s_no = int(st_item.get("no") or 0)
+            act = step_actuals.get(s_no)
+            if act and act.get("ended_at") is not None:
+                act_min = act.get("actual_min", 0.0)
+                st_item["actual_min"] = int(round(act_min)) if act_min >= 1.0 else round(act_min, 1)
+                st_item["started_at"] = act.get("started_at")
+                st_item["ended_at"] = act.get("ended_at")
+            elif act:
+                st_item["started_at"] = act.get("started_at")
+        return steps_list
+
     # 1b. Publish Recipe Steps for SCADA Tabel proses (prioritaskan DB; jika belum ada baru parse PRG & auto-insert ke DB)
     if batch_no and bundle.get("db_program"):
         db_p = bundle["db_program"]
-        scada_steps = db_p.get("scada_steps") or []
+        scada_steps = _enrich_steps_with_actuals(list(db_p.get("scada_steps") or []))
         if scada_steps:
             db_pno_str = str(db_p.get("program_no") or prog_no)
             prog_int = int(db_pno_str) if db_pno_str.isdigit() else 0
@@ -967,6 +991,7 @@ def process_single_machine(m: Dict[str, Any]) -> Dict[str, Any]:
                 "program_source": "DATABASE_PROGRAM_STUDIO",
                 "current_step": int(step_no),
                 "total_steps": len(scada_steps),
+                "batch_info": pr_meta.get("batch_info") or {},
                 "program": scada_steps,
             }
             _mqtt_client.publish(topic_prog, json.dumps(payload_prog), qos=1)
@@ -985,7 +1010,7 @@ def process_single_machine(m: Dict[str, Any]) -> Dict[str, Any]:
                 if not bundle.get("prg_from_cache"):
                     save_prg_steps_to_db(m_no, effective_prog_no, effective_prog_name, raw_steps)
 
-                scada_steps = build_scada_program_steps(raw_steps)
+                scada_steps = _enrich_steps_with_actuals(build_scada_program_steps(raw_steps))
                 topic_prog = f"smm/jetflow/{asset_id}/batch_program"
                 payload_prog = {
                     "asset_id": asset_id,
@@ -997,6 +1022,7 @@ def process_single_machine(m: Dict[str, Any]) -> Dict[str, Any]:
                     "program_source": "SETEX_FTP_PRG",
                     "current_step": int(step_no),
                     "total_steps": len(scada_steps),
+                    "batch_info": pr_meta.get("batch_info") or {},
                     "program": scada_steps,
                 }
                 _mqtt_client.publish(topic_prog, json.dumps(payload_prog), qos=1)

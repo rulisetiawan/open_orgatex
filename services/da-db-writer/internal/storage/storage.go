@@ -69,6 +69,16 @@ type BatchCurvePayload struct {
 	Points    []CyclicPoint `json:"points"`
 }
 
+type BatchInfoMeta struct {
+	ProgramCode  string `json:"program_code,omitempty"`
+	CustomerName string `json:"customer_name,omitempty"`
+	FabricType   string `json:"fabric_type,omitempty"`
+	OrderNo      string `json:"order_no,omitempty"`
+	ColorName    string `json:"color_name,omitempty"`
+	ProgramName  string `json:"program_name,omitempty"`
+	StartedAt    string `json:"started_at,omitempty"`
+}
+
 type BatchProgramPayload struct {
 	AssetID       string          `json:"asset_id"`
 	MachineNo     string          `json:"machine_no"`
@@ -79,6 +89,7 @@ type BatchProgramPayload struct {
 	ProgramSource string          `json:"program_source"`
 	CurrentStep   int             `json:"current_step"`
 	TotalSteps    int             `json:"total_steps"`
+	BatchInfo     *BatchInfoMeta  `json:"batch_info,omitempty"`
 	Program       json.RawMessage `json:"program"`
 }
 
@@ -543,6 +554,32 @@ func (s *Storage) IngestBatchProgram(ctx context.Context, p BatchProgramPayload)
 
 	// Ensure parent production_batch and batch_process_run rows exist
 	s.ensureScadaBatchAndSnapshot(ctx, aid, bno, p.ProgramNo)
+
+	// Persist BatchInfo metadata (customer, fabric, color, order_no) into pt_smm_scada.production_batch & pt_smm_jetflow.batch_headers
+	if p.BatchInfo != nil {
+		bi := p.BatchInfo
+		biBytes, _ := json.Marshal(bi)
+		_, _ = s.scadaPool.Exec(ctx, `
+			UPDATE production_batch
+			SET customer_name = COALESCE(NULLIF($2, ''), customer_name),
+			    fabric_type = COALESCE(NULLIF($3, ''), fabric_type),
+			    external_reference = COALESCE(NULLIF($4, ''), external_reference),
+			    payload_json = COALESCE(payload_json, '{}'::jsonb) || $5::jsonb,
+			    source_updated_at = NOW(),
+			    updated_at = NOW()
+			WHERE batch_no = $1;
+		`, bno, bi.CustomerName, bi.FabricType, bi.OrderNo, biBytes)
+
+		_, _ = s.jetflowPool.Exec(ctx, `
+			UPDATE batch_headers
+			SET customer = COALESCE(NULLIF($2, ''), customer),
+			    article = COALESCE(NULLIF($3, ''), article),
+			    color_name = COALESCE(NULLIF($4, ''), color_name),
+			    color_shade = COALESCE(NULLIF($4, ''), color_shade),
+			    recipe_name = COALESCE(NULLIF($5, ''), recipe_name)
+			WHERE batch_ref_no = $1 OR batch_no = $1;
+		`, bno, bi.CustomerName, bi.FabricType, bi.ColorName, bi.ProgramName)
+	}
 
 	var progress float64
 	if p.TotalSteps > 0 && p.CurrentStep > 0 {

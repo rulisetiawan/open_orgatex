@@ -894,6 +894,137 @@ class SetexFolderReader:
             except Exception as ex:
                 logger.warning(f"Btrieve PR parser warning: {ex}")
 
+    @staticmethod
+    def parse_pr_log_metadata_and_steps(log_data: bytes) -> Dict[str, Any]:
+        """
+        Extracts batch production metadata (evt 0, 257, 513, 1025: customer, fabric, color, order_no,
+        program_code, program_name) and per-step actual execution durations (evt 261) from PR<batch>.LOG.
+        Identical binary layout across SECOM 777 and SECOM 797CE (512-byte Btrieve pages, 154-byte records).
+        """
+        out_res: Dict[str, Any] = {"batch_info": {}, "step_actuals": {}}
+        if not log_data or len(log_data) < 512 or len(log_data) % 512 != 0:
+            return out_res
+
+        recs_by_seq: Dict[int, bytes] = {}
+        try:
+            num_pages = len(log_data) // 512
+            for page in range(1, num_pages):
+                p = log_data[page * 512:(page + 1) * 512]
+                if len(p) < 12:
+                    continue
+                n = struct.unpack_from("<H", p, 10)[0]
+                if not (0 < n < 100):
+                    continue
+                for slot in range(n):
+                    a = struct.unpack_from("<H", p, 510 - slot * 2)[0]
+                    if a == 65535:
+                        continue
+                    start = a & 32767
+                    end = None
+                    for j in range(slot + 1, n + 1):
+                        z = struct.unpack_from("<H", p, 510 - j * 2)[0]
+                        if z != 65535:
+                            end = z & 32767
+                            break
+                    if end is None or not (12 <= start < end <= 512 - 2 * (n + 1)):
+                        continue
+                    packed = p[start:end]
+                    if a & 32768:
+                        packed = packed[4:]
+                    pos, out_b, repeat = 0, bytearray(), False
+                    while pos + 2 <= len(packed):
+                        cnt = struct.unpack_from("<H", packed, pos)[0]
+                        pos += 2
+                        need = 1 if repeat else cnt
+                        if pos + need > len(packed):
+                            break
+                        val = packed[pos:pos + need]
+                        out_b += val * cnt if repeat else val
+                        pos += need
+                        repeat = not repeat
+                    if len(out_b) == 154:
+                        seq = struct.unpack_from("<H", out_b, 0)[0]
+                        recs_by_seq[seq] = bytes(out_b)
+        except Exception as e:
+            logger.debug(f"PR metadata decompress notice: {e}")
+            return out_res
+
+        def _ts(raw: bytes) -> Optional[datetime]:
+            y, mo, d, h, mi, s = raw[4:10]
+            yr = 1900 + y
+            if 2020 <= yr <= 2035 and 1 <= mo <= 12 and 1 <= d <= 31 and h < 24 and mi < 60 and s < 60:
+                try:
+                    return datetime(yr, mo, d, h, mi, s)
+                except Exception:
+                    return None
+            return None
+
+        def _txt(raw: bytes, start: int, end: int) -> str:
+            if len(raw) < end:
+                return ""
+            return raw[start:end].split(b"\0", 1)[0].decode("cp1252", errors="ignore").strip()
+
+        batch_info: Dict[str, Any] = {}
+        step_events: List[Tuple[datetime, int]] = []
+
+        for seq in sorted(recs_by_seq.keys()):
+            raw = recs_by_seq[seq]
+            evt = struct.unpack_from("<H", raw, 2)[0]
+            dt = _ts(raw)
+            if evt == 0 and dt and "started_at" not in batch_info:
+                batch_info["started_at"] = dt.isoformat()
+            elif evt == 257:
+                p_code = _txt(raw, 10, 52)
+                cust = _txt(raw, 52, 73)
+                fab = _txt(raw, 73, 94)
+                ord_no = _txt(raw, 94, 115)
+                if p_code:
+                    batch_info["program_code"] = p_code
+                if cust:
+                    batch_info["customer_name"] = cust
+                if fab:
+                    batch_info["fabric_type"] = fab
+                if ord_no:
+                    batch_info["order_no"] = ord_no
+            elif evt == 513:
+                color = _txt(raw, 10, 52)
+                if color:
+                    batch_info["color_name"] = color
+            elif evt == 1025:
+                pname = _txt(raw, 94, 130)
+                if pname:
+                    batch_info["program_name"] = pname
+            elif evt == 261 and dt and len(raw) >= 24:
+                s_no = struct.unpack_from("<H", raw, 22)[0]
+                if 1 <= s_no <= 250:
+                    step_events.append((dt, s_no))
+
+        # Compute per-step actual duration from sequential evt=261 transitions
+        step_actuals: Dict[int, Dict[str, Any]] = {}
+        if step_events:
+            # Collapse consecutive duplicate step numbers into spans
+            spans: List[Tuple[int, datetime, Optional[datetime]]] = []
+            for dt, s_no in step_events:
+                if not spans or spans[-1][0] != s_no:
+                    if spans:
+                        prev_s, prev_start, _ = spans[-1]
+                        spans[-1] = (prev_s, prev_start, dt)
+                    spans.append((s_no, dt, None))
+            for s_no, s_start, s_end in spans:
+                entry = step_actuals.setdefault(s_no, {
+                    "started_at": s_start.isoformat(),
+                    "ended_at": None,
+                    "actual_min": 0.0,
+                })
+                if s_end is not None:
+                    dur_min = max(0.0, (s_end - s_start).total_seconds() / 60.0)
+                    entry["actual_min"] = round(entry["actual_min"] + dur_min, 1)
+                    entry["ended_at"] = s_end.isoformat()
+
+        out_res["batch_info"] = batch_info
+        out_res["step_actuals"] = step_actuals
+        return out_res
+
         telemetry = []
         total_len = len(log_data)
         
