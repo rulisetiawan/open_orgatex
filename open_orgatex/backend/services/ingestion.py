@@ -108,12 +108,16 @@ class LogIngestionService:
 
         # 3. Decode ALARM.ACT & ALARMS.LOG on-the-fly
         if ftp_bundle and ftp_bundle.get("alarm_bytes"):
-            alarm_act = SetexFolderReader.read_alarm_act(raw_bytes=ftp_bundle["alarm_bytes"])
+            alarm_act = SetexFolderReader.read_alarm_act(
+                raw_bytes=ftp_bundle["alarm_bytes"],
+                machine_no=machine.machine_no
+            )
         else:
             alarm_act = SetexFolderReader.read_alarm_act(
                 folder_path=target_folder or "",
                 ip=machine.ip_address,
-                ftp_port=machine.ftp_port or 21
+                ftp_port=machine.ftp_port or 21,
+                machine_no=machine.machine_no
             )
 
         # Real-time Controller CPU Alarm & IW Telemetry Check via Port 50000
@@ -158,13 +162,18 @@ class LogIngestionService:
                 logger.debug(f"Direct IW read from {machine.ip_address} notice: {e_iw}")
 
         if ftp_bundle and ftp_bundle.get("alarms_log_bytes"):
-            alarm_history = SetexFolderReader.read_alarms_log(raw_bytes=ftp_bundle["alarms_log_bytes"], limit=50)
+            alarm_history = SetexFolderReader.read_alarms_log(
+                raw_bytes=ftp_bundle["alarms_log_bytes"],
+                limit=50,
+                machine_no=machine.machine_no
+            )
         else:
             alarm_history = SetexFolderReader.read_alarms_log(
                 folder_path=target_folder or "",
                 ip=machine.ip_address,
                 ftp_port=machine.ftp_port or 21,
-                limit=50
+                limit=50,
+                machine_no=machine.machine_no
             )
 
         # 4. Find and parse cyclic telemetry records on-the-fly

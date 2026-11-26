@@ -17,6 +17,7 @@ import threading
 import time
 from datetime import datetime
 from typing import Dict, List, Any, Optional, Tuple
+from .alarm_catalog_service import AlarmCatalog, explain_alarm, get_alarm_text
 
 logger = logging.getLogger("orgatex.reader")
 
@@ -583,7 +584,13 @@ class SetexFolderReader:
             return {"status": "ERROR", "error": str(e), "is_ftp_source": False, "data_source": "ERROR"}
 
     @staticmethod
-    def read_alarm_act(folder_path: str = "", ip: Optional[str] = None, ftp_port: int = 21, raw_bytes: Optional[bytes] = None) -> Dict[str, Any]:
+    def read_alarm_act(
+        folder_path: str = "",
+        ip: Optional[str] = None,
+        ftp_port: int = 21,
+        raw_bytes: Optional[bytes] = None,
+        machine_no: Optional[str] = None,
+    ) -> Dict[str, Any]:
         """Reads ALARM.ACT for active alarms from raw bytes, FTP (supporting Flashdisk/SC797CE), or local folder."""
         data = raw_bytes
         if not data and ip:
@@ -632,10 +639,14 @@ class SetexFolderReader:
             active_alarms = []
             if has_alarm and len(data) >= 4:
                 code = data[0] + (data[1] << 8)
+                alarm_info = explain_alarm(code, machine_no=machine_no)
                 active_alarms.append({
                     "alarm_code": str(code),
-                    "description": ALARM_DEFINITIONS.get(code, f"Alarm Code #{code}"),
-                    "severity": "CRITICAL" if code in [1, 2, 5] else "WARNING"
+                    "description": alarm_info["full_text"],
+                    "title": alarm_info["title"],
+                    "detail": alarm_info["detail"],
+                    "severity": alarm_info["severity"],
+                    "source": alarm_info["source"],
                 })
 
             return {
@@ -646,7 +657,14 @@ class SetexFolderReader:
             return {"is_alarm_active": False, "active_alarms": []}
 
     @staticmethod
-    def read_alarms_log(folder_path: str = "", ip: Optional[str] = None, ftp_port: int = 21, limit: int = 50, raw_bytes: Optional[bytes] = None) -> List[Dict[str, Any]]:
+    def read_alarms_log(
+        folder_path: str = "",
+        ip: Optional[str] = None,
+        ftp_port: int = 21,
+        limit: int = 50,
+        raw_bytes: Optional[bytes] = None,
+        machine_no: Optional[str] = None,
+    ) -> List[Dict[str, Any]]:
         """Parses ALARMS.LOG from raw bytes, FTP (supporting Flashdisk/SC797CE), or local folder."""
         data = raw_bytes
         if not data and ip:
@@ -707,12 +725,12 @@ class SetexFolderReader:
                         if idx >= 4:
                             alarm_code = data[idx - 4] + (data[idx - 3] << 8)
                         
-                        desc = ALARM_DEFINITIONS.get(alarm_code, f"Alarm Code #{alarm_code}")
+                        alarm_info = explain_alarm(alarm_code, machine_no=machine_no)
                         results.append({
                             "timestamp": dt_str,
                             "alarm_code": str(alarm_code),
-                            "alarm_text": desc,
-                            "severity": "CRITICAL" if alarm_code in [1, 2, 5] else "WARNING"
+                            "alarm_text": alarm_info["full_text"],
+                            "severity": alarm_info["severity"]
                         })
                         idx += 6
                         continue

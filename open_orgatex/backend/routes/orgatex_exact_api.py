@@ -107,18 +107,32 @@ def get_alarms(
             for a in alarms
         ]
 
-    conf = _load_json(CONFTEXT_PATH) or {}
-    alarm_list = conf.get("Cat_2_Grp_0", [])
+    from ..services.alarm_catalog_service import AlarmCatalog
+
+    catalog = AlarmCatalog.for_machine()
+    if alarmNo is not None:
+        info = catalog.explain(alarmNo, lang=lang)
+        if not info.get("found"):
+            return []
+        return [
+            {
+                "AlarmNo": info["alarm_code"],
+                "AlarmText": info["full_text"],
+                "AlarmTitle": info["title"],
+                "AlarmDetail": info["detail"],
+                "AlarmGroupNo": 1,
+                "AlarmGroupName": "Process Alarms",
+                "MachineGroupNo": machineGroupNo
+            }
+        ]
 
     results = []
-    for item in alarm_list:
-        no = item.get("item", 0)
-        if alarmNo is not None and no != alarmNo:
-            continue
-        text = item.get(lang, item.get("en", item.get("de", "")))
+    for info in catalog.list_all(lang=lang):
         results.append({
-            "AlarmNo": no,
-            "AlarmText": text,
+            "AlarmNo": info["alarm_code"],
+            "AlarmText": info["full_text"],
+            "AlarmTitle": info["title"],
+            "AlarmDetail": info["detail"],
             "AlarmGroupNo": 1,
             "AlarmGroupName": "Process Alarms",
             "MachineGroupNo": machineGroupNo

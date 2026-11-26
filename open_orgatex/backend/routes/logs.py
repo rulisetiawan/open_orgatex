@@ -667,3 +667,16 @@ def get_live_machine_iw(
         "controller_port": port,
         **iw_data
     }
+
+
+@router.get("/alarm-explain/{alarm_code}")
+def get_alarm_explanation(
+    alarm_code: int,
+    machine_no: Optional[str] = Query(None, description="Opsional: nomor mesin (misal 1A) untuk memakai CONFTEXT khusus mesin"),
+    lang: str = Query(default="en", description="Bahasa penjelasan: en atau de")
+):
+    """
+    Mengembalikan penjelasan lengkap kode alarm berdasarkan CONFTEXT.CNF (conftext_aligned.json -> Cat_8_Grp_0).
+    """
+    from ..services.alarm_catalog_service import explain_alarm
+    return explain_alarm(alarm_code=alarm_code, machine_no=machine_no, lang=lang)
