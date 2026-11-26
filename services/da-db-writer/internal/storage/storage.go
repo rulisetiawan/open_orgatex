@@ -79,18 +79,61 @@ type BatchInfoMeta struct {
 	StartedAt    string `json:"started_at,omitempty"`
 }
 
+type BatchSummaryMeta struct {
+	TotalWaitSec   int     `json:"total_wait_sec,omitempty"`
+	TotalPauses    int     `json:"total_pauses,omitempty"`
+	TotalJumps     int     `json:"total_jumps,omitempty"`
+	TotalAlarms    int     `json:"total_alarms,omitempty"`
+	TotalOverrides int     `json:"total_overrides,omitempty"`
+	WaterL         float64 `json:"water_l,omitempty"`
+	SteamKg        float64 `json:"steam_kg,omitempty"`
+	PowerKwh       float64 `json:"power_kwh,omitempty"`
+	BatchEnded     bool    `json:"batch_ended,omitempty"`
+}
+
+type OperatorEventItem struct {
+	TS            string  `json:"ts"`
+	Type          string  `json:"type"`
+	StepNo        int     `json:"step_no,omitempty"`
+	FromStep      int     `json:"from_step,omitempty"`
+	ToStep        int     `json:"to_step,omitempty"`
+	FuncID        int     `json:"func_id,omitempty"`
+	Code          int     `json:"code,omitempty"`
+	WaitSec       int     `json:"wait_sec,omitempty"`
+	ParameterName string  `json:"parameter_name,omitempty"`
+	Unit          string  `json:"unit,omitempty"`
+	ValueBefore   float64 `json:"value_before,omitempty"`
+	ValueAfter    float64 `json:"value_after,omitempty"`
+	Delta         float64 `json:"delta,omitempty"`
+	Detail        string  `json:"detail,omitempty"`
+}
+
+type BatchAlarmMeta struct {
+	AlarmTimestamp string  `json:"alarm_timestamp"`
+	AlarmCode      string  `json:"alarm_code"`
+	AlarmText      string  `json:"alarm_text"`
+	StepNo         int     `json:"step_no"`
+	Severity       string  `json:"severity"`
+	ClearedAt      *string `json:"cleared_at,omitempty"`
+}
+
 type BatchProgramPayload struct {
-	AssetID       string          `json:"asset_id"`
-	MachineNo     string          `json:"machine_no"`
-	BatchNo       string          `json:"batch_no"`
-	ProgramNo     string          `json:"program_no"`
-	ProgramName   string          `json:"program_name"`
-	ProgramFile   string          `json:"program_file"`
-	ProgramSource string          `json:"program_source"`
-	CurrentStep   int             `json:"current_step"`
-	TotalSteps    int             `json:"total_steps"`
-	BatchInfo     *BatchInfoMeta  `json:"batch_info,omitempty"`
-	Program       json.RawMessage `json:"program"`
+	AssetID           string              `json:"asset_id"`
+	MachineNo         string              `json:"machine_no"`
+	BatchNo           string              `json:"batch_no"`
+	ProgramNo         string              `json:"program_no"`
+	ProgramName       string              `json:"program_name"`
+	ProgramFile       string              `json:"program_file"`
+	ProgramSource     string              `json:"program_source"`
+	CurrentStep       int                 `json:"current_step"`
+	TotalSteps        int                 `json:"total_steps"`
+	BatchInfo         *BatchInfoMeta      `json:"batch_info,omitempty"`
+	OperatorTimeline  []OperatorEventItem `json:"operator_timeline,omitempty"`
+	SetpointOverrides []OperatorEventItem `json:"setpoint_overrides,omitempty"`
+	BatchAlarms       []BatchAlarmMeta    `json:"batch_alarms,omitempty"`
+	BatchSummary      *BatchSummaryMeta   `json:"batch_summary,omitempty"`
+	InterventActive   int                 `json:"intervent_active"`
+	Program           json.RawMessage     `json:"program"`
 }
 
 type AlarmItem struct {
@@ -604,6 +647,19 @@ func (s *Storage) IngestBatchProgram(ctx context.Context, p BatchProgramPayload)
 		"progress_basis":  "step_ratio",
 		"program_read_at": time.Now().UTC().Format(time.RFC3339),
 	}
+	if len(p.OperatorTimeline) > 0 {
+		payloadObj["operator_timeline"] = p.OperatorTimeline
+	}
+	if len(p.SetpointOverrides) > 0 {
+		payloadObj["setpoint_overrides"] = p.SetpointOverrides
+	}
+	if len(p.BatchAlarms) > 0 {
+		payloadObj["batch_alarms"] = p.BatchAlarms
+	}
+	if p.BatchSummary != nil {
+		payloadObj["batch_summary"] = p.BatchSummary
+	}
+	payloadObj["intervent_active"] = p.InterventActive
 	payloadBytes, err := json.Marshal(payloadObj)
 	if err != nil {
 		return err
@@ -622,6 +678,12 @@ func (s *Storage) IngestBatchProgram(ctx context.Context, p BatchProgramPayload)
 		return err
 	}
 
+	// Upsert SMM.<ASSET_ID>.HMI.INTERVENT_ST (1 = ada intervensi, 0 = normal) ke pt_smm_scada
+	s.upsertScadaInterventTag(ctx, aid, p.InterventActive, time.Now())
+
+	// Persist operator interventions, PR alarms, and batch consumptions into pt_smm_jetflow
+	s.persistBatchAuditToJetflow(ctx, p)
+
 	_, _ = s.scadaPool.Exec(ctx, `
 		UPDATE asset_snapshot
 		SET progress_percent = ROUND($2::numeric, 2),
@@ -635,6 +697,127 @@ func (s *Storage) IngestBatchProgram(ctx context.Context, p BatchProgramPayload)
 		_, _ = s.scadaPool.Exec(ctx, "SELECT sync_jetflow_asset_snapshot($1);", aid)
 	}
 	return nil
+}
+
+// upsertScadaInterventTag writes SMM.<ASSET_ID>.HMI.INTERVENT_ST (1 or 0) into pt_smm_scada tag_definition & tag_latest.
+func (s *Storage) upsertScadaInterventTag(ctx context.Context, assetID string, interventActive int, ts time.Time) {
+	aid := strings.TrimSpace(assetID)
+	if aid == "" {
+		return
+	}
+	var assetExists bool
+	_ = s.scadaPool.QueryRow(ctx, "SELECT EXISTS(SELECT 1 FROM asset WHERE asset_id = $1);", aid).Scan(&assetExists)
+	if !assetExists {
+		return
+	}
+	tagCode := fmt.Sprintf("SMM.%s.HMI.INTERVENT_ST", aid)
+	val := 0.0
+	if interventActive > 0 {
+		val = 1.0
+	}
+	_, _ = s.scadaPool.Exec(ctx, `
+		INSERT INTO tag_definition (tag_code, asset_id, signal_role, engineering_unit, source_status, active, created_at, stale_after_seconds, freshness_mode, display_name)
+		VALUES ($1, $2, 'ST', '', 'LIVE', TRUE, NOW(), 600, 'TAG_TIMESTAMP', 'Intervensi HMI Operator')
+		ON CONFLICT (tag_code) DO UPDATE SET asset_id = EXCLUDED.asset_id, signal_role = 'ST';
+	`, tagCode, aid)
+	_, _ = s.scadaPool.Exec(ctx, `
+		INSERT INTO tag_latest (tag_code, asset_id, value_number, quality, source_ts, ingested_at, updated_at, message_id)
+		VALUES ($1, $2, $3, 'GOOD', $4, NOW(), NOW(), gen_random_uuid())
+		ON CONFLICT (tag_code) DO UPDATE SET
+			value_number = EXCLUDED.value_number,
+			quality = 'GOOD',
+			source_ts = EXCLUDED.source_ts,
+			ingested_at = NOW(),
+			updated_at = NOW(),
+			message_id = gen_random_uuid();
+	`, tagCode, aid, val, ts)
+}
+
+// persistBatchAuditToJetflow stores PR.LOG operator interventions, alarms, and batch consumption totals idempotently.
+func (s *Storage) persistBatchAuditToJetflow(ctx context.Context, p BatchProgramPayload) {
+	mNo := strings.TrimSpace(p.MachineNo)
+	bNo := strings.TrimSpace(p.BatchNo)
+	if mNo == "" || bNo == "" {
+		return
+	}
+
+	// 1. Operator interventions (pauses, manual stops, step jumps/skips, call-off waits, setpoint overrides)
+	for _, ev := range p.OperatorTimeline {
+		if ev.Type == "ALARM_ACTIVE" {
+			continue
+		}
+		evTS, err := time.Parse("2006-01-02T15:04:05", ev.TS)
+		if err != nil {
+			evTS = time.Now()
+		}
+		paramName := ev.ParameterName
+		if paramName == "" {
+			paramName = ev.Type
+		}
+		unit := ev.Unit
+		vBefore := ev.ValueBefore
+		vAfter := ev.ValueAfter
+		delta := ev.Delta
+		if ev.Type == "STEP_JUMP_BACK" || ev.Type == "STEP_SKIP_FORWARD" {
+			unit = "step"
+			vBefore = float64(ev.FromStep)
+			vAfter = float64(ev.ToStep)
+			delta = vAfter - vBefore
+		} else if ev.Type == "CALL_OFF_WAIT" {
+			unit = "s"
+			vAfter = float64(ev.WaitSec)
+			delta = float64(ev.WaitSec)
+		}
+		rawJSON, _ := json.Marshal(ev)
+		_, _ = s.jetflowPool.Exec(ctx, `
+			INSERT INTO operator_interventions
+			(machine_no, batch_no, step_no, timestamp, trigger_source, function_id, parameter_name, unit, value_before, value_after, delta, notes, raw_details)
+			SELECT $1, $2, $3, $4, 'PR_LOG', $5, $6, $7, $8, $9, $10, $11, $12
+			WHERE NOT EXISTS (
+				SELECT 1 FROM operator_interventions
+				WHERE machine_no = $1 AND batch_no = $2 AND timestamp = $4 AND parameter_name = $6
+			);
+		`, mNo, bNo, ev.StepNo, evTS, ev.FuncID, paramName, unit, vBefore, vAfter, delta, ev.Detail, string(rawJSON))
+	}
+
+	// 2. Alarms from PR.LOG evt=4
+	for _, al := range p.BatchAlarms {
+		alTS, err := time.Parse("2006-01-02T15:04:05", al.AlarmTimestamp)
+		if err != nil {
+			continue
+		}
+		var clearedPtr *time.Time
+		if al.ClearedAt != nil && *al.ClearedAt != "" {
+			if ct, err2 := time.Parse("2006-01-02T15:04:05", *al.ClearedAt); err2 == nil {
+				clearedPtr = &ct
+			}
+		}
+		_, _ = s.jetflowPool.Exec(ctx, `
+			INSERT INTO datalog_alarms
+			(batch_ref_no, machine_no, alarm_timestamp, alarm_code, alarm_text, step_no, operator_id, severity, cleared_at)
+			SELECT $1, $2, $3, $4, $5, $6, 0, $7, $8
+			WHERE NOT EXISTS (
+				SELECT 1 FROM datalog_alarms
+				WHERE batch_ref_no = $1 AND machine_no = $2 AND alarm_timestamp = $3 AND alarm_code = $4
+			);
+		`, bNo, mNo, alTS, al.AlarmCode, al.AlarmText, al.StepNo, al.Severity, clearedPtr)
+	}
+
+	// 3. Batch consumption summary from PR.LOG evt=10 (when water/steam/power totals are present)
+	if p.BatchSummary != nil && (p.BatchSummary.WaterL > 0 || p.BatchSummary.SteamKg > 0 || p.BatchSummary.PowerKwh > 0) {
+		rawSum, _ := json.Marshal(p.BatchSummary)
+		res, err := s.jetflowPool.Exec(ctx, `
+			UPDATE batch_consumptions
+			SET water_liters = $3, power_kwh = $4, steam_kg = $5, recorded_at = NOW(), raw_counters = $6
+			WHERE batch_ref_no = $1 AND machine_no = $2;
+		`, bNo, mNo, p.BatchSummary.WaterL, p.BatchSummary.PowerKwh, p.BatchSummary.SteamKg, string(rawSum))
+		if err == nil && res.RowsAffected() == 0 {
+			_, _ = s.jetflowPool.Exec(ctx, `
+				INSERT INTO batch_consumptions (batch_ref_no, machine_no, recorded_at, water_liters, power_kwh, steam_kg, runtime_minutes, raw_counters)
+				VALUES ($1, $2, NOW(), $3, $4, $5, 0, $6);
+			`, bNo, mNo, p.BatchSummary.WaterL, p.BatchSummary.PowerKwh, p.BatchSummary.SteamKg, string(rawSum))
+		}
+	}
 }
 
 // IngestAlarms stores parsed alarm records into datalog_alarms.

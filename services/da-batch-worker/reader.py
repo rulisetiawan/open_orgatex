@@ -895,13 +895,29 @@ class SetexFolderReader:
                 logger.warning(f"Btrieve PR parser warning: {ex}")
 
     @staticmethod
-    def parse_pr_log_metadata_and_steps(log_data: bytes) -> Dict[str, Any]:
+    def parse_pr_log_metadata_and_steps(
+        log_data: bytes,
+        recipe_steps: Optional[List[Dict[str, Any]]] = None,
+    ) -> Dict[str, Any]:
         """
-        Extracts batch production metadata (evt 0, 257, 513, 1025: customer, fabric, color, order_no,
-        program_code, program_name) and per-step actual execution durations (evt 261) from PR<batch>.LOG.
-        Identical binary layout across SECOM 777 and SECOM 797CE (512-byte Btrieve pages, 154-byte records).
+        Extracts complete batch intelligence from PR<batch>.LOG (identical on SECOM 777 & 797CE):
+        - batch_info (evt 0, 257, 513, 1025): customer, fabric, color, order_no, program_code, program_name
+        - step_actuals (evt 261): started_at, ended_at, actual_min per step
+        - operator_timeline (evt 4, 7, 8, 261): pauses, manual overrides, step jumps/skips, call-off waits, alarms
+        - batch_alarms (evt 4): structured alarm records with step_no & cleared_at
+        - setpoint_overrides (evt 3 vs recipe_steps): temperature SP deviations from planned recipe SV
+        - batch_summary (evt 9, 10, 13, 14 + counters): total water/steam/power, total waits/pauses/jumps
+        - intervent_active (0 or 1): 1 if operator intervention is active or occurred recently
         """
-        out_res: Dict[str, Any] = {"batch_info": {}, "step_actuals": {}}
+        out_res: Dict[str, Any] = {
+            "batch_info": {},
+            "step_actuals": {},
+            "operator_timeline": [],
+            "batch_alarms": [],
+            "setpoint_overrides": [],
+            "batch_summary": {},
+            "intervent_active": 0,
+        }
         if not log_data or len(log_data) < 512 or len(log_data) % 512 != 0:
             return out_res
 
@@ -964,13 +980,57 @@ class SetexFolderReader:
                 return ""
             return raw[start:end].split(b"\0", 1)[0].decode("cp1252", errors="ignore").strip()
 
+        # Map planned SV per step if recipe_steps provided
+        planned_sv_by_step: Dict[int, float] = {}
+        for rs in (recipe_steps or []):
+            sno = int(rs.get("no") or 0)
+            sv = rs.get("sv")
+            if sno > 0 and sv is not None:
+                try:
+                    fv = float(sv)
+                    if fv > 0:
+                        planned_sv_by_step[sno] = fv
+                except Exception:
+                    pass
+
         batch_info: Dict[str, Any] = {}
         step_events: List[Tuple[datetime, int]] = []
+        operator_timeline: List[Dict[str, Any]] = []
+        open_alarms: Dict[int, Dict[str, Any]] = {}
+        batch_alarms: List[Dict[str, Any]] = []
+        setpoint_overrides: List[Dict[str, Any]] = []
+        seen_overrides = set()
+
+        prev_step: Optional[int] = None
+        curr_step = 1
+        last_mode: Optional[Tuple[int, int]] = None
+        last_log_ts: Optional[datetime] = None
+        last_intervent_ts: Optional[datetime] = None
+
+        total_wait_sec = 0
+        total_pauses = 0
+        total_jumps = 0
+        water_l = 0.0
+        steam_kg = 0.0
+        power_kwh = 0.0
+        batch_ended = False
+
+        mode_labels = {
+            (2, 1): ("START_INIT", "Inisialisasi batch"),
+            (3, 3): ("AUTO_RUN", "Mesin berjalan otomatis"),
+            (4, 4): ("MODE_STOP_MANUAL", "Operator masuk mode Stop/Manual"),
+            (5, 6): ("OPERATOR_PAUSE", "Operator Pause/Hold proses"),
+            (3, 7): ("OPERATOR_RESUME", "Operator melanjutkan proses (Resume)"),
+            (3, 5): ("BATCH_END", "Batch selesai"),
+        }
 
         for seq in sorted(recs_by_seq.keys()):
             raw = recs_by_seq[seq]
             evt = struct.unpack_from("<H", raw, 2)[0]
             dt = _ts(raw)
+            if dt:
+                last_log_ts = dt
+
             if evt == 0 and dt and "started_at" not in batch_info:
                 batch_info["started_at"] = dt.isoformat()
             elif evt == 257:
@@ -998,11 +1058,125 @@ class SetexFolderReader:
                 s_no = struct.unpack_from("<H", raw, 22)[0]
                 if 1 <= s_no <= 250:
                     step_events.append((dt, s_no))
+                    if prev_step is not None and s_no != prev_step:
+                        if s_no < prev_step:
+                            total_jumps += 1
+                            last_intervent_ts = dt
+                            operator_timeline.append({
+                                "ts": dt.isoformat(),
+                                "type": "STEP_JUMP_BACK",
+                                "step_no": s_no,
+                                "from_step": prev_step,
+                                "to_step": s_no,
+                                "detail": f"Loncat mundur Step {prev_step} -> Step {s_no}",
+                            })
+                        elif s_no > prev_step + 1:
+                            total_jumps += 1
+                            last_intervent_ts = dt
+                            operator_timeline.append({
+                                "ts": dt.isoformat(),
+                                "type": "STEP_SKIP_FORWARD",
+                                "step_no": s_no,
+                                "from_step": prev_step,
+                                "to_step": s_no,
+                                "detail": f"Skip maju Step {prev_step} -> Step {s_no}",
+                            })
+                    prev_step = s_no
+                    curr_step = s_no
+            elif evt == 8 and dt and len(raw) >= 24:
+                w0, w1, _, w3 = struct.unpack_from("<4H", raw, 10)
+                step_evt = (w3 >> 8) or curr_step
+                last_mode = (w0, w1)
+                if (w0, w1) in ((4, 4), (5, 6)):
+                    total_pauses += 1
+                    last_intervent_ts = dt
+                if (w0, w1) == (3, 5):
+                    batch_ended = True
+                if (w0, w1) in ((4, 4), (5, 6), (3, 7), (3, 5)):
+                    m_type, m_desc = mode_labels.get((w0, w1), (f"MODE_{w0}_{w1}", f"Mode {w0}->{w1}"))
+                    operator_timeline.append({
+                        "ts": dt.isoformat(),
+                        "type": m_type,
+                        "step_no": step_evt,
+                        "detail": m_desc,
+                    })
+            elif evt == 7 and dt and len(raw) >= 26:
+                w0, func_id, _, w3 = struct.unpack_from("<4H", raw, 10)
+                wait_sec = struct.unpack_from("<H", raw, 24)[0]
+                step_evt = (w3 >> 8) or curr_step
+                if w0 == 3 and wait_sec > 0:
+                    total_wait_sec += wait_sec
+                    operator_timeline.append({
+                        "ts": dt.isoformat(),
+                        "type": "CALL_OFF_WAIT",
+                        "step_no": step_evt,
+                        "func_id": func_id,
+                        "wait_sec": wait_sec,
+                        "detail": f"Konfirmasi Func {func_id} (tunggu {wait_sec} dtk)",
+                    })
+            elif evt == 4 and dt and len(raw) >= 24:
+                state_a, code_a, _, w3 = struct.unpack_from("<4H", raw, 10)
+                step_evt = (w3 >> 8) or curr_step
+                desc = ALARM_DEFINITIONS.get(code_a, f"Alarm Code #{code_a}")
+                if state_a == 1:
+                    rec_a = {
+                        "alarm_timestamp": dt.isoformat(),
+                        "alarm_code": str(code_a),
+                        "alarm_text": desc,
+                        "step_no": step_evt,
+                        "severity": "CRITICAL" if code_a in (1, 2, 5) else "WARNING",
+                        "cleared_at": None,
+                    }
+                    open_alarms[code_a] = rec_a
+                    batch_alarms.append(rec_a)
+                    operator_timeline.append({
+                        "ts": dt.isoformat(),
+                        "type": "ALARM_ACTIVE",
+                        "step_no": step_evt,
+                        "code": code_a,
+                        "detail": f"Alarm #{code_a}: {desc}",
+                    })
+                elif state_a == 3 and code_a in open_alarms:
+                    open_alarms[code_a]["cleared_at"] = dt.isoformat()
+                    del open_alarms[code_a]
+            elif evt == 3 and dt and len(raw) >= 20 and planned_sv_by_step:
+                w_sp_ramp = struct.unpack_from("<h", raw, 10)[0]
+                w_sp = struct.unpack_from("<h", raw, 16)[0]
+                actual_sp = float(w_sp) if 0 < w_sp <= 150 else (round((w_sp_ramp / 100.0) * 1.5, 1) if w_sp_ramp > 0 else 0.0)
+                planned_sv = planned_sv_by_step.get(curr_step)
+                if planned_sv and actual_sp > 0 and abs(actual_sp - planned_sv) >= 2.0:
+                    ov_key = (curr_step, round(actual_sp, 1))
+                    if ov_key not in seen_overrides:
+                        seen_overrides.add(ov_key)
+                        last_intervent_ts = dt
+                        ov = {
+                            "ts": dt.isoformat(),
+                            "type": "SETPOINT_OVERRIDE",
+                            "step_no": curr_step,
+                            "parameter_name": "Target Temperature",
+                            "unit": "°C",
+                            "value_before": planned_sv,
+                            "value_after": round(actual_sp, 1),
+                            "delta": round(actual_sp - planned_sv, 1),
+                            "detail": f"Setpoint suhu Step {curr_step} berubah {planned_sv}°C -> {round(actual_sp,1)}°C",
+                        }
+                        setpoint_overrides.append(ov)
+                        operator_timeline.append(ov)
+            elif evt == 10 and len(raw) >= 22:
+                # Batch end consumption totals (water_l, steam_kg, power_kwh)
+                w_water = struct.unpack_from("<I", raw, 10)[0]
+                w_steam = struct.unpack_from("<I", raw, 14)[0]
+                w_power = struct.unpack_from("<I", raw, 18)[0]
+                if 0 < w_water < 10_000_000:
+                    water_l = float(w_water)
+                if 0 < w_steam < 10_000_000:
+                    steam_kg = float(w_steam)
+                if 0 < w_power < 1_000_000:
+                    power_kwh = float(w_power)
 
         # Compute per-step actual duration from sequential evt=261 transitions
         step_actuals: Dict[int, Dict[str, Any]] = {}
         if step_events:
-            # Collapse consecutive duplicate step numbers into spans
             spans: List[Tuple[int, datetime, Optional[datetime]]] = []
             for dt, s_no in step_events:
                 if not spans or spans[-1][0] != s_no:
@@ -1021,8 +1195,32 @@ class SetexFolderReader:
                     entry["actual_min"] = round(entry["actual_min"] + dur_min, 1)
                     entry["ended_at"] = s_end.isoformat()
 
+        # Determine HMI.INTERVENT_ST (1 if currently paused/manual or intervention occurred within last 5 min of log)
+        intervent_active = 0
+        if last_mode in ((4, 4), (5, 6)):
+            intervent_active = 1
+        elif last_intervent_ts and last_log_ts and (last_log_ts - last_intervent_ts).total_seconds() <= 300:
+            intervent_active = 1
+
+        batch_summary = {
+            "total_wait_sec": total_wait_sec,
+            "total_pauses": total_pauses,
+            "total_jumps": total_jumps,
+            "total_alarms": len(batch_alarms),
+            "total_overrides": len(setpoint_overrides),
+            "water_l": water_l,
+            "steam_kg": steam_kg,
+            "power_kwh": power_kwh,
+            "batch_ended": batch_ended,
+        }
+
         out_res["batch_info"] = batch_info
         out_res["step_actuals"] = step_actuals
+        out_res["operator_timeline"] = operator_timeline[-200:]
+        out_res["batch_alarms"] = batch_alarms[-100:]
+        out_res["setpoint_overrides"] = setpoint_overrides[-50:]
+        out_res["batch_summary"] = batch_summary
+        out_res["intervent_active"] = intervent_active
         return out_res
 
         telemetry = []

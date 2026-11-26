@@ -949,11 +949,23 @@ def process_single_machine(m: Dict[str, Any]) -> Dict[str, Any]:
         }
         _mqtt_client.publish(topic_status, json.dumps(payload_status), qos=1, retain=True)
 
-    # 1a. Extract Batch Production Metadata (evt 257/513/1025) & Per-Step Actual Minutes (evt 261) from PR<batch>.LOG
-    pr_meta = {"batch_info": {}, "step_actuals": {}}
+    # 1a. Extract Batch Production Metadata, Per-Step Actuals, Operator Timeline, Alarms, Overrides & Summary from PR<batch>.LOG
+    pr_meta = {
+        "batch_info": {},
+        "step_actuals": {},
+        "operator_timeline": [],
+        "batch_alarms": [],
+        "setpoint_overrides": [],
+        "batch_summary": {},
+        "intervent_active": 0,
+    }
+    base_recipe_steps = (bundle.get("db_program") or {}).get("scada_steps") or None
     if bundle.get("batch_log_bytes"):
         try:
-            pr_meta = SetexFolderReader.parse_pr_log_metadata_and_steps(bundle["batch_log_bytes"])
+            pr_meta = SetexFolderReader.parse_pr_log_metadata_and_steps(
+                bundle["batch_log_bytes"],
+                recipe_steps=base_recipe_steps,
+            )
         except Exception as me:
             logger.debug(f"PR metadata parse notice for {m_no}: {me}")
 
@@ -973,7 +985,7 @@ def process_single_machine(m: Dict[str, Any]) -> Dict[str, Any]:
                 st_item["started_at"] = act.get("started_at")
         return steps_list
 
-    # 1b. Publish Recipe Steps for SCADA Tabel proses (prioritaskan DB; jika belum ada baru parse PRG & auto-insert ke DB)
+    # 1b. Publish Recipe Steps + Operator Audit Intelligence for SCADA & Open OrgaTEX
     if batch_no and bundle.get("db_program"):
         db_p = bundle["db_program"]
         scada_steps = _enrich_steps_with_actuals(list(db_p.get("scada_steps") or []))
@@ -992,6 +1004,11 @@ def process_single_machine(m: Dict[str, Any]) -> Dict[str, Any]:
                 "current_step": int(step_no),
                 "total_steps": len(scada_steps),
                 "batch_info": pr_meta.get("batch_info") or {},
+                "operator_timeline": pr_meta.get("operator_timeline") or [],
+                "setpoint_overrides": pr_meta.get("setpoint_overrides") or [],
+                "batch_alarms": pr_meta.get("batch_alarms") or [],
+                "batch_summary": pr_meta.get("batch_summary") or {},
+                "intervent_active": int(pr_meta.get("intervent_active") or 0),
                 "program": scada_steps,
             }
             _mqtt_client.publish(topic_prog, json.dumps(payload_prog), qos=1)
@@ -1010,7 +1027,18 @@ def process_single_machine(m: Dict[str, Any]) -> Dict[str, Any]:
                 if not bundle.get("prg_from_cache"):
                     save_prg_steps_to_db(m_no, effective_prog_no, effective_prog_name, raw_steps)
 
-                scada_steps = _enrich_steps_with_actuals(build_scada_program_steps(raw_steps))
+                built_steps = build_scada_program_steps(raw_steps)
+                # Re-run setpoint override detection now that we have recipe steps
+                if bundle.get("batch_log_bytes") and not base_recipe_steps:
+                    try:
+                        pr_meta = SetexFolderReader.parse_pr_log_metadata_and_steps(
+                            bundle["batch_log_bytes"],
+                            recipe_steps=built_steps,
+                        )
+                    except Exception:
+                        pass
+
+                scada_steps = _enrich_steps_with_actuals(built_steps)
                 topic_prog = f"smm/jetflow/{asset_id}/batch_program"
                 payload_prog = {
                     "asset_id": asset_id,
@@ -1023,6 +1051,11 @@ def process_single_machine(m: Dict[str, Any]) -> Dict[str, Any]:
                     "current_step": int(step_no),
                     "total_steps": len(scada_steps),
                     "batch_info": pr_meta.get("batch_info") or {},
+                    "operator_timeline": pr_meta.get("operator_timeline") or [],
+                    "setpoint_overrides": pr_meta.get("setpoint_overrides") or [],
+                    "batch_alarms": pr_meta.get("batch_alarms") or [],
+                    "batch_summary": pr_meta.get("batch_summary") or {},
+                    "intervent_active": int(pr_meta.get("intervent_active") or 0),
                     "program": scada_steps,
                 }
                 _mqtt_client.publish(topic_prog, json.dumps(payload_prog), qos=1)
