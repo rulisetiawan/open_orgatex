@@ -168,9 +168,9 @@ func (s *Storage) IngestTelemetry(ctx context.Context, p TelemetryPayload) error
 			asset_id = EXCLUDED.asset_id,
 			last_updated = EXCLUDED.last_updated,
 			connection_status = 'ONLINE',
-			batch_no = EXCLUDED.batch_no,
-			step_no = EXCLUDED.step_no,
-			program_no = EXCLUDED.program_no,
+			batch_no = COALESCE(NULLIF(EXCLUDED.batch_no, ''), live_iw_telemetry.batch_no),
+			step_no = CASE WHEN EXCLUDED.step_no > 0 THEN EXCLUDED.step_no ELSE live_iw_telemetry.step_no END,
+			program_no = COALESCE(NULLIF(EXCLUDED.program_no, ''), live_iw_telemetry.program_no),
 			telemetry_json = EXCLUDED.telemetry_json;
 	`
 	_, err := s.jetflowPool.Exec(ctx, queryLive, p.MachineID, p.AssetID, now, p.BatchNo, p.StepNo, p.ProgramNo, telemetryBytes)
@@ -431,7 +431,50 @@ func (s *Storage) IngestStatus(ctx context.Context, p StatusPayload) error {
 		s.ensureScadaBatchAndSnapshot(ctx, p.AssetID, p.BatchNo, p.ProgramNo)
 	}
 
+	// Update SCADA step tags (SMM.<ASSET>.MACHINE.PROCESS_STEP_CODE & PROCESS.STEP_CODE)
+	// so sync_jetflow_asset_snapshot updates values_json->>'step_no' in real time from da-batch-worker!
+	if p.StepNo > 0 && p.AssetID != "" {
+		s.upsertScadaStepTag(ctx, p.AssetID, p.StepNo, now)
+	}
+
 	return nil
+}
+
+// upsertScadaStepTag writes live step_no from da-batch-worker into pt_smm_scada.tag_latest
+// for both MACHINE.PROCESS_STEP_CODE and PROCESS.STEP_CODE, then refreshes asset_snapshot.
+func (s *Storage) upsertScadaStepTag(ctx context.Context, assetID string, stepNo int, ts time.Time) {
+	aid := strings.TrimSpace(assetID)
+	if aid == "" || stepNo <= 0 {
+		return
+	}
+	var assetExists bool
+	_ = s.scadaPool.QueryRow(ctx, "SELECT EXISTS(SELECT 1 FROM asset WHERE asset_id = $1);", aid).Scan(&assetExists)
+	if !assetExists {
+		return
+	}
+	stepTags := []string{
+		fmt.Sprintf("SMM.%s.MACHINE.PROCESS_STEP_CODE", aid),
+		fmt.Sprintf("SMM.%s.PROCESS.STEP_CODE", aid),
+	}
+	for _, tc := range stepTags {
+		_, _ = s.scadaPool.Exec(ctx, `
+			INSERT INTO tag_definition (tag_code, asset_id, signal_role, engineering_unit, source_status, active, created_at, stale_after_seconds, freshness_mode, display_name)
+			VALUES ($1, $2, 'PV', 'step', 'LIVE', TRUE, NOW(), 600, 'TAG_TIMESTAMP', $1)
+			ON CONFLICT (tag_code) DO UPDATE SET asset_id = EXCLUDED.asset_id;
+		`, tc, aid)
+		_, _ = s.scadaPool.Exec(ctx, `
+			INSERT INTO tag_latest (tag_code, asset_id, value_number, quality, source_ts, ingested_at, updated_at, message_id)
+			VALUES ($1, $2, $3, 'GOOD', $4, NOW(), NOW(), gen_random_uuid())
+			ON CONFLICT (tag_code) DO UPDATE SET
+				value_number = EXCLUDED.value_number,
+				quality = 'GOOD',
+				source_ts = EXCLUDED.source_ts,
+				ingested_at = NOW(),
+				updated_at = NOW(),
+				message_id = gen_random_uuid();
+		`, tc, aid, float64(stepNo), ts)
+	}
+	_, _ = s.scadaPool.Exec(ctx, "SELECT sync_jetflow_asset_snapshot($1);", aid)
 }
 
 // IngestBatchCurve stores parsed PR<batch>.LOG curve points into datalog_cyclic_records.
@@ -549,7 +592,11 @@ func (s *Storage) IngestBatchProgram(ctx context.Context, p BatchProgramPayload)
 		WHERE asset_id = $1;
 	`, aid, progress)
 
-	_, _ = s.scadaPool.Exec(ctx, "SELECT sync_jetflow_asset_snapshot($1);", aid)
+	if p.CurrentStep > 0 {
+		s.upsertScadaStepTag(ctx, aid, p.CurrentStep, time.Now())
+	} else {
+		_, _ = s.scadaPool.Exec(ctx, "SELECT sync_jetflow_asset_snapshot($1);", aid)
+	}
 	return nil
 }
 
