@@ -1,0 +1,42 @@
+{
+  "machine": "3C",
+  "awl_count": 1,
+  "files": [
+    {
+      "filename": "SC26.AWL",
+      "cpu_type": "UNKNOWN",
+      "size_bytes": 456603,
+      "sha256": "bfb75a572fb9def156ddc22201413c09889cb746998a2ef933ac37f77586edad",
+      "project_names": [
+        "iP_260351.pro"
+      ],
+      "primary_project": "iP_260351.pro",
+      "dates_found": [
+        "17/04/2026"
+      ],
+      "plc_symbols_sample": [
+        "Drainning",
+        "DOS_SC",
+        "DOS_SCinit",
+        "DPID_SC",
+        "DPID_SCinit",
+        "MDOS_SC",
+        "MDOS_SCinit",
+        "PID_SC",
+        "PID_SCinit",
+        "Read_Me_SCTPID",
+        "TPID_SC",
+        "TPID_SCinit",
+        "T_CTRL_DOSinit",
+        "T_CTRL_MDOSinit",
+        "T_CTRL_PIDinit",
+        "T_CTRL_TP_STEPinit",
+        "T_DOS_CTRL_INTERNALinit",
+        "T_DOS_CTRL_PARAMETERinit",
+        "T_DPID_CTRL_INTERNALinit",
+        "T_DPID_CTRL_PARAMETERinit"
+      ],
+      "header_hex_16": "030000007aec0600c0000000a8080000"
+    }
+  ]
+}

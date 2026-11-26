@@ -63,7 +63,9 @@
           "attribute": 0,
           "reserved": 0
         }
-      ]
+      ],
+      "lines": [],
+      "groups": []
     },
     "668": {
       "id": 668,
@@ -128,7 +130,9 @@
           "attribute": 0,
           "reserved": 0
         }
-      ]
+      ],
+      "lines": [],
+      "groups": []
     },
     "401": {
       "id": 401,
@@ -149,7 +153,9 @@
           "attribute": 0,
           "reserved": 0
         }
-      ]
+      ],
+      "lines": [],
+      "groups": []
     },
     "411": {
       "id": 411,
@@ -170,7 +176,9 @@
           "attribute": 0,
           "reserved": 0
         }
-      ]
+      ],
+      "lines": [],
+      "groups": []
     },
     "262": {
       "id": 262,
@@ -213,7 +221,9 @@
           "attribute": 0,
           "reserved": 0
         }
-      ]
+      ],
+      "lines": [],
+      "groups": []
     },
     "661": {
       "id": 661,
@@ -245,7 +255,9 @@
           "attribute": 0,
           "reserved": 0
         }
-      ]
+      ],
+      "lines": [],
+      "groups": []
     },
     "671": {
       "id": 671,
@@ -277,11 +289,13 @@
           "attribute": 0,
           "reserved": 0
         }
-      ]
+      ],
+      "lines": [],
+      "groups": []
     },
     "701": {
       "id": 701,
-      "name_local": "Sirk\u00fclasyon KK -> AK",
+      "name_local": "Sirkülasyon KK -> AK",
       "name": "Circulate AT1 -> MA",
       "ack": 0,
       "type": 0,
@@ -353,6 +367,12 @@
           "attribute": 0,
           "reserved": 0
         }
+      ],
+      "lines": [
+        1
+      ],
+      "groups": [
+        "Dosing/Inject"
       ]
     },
     "708": {
@@ -362,7 +382,9 @@
       "ack": 0,
       "type": 0,
       "parameter_count": 0,
-      "parameters": []
+      "parameters": [],
+      "lines": [],
+      "groups": []
     },
     "709": {
       "id": 709,
@@ -405,11 +427,13 @@
           "attribute": 0,
           "reserved": 0
         }
-      ]
+      ],
+      "lines": [],
+      "groups": []
     },
     "714": {
       "id": 714,
-      "name_local": "Y\u0131kama Rezerve Tankt",
+      "name_local": "Yıkama Rezerve Tankt",
       "name": "Rinsing ST",
       "ack": 0,
       "type": 0,
@@ -459,11 +483,17 @@
           "attribute": 0,
           "reserved": 0
         }
+      ],
+      "lines": [
+        1
+      ],
+      "groups": [
+        "Rinse"
       ]
     },
     "71": {
       "id": 71,
-      "name_local": "AK Bo\u015faltma",
+      "name_local": "AK Boşaltma",
       "name": "Drain Percent",
       "ack": 0,
       "type": 0,
@@ -502,6 +532,12 @@
           "attribute": 0,
           "reserved": 0
         }
+      ],
+      "lines": [
+        1
+      ],
+      "groups": [
+        "Drain"
       ]
     },
     "719": {
@@ -567,11 +603,17 @@
           "attribute": 0,
           "reserved": 0
         }
+      ],
+      "lines": [
+        6
+      ],
+      "groups": [
+        "Stock Tank 1"
       ]
     },
     "800": {
       "id": 800,
-      "name_local": "Makine \u0130\u00e7 Y\u0131kama",
+      "name_local": "Makine İç Yıkama",
       "name": "Machine Clear On",
       "ack": 6,
       "type": 0,
@@ -588,11 +630,17 @@
           "attribute": 0,
           "reserved": 0
         }
+      ],
+      "lines": [
+        8
+      ],
+      "groups": [
+        "Data"
       ]
     },
     "122": {
       "id": 122,
-      "name_local": "Mal Bo\u015falt",
+      "name_local": "Mal Boşalt",
       "name": "Unload",
       "ack": 0,
       "type": 5,
@@ -609,25 +657,43 @@
           "attribute": 0,
           "reserved": 0
         }
+      ],
+      "lines": [
+        1
+      ],
+      "groups": [
+        "Operator Call"
       ]
     },
     "2": {
       "id": 2,
-      "name_local": "Program Biti\u015fi",
+      "name_local": "Program Bitişi",
       "name": "Program End",
       "ack": 0,
       "type": 7,
       "parameter_count": 0,
-      "parameters": []
+      "parameters": [],
+      "lines": [
+        1
+      ],
+      "groups": [
+        "System"
+      ]
     },
     "3": {
       "id": 3,
-      "name_local": "\u0130\u015flem Yok",
+      "name_local": "İşlem Yok",
       "name": "No Operation",
       "ack": 0,
       "type": 0,
       "parameter_count": 0,
-      "parameters": []
+      "parameters": [],
+      "lines": [
+        1
+      ],
+      "groups": [
+        "System"
+      ]
     },
     "5": {
       "id": 5,
@@ -636,20 +702,32 @@
       "ack": 0,
       "type": 9,
       "parameter_count": 0,
-      "parameters": []
+      "parameters": [],
+      "lines": [
+        1
+      ],
+      "groups": [
+        "System"
+      ]
     },
     "4": {
       "id": 4,
-      "name_local": "\u0130lave Ba\u015flang\u0131c\u0131",
+      "name_local": "İlave Başlangıcı",
       "name": "Addition Start",
       "ack": 0,
       "type": 8,
       "parameter_count": 0,
-      "parameters": []
+      "parameters": [],
+      "lines": [
+        1
+      ],
+      "groups": [
+        "System"
+      ]
     },
     "21": {
       "id": 21,
-      "name_local": "F\u00fcllen auf Niveau",
+      "name_local": "Füllen auf Niveau",
       "name": "Fill Level",
       "ack": 0,
       "type": 0,
@@ -677,11 +755,13 @@
           "attribute": 0,
           "reserved": 0
         }
-      ]
+      ],
+      "lines": [],
+      "groups": []
     },
     "23": {
       "id": 23,
-      "name_local": "F\u00fcll Mischw. Niveau",
+      "name_local": "Füll Mischw. Niveau",
       "name": "Fill Blendw. Level",
       "ack": 0,
       "type": 0,
@@ -709,11 +789,13 @@
           "attribute": 0,
           "reserved": 0
         }
-      ]
+      ],
+      "lines": [],
+      "groups": []
     },
     "24": {
       "id": 24,
-      "name_local": "F\u00fcll Mischw. Menge",
+      "name_local": "Füll Mischw. Menge",
       "name": "Fill Blendw. Quant.",
       "ack": 0,
       "type": 0,
@@ -741,7 +823,9 @@
           "attribute": 0,
           "reserved": 0
         }
-      ]
+      ],
+      "lines": [],
+      "groups": []
     },
     "716": {
       "id": 716,
@@ -773,6 +857,12 @@
           "attribute": 0,
           "reserved": 0
         }
+      ],
+      "lines": [
+        1
+      ],
+      "groups": [
+        "Fill"
       ]
     },
     "126": {
@@ -794,6 +884,12 @@
           "attribute": 0,
           "reserved": 0
         }
+      ],
+      "lines": [
+        1
+      ],
+      "groups": [
+        "Operator Call"
       ]
     },
     "123": {
@@ -815,6 +911,12 @@
           "attribute": 0,
           "reserved": 0
         }
+      ],
+      "lines": [
+        1
+      ],
+      "groups": [
+        "Operator Call"
       ]
     },
     "65": {
@@ -824,7 +926,9 @@
       "ack": 0,
       "type": 0,
       "parameter_count": 0,
-      "parameters": []
+      "parameters": [],
+      "lines": [],
+      "groups": []
     },
     "127": {
       "id": 127,
@@ -856,11 +960,17 @@
           "attribute": 0,
           "reserved": 0
         }
+      ],
+      "lines": [
+        1
+      ],
+      "groups": [
+        "Operator Call"
       ]
     },
     "141": {
       "id": 141,
-      "name_local": "S\u0131cakl\u0131k Kontrol",
+      "name_local": "Sıcaklık Kontrol",
       "name": "Temperature Control",
       "ack": 0,
       "type": 0,
@@ -899,6 +1009,12 @@
           "attribute": 0,
           "reserved": 0
         }
+      ],
+      "lines": [
+        1
+      ],
+      "groups": [
+        "Dyeing"
       ]
     },
     "145": {
@@ -942,11 +1058,13 @@
           "attribute": 0,
           "reserved": 0
         }
-      ]
+      ],
+      "lines": [],
+      "groups": []
     },
     "144": {
       "id": 144,
-      "name_local": "Sirk\u00fclasyon",
+      "name_local": "Sirkülasyon",
       "name": "Runtime",
       "ack": 0,
       "type": 0,
@@ -963,6 +1081,12 @@
           "attribute": 0,
           "reserved": 0
         }
+      ],
+      "lines": [
+        1
+      ],
+      "groups": [
+        "Dyeing"
       ]
     },
     "146": {
@@ -1006,16 +1130,24 @@
           "attribute": 0,
           "reserved": 0
         }
-      ]
+      ],
+      "lines": [],
+      "groups": []
     },
     "513": {
       "id": 513,
-      "name_local": "KK Bo\u015falt",
+      "name_local": "KK Boşalt",
       "name": "Drain AT1",
       "ack": 3,
       "type": 0,
       "parameter_count": 0,
-      "parameters": []
+      "parameters": [],
+      "lines": [
+        4
+      ],
+      "groups": [
+        "Addition Tank 1"
+      ]
     },
     "653": {
       "id": 653,
@@ -1024,7 +1156,13 @@
       "ack": 6,
       "type": 0,
       "parameter_count": 0,
-      "parameters": []
+      "parameters": [],
+      "lines": [
+        4
+      ],
+      "groups": [
+        "Addition Tank 1"
+      ]
     },
     "652": {
       "id": 652,
@@ -1045,7 +1183,9 @@
           "attribute": 0,
           "reserved": 0
         }
-      ]
+      ],
+      "lines": [],
+      "groups": []
     },
     "654": {
       "id": 654,
@@ -1054,7 +1194,9 @@
       "ack": 7,
       "type": 0,
       "parameter_count": 0,
-      "parameters": []
+      "parameters": [],
+      "lines": [],
+      "groups": []
     },
     "655": {
       "id": 655,
@@ -1075,11 +1217,13 @@
           "attribute": 0,
           "reserved": 0
         }
-      ]
+      ],
+      "lines": [],
+      "groups": []
     },
     "656": {
       "id": 656,
-      "name_local": "KK Kimyasal \u0130stek",
+      "name_local": "KK Kimyasal İstek",
       "name": "Call Prep.AT1",
       "ack": 3,
       "type": 14,
@@ -1151,6 +1295,12 @@
           "attribute": 0,
           "reserved": 0
         }
+      ],
+      "lines": [
+        4
+      ],
+      "groups": [
+        "Addition Tank 1"
       ]
     },
     "662": {
@@ -1172,7 +1322,9 @@
           "attribute": 0,
           "reserved": 0
         }
-      ]
+      ],
+      "lines": [],
+      "groups": []
     },
     "663": {
       "id": 663,
@@ -1181,7 +1333,13 @@
       "ack": 6,
       "type": 0,
       "parameter_count": 0,
-      "parameters": []
+      "parameters": [],
+      "lines": [
+        5
+      ],
+      "groups": [
+        "Addition Tank 2"
+      ]
     },
     "664": {
       "id": 664,
@@ -1190,11 +1348,13 @@
       "ack": 7,
       "type": 0,
       "parameter_count": 0,
-      "parameters": []
+      "parameters": [],
+      "lines": [],
+      "groups": []
     },
     "672": {
       "id": 672,
-      "name_local": "Parti ba\u015flat +1 RK",
+      "name_local": "Parti başlat +1 RK",
       "name": "Start batch +1 ST1",
       "ack": 3,
       "type": 21,
@@ -1211,6 +1371,12 @@
           "attribute": 0,
           "reserved": 0
         }
+      ],
+      "lines": [
+        6
+      ],
+      "groups": [
+        "Stock Tank 1"
       ]
     },
     "673": {
@@ -1220,11 +1386,17 @@
       "ack": 6,
       "type": 0,
       "parameter_count": 0,
-      "parameters": []
+      "parameters": [],
+      "lines": [
+        6
+      ],
+      "groups": [
+        "Stock Tank 1"
+      ]
     },
     "536": {
       "id": 536,
-      "name_local": "BK Haz\u0131rla",
+      "name_local": "BK Hazırla",
       "name": "Prep. AT2 ->MA ok",
       "ack": 3,
       "type": 0,
@@ -1241,11 +1413,17 @@
           "attribute": 0,
           "reserved": 0
         }
+      ],
+      "lines": [
+        5
+      ],
+      "groups": [
+        "Addition Tank 2"
       ]
     },
     "37": {
       "id": 37,
-      "name_local": "Doldur Haf\u0131za",
+      "name_local": "Doldur Hafıza",
       "name": "Fill Memo",
       "ack": 0,
       "type": 0,
@@ -1262,6 +1440,12 @@
           "attribute": 0,
           "reserved": 0
         }
+      ],
+      "lines": [
+        1
+      ],
+      "groups": [
+        "Fill"
       ]
     },
     "665": {
@@ -1283,11 +1467,13 @@
           "attribute": 0,
           "reserved": 0
         }
-      ]
+      ],
+      "lines": [],
+      "groups": []
     },
     "38": {
       "id": 38,
-      "name_local": "F\u00fcll Mischw. Memo",
+      "name_local": "Füll Mischw. Memo",
       "name": "Fill Blendw. Memo",
       "ack": 0,
       "type": 0,
@@ -1304,7 +1490,9 @@
           "attribute": 0,
           "reserved": 0
         }
-      ]
+      ],
+      "lines": [],
+      "groups": []
     },
     "119": {
       "id": 119,
@@ -1336,7 +1524,9 @@
           "attribute": 0,
           "reserved": 0
         }
-      ]
+      ],
+      "lines": [],
+      "groups": []
     },
     "130": {
       "id": 130,
@@ -1357,6 +1547,12 @@
           "attribute": 0,
           "reserved": 0
         }
+      ],
+      "lines": [
+        1
+      ],
+      "groups": [
+        "Operator Call"
       ]
     },
     "228": {
@@ -1433,7 +1629,9 @@
           "attribute": 0,
           "reserved": 0
         }
-      ]
+      ],
+      "lines": [],
+      "groups": []
     },
     "227": {
       "id": 227,
@@ -1509,7 +1707,9 @@
           "attribute": 0,
           "reserved": 0
         }
-      ]
+      ],
+      "lines": [],
+      "groups": []
     },
     "231": {
       "id": 231,
@@ -1574,7 +1774,9 @@
           "attribute": 0,
           "reserved": 0
         }
-      ]
+      ],
+      "lines": [],
+      "groups": []
     },
     "239": {
       "id": 239,
@@ -1650,7 +1852,9 @@
           "attribute": 0,
           "reserved": 0
         }
-      ]
+      ],
+      "lines": [],
+      "groups": []
     },
     "79": {
       "id": 79,
@@ -1693,7 +1897,9 @@
           "attribute": 0,
           "reserved": 0
         }
-      ]
+      ],
+      "lines": [],
+      "groups": []
     },
     "237": {
       "id": 237,
@@ -1747,6 +1953,12 @@
           "attribute": 0,
           "reserved": 0
         }
+      ],
+      "lines": [
+        1
+      ],
+      "groups": [
+        "Dosing/Inject"
       ]
     },
     "238": {
@@ -1801,6 +2013,12 @@
           "attribute": 0,
           "reserved": 0
         }
+      ],
+      "lines": [
+        1
+      ],
+      "groups": [
+        "Dosing/Inject"
       ]
     },
     "240": {
@@ -1877,11 +2095,13 @@
           "attribute": 0,
           "reserved": 0
         }
-      ]
+      ],
+      "lines": [],
+      "groups": []
     },
     "261": {
       "id": 261,
-      "name_local": "Y\u00fckle",
+      "name_local": "Yükle",
       "name": "Load",
       "ack": 0,
       "type": 5,
@@ -1920,11 +2140,17 @@
           "attribute": 0,
           "reserved": 0
         }
+      ],
+      "lines": [
+        1
+      ],
+      "groups": [
+        "Operator Call"
       ]
     },
     "417": {
       "id": 417,
-      "name_local": "Kule / D\u00fcze",
+      "name_local": "Kule / Düze",
       "name": "Material Flow Vario.",
       "ack": 5,
       "type": 0,
@@ -1952,7 +2178,9 @@
           "attribute": 0,
           "reserved": 0
         }
-      ]
+      ],
+      "lines": [],
+      "groups": []
     },
     "657": {
       "id": 657,
@@ -1984,6 +2212,12 @@
           "attribute": 0,
           "reserved": 0
         }
+      ],
+      "lines": [
+        4
+      ],
+      "groups": [
+        "Addition Tank 1"
       ]
     },
     "667": {
@@ -2016,11 +2250,17 @@
           "attribute": 0,
           "reserved": 0
         }
+      ],
+      "lines": [
+        5
+      ],
+      "groups": [
+        "Addition Tank 2"
       ]
     },
     "710": {
       "id": 710,
-      "name_local": "Y\u0131kama Zamanl\u0131",
+      "name_local": "Yıkama Zamanlı",
       "name": "Rinse Time Mode",
       "ack": 0,
       "type": 0,
@@ -2070,6 +2310,12 @@
           "attribute": 0,
           "reserved": 0
         }
+      ],
+      "lines": [
+        1
+      ],
+      "groups": [
+        "Rinse"
       ]
     },
     "242": {
@@ -2124,11 +2370,13 @@
           "attribute": 0,
           "reserved": 0
         }
-      ]
+      ],
+      "lines": [],
+      "groups": []
     },
     "243": {
       "id": 243,
-      "name_local": "Y\u0131kama Miktarl\u0131",
+      "name_local": "Yıkama Miktarlı",
       "name": "Rinse Quantity Mode",
       "ack": 0,
       "type": 0,
@@ -2178,11 +2426,17 @@
           "attribute": 0,
           "reserved": 0
         }
+      ],
+      "lines": [
+        1
+      ],
+      "groups": [
+        "Rinse"
       ]
     },
     "404": {
       "id": 404,
-      "name_local": "Pompa H\u0131z/D\u00fcze",
+      "name_local": "Pompa Hız/Düze",
       "name": "Dye Liquor Pump",
       "ack": 1,
       "type": 0,
@@ -2210,16 +2464,28 @@
           "attribute": 0,
           "reserved": 0
         }
+      ],
+      "lines": [
+        2
+      ],
+      "groups": [
+        "Pump"
       ]
     },
     "1": {
       "id": 1,
-      "name_local": "Program Ba\u015flang\u0131c\u0131",
+      "name_local": "Program Başlangıcı",
       "name": "Program Start",
       "ack": 0,
       "type": 6,
       "parameter_count": 0,
-      "parameters": []
+      "parameters": [],
+      "lines": [
+        1
+      ],
+      "groups": [
+        "System"
+      ]
     },
     "22": {
       "id": 22,
@@ -2251,11 +2517,17 @@
           "attribute": 0,
           "reserved": 0
         }
+      ],
+      "lines": [
+        1
+      ],
+      "groups": [
+        "Fill"
       ]
     },
     "703": {
       "id": 703,
-      "name_local": "Y\u0131kama Zamanl\u0131 / Lt",
+      "name_local": "Yıkama Zamanlı / Lt",
       "name": "Rinse Time / Liter",
       "ack": 0,
       "type": 0,
@@ -2294,6 +2566,12 @@
           "attribute": 0,
           "reserved": 0
         }
+      ],
+      "lines": [
+        1
+      ],
+      "groups": [
+        "Rinse"
       ]
     },
     "718": {
@@ -2370,6 +2648,12 @@
           "attribute": 0,
           "reserved": 0
         }
+      ],
+      "lines": [
+        5
+      ],
+      "groups": [
+        "Addition Tank 2"
       ]
     },
     "722": {
@@ -2391,11 +2675,17 @@
           "attribute": 0,
           "reserved": 0
         }
+      ],
+      "lines": [
+        5
+      ],
+      "groups": [
+        "Addition Tank 2"
       ]
     },
     "666": {
       "id": 666,
-      "name_local": "BK Kimyasal \u0130stek",
+      "name_local": "BK Kimyasal İstek",
       "name": "Call Prep.AT2",
       "ack": 3,
       "type": 14,
@@ -2467,11 +2757,17 @@
           "attribute": 0,
           "reserved": 0
         }
+      ],
+      "lines": [
+        5
+      ],
+      "groups": [
+        "Addition Tank 2"
       ]
     },
     "712": {
       "id": 712,
-      "name_local": "Kule H\u0131z\u0131/Tur Kntrl",
+      "name_local": "Kule Hızı/Tur Kntrl",
       "name": "Material Flow",
       "ack": 1,
       "type": 0,
@@ -2499,6 +2795,12 @@
           "attribute": 0,
           "reserved": 0
         }
+      ],
+      "lines": [
+        3
+      ],
+      "groups": [
+        "Material flow"
       ]
     },
     "241": {
@@ -2531,7 +2833,9 @@
           "attribute": 0,
           "reserved": 0
         }
-      ]
+      ],
+      "lines": [],
+      "groups": []
     },
     "939": {
       "id": 939,
@@ -2596,11 +2900,17 @@
           "attribute": 0,
           "reserved": 0
         }
+      ],
+      "lines": [
+        1
+      ],
+      "groups": [
+        "Dosing/Inject"
       ]
     },
     "747": {
       "id": 747,
-      "name_local": "Y\u0131ka / So\u011fut",
+      "name_local": "Yıka / Soğut",
       "name": "Rinsing / Cooling",
       "ack": 0,
       "type": 0,
@@ -2628,6 +2938,12 @@
           "attribute": 0,
           "reserved": 0
         }
+      ],
+      "lines": [
+        1
+      ],
+      "groups": [
+        "Rinse"
       ]
     },
     "730": {
@@ -2637,7 +2953,9 @@
       "ack": 2,
       "type": 0,
       "parameter_count": 0,
-      "parameters": []
+      "parameters": [],
+      "lines": [],
+      "groups": []
     },
     "723": {
       "id": 723,
@@ -2669,7 +2987,9 @@
           "attribute": 0,
           "reserved": 0
         }
-      ]
+      ],
+      "lines": [],
+      "groups": []
     },
     "711": {
       "id": 711,
@@ -2734,6 +3054,12 @@
           "attribute": 0,
           "reserved": 0
         }
+      ],
+      "lines": [
+        1
+      ],
+      "groups": [
+        "Rinse"
       ]
     },
     "651": {
@@ -2766,7 +3092,9 @@
           "attribute": 0,
           "reserved": 0
         }
-      ]
+      ],
+      "lines": [],
+      "groups": []
     },
     "717": {
       "id": 717,
@@ -2842,6 +3170,12 @@
           "attribute": 0,
           "reserved": 0
         }
+      ],
+      "lines": [
+        4
+      ],
+      "groups": [
+        "Addition Tank 1"
       ]
     },
     "720": {
@@ -2907,6 +3241,12 @@
           "attribute": 0,
           "reserved": 0
         }
+      ],
+      "lines": [
+        6
+      ],
+      "groups": [
+        "Stock Tank 1"
       ]
     },
     "93": {
@@ -2916,7 +3256,9 @@
       "ack": 3,
       "type": 0,
       "parameter_count": 0,
-      "parameters": []
+      "parameters": [],
+      "lines": [],
+      "groups": []
     },
     "658": {
       "id": 658,
@@ -2981,20 +3323,28 @@
           "attribute": 0,
           "reserved": 0
         }
-      ]
+      ],
+      "lines": [],
+      "groups": []
     },
     "533": {
       "id": 533,
-      "name_local": "BK Bo\u015falt",
+      "name_local": "BK Boşalt",
       "name": "Drain AT2",
       "ack": 3,
       "type": 0,
       "parameter_count": 0,
-      "parameters": []
+      "parameters": [],
+      "lines": [
+        5
+      ],
+      "groups": [
+        "Addition Tank 2"
+      ]
     },
     "27": {
       "id": 27,
-      "name_local": "F\u00fcllen auf Prozent",
+      "name_local": "Füllen auf Prozent",
       "name": "Fill Level Percent",
       "ack": 0,
       "type": 0,
@@ -3022,7 +3372,9 @@
           "attribute": 0,
           "reserved": 0
         }
-      ]
+      ],
+      "lines": [],
+      "groups": []
     },
     "139": {
       "id": 139,
@@ -3043,6 +3395,12 @@
           "attribute": 0,
           "reserved": 0
         }
+      ],
+      "lines": [
+        1
+      ],
+      "groups": [
+        "Operator Call"
       ]
     },
     "713": {
@@ -3075,6 +3433,12 @@
           "attribute": 0,
           "reserved": 0
         }
+      ],
+      "lines": [
+        1
+      ],
+      "groups": [
+        "Fill"
       ]
     },
     "680": {
@@ -3107,11 +3471,17 @@
           "attribute": 0,
           "reserved": 0
         }
+      ],
+      "lines": [
+        4
+      ],
+      "groups": [
+        "Addition Tank 1"
       ]
     },
     "244": {
       "id": 244,
-      "name_local": "Sp\u00fclen Zeit MW Mode",
+      "name_local": "Spülen Zeit MW Mode",
       "name": "Rinse Time BW Mode",
       "ack": 0,
       "type": 0,
@@ -3161,7 +3531,9 @@
           "attribute": 0,
           "reserved": 0
         }
-      ]
+      ],
+      "lines": [],
+      "groups": []
     },
     "61": {
       "id": 61,
@@ -3204,20 +3576,28 @@
           "attribute": 0,
           "reserved": 0
         }
-      ]
+      ],
+      "lines": [],
+      "groups": []
     },
     "551": {
       "id": 551,
-      "name_local": "RK Bo\u015falt",
+      "name_local": "RK Boşalt",
       "name": "Drain ST",
       "ack": 3,
       "type": 0,
       "parameter_count": 0,
-      "parameters": []
+      "parameters": [],
+      "lines": [
+        6
+      ],
+      "groups": [
+        "Stock Tank 1"
+      ]
     },
     "516": {
       "id": 516,
-      "name_local": "KK Haz\u0131rla",
+      "name_local": "KK Hazırla",
       "name": "Prep. AT1 ->MA ok",
       "ack": 3,
       "type": 0,
@@ -3234,6 +3614,12 @@
           "attribute": 0,
           "reserved": 0
         }
+      ],
+      "lines": [
+        4
+      ],
+      "groups": [
+        "Addition Tank 1"
       ]
     },
     "681": {
@@ -3266,6 +3652,12 @@
           "attribute": 0,
           "reserved": 0
         }
+      ],
+      "lines": [
+        5
+      ],
+      "groups": [
+        "Addition Tank 2"
       ]
     },
     "679": {
@@ -3331,11 +3723,13 @@
           "attribute": 0,
           "reserved": 0
         }
-      ]
+      ],
+      "lines": [],
+      "groups": []
     },
     "28": {
       "id": 28,
-      "name_local": "F\u00fcll Mischw. Prozent",
+      "name_local": "Füll Mischw. Prozent",
       "name": "Fill Blendw. Percent",
       "ack": 0,
       "type": 0,
@@ -3363,7 +3757,9 @@
           "attribute": 0,
           "reserved": 0
         }
-      ]
+      ],
+      "lines": [],
+      "groups": []
     },
     "674": {
       "id": 674,
@@ -3372,11 +3768,13 @@
       "ack": 7,
       "type": 0,
       "parameter_count": 0,
-      "parameters": []
+      "parameters": [],
+      "lines": [],
+      "groups": []
     },
     "702": {
       "id": 702,
-      "name_local": "Sirk\u00fclasyon BK -> AK",
+      "name_local": "Sirkülasyon BK -> AK",
       "name": "Circulate AT2 -> App",
       "ack": 0,
       "type": 0,
@@ -3448,6 +3846,12 @@
           "attribute": 0,
           "reserved": 0
         }
+      ],
+      "lines": [
+        1
+      ],
+      "groups": [
+        "Dosing/Inject"
       ]
     },
     "938": {
@@ -3513,11 +3917,17 @@
           "attribute": 0,
           "reserved": 0
         }
+      ],
+      "lines": [
+        1
+      ],
+      "groups": [
+        "Dosing/Inject"
       ]
     },
     "704": {
       "id": 704,
-      "name_local": "pH \u00d6l\u00e7\u00fcm",
+      "name_local": "pH Ölçüm",
       "name": "Measure pH",
       "ack": 0,
       "type": 5,
@@ -3545,11 +3955,17 @@
           "attribute": 0,
           "reserved": 0
         }
+      ],
+      "lines": [
+        1
+      ],
+      "groups": [
+        "Operator Call"
       ]
     },
     "245": {
       "id": 245,
-      "name_local": "Sp\u00fclen Menge MW Mode",
+      "name_local": "Spülen Menge MW Mode",
       "name": "Rinse Qua. BW Mode",
       "ack": 0,
       "type": 0,
@@ -3599,20 +4015,28 @@
           "attribute": 0,
           "reserved": 0
         }
-      ]
+      ],
+      "lines": [],
+      "groups": []
     },
     "39": {
       "id": 39,
-      "name_local": "Haf\u0131za Seviye",
+      "name_local": "Hafıza Seviye",
       "name": "Memory level !",
       "ack": 2,
       "type": 0,
       "parameter_count": 0,
-      "parameters": []
+      "parameters": [],
+      "lines": [
+        7
+      ],
+      "groups": [
+        "Auto level"
+      ]
     },
     "676": {
       "id": 676,
-      "name_local": "RK Kimyasal \u0130stek",
+      "name_local": "RK Kimyasal İstek",
       "name": "Call Prep. ST1",
       "ack": 3,
       "type": 14,
@@ -3684,11 +4108,17 @@
           "attribute": 0,
           "reserved": 0
         }
+      ],
+      "lines": [
+        6
+      ],
+      "groups": [
+        "Stock Tank 1"
       ]
     },
     "554": {
       "id": 554,
-      "name_local": "RK Haz\u0131rla !",
+      "name_local": "RK Hazırla !",
       "name": "Prep. ST1 ok !",
       "ack": 3,
       "type": 0,
@@ -3705,6 +4135,12 @@
           "attribute": 0,
           "reserved": 0
         }
+      ],
+      "lines": [
+        6
+      ],
+      "groups": [
+        "Stock Tank 1"
       ]
     },
     "721": {
@@ -3737,6 +4173,12 @@
           "attribute": 0,
           "reserved": 0
         }
+      ],
+      "lines": [
+        4
+      ],
+      "groups": [
+        "Addition Tank 1"
       ]
     },
     "715": {
@@ -3813,25 +4255,43 @@
           "attribute": 0,
           "reserved": 0
         }
+      ],
+      "lines": [
+        1
+      ],
+      "groups": [
+        "Dosing/Inject"
       ]
     },
     "803": {
       "id": 803,
-      "name_local": "Bas\u0131n\u00e7 Bo\u015falt",
+      "name_local": "Basınç Boşalt",
       "name": "Pressurize off",
       "ack": 3,
       "type": 0,
       "parameter_count": 0,
-      "parameters": []
+      "parameters": [],
+      "lines": [
+        8
+      ],
+      "groups": [
+        "Data"
+      ]
     },
     "802": {
       "id": 802,
-      "name_local": "Bas\u0131n\u00e7 Al",
+      "name_local": "Basınç Al",
       "name": "Pressurize on",
       "ack": 3,
       "type": 0,
       "parameter_count": 0,
-      "parameters": []
+      "parameters": [],
+      "lines": [
+        8
+      ],
+      "groups": [
+        "Data"
+      ]
     },
     "801": {
       "id": 801,
@@ -3840,7 +4300,9 @@
       "ack": 2,
       "type": 0,
       "parameter_count": 0,
-      "parameters": []
+      "parameters": [],
+      "lines": [],
+      "groups": []
     }
   },
   "parameters": {
@@ -3927,10 +4389,10 @@
     },
     "3": {
       "id": 3,
-      "name_local": "S\u0131cakl\u0131k",
+      "name_local": "Sıcaklık",
       "name": "Temperature MA",
-      "unit_local": "\u00b0C",
-      "unit": "\u00b0C",
+      "unit_local": "°C",
+      "unit": "°C",
       "scale": {
         "digits_before": 3,
         "digits_after": 0,
@@ -3954,10 +4416,10 @@
     },
     "4": {
       "id": 4,
-      "name_local": "E\u011fim",
+      "name_local": "Eğim",
       "name": "Gradient MA",
-      "unit_local": "\u00b0C/dak",
-      "unit": "\u00b0C/min",
+      "unit_local": "°C/dak",
+      "unit": "°C/min",
       "scale": {
         "digits_before": 3,
         "digits_after": 1,
@@ -4089,7 +4551,7 @@
     },
     "13": {
       "id": 13,
-      "name_local": "Y\u0131kama Zaman",
+      "name_local": "Yıkama Zaman",
       "name": "Rinse Time",
       "unit_local": "dak",
       "unit": "min",
@@ -4118,8 +4580,8 @@
       "id": 10,
       "name_local": "Hedef Sicaklik",
       "name": "Blend water temp.",
-      "unit_local": "\u00b0C",
-      "unit": "\u00b0C",
+      "unit_local": "°C",
+      "unit": "°C",
       "scale": {
         "digits_before": 3,
         "digits_after": 0,
@@ -4145,8 +4607,8 @@
       "id": 12,
       "name_local": "Gradient MW",
       "name": "Gradient Blendwater",
-      "unit_local": "\u00b0C/min",
-      "unit": "\u00b0C/min",
+      "unit_local": "°C/min",
+      "unit": "°C/min",
       "scale": {
         "digits_before": 1,
         "digits_after": 1,
@@ -4170,7 +4632,7 @@
     },
     "14": {
       "id": 14,
-      "name_local": "Y\u0131kama Miktar",
+      "name_local": "Yıkama Miktar",
       "name": "Rinse quantity",
       "unit_local": "Lt",
       "unit": "L",
@@ -4197,7 +4659,7 @@
     },
     "18": {
       "id": 18,
-      "name_local": "Bekleme Zaman\u0131",
+      "name_local": "Bekleme Zamanı",
       "name": "Remain Time",
       "unit_local": "dak",
       "unit": "min",
@@ -4278,7 +4740,7 @@
     },
     "167": {
       "id": 167,
-      "name_local": "KK i\u00e7in gerekli",
+      "name_local": "KK için gerekli",
       "name": "Alert Time op. AT2",
       "unit_local": "dak",
       "unit": "min",
@@ -4305,7 +4767,7 @@
     },
     "140": {
       "id": 140,
-      "name_local": "KK Re\u00e7ete No",
+      "name_local": "KK Reçete No",
       "name": "Recipe number AT1",
       "unit_local": "",
       "unit": "",
@@ -4359,7 +4821,7 @@
     },
     "157": {
       "id": 157,
-      "name_local": "Mikser Zaman\u0131",
+      "name_local": "Mikser Zamanı",
       "name": "Dissolving time AT2",
       "unit_local": "dak",
       "unit": "min",
@@ -4413,7 +4875,7 @@
     },
     "144": {
       "id": 144,
-      "name_local": "KK Haz\u0131rl\u0131k \u0130zini",
+      "name_local": "KK Hazırlık İzini",
       "name": "Prep. release AT1",
       "unit_local": "",
       "unit": "",
@@ -4440,7 +4902,7 @@
     },
     "145": {
       "id": 145,
-      "name_local": "KK Da\u011f\u0131t\u0131c\u0131 No",
+      "name_local": "KK Dağıtıcı No",
       "name": "Station No. AT1",
       "unit_local": "",
       "unit": "",
@@ -4494,7 +4956,7 @@
     },
     "149": {
       "id": 149,
-      "name_local": "KK i\u00e7in gerekli",
+      "name_local": "KK için gerekli",
       "name": "Needed For AT1 in",
       "unit_local": "dak",
       "unit": "Min",
@@ -4548,7 +5010,7 @@
     },
     "152": {
       "id": 152,
-      "name_local": "BK Koruma Zaman\u0131",
+      "name_local": "BK Koruma Zamanı",
       "name": "Protect time AT2",
       "unit_local": "dak",
       "unit": "min",
@@ -4575,10 +5037,10 @@
     },
     "156": {
       "id": 156,
-      "name_local": "BK S\u0131cakl\u0131k",
+      "name_local": "BK Sıcaklık",
       "name": "Temperature AT2",
-      "unit_local": "\u00b0C",
-      "unit": "\u00b0C",
+      "unit_local": "°C",
+      "unit": "°C",
       "scale": {
         "digits_before": 3,
         "digits_after": 0,
@@ -4602,7 +5064,7 @@
     },
     "164": {
       "id": 164,
-      "name_local": "BK Haz\u0131rl\u0131k \u0130zni",
+      "name_local": "BK Hazırlık İzni",
       "name": "Prep. release AT2",
       "unit_local": "",
       "unit": "",
@@ -4656,7 +5118,7 @@
     },
     "160": {
       "id": 160,
-      "name_local": "BK Re\u00e7ete No",
+      "name_local": "BK Reçete No",
       "name": "Recipe number AT2",
       "unit_local": "",
       "unit": "",
@@ -4683,7 +5145,7 @@
     },
     "161": {
       "id": 161,
-      "name_local": "BK Haz\u0131rl\u0131k No",
+      "name_local": "BK Hazırlık No",
       "name": "Preparation no AT2",
       "unit_local": "",
       "unit": "",
@@ -4764,7 +5226,7 @@
     },
     "169": {
       "id": 169,
-      "name_local": "BK2 \u0130\u00e7in Gerekli Zmn",
+      "name_local": "BK2 İçin Gerekli Zmn",
       "name": "Needed for AT2 in",
       "unit_local": "min",
       "unit": "min",
@@ -4818,7 +5280,7 @@
     },
     "27": {
       "id": 27,
-      "name_local": "Dozaj Zaman\u0131",
+      "name_local": "Dozaj Zamanı",
       "name": "Dosing Time ADD2",
       "unit_local": "dak",
       "unit": "min",
@@ -4926,10 +5388,10 @@
     },
     "176": {
       "id": 176,
-      "name_local": "RK S\u0131cakl\u0131k",
+      "name_local": "RK Sıcaklık",
       "name": "Temperature ST",
-      "unit_local": "\u00b0C",
-      "unit": "\u00b0C",
+      "unit_local": "°C",
+      "unit": "°C",
       "scale": {
         "digits_before": 2,
         "digits_after": 0,
@@ -4953,7 +5415,7 @@
     },
     "177": {
       "id": 177,
-      "name_local": "Mikser Zaman\u0131",
+      "name_local": "Mikser Zamanı",
       "name": "Dissolving Time ST",
       "unit_local": "min",
       "unit": "min",
@@ -5034,7 +5496,7 @@
     },
     "273": {
       "id": 273,
-      "name_local": "Acma Zaman\u0131",
+      "name_local": "Acma Zamanı",
       "name": "On Time",
       "unit_local": "sn.",
       "unit": "Sec.",
@@ -5061,7 +5523,7 @@
     },
     "72": {
       "id": 72,
-      "name_local": "Pompa Koruma Zaman\u0131",
+      "name_local": "Pompa Koruma Zamanı",
       "name": "Protect Time Pump",
       "unit_local": "dak",
       "unit": "min",
@@ -5115,7 +5577,7 @@
     },
     "11": {
       "id": 11,
-      "name_local": "Y\u0131kama",
+      "name_local": "Yıkama",
       "name": "Rinse Mode",
       "unit_local": "",
       "unit": "",
@@ -5142,7 +5604,7 @@
     },
     "17": {
       "id": 17,
-      "name_local": "Ak\u0131\u015f Lt/dak.",
+      "name_local": "Akış Lt/dak.",
       "name": "Akis Lt/dak.",
       "unit_local": "Lt/dak.",
       "unit": "Lt/min.",
@@ -5169,7 +5631,7 @@
     },
     "60": {
       "id": 60,
-      "name_local": "Haz\u0131rl\u0131k Numaras\u0131",
+      "name_local": "Hazırlık Numarası",
       "name": "Check prep. number",
       "unit_local": "",
       "unit": "",
@@ -5196,7 +5658,7 @@
     },
     "36": {
       "id": 36,
-      "name_local": "Alarm Zaman\u0131",
+      "name_local": "Alarm Zamanı",
       "name": "Alert Time operator",
       "unit_local": "dak",
       "unit": "min",
@@ -5223,7 +5685,7 @@
     },
     "75": {
       "id": 75,
-      "name_local": "D\u00fcze",
+      "name_local": "Düze",
       "name": "Set value variojet",
       "unit_local": "%",
       "unit": "%",
@@ -5277,7 +5739,7 @@
     },
     "15": {
       "id": 15,
-      "name_local": "Y\u0131kama Sonu Se\u00e7imi",
+      "name_local": "Yıkama Sonu Seçimi",
       "name": "Rinse End Mode",
       "unit_local": "",
       "unit": "",
@@ -5358,7 +5820,7 @@
     },
     "283": {
       "id": 283,
-      "name_local": "A\u00e7/Kapa",
+      "name_local": "Aç/Kapa",
       "name": "On/Off",
       "unit_local": "",
       "unit": "",
@@ -5412,7 +5874,7 @@
     },
     "298": {
       "id": 298,
-      "name_local": "BK Y\u0131kama Say\u0131s\u0131",
+      "name_local": "BK Yıkama Sayısı",
       "name": "Clean cycl AT2->MA",
       "unit_local": "",
       "unit": "",
@@ -5439,7 +5901,7 @@
     },
     "296": {
       "id": 296,
-      "name_local": "KK Y\u0131kama Say\u0131s\u0131",
+      "name_local": "KK Yıkama Sayısı",
       "name": "Clean cycl AT1->MA",
       "unit_local": "",
       "unit": "",
@@ -5466,7 +5928,7 @@
     },
     "297": {
       "id": 297,
-      "name_local": "KK Y\u0131kama Say\u0131s\u0131",
+      "name_local": "KK Yıkama Sayısı",
       "name": "Clean cycl AT1->ST",
       "unit_local": "",
       "unit": "",
@@ -5493,7 +5955,7 @@
     },
     "295": {
       "id": 295,
-      "name_local": "RK Y\u0131kama Say\u0131s\u0131",
+      "name_local": "RK Yıkama Sayısı",
       "name": "Clean cycles ST",
       "unit_local": "",
       "unit": "",
@@ -5520,7 +5982,7 @@
     },
     "274": {
       "id": 274,
-      "name_local": "Kapatma Zaman\u0131",
+      "name_local": "Kapatma Zamanı",
       "name": "Off Time",
       "unit_local": "sn.",
       "unit": "Sec.",
@@ -5547,8 +6009,8 @@
     },
     "189": {
       "id": 189,
-      "name_local": "Ben\u00f6tigt im NB1",
-      "name": "RK \u0130\u00e7in Gerekli",
+      "name_local": "Benötigt im NB1",
+      "name": "RK İçin Gerekli",
       "unit_local": "min",
       "unit": "min",
       "scale": {
@@ -5574,7 +6036,7 @@
     },
     "22": {
       "id": 22,
-      "name_local": "Dozaj Zaman\u0131",
+      "name_local": "Dozaj Zamanı",
       "name": "Dosing Time",
       "unit_local": "dak",
       "unit": "min",
@@ -5601,7 +6063,7 @@
     },
     "137": {
       "id": 137,
-      "name_local": "Mikser Zaman\u0131",
+      "name_local": "Mikser Zamanı",
       "name": "Dissolving time AT1",
       "unit_local": "dak",
       "unit": "min",
@@ -5736,7 +6198,7 @@
     },
     "184": {
       "id": 184,
-      "name_local": "RK Haz\u0131rl\u0131k \u0130zni",
+      "name_local": "RK Hazırlık İzni",
       "name": "Prep. release ST",
       "unit_local": "",
       "unit": "",
@@ -5790,7 +6252,7 @@
     },
     "16": {
       "id": 16,
-      "name_local": "Bo\u015faltma",
+      "name_local": "Boşaltma",
       "name": "Drain",
       "unit_local": "",
       "unit": "",
@@ -5817,7 +6279,7 @@
     },
     "71": {
       "id": 71,
-      "name_local": "Set Pompa Zaman\u0131",
+      "name_local": "Set Pompa Zamanı",
       "name": "Set Time Pump",
       "unit_local": "dak",
       "unit": "min",
@@ -5871,7 +6333,7 @@
     },
     "84": {
       "id": 84,
-      "name_local": "Tur Kontrol\u00fc",
+      "name_local": "Tur Kontrolü",
       "name": "Cycle Cont. On",
       "unit_local": "",
       "unit": "",
@@ -5898,7 +6360,7 @@
     },
     "284": {
       "id": 284,
-      "name_local": "Kule H\u0131z\u0131 7",
+      "name_local": "Kule Hızı 7",
       "name": "Winch speed 7",
       "unit_local": "m/dak",
       "unit": "m/min",
@@ -5925,7 +6387,7 @@
     },
     "285": {
       "id": 285,
-      "name_local": "Kule H\u0131z\u0131 8",
+      "name_local": "Kule Hızı 8",
       "name": "Winch speed 8",
       "unit_local": "m/dak",
       "unit": "m/min",
@@ -5952,7 +6414,7 @@
     },
     "172": {
       "id": 172,
-      "name_local": "RK Koruma Zaman\u0131",
+      "name_local": "RK Koruma Zamanı",
       "name": "Protect time ST",
       "unit_local": "dak",
       "unit": "min",
@@ -5979,7 +6441,7 @@
     },
     "299": {
       "id": 299,
-      "name_local": "BK Y\u0131kama Say\u0131s\u0131",
+      "name_local": "BK Yıkama Sayısı",
       "name": "Clean cycl AT2->ST",
       "unit_local": "",
       "unit": "",
@@ -6033,7 +6495,7 @@
     },
     "19": {
       "id": 19,
-      "name_local": "Y\u0131kama Bekleme Zaman",
+      "name_local": "Yıkama Bekleme Zaman",
       "name": "Rinse Remain Time",
       "unit_local": "dak",
       "unit": "min",
@@ -6060,7 +6522,7 @@
     },
     "141": {
       "id": 141,
-      "name_local": "KK Haz\u0131rl\u0131k No",
+      "name_local": "KK Hazırlık No",
       "name": "Preparation no AT1",
       "unit_local": "",
       "unit": "",
@@ -6087,7 +6549,7 @@
     },
     "81": {
       "id": 81,
-      "name_local": "Set H\u0131z Zamani",
+      "name_local": "Set Hız Zamani",
       "name": "Set Time Speed",
       "unit_local": "dak",
       "unit": "min",
@@ -6114,7 +6576,7 @@
     },
     "181": {
       "id": 181,
-      "name_local": "RK \u00d6n Haz\u0131rl\u0131k No",
+      "name_local": "RK Ön Hazırlık No",
       "name": "Preparation no ST",
       "unit_local": "",
       "unit": "",
@@ -6141,7 +6603,7 @@
     },
     "53": {
       "id": 53,
-      "name_local": "Dozaj Bi\u00e7imi",
+      "name_local": "Dozaj Biçimi",
       "name": "Progression",
       "unit_local": "%",
       "unit": "%",
@@ -6168,7 +6630,7 @@
     },
     "132": {
       "id": 132,
-      "name_local": "KK Koruma Zaman\u0131",
+      "name_local": "KK Koruma Zamanı",
       "name": "Protect time AT1",
       "unit_local": "dak",
       "unit": "min",
@@ -6195,7 +6657,7 @@
     },
     "159": {
       "id": 159,
-      "name_local": "BK Sirk. Zaman\u0131",
+      "name_local": "BK Sirk. Zamanı",
       "name": "Circulat. time ADD2",
       "unit_local": "dak",
       "unit": "min",
@@ -6303,7 +6765,7 @@
     },
     "278": {
       "id": 278,
-      "name_local": "Kule H\u0131z\u0131 4",
+      "name_local": "Kule Hızı 4",
       "name": "Winch speed 4",
       "unit_local": "m/dak",
       "unit": "m/min",
@@ -6411,7 +6873,7 @@
     },
     "73": {
       "id": 73,
-      "name_local": "Pompa H\u0131z\u0131",
+      "name_local": "Pompa Hızı",
       "name": "Speed pump",
       "unit_local": "%",
       "unit": "%",
@@ -6492,7 +6954,7 @@
     },
     "180": {
       "id": 180,
-      "name_local": "Re\u00e7ete No",
+      "name_local": "Reçete No",
       "name": "Rezept Nummer NB1",
       "unit_local": "",
       "unit": "",
@@ -6519,10 +6981,10 @@
     },
     "136": {
       "id": 136,
-      "name_local": "KK S\u0131cakl\u0131k",
+      "name_local": "KK Sıcaklık",
       "name": "Temperature AT1",
-      "unit_local": "\u00b0C",
-      "unit": "\u00b0C",
+      "unit_local": "°C",
+      "unit": "°C",
       "scale": {
         "digits_before": 3,
         "digits_after": 0,
@@ -6546,7 +7008,7 @@
     },
     "139": {
       "id": 139,
-      "name_local": "KK Sirk. Zaman\u0131",
+      "name_local": "KK Sirk. Zamanı",
       "name": "Circulat. time AT1",
       "unit_local": "dak",
       "unit": "min",
@@ -6600,7 +7062,7 @@
     },
     "83": {
       "id": 83,
-      "name_local": "Kule H\u0131z\u0131",
+      "name_local": "Kule Hızı",
       "name": "Winch Speed",
       "unit_local": "m/dak",
       "unit": "m/min",
@@ -6627,7 +7089,7 @@
     },
     "280": {
       "id": 280,
-      "name_local": "Kule H\u0131z\u0131 6",
+      "name_local": "Kule Hızı 6",
       "name": "Winch speed 6",
       "unit_local": "m/dak",
       "unit": "m/min",
@@ -6654,7 +7116,7 @@
     },
     "82": {
       "id": 82,
-      "name_local": "H\u0131z Koruma Zaman\u0131",
+      "name_local": "Hız Koruma Zamanı",
       "name": "Protect Time Speed",
       "unit_local": "dak",
       "unit": "min",
@@ -6762,7 +7224,7 @@
     },
     "276": {
       "id": 276,
-      "name_local": "Kule H\u0131z\u0131 2",
+      "name_local": "Kule Hızı 2",
       "name": "Winch speed 2",
       "unit_local": "m/dak",
       "unit": "m/min",
@@ -6789,7 +7251,7 @@
     },
     "279": {
       "id": 279,
-      "name_local": "Kule H\u0131z\u0131 5",
+      "name_local": "Kule Hızı 5",
       "name": "Winch speed 5",
       "unit_local": "m/dak",
       "unit": "m/min",
@@ -6816,7 +7278,7 @@
     },
     "165": {
       "id": 165,
-      "name_local": "BK Da\u011f\u0131t\u0131c\u0131 No",
+      "name_local": "BK Dağıtıcı No",
       "name": "Station No AT2",
       "unit_local": "",
       "unit": "",
@@ -6843,7 +7305,7 @@
     },
     "277": {
       "id": 277,
-      "name_local": "Kule H\u0131z\u0131 3",
+      "name_local": "Kule Hızı 3",
       "name": "Winch speed 3",
       "unit_local": "m/dak",
       "unit": "m/min",
@@ -6870,7 +7332,7 @@
     },
     "275": {
       "id": 275,
-      "name_local": "Kule H\u0131z\u0131 1",
+      "name_local": "Kule Hızı 1",
       "name": "Winch speed 1",
       "unit_local": "m/dak",
       "unit": "m/min",
@@ -6924,7 +7386,7 @@
     },
     "290": {
       "id": 290,
-      "name_local": "Kule H\u0131z\u0131 10",
+      "name_local": "Kule Hızı 10",
       "name": "Reel 10",
       "unit_local": "m/dak",
       "unit": "m/min",
@@ -6951,7 +7413,7 @@
     },
     "289": {
       "id": 289,
-      "name_local": "Kule H\u0131z\u0131 9",
+      "name_local": "Kule Hızı 9",
       "name": "Reel 9",
       "unit_local": "m/dak",
       "unit": "m/min",
@@ -7005,7 +7467,7 @@
     },
     "286": {
       "id": 286,
-      "name_local": "Y\u0131ka Kg/Lt",
+      "name_local": "Yıka Kg/Lt",
       "name": "Rinse Kg/Lt",
       "unit_local": "",
       "unit": "",
@@ -7032,7 +7494,7 @@
     },
     "185": {
       "id": 185,
-      "name_local": "RK Da\u011f\u0131t\u0131c\u0131 no:",
+      "name_local": "RK Dağıtıcı no:",
       "name": "Station No ST",
       "unit_local": "",
       "unit": "",
@@ -7085,6 +7547,2412 @@
       }
     }
   },
+  "resources": {
+    "8": {
+      "id": 8,
+      "name": "Data",
+      "type": 3,
+      "disabled": false
+    },
+    "1": {
+      "id": 1,
+      "name": "main tank",
+      "type": 1,
+      "disabled": false
+    },
+    "2": {
+      "id": 2,
+      "name": "Pump",
+      "type": 2,
+      "disabled": false
+    },
+    "3": {
+      "id": 3,
+      "name": "Material Flow",
+      "type": 2,
+      "disabled": false
+    },
+    "4": {
+      "id": 4,
+      "name": "Addition Tank 1",
+      "type": 3,
+      "disabled": false
+    },
+    "5": {
+      "id": 5,
+      "name": "Addition Tank 2",
+      "type": 3,
+      "disabled": false
+    },
+    "6": {
+      "id": 6,
+      "name": "Stock Tank 1",
+      "type": 3,
+      "disabled": false
+    },
+    "7": {
+      "id": 7,
+      "name": "Auto level",
+      "type": 2,
+      "disabled": false
+    }
+  },
+  "groups": [
+    {
+      "name": "System",
+      "line": 1,
+      "disabled": false,
+      "ids": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ]
+    },
+    {
+      "name": "Dyeing",
+      "line": 1,
+      "disabled": false,
+      "ids": [
+        141,
+        144
+      ]
+    },
+    {
+      "name": "Pump",
+      "line": 2,
+      "disabled": false,
+      "ids": [
+        404
+      ]
+    },
+    {
+      "name": "Material flow",
+      "line": 3,
+      "disabled": false,
+      "ids": [
+        712
+      ]
+    },
+    {
+      "name": "Addition Tank 1",
+      "line": 4,
+      "disabled": false,
+      "ids": [
+        717,
+        513,
+        657,
+        516,
+        721,
+        656,
+        680,
+        653
+      ]
+    },
+    {
+      "name": "Auto level",
+      "line": 7,
+      "disabled": false,
+      "ids": [
+        39
+      ]
+    },
+    {
+      "name": "Stock Tank 1",
+      "line": 6,
+      "disabled": false,
+      "ids": [
+        720,
+        719,
+        551,
+        554,
+        676,
+        673,
+        672
+      ]
+    },
+    {
+      "name": "Drain",
+      "line": 1,
+      "disabled": false,
+      "ids": [
+        71
+      ]
+    },
+    {
+      "name": "Fill",
+      "line": 1,
+      "disabled": false,
+      "ids": [
+        713,
+        22,
+        716,
+        37
+      ]
+    },
+    {
+      "name": "Addition Tank 2",
+      "line": 5,
+      "disabled": false,
+      "ids": [
+        718,
+        533,
+        667,
+        536,
+        666,
+        663,
+        681,
+        722
+      ]
+    },
+    {
+      "name": "Rinse",
+      "line": 1,
+      "disabled": false,
+      "ids": [
+        710,
+        243,
+        703,
+        711,
+        747,
+        714
+      ]
+    },
+    {
+      "name": "Data",
+      "line": 8,
+      "disabled": false,
+      "ids": [
+        800,
+        803,
+        802
+      ]
+    },
+    {
+      "name": "Dosing/Inject",
+      "line": 1,
+      "disabled": false,
+      "ids": [
+        938,
+        939,
+        237,
+        238,
+        701,
+        702,
+        715
+      ]
+    },
+    {
+      "name": "Operator Call",
+      "line": 1,
+      "disabled": false,
+      "ids": [
+        261,
+        122,
+        123,
+        127,
+        704,
+        130,
+        126,
+        139
+      ]
+    }
+  ],
+  "text_choices": {
+    "100": [
+      {
+        "text": "Heat  Cool Analog",
+        "value": 0.0,
+        "key": [
+          51,
+          100,
+          0
+        ]
+      },
+      {
+        "text": "Heat dig.Cool analog",
+        "value": 3.0,
+        "key": [
+          51,
+          100,
+          3
+        ]
+      },
+      {
+        "text": "Heat analog Cool dig",
+        "value": 2.0,
+        "key": [
+          51,
+          100,
+          2
+        ]
+      },
+      {
+        "text": "Heat  Cool Digital",
+        "value": 1.0,
+        "key": [
+          51,
+          100,
+          1
+        ]
+      }
+    ],
+    "9": [
+      {
+        "text": "with pump",
+        "value": 1.0,
+        "key": [
+          51,
+          9,
+          2
+        ]
+      },
+      {
+        "text": "without pump",
+        "value": 0.0,
+        "key": [
+          51,
+          9,
+          1
+        ]
+      }
+    ],
+    "302": [
+      {
+        "text": "Yes",
+        "value": 1.0,
+        "key": [
+          51,
+          302,
+          1
+        ]
+      },
+      {
+        "text": "No",
+        "value": 0.0,
+        "key": [
+          51,
+          302,
+          0
+        ]
+      }
+    ],
+    "2": [
+      {
+        "text": "Raw Water",
+        "value": 5.0,
+        "key": [
+          51,
+          2,
+          4
+        ]
+      },
+      {
+        "text": "Salt",
+        "value": 4.0,
+        "key": [
+          51,
+          2,
+          3
+        ]
+      },
+      {
+        "text": "warm water",
+        "value": 2.0,
+        "key": [
+          51,
+          2,
+          1
+        ]
+      },
+      {
+        "text": "cold water",
+        "value": 1.0,
+        "key": [
+          51,
+          2,
+          0
+        ]
+      },
+      {
+        "text": "Raw water",
+        "value": 3.0,
+        "key": [
+          51,
+          2,
+          2
+        ]
+      }
+    ],
+    "3": [
+      {
+        "text": "Liquor",
+        "value": 2.0,
+        "key": [
+          51,
+          3,
+          2
+        ]
+      },
+      {
+        "text": "From ST",
+        "value": 3.0,
+        "key": [
+          51,
+          3,
+          3
+        ]
+      },
+      {
+        "text": "Cold Water",
+        "value": 1.0,
+        "key": [
+          51,
+          3,
+          1
+        ]
+      }
+    ],
+    "103": [
+      {
+        "text": "HEX 4 valve",
+        "value": 0.0,
+        "key": [
+          51,
+          103,
+          0
+        ]
+      },
+      {
+        "text": "HEX 5 valve",
+        "value": 1.0,
+        "key": [
+          51,
+          103,
+          1
+        ]
+      }
+    ],
+    "6": [
+      {
+        "text": "Rinse Level",
+        "value": 2.0,
+        "key": [
+          51,
+          6,
+          2
+        ]
+      },
+      {
+        "text": "Rinse Time",
+        "value": 1.0,
+        "key": [
+          51,
+          6,
+          1
+        ]
+      }
+    ],
+    "10": [
+      {
+        "text": "Drain 2",
+        "value": 2.0,
+        "key": [
+          51,
+          10,
+          2
+        ]
+      },
+      {
+        "text": "Drain 1",
+        "value": 1.0,
+        "key": [
+          51,
+          10,
+          1
+        ]
+      },
+      {
+        "text": "Drain 3",
+        "value": 3.0,
+        "key": [
+          51,
+          10,
+          3
+        ]
+      }
+    ],
+    "11": [
+      {
+        "text": "drain 1",
+        "value": 1.0,
+        "key": [
+          51,
+          11,
+          1
+        ]
+      },
+      {
+        "text": "drain 2",
+        "value": 2.0,
+        "key": [
+          51,
+          11,
+          2
+        ]
+      },
+      {
+        "text": "drain 3",
+        "value": 3.0,
+        "key": [
+          51,
+          11,
+          3
+        ]
+      }
+    ],
+    "32": [
+      {
+        "text": "Valve",
+        "value": 2.0,
+        "key": [
+          51,
+          32,
+          2
+        ]
+      },
+      {
+        "text": "Off",
+        "value": 0.0,
+        "key": [
+          51,
+          32,
+          0
+        ]
+      },
+      {
+        "text": "Motor",
+        "value": 1.0,
+        "key": [
+          51,
+          32,
+          1
+        ]
+      },
+      {
+        "text": "Motor/Valve",
+        "value": 3.0,
+        "key": [
+          51,
+          32,
+          3
+        ]
+      }
+    ],
+    "31": [
+      {
+        "text": "Off",
+        "value": 0.0,
+        "key": [
+          51,
+          31,
+          0
+        ]
+      },
+      {
+        "text": "Motor",
+        "value": 1.0,
+        "key": [
+          51,
+          31,
+          1
+        ]
+      },
+      {
+        "text": "Valve",
+        "value": 2.0,
+        "key": [
+          51,
+          31,
+          2
+        ]
+      },
+      {
+        "text": "Motor/Valve",
+        "value": 3.0,
+        "key": [
+          51,
+          31,
+          3
+        ]
+      }
+    ],
+    "299": [
+      {
+        "text": "L",
+        "value": 1.0,
+        "key": [
+          51,
+          299,
+          1
+        ]
+      },
+      {
+        "text": "%",
+        "value": 0.0,
+        "key": [
+          51,
+          299,
+          0
+        ]
+      }
+    ],
+    "298": [
+      {
+        "text": "575CE",
+        "value": 575.0,
+        "key": [
+          51,
+          298,
+          0
+        ]
+      },
+      {
+        "text": "535CE",
+        "value": 535.0,
+        "key": [
+          51,
+          298,
+          1
+        ]
+      },
+      {
+        "text": "777CE",
+        "value": 777.0,
+        "key": [
+          51,
+          298,
+          3
+        ]
+      },
+      {
+        "text": "737CE",
+        "value": 737.0,
+        "key": [
+          51,
+          298,
+          2
+        ]
+      }
+    ],
+    "200": [
+      {
+        "text": "On",
+        "value": 1.0,
+        "key": [
+          51,
+          200,
+          1
+        ]
+      },
+      {
+        "text": "Off",
+        "value": 0.0,
+        "key": [
+          51,
+          200,
+          0
+        ]
+      }
+    ],
+    "33": [
+      {
+        "text": "no",
+        "value": 0.0,
+        "key": [
+          51,
+          33,
+          0
+        ]
+      },
+      {
+        "text": "Yes",
+        "value": 1.0,
+        "key": [
+          51,
+          33,
+          1
+        ]
+      }
+    ],
+    "34": [
+      {
+        "text": "no",
+        "value": 0.0,
+        "key": [
+          51,
+          34,
+          0
+        ]
+      },
+      {
+        "text": "Yes",
+        "value": 1.0,
+        "key": [
+          51,
+          34,
+          1
+        ]
+      }
+    ],
+    "540": [
+      {
+        "text": "allowed",
+        "value": 0.0,
+        "key": [
+          51,
+          540,
+          0
+        ]
+      },
+      {
+        "text": "locked",
+        "value": 1.0,
+        "key": [
+          51,
+          540,
+          1
+        ]
+      }
+    ],
+    "297": [
+      {
+        "text": "com drain valve",
+        "value": 1.0,
+        "key": [
+          51,
+          297,
+          1
+        ]
+      },
+      {
+        "text": "with pump",
+        "value": 0.0,
+        "key": [
+          51,
+          297,
+          0
+        ]
+      },
+      {
+        "text": "separate drain valve",
+        "value": 2.0,
+        "key": [
+          51,
+          297,
+          2
+        ]
+      }
+    ],
+    "5": [
+      {
+        "text": "Oscilation Rinse",
+        "value": 1.0,
+        "key": [
+          51,
+          5,
+          1
+        ]
+      },
+      {
+        "text": "Overflow Rinse",
+        "value": 2.0,
+        "key": [
+          51,
+          5,
+          2
+        ]
+      }
+    ],
+    "1": [
+      {
+        "text": "Raw Water",
+        "value": 5.0,
+        "key": [
+          51,
+          1,
+          5
+        ]
+      },
+      {
+        "text": "Salt",
+        "value": 4.0,
+        "key": [
+          51,
+          1,
+          4
+        ]
+      },
+      {
+        "text": "cold water",
+        "value": 1.0,
+        "key": [
+          51,
+          1,
+          1
+        ]
+      },
+      {
+        "text": "Warm Water",
+        "value": 2.0,
+        "key": [
+          51,
+          1,
+          2
+        ]
+      },
+      {
+        "text": "raw water",
+        "value": 3.0,
+        "key": [
+          51,
+          1,
+          3
+        ]
+      }
+    ],
+    "102": [
+      {
+        "text": "Power Drain",
+        "value": 1.0,
+        "key": [
+          51,
+          102,
+          1
+        ]
+      },
+      {
+        "text": "Standard Drain",
+        "value": 0.0,
+        "key": [
+          51,
+          102,
+          0
+        ]
+      }
+    ],
+    "300": [
+      {
+        "text": "Digital",
+        "value": 0.0,
+        "key": [
+          51,
+          300,
+          0
+        ]
+      },
+      {
+        "text": "Analog",
+        "value": 1.0,
+        "key": [
+          51,
+          300,
+          1
+        ]
+      }
+    ],
+    "4": [
+      {
+        "text": "Soda",
+        "value": 3.0,
+        "key": [
+          51,
+          4,
+          3
+        ]
+      },
+      {
+        "text": "cold water",
+        "value": 1.0,
+        "key": [
+          51,
+          4,
+          1
+        ]
+      },
+      {
+        "text": "From ST",
+        "value": 4.0,
+        "key": [
+          51,
+          4,
+          4
+        ]
+      },
+      {
+        "text": "liquor",
+        "value": 2.0,
+        "key": [
+          51,
+          4,
+          2
+        ]
+      }
+    ],
+    "296": [
+      {
+        "text": "Switch",
+        "value": 0.0,
+        "key": [
+          51,
+          296,
+          0
+        ]
+      },
+      {
+        "text": "Button",
+        "value": 1.0,
+        "key": [
+          51,
+          296,
+          1
+        ]
+      }
+    ],
+    "30": [
+      {
+        "text": "Without stirrer",
+        "value": 0.0,
+        "key": [
+          51,
+          30,
+          0
+        ]
+      },
+      {
+        "text": "With stirrer",
+        "value": 1.0,
+        "key": [
+          51,
+          30,
+          1
+        ]
+      }
+    ],
+    "301": [
+      {
+        "text": "Pasive",
+        "value": 0.0,
+        "key": [
+          51,
+          301,
+          0
+        ]
+      },
+      {
+        "text": "Active",
+        "value": 1.0,
+        "key": [
+          51,
+          301,
+          1
+        ]
+      }
+    ],
+    "390": [
+      {
+        "text": "PT100 not selected",
+        "value": 0.0,
+        "key": [
+          51,
+          390,
+          0
+        ]
+      },
+      {
+        "text": "PT100 DIN",
+        "value": 1.0,
+        "key": [
+          51,
+          390,
+          1
+        ]
+      },
+      {
+        "text": "PT100 JIS",
+        "value": 2.0,
+        "key": [
+          51,
+          390,
+          2
+        ]
+      }
+    ],
+    "391": [
+      {
+        "text": "0..20mA",
+        "value": 0.0,
+        "key": [
+          51,
+          391,
+          0
+        ]
+      },
+      {
+        "text": "0..20mA with alarm",
+        "value": 2.0,
+        "key": [
+          51,
+          391,
+          2
+        ]
+      },
+      {
+        "text": "4..20mA",
+        "value": 1.0,
+        "key": [
+          51,
+          391,
+          1
+        ]
+      },
+      {
+        "text": "4..20mA with alarm",
+        "value": 3.0,
+        "key": [
+          51,
+          391,
+          3
+        ]
+      }
+    ],
+    "392": [
+      {
+        "text": "0..20mA",
+        "value": 0.0,
+        "key": [
+          51,
+          392,
+          0
+        ]
+      },
+      {
+        "text": "4..20mA",
+        "value": 1.0,
+        "key": [
+          51,
+          392,
+          1
+        ]
+      }
+    ],
+    "393": [
+      {
+        "text": "1250ms (Default)",
+        "value": 0.0,
+        "key": [
+          51,
+          393,
+          0
+        ]
+      },
+      {
+        "text": "reserved",
+        "value": 1.0,
+        "key": [
+          51,
+          393,
+          1
+        ]
+      },
+      {
+        "text": "5000ms",
+        "value": 2.0,
+        "key": [
+          51,
+          393,
+          2
+        ]
+      },
+      {
+        "text": "2500ms",
+        "value": 3.0,
+        "key": [
+          51,
+          393,
+          3
+        ]
+      },
+      {
+        "text": "1250ms",
+        "value": 4.0,
+        "key": [
+          51,
+          393,
+          4
+        ]
+      },
+      {
+        "text": "625ms",
+        "value": 5.0,
+        "key": [
+          51,
+          393,
+          5
+        ]
+      },
+      {
+        "text": "312,5ms",
+        "value": 6.0,
+        "key": [
+          51,
+          393,
+          6
+        ]
+      },
+      {
+        "text": "156,25ms",
+        "value": 7.0,
+        "key": [
+          51,
+          393,
+          7
+        ]
+      },
+      {
+        "text": "78,125ms",
+        "value": 8.0,
+        "key": [
+          51,
+          393,
+          8
+        ]
+      }
+    ],
+    "395": [
+      {
+        "text": "Master",
+        "value": 0.0,
+        "key": [
+          51,
+          395,
+          0
+        ]
+      },
+      {
+        "text": "Slave",
+        "value": 1.0,
+        "key": [
+          51,
+          395,
+          1
+        ]
+      }
+    ],
+    "396": [
+      {
+        "text": "1200",
+        "value": 1.0,
+        "key": [
+          51,
+          396,
+          1
+        ]
+      },
+      {
+        "text": "2400",
+        "value": 2.0,
+        "key": [
+          51,
+          396,
+          2
+        ]
+      },
+      {
+        "text": "4800",
+        "value": 3.0,
+        "key": [
+          51,
+          396,
+          3
+        ]
+      },
+      {
+        "text": "9600",
+        "value": 4.0,
+        "key": [
+          51,
+          396,
+          4
+        ]
+      },
+      {
+        "text": "19200",
+        "value": 5.0,
+        "key": [
+          51,
+          396,
+          5
+        ]
+      },
+      {
+        "text": "38400",
+        "value": 6.0,
+        "key": [
+          51,
+          396,
+          6
+        ]
+      },
+      {
+        "text": "57600",
+        "value": 7.0,
+        "key": [
+          51,
+          396,
+          7
+        ]
+      },
+      {
+        "text": "115200",
+        "value": 8.0,
+        "key": [
+          51,
+          396,
+          8
+        ]
+      }
+    ],
+    "397": [
+      {
+        "text": "None",
+        "value": 0.0,
+        "key": [
+          51,
+          397,
+          0
+        ]
+      },
+      {
+        "text": "Even",
+        "value": 1.0,
+        "key": [
+          51,
+          397,
+          1
+        ]
+      },
+      {
+        "text": "Odd",
+        "value": 2.0,
+        "key": [
+          51,
+          397,
+          2
+        ]
+      }
+    ],
+    "398": [
+      {
+        "text": "activated",
+        "value": 0.0,
+        "key": [
+          51,
+          398,
+          0
+        ]
+      },
+      {
+        "text": "deactivated",
+        "value": 1.0,
+        "key": [
+          51,
+          398,
+          1
+        ]
+      },
+      {
+        "text": "Heartbeat activated",
+        "value": 2.0,
+        "key": [
+          51,
+          398,
+          2
+        ]
+      }
+    ],
+    "399": [
+      {
+        "text": "125 kbit/sec-Default",
+        "value": 0.0,
+        "key": [
+          51,
+          399,
+          0
+        ]
+      },
+      {
+        "text": "10 kbit/sec",
+        "value": 1.0,
+        "key": [
+          51,
+          399,
+          1
+        ]
+      },
+      {
+        "text": "20 kbit/sec",
+        "value": 2.0,
+        "key": [
+          51,
+          399,
+          2
+        ]
+      },
+      {
+        "text": "50 kbit/sec",
+        "value": 3.0,
+        "key": [
+          51,
+          399,
+          3
+        ]
+      },
+      {
+        "text": "100 kbit/sec",
+        "value": 4.0,
+        "key": [
+          51,
+          399,
+          4
+        ]
+      },
+      {
+        "text": "125 kbit/sec",
+        "value": 5.0,
+        "key": [
+          51,
+          399,
+          5
+        ]
+      },
+      {
+        "text": "250 kbit/sec",
+        "value": 6.0,
+        "key": [
+          51,
+          399,
+          6
+        ]
+      },
+      {
+        "text": "500 kbit/sec",
+        "value": 7.0,
+        "key": [
+          51,
+          399,
+          7
+        ]
+      },
+      {
+        "text": "1000 kbit/sec",
+        "value": 8.0,
+        "key": [
+          51,
+          399,
+          8
+        ]
+      }
+    ],
+    "404": [
+      {
+        "text": "1st language",
+        "value": 0.0,
+        "key": [
+          51,
+          404,
+          0
+        ]
+      },
+      {
+        "text": "2nd language",
+        "value": 1.0,
+        "key": [
+          51,
+          404,
+          1
+        ]
+      }
+    ],
+    "406": [
+      {
+        "text": "local (SECOM)",
+        "value": 0.0,
+        "key": [
+          51,
+          406,
+          0
+        ]
+      },
+      {
+        "text": "Network",
+        "value": 1.0,
+        "key": [
+          51,
+          406,
+          1
+        ]
+      },
+      {
+        "text": "Batch Queue",
+        "value": 2.0,
+        "key": [
+          51,
+          406,
+          2
+        ]
+      },
+      {
+        "text": "Reserved",
+        "value": 3.0,
+        "key": [
+          51,
+          406,
+          3
+        ]
+      },
+      {
+        "text": "several batch queues",
+        "value": 4.0,
+        "key": [
+          51,
+          406,
+          4
+        ]
+      }
+    ],
+    "407": [
+      {
+        "text": "Delete Automatically",
+        "value": 0.0,
+        "key": [
+          51,
+          407,
+          0
+        ]
+      },
+      {
+        "text": "Oto Silme Pasif (Hos",
+        "value": 1.0,
+        "key": [
+          51,
+          407,
+          1
+        ]
+      }
+    ],
+    "408": [
+      {
+        "text": "Not Active",
+        "value": 0.0,
+        "key": [
+          51,
+          408,
+          0
+        ]
+      },
+      {
+        "text": "Active",
+        "value": 1.0,
+        "key": [
+          51,
+          408,
+          1
+        ]
+      },
+      {
+        "text": "Active + Functions",
+        "value": 2.0,
+        "key": [
+          51,
+          408,
+          2
+        ]
+      },
+      {
+        "text": "Active + Extended",
+        "value": 3.0,
+        "key": [
+          51,
+          408,
+          3
+        ]
+      },
+      {
+        "text": "Functions + Extended",
+        "value": 4.0,
+        "key": [
+          51,
+          408,
+          4
+        ]
+      }
+    ],
+    "409": [
+      {
+        "text": "Not Active",
+        "value": 0.0,
+        "key": [
+          51,
+          409,
+          0
+        ]
+      },
+      {
+        "text": "Active",
+        "value": 1.0,
+        "key": [
+          51,
+          409,
+          1
+        ]
+      },
+      {
+        "text": "Active + Delete",
+        "value": 2.0,
+        "key": [
+          51,
+          409,
+          2
+        ]
+      }
+    ],
+    "413": [
+      {
+        "text": "RS485 (default)",
+        "value": 0.0,
+        "key": [
+          51,
+          413,
+          0
+        ]
+      },
+      {
+        "text": "KOAX",
+        "value": 1.0,
+        "key": [
+          51,
+          413,
+          1
+        ]
+      }
+    ],
+    "414": [
+      {
+        "text": "standard",
+        "value": 0.0,
+        "key": [
+          51,
+          414,
+          0
+        ]
+      },
+      {
+        "text": "clear step",
+        "value": 1.0,
+        "key": [
+          51,
+          414,
+          1
+        ]
+      },
+      {
+        "text": "main function step",
+        "value": 2.0,
+        "key": [
+          51,
+          414,
+          2
+        ]
+      },
+      {
+        "text": "look ahead",
+        "value": 3.0,
+        "key": [
+          51,
+          414,
+          3
+        ]
+      }
+    ],
+    "415": [
+      {
+        "text": "not active",
+        "value": 0.0,
+        "key": [
+          51,
+          415,
+          0
+        ]
+      },
+      {
+        "text": "manual selection",
+        "value": 1.0,
+        "key": [
+          51,
+          415,
+          1
+        ]
+      },
+      {
+        "text": "manual+automatic",
+        "value": 2.0,
+        "key": [
+          51,
+          415,
+          2
+        ]
+      }
+    ],
+    "418": [
+      {
+        "text": "not active",
+        "value": 0.0,
+        "key": [
+          51,
+          418,
+          0
+        ]
+      },
+      {
+        "text": "from Memocard",
+        "value": 1.0,
+        "key": [
+          51,
+          418,
+          1
+        ]
+      },
+      {
+        "text": "from network drive",
+        "value": 2.0,
+        "key": [
+          51,
+          418,
+          2
+        ]
+      }
+    ],
+    "419": [
+      {
+        "text": "delete file",
+        "value": 1.0,
+        "key": [
+          51,
+          419,
+          1
+        ]
+      },
+      {
+        "text": "keep file",
+        "value": 0.0,
+        "key": [
+          51,
+          419,
+          0
+        ]
+      }
+    ],
+    "425": [
+      {
+        "text": "not active",
+        "value": 0.0,
+        "key": [
+          51,
+          425,
+          0
+        ]
+      },
+      {
+        "text": "jump all fcts",
+        "value": 2.0,
+        "key": [
+          51,
+          425,
+          2
+        ]
+      },
+      {
+        "text": "jump synchron fcts",
+        "value": 1.0,
+        "key": [
+          51,
+          425,
+          1
+        ]
+      }
+    ],
+    "420": [
+      {
+        "text": "not active",
+        "value": 0.0,
+        "key": [
+          51,
+          420,
+          0
+        ]
+      },
+      {
+        "text": "COM 1",
+        "value": 1.0,
+        "key": [
+          51,
+          420,
+          1
+        ]
+      },
+      {
+        "text": "COM 2",
+        "value": 2.0,
+        "key": [
+          51,
+          420,
+          2
+        ]
+      }
+    ],
+    "429": [
+      {
+        "text": "change parameter",
+        "value": 0.0,
+        "key": [
+          51,
+          429,
+          0
+        ]
+      },
+      {
+        "text": "don't change param.",
+        "value": 1.0,
+        "key": [
+          51,
+          429,
+          1
+        ]
+      }
+    ],
+    "430": [
+      {
+        "text": "not activated",
+        "value": 0.0,
+        "key": [
+          51,
+          430,
+          0
+        ]
+      },
+      {
+        "text": "active with MLG file",
+        "value": 1.0,
+        "key": [
+          51,
+          430,
+          1
+        ]
+      },
+      {
+        "text": "active with .T files",
+        "value": 2.0,
+        "key": [
+          51,
+          430,
+          2
+        ]
+      },
+      {
+        "text": "without status files",
+        "value": 3.0,
+        "key": [
+          51,
+          430,
+          3
+        ]
+      }
+    ],
+    "431": [
+      {
+        "text": "online diagram",
+        "value": 0.0,
+        "key": [
+          51,
+          431,
+          0
+        ]
+      },
+      {
+        "text": "batch info",
+        "value": 1.0,
+        "key": [
+          51,
+          431,
+          1
+        ]
+      },
+      {
+        "text": "diagram+batch info",
+        "value": 2.0,
+        "key": [
+          51,
+          431,
+          2
+        ]
+      }
+    ],
+    "434": [
+      {
+        "text": "local program(SECOM)",
+        "value": 0.0,
+        "key": [
+          51,
+          434,
+          0
+        ]
+      },
+      {
+        "text": "network program",
+        "value": 1.0,
+        "key": [
+          51,
+          434,
+          1
+        ]
+      },
+      {
+        "text": "callOff file network",
+        "value": 2.0,
+        "key": [
+          51,
+          434,
+          2
+        ]
+      },
+      {
+        "text": "reserved",
+        "value": 3.0,
+        "key": [
+          51,
+          434,
+          3
+        ]
+      },
+      {
+        "text": "reserved",
+        "value": 4.0,
+        "key": [
+          51,
+          434,
+          4
+        ]
+      },
+      {
+        "text": "set mode by PLC",
+        "value": 5.0,
+        "key": [
+          51,
+          434,
+          5
+        ]
+      }
+    ],
+    "438": [
+      {
+        "text": "Select addition",
+        "value": 0.0,
+        "key": [
+          51,
+          438,
+          0
+        ]
+      },
+      {
+        "text": "Program list",
+        "value": 1.0,
+        "key": [
+          51,
+          438,
+          1
+        ]
+      },
+      {
+        "text": "Intervention Potis",
+        "value": 2.0,
+        "key": [
+          51,
+          438,
+          2
+        ]
+      }
+    ],
+    "443": [
+      {
+        "text": "run time",
+        "value": 0.0,
+        "key": [
+          51,
+          443,
+          0
+        ]
+      },
+      {
+        "text": "run & set time",
+        "value": 1.0,
+        "key": [
+          51,
+          443,
+          1
+        ]
+      }
+    ],
+    "447": [
+      {
+        "text": "next step",
+        "value": 1.0,
+        "key": [
+          51,
+          447,
+          1
+        ]
+      },
+      {
+        "text": "Proc.pict./time info",
+        "value": 0.0,
+        "key": [
+          51,
+          447,
+          0
+        ]
+      }
+    ],
+    "446": [
+      {
+        "text": "not from PLC",
+        "value": 0.0,
+        "key": [
+          51,
+          446,
+          0
+        ]
+      },
+      {
+        "text": "only in process pict",
+        "value": 1.0,
+        "key": [
+          51,
+          446,
+          1
+        ]
+      },
+      {
+        "text": "also in Standardmenu",
+        "value": 2.0,
+        "key": [
+          51,
+          446,
+          2
+        ]
+      }
+    ],
+    "451": [
+      {
+        "text": "not active",
+        "value": 0.0,
+        "key": [
+          51,
+          451,
+          0
+        ]
+      },
+      {
+        "text": "active - User",
+        "value": 1.0,
+        "key": [
+          51,
+          451,
+          1
+        ]
+      },
+      {
+        "text": "active - Alarms",
+        "value": 2.0,
+        "key": [
+          51,
+          451,
+          2
+        ]
+      }
+    ],
+    "460": [
+      {
+        "text": "default (1 user)",
+        "value": 0.0,
+        "key": [
+          51,
+          460,
+          0
+        ]
+      },
+      {
+        "text": "several user",
+        "value": 1.0,
+        "key": [
+          51,
+          460,
+          1
+        ]
+      },
+      {
+        "text": "OrgaTEX user",
+        "value": 2.0,
+        "key": [
+          51,
+          460,
+          2
+        ]
+      }
+    ],
+    "462": [
+      {
+        "text": "not active",
+        "value": 0.0,
+        "key": [
+          51,
+          462,
+          0
+        ]
+      },
+      {
+        "text": "with RFID reader",
+        "value": 1.0,
+        "key": [
+          51,
+          462,
+          1
+        ]
+      },
+      {
+        "text": "with barcode reader",
+        "value": 2.0,
+        "key": [
+          51,
+          462,
+          2
+        ]
+      }
+    ],
+    "466": [
+      {
+        "text": "DDMMYY",
+        "value": 0.0,
+        "key": [
+          51,
+          466,
+          0
+        ]
+      },
+      {
+        "text": "MMDDYY",
+        "value": 1.0,
+        "key": [
+          51,
+          466,
+          1
+        ]
+      }
+    ],
+    "467": [
+      {
+        "text": "send changed values",
+        "value": 0.0,
+        "key": [
+          51,
+          467,
+          0
+        ]
+      },
+      {
+        "text": "keep changed values",
+        "value": 1.0,
+        "key": [
+          51,
+          467,
+          1
+        ]
+      }
+    ],
+    "470": [
+      {
+        "text": "not selected",
+        "value": 0.0,
+        "key": [
+          51,
+          470,
+          0
+        ]
+      },
+      {
+        "text": "Slot plc SC515",
+        "value": 3.0,
+        "key": [
+          51,
+          470,
+          3
+        ]
+      },
+      {
+        "text": "Logimat P160",
+        "value": 1.0,
+        "key": [
+          51,
+          470,
+          1
+        ]
+      },
+      {
+        "text": "Logimat P32",
+        "value": 2.0,
+        "key": [
+          51,
+          470,
+          2
+        ]
+      },
+      {
+        "text": "Slot plc SC505",
+        "value": 4.0,
+        "key": [
+          51,
+          470,
+          4
+        ]
+      },
+      {
+        "text": "Compact CP8",
+        "value": 5.0,
+        "key": [
+          51,
+          470,
+          5
+        ]
+      },
+      {
+        "text": "Compact CP16",
+        "value": 6.0,
+        "key": [
+          51,
+          470,
+          6
+        ]
+      },
+      {
+        "text": "Slot plc SC16",
+        "value": 7.0,
+        "key": [
+          51,
+          470,
+          7
+        ]
+      },
+      {
+        "text": "Compact CP14",
+        "value": 8.0,
+        "key": [
+          51,
+          470,
+          8
+        ]
+      },
+      {
+        "text": "Plc SC535",
+        "value": 9.0,
+        "key": [
+          51,
+          470,
+          9
+        ]
+      },
+      {
+        "text": "Plc with Logimat prt",
+        "value": 10.0,
+        "key": [
+          51,
+          470,
+          10
+        ]
+      },
+      {
+        "text": "reserved",
+        "value": 11.0,
+        "key": [
+          51,
+          470,
+          11
+        ]
+      },
+      {
+        "text": "reserved",
+        "value": 12.0,
+        "key": [
+          51,
+          470,
+          12
+        ]
+      },
+      {
+        "text": "reserved",
+        "value": 13.0,
+        "key": [
+          51,
+          470,
+          13
+        ]
+      },
+      {
+        "text": "reserved",
+        "value": 14.0,
+        "key": [
+          51,
+          470,
+          14
+        ]
+      },
+      {
+        "text": "Slot plc SC18D",
+        "value": 15.0,
+        "key": [
+          51,
+          470,
+          15
+        ]
+      },
+      {
+        "text": "Slot plc SC18C",
+        "value": 16.0,
+        "key": [
+          51,
+          470,
+          16
+        ]
+      },
+      {
+        "text": "Slot plc SC20D",
+        "value": 17.0,
+        "key": [
+          51,
+          470,
+          17
+        ]
+      },
+      {
+        "text": "Slot plc SC20C",
+        "value": 18.0,
+        "key": [
+          51,
+          470,
+          18
+        ]
+      }
+    ],
+    "472": [
+      {
+        "text": "compatible mode",
+        "value": 0.0,
+        "key": [
+          51,
+          472,
+          0
+        ]
+      },
+      {
+        "text": "new request filename",
+        "value": 1.0,
+        "key": [
+          51,
+          472,
+          1
+        ]
+      }
+    ],
+    "474": [
+      {
+        "text": "enabled",
+        "value": 0.0,
+        "key": [
+          51,
+          474,
+          0
+        ]
+      },
+      {
+        "text": "disabled",
+        "value": 1.0,
+        "key": [
+          51,
+          474,
+          1
+        ]
+      },
+      {
+        "text": "enabled & logging",
+        "value": 2.0,
+        "key": [
+          51,
+          474,
+          2
+        ]
+      }
+    ],
+    "475": [
+      {
+        "text": "V1 - one slave state",
+        "value": 0.0,
+        "key": [
+          51,
+          475,
+          0
+        ]
+      },
+      {
+        "text": "V2 - more states",
+        "value": 1.0,
+        "key": [
+          51,
+          475,
+          1
+        ]
+      }
+    ],
+    "480": [
+      {
+        "text": "active, max.1 reason",
+        "value": 1.0,
+        "key": [
+          51,
+          480,
+          1
+        ]
+      },
+      {
+        "text": "not active",
+        "value": 0.0,
+        "key": [
+          51,
+          480,
+          0
+        ]
+      },
+      {
+        "text": "active, several",
+        "value": 2.0,
+        "key": [
+          51,
+          480,
+          2
+        ]
+      }
+    ],
+    "492": [
+      {
+        "text": "all machines",
+        "value": 0.0,
+        "key": [
+          51,
+          492,
+          0
+        ]
+      },
+      {
+        "text": "selected machine",
+        "value": 1.0,
+        "key": [
+          51,
+          492,
+          1
+        ]
+      }
+    ],
+    "510": [
+      {
+        "text": "every time",
+        "value": 0.0,
+        "key": [
+          51,
+          510,
+          0
+        ]
+      },
+      {
+        "text": "on request",
+        "value": 2.0,
+        "key": [
+          51,
+          510,
+          2
+        ]
+      },
+      {
+        "text": "never",
+        "value": 1.0,
+        "key": [
+          51,
+          510,
+          1
+        ]
+      }
+    ],
+    "520": [
+      {
+        "text": "blue",
+        "value": 1.0,
+        "key": [
+          51,
+          520,
+          1
+        ]
+      },
+      {
+        "text": "grey",
+        "value": 0.0,
+        "key": [
+          51,
+          520,
+          0
+        ]
+      }
+    ],
+    "530": [
+      {
+        "text": "don't show",
+        "value": 1.0,
+        "key": [
+          51,
+          530,
+          1
+        ]
+      },
+      {
+        "text": "show",
+        "value": 0.0,
+        "key": [
+          51,
+          530,
+          0
+        ]
+      }
+    ]
+  },
+  "cnf_sha256": "a3b80b83e46f75b5e8095b7310f4a5cf5f56ab864609611cb6e8204783496b14",
   "source": "TYPECONF.CNF",
-  "generated_at": "2026-11-25T16:59:04.904558"
+  "source_policy": "Function ID & parameters strictly decoded from Config/TYPECONF.CNF (never from .AWL PLC logic).",
+  "generated_at": "2026-11-25T17:36:10.327619"
 }

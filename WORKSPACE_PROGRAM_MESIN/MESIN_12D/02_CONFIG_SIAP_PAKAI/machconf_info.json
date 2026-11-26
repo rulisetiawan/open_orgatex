@@ -1,0 +1,28 @@
+{
+  "source": "MACHCONF.CNF",
+  "sha256": "a68290c0d4d3d0176ae6884ed76779b85f9e2e24b2e00bff1346007fe4bf7651",
+  "size_bytes": 15872,
+  "record_count": 261,
+  "metadata_strings": [
+    "0A33c@",
+    ",ROTO_838",
+    "Example V1.40",
+    "MA01",
+    "D012",
+    "SMM-ORGATEX",
+    "Orgatex",
+    "orgatex",
+    "\\OT\\PROCEDUR",
+    "\\OT\\REPORTS",
+    "\\OT\\MACHINES",
+    "\\OT\\BATCH",
+    "\\OT\\DOSING",
+    "\\OT\\OPTIDYE",
+    "SECOM-",
+    "olfgang",
+    "SE Asia Standard Time",
+    "setex-online.com",
+    "NOVATECH"
+  ],
+  "generated_at": "2026-11-25T17:35:58.900857"
+}

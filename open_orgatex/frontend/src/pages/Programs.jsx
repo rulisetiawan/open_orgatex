@@ -49,12 +49,12 @@ const ALL_PARAMETERS = typeconfData.parameters || {};
 const ALL_RESOURCES = typeconfData.resources || {};
 const ALL_GROUPS = typeconfData.groups || [];
 
-// Function options generator for a specific slot/line, matching program (Editor_PRG)
+// Function options generator for a specific slot/line, strictly from machine TYPECONF.CNF
 export const getFunctionOptionsForLine = (line, funcsMap = ALL_FUNCTIONS, currentId = null) => {
   const funcs = funcsMap || ALL_FUNCTIONS;
   const options = Object.values(funcs)
     .filter(f => {
-      const lines = (Array.isArray(f.lines) && f.lines.length > 0)
+      const lines = Array.isArray(f.lines)
         ? f.lines
         : (ALL_FUNCTIONS[String(f.id)]?.lines || []);
       return lines.includes(Number(line));
@@ -63,12 +63,16 @@ export const getFunctionOptionsForLine = (line, funcsMap = ALL_FUNCTIONS, curren
 
   const result = [];
   if (currentId && !options.some(f => f.id === Number(currentId))) {
-    const fallback = funcs[String(currentId)] || ALL_FUNCTIONS[String(currentId)];
+    const inMachine = funcs[String(currentId)];
+    const fallback = inMachine || ALL_FUNCTIONS[String(currentId)];
     const fallbackName = fallback?.name || fallback?.name_local || 'Fungsi tidak dikenal';
     result.push({
       id: Number(currentId),
-      label: `${fallbackName} · ID ${currentId} (template)`,
-      name: fallbackName
+      label: inMachine
+        ? `${fallbackName} · ID ${currentId}`
+        : `⚠ TIDAK ADA DI TYPECONF MESIN · ID ${currentId} (${fallbackName})`,
+      name: fallbackName,
+      invalid: !inMachine
     });
   }
   for (const f of options) {
@@ -81,10 +85,10 @@ export const getFunctionOptionsForLine = (line, funcsMap = ALL_FUNCTIONS, curren
   return result;
 };
 
-// Generate parallel options (Slot 2..8) exactly matching program (Editor_PRG)
+// Generate parallel options (Slot 2..8) strictly from machine TYPECONF.CNF & resources
 export const getParallelOptionsList = (funcsMap = ALL_FUNCTIONS, resourcesMap = ALL_RESOURCES) => {
   const funcs = funcsMap || ALL_FUNCTIONS;
-  const resources = resourcesMap || ALL_RESOURCES;
+  const resources = (resourcesMap && Object.keys(resourcesMap).length > 0) ? resourcesMap : ALL_RESOURCES;
   const result = [];
 
   for (let col = 2; col <= 8; col++) {
@@ -92,7 +96,7 @@ export const getParallelOptionsList = (funcsMap = ALL_FUNCTIONS, resourcesMap = 
     const resName = res?.name || `Slot ${col}`;
     const colFuncs = Object.values(funcs)
       .filter(f => {
-        const lines = (Array.isArray(f.lines) && f.lines.length > 0)
+        const lines = Array.isArray(f.lines)
           ? f.lines
           : (ALL_FUNCTIONS[String(f.id)]?.lines || []);
         return lines.includes(col);
@@ -418,40 +422,81 @@ export default function Programs() {
     fetchMachines();
   }, []);
 
-  // Machine-Specific Configuration State (from WORKSPACE_PROGRAM_MESIN/<NAMA_MESIN>/02_CONFIG_SIAP_PAKAI/)
+  // Machine-Specific Configuration State (strictly from Config/TYPECONF.CNF, CONFTEXT.CNF, USERCONF.CNF, MACHCONF.CNF — never .AWL)
   const [machineFunctions, setMachineFunctions] = useState(ALL_FUNCTIONS);
   const [machineParameters, setMachineParameters] = useState(ALL_PARAMETERS);
+  const [machineResources, setMachineResources] = useState(ALL_RESOURCES);
+  const [machineTextChoices, setMachineTextChoices] = useState(typeconfData.text_choices || {});
+  const [machineConfigSources, setMachineConfigSources] = useState(null);
   const [parallelOptions, setParallelOptions] = useState(POPULAR_PARALLEL_FUNCTIONS);
 
-  // Fetch machine-specific workspace configuration (TYPECONF.CNF & CONFTEXT.CNF per machine)
+  const effectiveConfigMachine = viewMode === 'EDITOR' ? machineCode : activeMachine;
+
+  // Fetch machine-specific workspace configuration (TYPECONF.CNF, CONFTEXT.CNF, USERCONF.CNF, MACHCONF.CNF per machine)
   useEffect(() => {
     const fetchMachineConfig = async () => {
       try {
-        const cleanNo = activeMachine.trim().toUpperCase().replace('MESIN_', '');
+        const cleanNo = (effectiveConfigMachine || activeMachine).trim().toUpperCase().replace('MESIN_', '');
         const res = await axios.get(`/api/programs/machine-workspace/${cleanNo}/config`);
         if (res.data?.functions && Object.keys(res.data.functions).length > 0) {
           const funcs = res.data.functions;
           const params = res.data.parameters || ALL_PARAMETERS;
+          const resources = (res.data.resources && Object.keys(res.data.resources).length > 0)
+            ? res.data.resources
+            : ALL_RESOURCES;
+          const choices = (res.data.text_choices && Object.keys(res.data.text_choices).length > 0)
+            ? res.data.text_choices
+            : (typeconfData.text_choices || {});
+
           setMachineFunctions(funcs);
           setMachineParameters(params);
+          setMachineResources(resources);
+          setMachineTextChoices(choices);
+          setMachineConfigSources(res.data.config_sources || null);
 
-          // Build dynamic parallel options based on this machine's actual downloaded functions!
-          const dynamicOptions = getParallelOptionsList(funcs, ALL_RESOURCES);
-          setParallelOptions(dynamicOptions.length > 0 ? dynamicOptions : POPULAR_PARALLEL_FUNCTIONS);
+          // Build dynamic parallel options strictly from this machine's TYPECONF.CNF!
+          const dynamicOptions = getParallelOptionsList(funcs, resources);
+          setParallelOptions(dynamicOptions);
         } else {
           setMachineFunctions(ALL_FUNCTIONS);
           setMachineParameters(ALL_PARAMETERS);
+          setMachineResources(ALL_RESOURCES);
+          setMachineTextChoices(typeconfData.text_choices || {});
+          setMachineConfigSources(null);
           setParallelOptions(POPULAR_PARALLEL_FUNCTIONS);
         }
       } catch (err) {
         setMachineFunctions(ALL_FUNCTIONS);
         setMachineParameters(ALL_PARAMETERS);
+        setMachineResources(ALL_RESOURCES);
+        setMachineTextChoices(typeconfData.text_choices || {});
+        setMachineConfigSources(null);
         setParallelOptions(POPULAR_PARALLEL_FUNCTIONS);
       }
     };
 
     fetchMachineConfig();
-  }, [activeMachine]);
+  }, [effectiveConfigMachine, activeMachine]);
+
+  // Real-time check: detect any Function ID in current steps that is NOT in this machine's TYPECONF.CNF
+  const invalidTypeconfFunctions = useMemo(() => {
+    if (!machineFunctions || Object.keys(machineFunctions).length === 0) return [];
+    const issues = [];
+    (steps || []).forEach((st, sIdx) => {
+      (st.functions || []).forEach((fn) => {
+        const fidStr = String(fn.function_id);
+        if (!machineFunctions[fidStr]) {
+          issues.push({
+            step_no: st.step_no || sIdx + 1,
+            column: fn.column || 1,
+            function_id: fn.function_id,
+            label: st.label || `Langkah ${st.step_no || sIdx + 1}`
+          });
+        }
+      });
+    });
+    return issues;
+  }, [steps, machineFunctions]);
 
   // Available Machines (with fallback to default factory controllers)
   const availableMachines = useMemo(() => {
@@ -657,13 +702,16 @@ export default function Programs() {
   }, [programList, editorImportSearchTerm]);
 
   // Open Editor for an Existing Program
-  const openEditorForProgram = async (pNo) => {
+  const openEditorForProgram = async (pNo, mCode = activeMachine) => {
     try {
-      const res = await axios.get(`/api/programs/${pNo}`);
+      const cleanM = (mCode || activeMachine || '').trim().toUpperCase().replace('MESIN_', '');
+      const res = await axios.get(`/api/programs/${pNo}`, {
+        params: cleanM ? { machine_code: cleanM } : {}
+      });
       const data = res.data;
       setProgramNo(data.program_no || pNo);
       setProgramName(data.program_name || `M_${String(pNo).padStart(4, '0')}`);
-      setMachineCode(data.machine_code || activeMachine);
+      setMachineCode(data.machine_code || cleanM || activeMachine);
 
       const rawSteps = data.steps || [];
       if (rawSteps.length === 0) {
@@ -770,7 +818,10 @@ export default function Programs() {
       }
       setIsCopyingProgram(true);
       try {
-        const res = await axios.get(`/api/programs/${srcNo}`);
+        const cleanSrcM = (createMachineCode || activeMachine || '').trim().toUpperCase().replace('MESIN_', '');
+        const res = await axios.get(`/api/programs/${srcNo}`, {
+          params: cleanSrcM ? { machine_code: cleanSrcM } : {}
+        });
         const data = res.data;
         const rawSteps = data.steps && data.steps.length > 0
           ? JSON.parse(JSON.stringify(data.steps))
@@ -818,12 +869,45 @@ export default function Programs() {
     setMachineCode(createMachineCode);
 
     if (createTemplateType === 'STANDARD') {
+      // Pick valid Function IDs strictly from the target machine's TYPECONF.CNF
+      let targetFuncs = machineFunctions;
+      try {
+        const cleanCreateM = createMachineCode.trim().toUpperCase().replace('MESIN_', '');
+        const cfgRes = await axios.get(`/api/programs/machine-workspace/${cleanCreateM}/config`);
+        if (cfgRes.data?.functions && Object.keys(cfgRes.data.functions).length > 0) {
+          targetFuncs = cfgRes.data.functions;
+        }
+      } catch {
+        // use current machineFunctions
+      }
+      const line1Funcs = Object.values(targetFuncs || {}).filter(f => Array.isArray(f.lines) && f.lines.includes(1));
+      const fillFn = targetFuncs['713'] || targetFuncs['722'] || targetFuncs['22'] || line1Funcs.find(f => (f.name || '').toLowerCase().includes('fill'));
+      const tempFn = targetFuncs['141'] || targetFuncs['811'] || line1Funcs.find(f => (f.name || '').toLowerCase().includes('temp'));
+
       const stdSteps = [
-        { step_no: 1, label: 'Mulai Siklus Mesin', functions: [{ function_id: 1, column: 1, flags: 0, params: [0, 0, 0, 0, 0, 0] }] },
-        { step_no: 2, label: 'Pengisian Air Awal', functions: [{ function_id: 713, column: 1, flags: 0, params: [1.0, 1800.0, 0, 0, 0, 0] }] },
-        { step_no: 3, label: 'Penaikan Suhu', functions: [{ function_id: 141, column: 1, flags: 0, params: [98.0, 2.5, 30.0, 0, 0, 0] }] },
-        { step_no: 4, label: 'Selesai Siklus', functions: [{ function_id: 2, column: 1, flags: 0, params: [0, 0, 0, 0, 0, 0] }] }
+        { step_no: 1, label: 'Mulai Siklus Mesin', functions: [{ function_id: 1, column: 1, flags: 0, params: [0, 0, 0, 0, 0, 0] }] }
       ];
+      let nextNo = 2;
+      if (fillFn) {
+        const fillDefaults = (fillFn.parameters || []).map(p => Number(p.default || 0));
+        while (fillDefaults.length < 6) fillDefaults.push(0);
+        stdSteps.push({
+          step_no: nextNo++,
+          label: `Pengisian Air (${fillFn.name})`,
+          functions: [{ function_id: Number(fillFn.id), name: fillFn.name, column: 1, flags: 0, params: fillDefaults.slice(0, 6) }]
+        });
+      }
+      if (tempFn) {
+        const tempDefaults = (tempFn.parameters || []).map(p => Number(p.default || 0));
+        while (tempDefaults.length < 6) tempDefaults.push(0);
+        stdSteps.push({
+          step_no: nextNo++,
+          label: `Kontrol Suhu (${tempFn.name})`,
+          functions: [{ function_id: Number(tempFn.id), name: tempFn.name, column: 1, flags: 0, params: tempDefaults.slice(0, 6) }]
+        });
+      }
+      stdSteps.push({ step_no: nextNo, label: 'Selesai Siklus', functions: [{ function_id: 2, column: 1, flags: 0, params: [0, 0, 0, 0, 0, 0] }] });
+
       setSteps(stdSteps);
       setSubPrograms(autoPartitionStepsToSubPrograms(stdSteps));
     } else {
@@ -849,7 +933,10 @@ export default function Programs() {
     }
     setIsLoadingImport(true);
     try {
-      const res = await axios.get(`/api/programs/${srcNo}`);
+      const cleanM = (machineCode || activeMachine || '').trim().toUpperCase().replace('MESIN_', '');
+      const res = await axios.get(`/api/programs/${srcNo}`, {
+        params: cleanM ? { machine_code: cleanM } : {}
+      });
       const data = res.data;
       const importedSteps = data.steps && data.steps.length > 0
         ? JSON.parse(JSON.stringify(data.steps))
@@ -1108,7 +1195,10 @@ export default function Programs() {
       return;
     }
     try {
-      const res = await axios.post(`/api/programs/compile/${pNo}`);
+      const cleanM = (machineCode || activeMachine || '').trim().toUpperCase().replace('MESIN_', '');
+      const res = await axios.post(`/api/programs/compile/${pNo}`, null, {
+        params: cleanM ? { machine_code: cleanM } : {}
+      });
       setNotification({
         type: 'success',
         title: 'Kompilasi Biner Berhasil (Paritas SETEX 777)!',
@@ -1126,8 +1216,10 @@ export default function Programs() {
   };
 
   // Download .PRG
-  const handleDownloadPrg = (pNo) => {
-    window.open(`/api/programs/download/${pNo}`, '_blank');
+  const handleDownloadPrg = (pNo, mCode = machineCode || activeMachine) => {
+    const cleanM = (mCode || '').trim().toUpperCase().replace('MESIN_', '');
+    const qs = cleanM ? `?machine_code=${encodeURIComponent(cleanM)}` : '';
+    window.open(`/api/programs/download/${pNo}${qs}`, '_blank');
   };
 
   // Apply Reverse-Engineered Template
@@ -1620,7 +1712,7 @@ export default function Programs() {
                 </tr>
               ) : (
                 filteredPrograms.map((prg) => (
-                  <tr key={prg.program_number} className="hover:bg-gray-50 dark:hover:bg-meta-4/40 transition">
+                  <tr key={`${prg.machine_code || 'TD12'}-${prg.program_number}`} className="hover:bg-gray-50 dark:hover:bg-meta-4/40 transition">
                     <td className="py-3 px-4 font-mono font-bold text-primary">
                       #{String(prg.program_number).padStart(4, '0')}
                     </td>
@@ -1663,7 +1755,7 @@ export default function Programs() {
                           <span>Tulis FTP</span>
                         </button>
                         <button
-                          onClick={() => handleDownloadPrg(prg.program_number)}
+                          onClick={() => handleDownloadPrg(prg.program_number, prg.machine_code)}
                           className="flex items-center gap-1 px-2.5 py-1 text-xs font-semibold text-gray-700 dark:text-gray-200 bg-gray-100 dark:bg-meta-4 hover:bg-blue-50 dark:hover:bg-blue-900/30 hover:text-blue-600 rounded border border-stroke dark:border-strokedark transition"
                           title="Unduh biner M_xxxx.PRG"
                         >
@@ -1671,7 +1763,7 @@ export default function Programs() {
                           <span>.PRG</span>
                         </button>
                         <button
-                          onClick={() => openEditorForProgram(prg.program_number)}
+                          onClick={() => openEditorForProgram(prg.program_number, prg.machine_code)}
                           className="flex items-center gap-1 px-3 py-1 text-xs font-bold text-white bg-primary hover:bg-primary/90 rounded shadow-sm transition"
                         >
                           <Edit3 className="h-3.5 w-3.5" />
@@ -2052,6 +2144,26 @@ export default function Programs() {
             </div>
           </div>
           <button onClick={() => setNotification(null)} className="text-gray-400 hover:text-gray-600"><X className="h-4 w-4" /></button>
+        </div>
+      )}
+
+      {/* STRICT TYPECONF.CNF VALIDATION WARNING BANNER */}
+      {invalidTypeconfFunctions.length > 0 && (
+        <div className="flex items-start gap-3 p-3.5 rounded-md border border-rose-500/50 bg-rose-50 dark:bg-rose-950/40 text-rose-800 dark:text-rose-200 shadow-sm">
+          <AlertCircle className="h-5 w-5 text-rose-600 shrink-0 mt-0.5" />
+          <div className="text-xs space-y-1">
+            <div className="font-bold uppercase tracking-wider">
+              Peringatan Validasi TYPECONF.CNF Mesin {machineCode}: {invalidTypeconfFunctions.length} Function ID Tidak Didukung!
+            </div>
+            <p>
+              Function ID berikut tidak terdaftar di <span className="font-mono font-bold">Config/TYPECONF.CNF</span> Mesin <span className="font-mono font-bold">{machineCode}</span> dan akan ditolak saat disimpan/dikirim ke PLC agar tidak salah eksekusi:
+              {' '}
+              <span className="font-mono font-bold">
+                {invalidTypeconfFunctions.slice(0, 6).map(i => `Step #${i.step_no} F${i.function_id} (Slot ${i.column})`).join(', ')}
+                {invalidTypeconfFunctions.length > 6 ? ` (+${invalidTypeconfFunctions.length - 6} lainnya)` : ''}
+              </span>
+            </p>
+          </div>
         </div>
       )}
 
@@ -2708,7 +2820,7 @@ export default function Programs() {
                       const pName = paramDef?.name || `Parameter ${pIdx + 1}`;
                       const pUnit = paramDef?.unit || '';
                       const curVal = mainFn?.params?.[pIdx] ?? 0;
-                      const choices = getChoicesForParam(paramDef);
+                      const choices = getChoicesForParam(paramDef, { text_choices: machineTextChoices });
 
                       return (
                         <div key={pIdx} className="bg-white dark:bg-boxdark p-3 rounded border border-stroke dark:border-strokedark shadow-sm">
@@ -2836,7 +2948,7 @@ export default function Programs() {
                                   const pName = paramDef?.name || `P${pIdx + 1}`;
                                   const pUnit = paramDef?.unit || '';
                                   const curVal = fn.params?.[pIdx] ?? 0;
-                                  const choices = getChoicesForParam(paramDef);
+                                  const choices = getChoicesForParam(paramDef, { text_choices: machineTextChoices });
 
                                   return (
                                     <div key={pIdx}>

@@ -333,8 +333,8 @@ def serialize_prg_binary(program_id: int, title: str, steps: List[Dict[str, Any]
 
         funcs = step.get("functions", [])
         if not funcs:
-            # Default placeholder function
-            funcs = [{"function_id": 1 if s_idx == 1 else (2 if s_idx == len(steps) else 121), "column": 1, "params": []}]
+            # Default placeholder function (1=Program Start, 2=Program End, 144=Runtime from TYPECONF.CNF)
+            funcs = [{"function_id": 1 if s_idx == 1 else (2 if s_idx == len(steps) else 144), "column": 1, "params": []}]
 
         has_col1 = any(f.get("column", 1) == 1 for f in funcs)
         if not has_col1:

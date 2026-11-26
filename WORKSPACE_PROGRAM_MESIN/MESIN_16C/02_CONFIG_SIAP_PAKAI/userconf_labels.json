@@ -1,0 +1,194 @@
+{
+  "source": "USERCONF.CNF",
+  "sha256": "cd130d9d09e05ab49a289a1573b5f0b4ef11ca9f53220fa3e1818db444161cad",
+  "main_labels": {
+    "1": {
+      "id": 1,
+      "name_local": "Label 1",
+      "name": "Label 1"
+    },
+    "2": {
+      "id": 2,
+      "name_local": "Label 2",
+      "name": "Label 2"
+    },
+    "3": {
+      "id": 3,
+      "name_local": "Label 3",
+      "name": "Label 3"
+    },
+    "4": {
+      "id": 4,
+      "name_local": "Label 4",
+      "name": "Label 4"
+    },
+    "5": {
+      "id": 5,
+      "name_local": "Label 5",
+      "name": "Label 5"
+    },
+    "6": {
+      "id": 6,
+      "name_local": "Label 6",
+      "name": "Label 6"
+    },
+    "7": {
+      "id": 7,
+      "name_local": "Label 7",
+      "name": "Label 7"
+    },
+    "8": {
+      "id": 8,
+      "name_local": "Label 8",
+      "name": "Label 8"
+    },
+    "9": {
+      "id": 9,
+      "name_local": "Label 9",
+      "name": "Label 9"
+    },
+    "10": {
+      "id": 10,
+      "name_local": "Label 10",
+      "name": "Label 10"
+    },
+    "11": {
+      "id": 11,
+      "name_local": "Label 11",
+      "name": "Label 11"
+    },
+    "12": {
+      "id": 12,
+      "name_local": "Label 12",
+      "name": "Label 12"
+    },
+    "13": {
+      "id": 13,
+      "name_local": "Label 13",
+      "name": "Label 13"
+    },
+    "14": {
+      "id": 14,
+      "name_local": "Label 14",
+      "name": "Label 14"
+    },
+    "15": {
+      "id": 15,
+      "name_local": "Label 15",
+      "name": "Label 15"
+    },
+    "16": {
+      "id": 16,
+      "name_local": "Label 16",
+      "name": "Label 16"
+    },
+    "17": {
+      "id": 17,
+      "name_local": "Label 17",
+      "name": "Label 17"
+    },
+    "18": {
+      "id": 18,
+      "name_local": "Label 18",
+      "name": "Label 18"
+    },
+    "19": {
+      "id": 19,
+      "name_local": "Label 19",
+      "name": "Label 19"
+    },
+    "20": {
+      "id": 20,
+      "name_local": "Label 20",
+      "name": "Label 20"
+    }
+  },
+  "nachsatz_labels": {
+    "1": {
+      "id": 1,
+      "name_local": "NETRAL ULANG",
+      "name": "NETRAL ULANG"
+    },
+    "2": {
+      "id": 2,
+      "name_local": "CUCI TAMBAHAN",
+      "name": "CUCI TAMBAHAN"
+    },
+    "3": {
+      "id": 3,
+      "name_local": "FIXING",
+      "name": "FIXING"
+    },
+    "4": {
+      "id": 4,
+      "name_local": "CUCI MCR",
+      "name": "CUCI MCR"
+    },
+    "5": {
+      "id": 5,
+      "name_local": "SOAPING",
+      "name": "SOAPING"
+    },
+    "31": {
+      "id": 31,
+      "name_local": "Add.Label 1",
+      "name": "Nachs.Label 1"
+    },
+    "32": {
+      "id": 32,
+      "name_local": "Add.Label 2",
+      "name": "Nachs.Label 2"
+    },
+    "33": {
+      "id": 33,
+      "name_local": "Add.Label 3",
+      "name": "Nachs.Label 3"
+    },
+    "34": {
+      "id": 34,
+      "name_local": "Add.Label 4",
+      "name": "Nachs.Label 4"
+    },
+    "35": {
+      "id": 35,
+      "name_local": "Add.Label 5",
+      "name": "Nachs.Label 5"
+    },
+    "36": {
+      "id": 36,
+      "name_local": "Add.Label 6",
+      "name": "Nachs.Label 6"
+    },
+    "37": {
+      "id": 37,
+      "name_local": "Add.Label 7",
+      "name": "Nachs.Label 7"
+    },
+    "38": {
+      "id": 38,
+      "name_local": "Add.Label 8",
+      "name": "Nachs.Label 8"
+    },
+    "39": {
+      "id": 39,
+      "name_local": "Add.Label 9",
+      "name": "Nachs.Label 9"
+    },
+    "40": {
+      "id": 40,
+      "name_local": "Add.Label 10",
+      "name": "Nachs.Label 10"
+    },
+    "101": {
+      "id": 101,
+      "name_local": "OT-Nachsatz 1",
+      "name": "OT-Nachsatz 1"
+    },
+    "102": {
+      "id": 102,
+      "name_local": "OT-Nachsatz 2",
+      "name": "OT-Nachsatz 2"
+    }
+  },
+  "generated_at": "2026-11-25T17:36:02.602813"
+}

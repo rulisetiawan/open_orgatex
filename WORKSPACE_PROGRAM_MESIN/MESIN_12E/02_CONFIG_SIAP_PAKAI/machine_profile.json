@@ -6,7 +6,7 @@
   "has_custom_hmi_config": true,
   "status": "ready",
   "ip_address": "172.16.120.112",
-  "last_synced_at": "2026-11-25T16:59:03.653348",
+  "last_synced_at": "2026-11-25T17:35:59.193344",
   "files_in_hmi_dir": [
     "CONFTEXT.CNF",
     "FNLEGEND.CNF",
@@ -28,5 +28,23 @@
   "awl_project_names": [
     "iSMKM25001_sarana.pro"
   ],
-  "awl_sha256": "5f08b1e4fc782fe76bd6288b14118af0a6be77f303a4038d1e23cca1b07cf9e3"
+  "awl_sha256": "5f08b1e4fc782fe76bd6288b14118af0a6be77f303a4038d1e23cca1b07cf9e3",
+  "has_typeconf": true,
+  "has_conftext": true,
+  "has_fnlegend": true,
+  "has_userconf": true,
+  "has_machconf": true,
+  "config_sources": {
+    "program_recipes": "PROGRAMS/*.PRG",
+    "function_definitions": "Config/TYPECONF.CNF",
+    "function_texts_alarms": [
+      "Config/CONFTEXT.CNF",
+      "Config/FNLEGEND.CNF"
+    ],
+    "custom_process_labels": "Config/USERCONF.CNF",
+    "machine_parameters": "Config/MACHCONF.CNF",
+    "plc_execution_logic_only": [
+      "Config/SC26.AWL"
+    ]
+  }
 }

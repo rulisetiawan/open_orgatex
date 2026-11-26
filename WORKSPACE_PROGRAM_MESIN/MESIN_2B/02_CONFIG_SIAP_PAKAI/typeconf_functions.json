@@ -7041,8 +7041,6 @@
       }
     }
   },
-  "source": "TYPECONF.CNF",
-  "generated_at": "2026-11-17T08:58:19.220300",
   "resources": {
     "8": {
       "id": 8,
@@ -7254,5 +7252,2018 @@
         139
       ]
     }
-  ]
+  ],
+  "text_choices": {
+    "100": [
+      {
+        "text": "Heat  Cool Analog",
+        "value": 0.0,
+        "key": [
+          51,
+          100,
+          0
+        ]
+      },
+      {
+        "text": "Heat dig.Cool analog",
+        "value": 3.0,
+        "key": [
+          51,
+          100,
+          3
+        ]
+      },
+      {
+        "text": "Heat analog Cool dig",
+        "value": 2.0,
+        "key": [
+          51,
+          100,
+          2
+        ]
+      },
+      {
+        "text": "Heat  Cool Digital",
+        "value": 1.0,
+        "key": [
+          51,
+          100,
+          1
+        ]
+      }
+    ],
+    "302": [
+      {
+        "text": "yes",
+        "value": 1.0,
+        "key": [
+          51,
+          302,
+          1
+        ]
+      },
+      {
+        "text": "no",
+        "value": 0.0,
+        "key": [
+          51,
+          302,
+          0
+        ]
+      }
+    ],
+    "103": [
+      {
+        "text": "HEX 4 valve",
+        "value": 0.0,
+        "key": [
+          51,
+          103,
+          0
+        ]
+      },
+      {
+        "text": "HEX 5 valve",
+        "value": 1.0,
+        "key": [
+          51,
+          103,
+          1
+        ]
+      }
+    ],
+    "299": [
+      {
+        "text": "L",
+        "value": 1.0,
+        "key": [
+          51,
+          299,
+          1
+        ]
+      },
+      {
+        "text": "%",
+        "value": 0.0,
+        "key": [
+          51,
+          299,
+          0
+        ]
+      }
+    ],
+    "298": [
+      {
+        "text": "575CE",
+        "value": 575.0,
+        "key": [
+          51,
+          298,
+          0
+        ]
+      },
+      {
+        "text": "535CE",
+        "value": 535.0,
+        "key": [
+          51,
+          298,
+          1
+        ]
+      },
+      {
+        "text": "777CE",
+        "value": 777.0,
+        "key": [
+          51,
+          298,
+          3
+        ]
+      },
+      {
+        "text": "737CE",
+        "value": 737.0,
+        "key": [
+          51,
+          298,
+          2
+        ]
+      }
+    ],
+    "200": [
+      {
+        "text": "On",
+        "value": 1.0,
+        "key": [
+          51,
+          200,
+          1
+        ]
+      },
+      {
+        "text": "Off",
+        "value": 0.0,
+        "key": [
+          51,
+          200,
+          0
+        ]
+      }
+    ],
+    "540": [
+      {
+        "text": "allowed",
+        "value": 0.0,
+        "key": [
+          51,
+          540,
+          0
+        ]
+      },
+      {
+        "text": "locked",
+        "value": 1.0,
+        "key": [
+          51,
+          540,
+          1
+        ]
+      }
+    ],
+    "297": [
+      {
+        "text": "com drain valve",
+        "value": 1.0,
+        "key": [
+          51,
+          297,
+          1
+        ]
+      },
+      {
+        "text": "with pump",
+        "value": 0.0,
+        "key": [
+          51,
+          297,
+          0
+        ]
+      },
+      {
+        "text": "separate drain valve",
+        "value": 2.0,
+        "key": [
+          51,
+          297,
+          2
+        ]
+      }
+    ],
+    "5": [
+      {
+        "text": "Oscilation Rinse",
+        "value": 1.0,
+        "key": [
+          51,
+          5,
+          1
+        ]
+      },
+      {
+        "text": "Overflow Rinse",
+        "value": 2.0,
+        "key": [
+          51,
+          5,
+          2
+        ]
+      }
+    ],
+    "102": [
+      {
+        "text": "Power drain",
+        "value": 1.0,
+        "key": [
+          51,
+          102,
+          1
+        ]
+      },
+      {
+        "text": "Standard drain",
+        "value": 0.0,
+        "key": [
+          51,
+          102,
+          0
+        ]
+      }
+    ],
+    "2": [
+      {
+        "text": "Salt",
+        "value": 4.0,
+        "key": [
+          51,
+          2,
+          3
+        ]
+      },
+      {
+        "text": "warm water",
+        "value": 2.0,
+        "key": [
+          51,
+          2,
+          1
+        ]
+      },
+      {
+        "text": "cold water",
+        "value": 1.0,
+        "key": [
+          51,
+          2,
+          0
+        ]
+      },
+      {
+        "text": "raw water",
+        "value": 3.0,
+        "key": [
+          51,
+          2,
+          2
+        ]
+      }
+    ],
+    "1": [
+      {
+        "text": "Salt",
+        "value": 4.0,
+        "key": [
+          51,
+          1,
+          4
+        ]
+      },
+      {
+        "text": "cold water",
+        "value": 1.0,
+        "key": [
+          51,
+          1,
+          1
+        ]
+      },
+      {
+        "text": "warm water",
+        "value": 2.0,
+        "key": [
+          51,
+          1,
+          2
+        ]
+      },
+      {
+        "text": "raw water",
+        "value": 3.0,
+        "key": [
+          51,
+          1,
+          3
+        ]
+      }
+    ],
+    "300": [
+      {
+        "text": "Digital",
+        "value": 0.0,
+        "key": [
+          51,
+          300,
+          0
+        ]
+      },
+      {
+        "text": "Analog",
+        "value": 1.0,
+        "key": [
+          51,
+          300,
+          1
+        ]
+      }
+    ],
+    "4": [
+      {
+        "text": "Soda",
+        "value": 3.0,
+        "key": [
+          51,
+          4,
+          3
+        ]
+      },
+      {
+        "text": "liquor",
+        "value": 2.0,
+        "key": [
+          51,
+          4,
+          2
+        ]
+      },
+      {
+        "text": "cold water",
+        "value": 1.0,
+        "key": [
+          51,
+          4,
+          1
+        ]
+      },
+      {
+        "text": "From ST",
+        "value": 4.0,
+        "key": [
+          51,
+          4,
+          4
+        ]
+      }
+    ],
+    "296": [
+      {
+        "text": "switch",
+        "value": 0.0,
+        "key": [
+          51,
+          296,
+          0
+        ]
+      },
+      {
+        "text": "button",
+        "value": 1.0,
+        "key": [
+          51,
+          296,
+          1
+        ]
+      }
+    ],
+    "3": [
+      {
+        "text": "cold water",
+        "value": 1.0,
+        "key": [
+          51,
+          3,
+          1
+        ]
+      },
+      {
+        "text": "From ST",
+        "value": 3.0,
+        "key": [
+          51,
+          3,
+          3
+        ]
+      },
+      {
+        "text": "liquor",
+        "value": 2.0,
+        "key": [
+          51,
+          3,
+          2
+        ]
+      }
+    ],
+    "9": [
+      {
+        "text": "without pump",
+        "value": 0.0,
+        "key": [
+          51,
+          9,
+          1
+        ]
+      },
+      {
+        "text": "with pump",
+        "value": 1.0,
+        "key": [
+          51,
+          9,
+          2
+        ]
+      }
+    ],
+    "10": [
+      {
+        "text": "drain 1",
+        "value": 1.0,
+        "key": [
+          51,
+          10,
+          1
+        ]
+      },
+      {
+        "text": "drain 2",
+        "value": 2.0,
+        "key": [
+          51,
+          10,
+          2
+        ]
+      },
+      {
+        "text": "drain 3",
+        "value": 3.0,
+        "key": [
+          51,
+          10,
+          3
+        ]
+      }
+    ],
+    "30": [
+      {
+        "text": "without stirrer",
+        "value": 0.0,
+        "key": [
+          51,
+          30,
+          0
+        ]
+      },
+      {
+        "text": "with stirrer",
+        "value": 1.0,
+        "key": [
+          51,
+          30,
+          1
+        ]
+      }
+    ],
+    "301": [
+      {
+        "text": "not active",
+        "value": 0.0,
+        "key": [
+          51,
+          301,
+          0
+        ]
+      },
+      {
+        "text": "active",
+        "value": 1.0,
+        "key": [
+          51,
+          301,
+          1
+        ]
+      }
+    ],
+    "390": [
+      {
+        "text": "PT100 not selected",
+        "value": 0.0,
+        "key": [
+          51,
+          390,
+          0
+        ]
+      },
+      {
+        "text": "PT100 DIN",
+        "value": 1.0,
+        "key": [
+          51,
+          390,
+          1
+        ]
+      },
+      {
+        "text": "PT100 JIS",
+        "value": 2.0,
+        "key": [
+          51,
+          390,
+          2
+        ]
+      }
+    ],
+    "391": [
+      {
+        "text": "0..20mA",
+        "value": 0.0,
+        "key": [
+          51,
+          391,
+          0
+        ]
+      },
+      {
+        "text": "0..20mA with alarm",
+        "value": 2.0,
+        "key": [
+          51,
+          391,
+          2
+        ]
+      },
+      {
+        "text": "4..20mA",
+        "value": 1.0,
+        "key": [
+          51,
+          391,
+          1
+        ]
+      },
+      {
+        "text": "4..20mA with alarm",
+        "value": 3.0,
+        "key": [
+          51,
+          391,
+          3
+        ]
+      }
+    ],
+    "392": [
+      {
+        "text": "0..20mA",
+        "value": 0.0,
+        "key": [
+          51,
+          392,
+          0
+        ]
+      },
+      {
+        "text": "4..20mA",
+        "value": 1.0,
+        "key": [
+          51,
+          392,
+          1
+        ]
+      }
+    ],
+    "393": [
+      {
+        "text": "1250ms (Default)",
+        "value": 0.0,
+        "key": [
+          51,
+          393,
+          0
+        ]
+      },
+      {
+        "text": "reserved",
+        "value": 1.0,
+        "key": [
+          51,
+          393,
+          1
+        ]
+      },
+      {
+        "text": "5000ms",
+        "value": 2.0,
+        "key": [
+          51,
+          393,
+          2
+        ]
+      },
+      {
+        "text": "2500ms",
+        "value": 3.0,
+        "key": [
+          51,
+          393,
+          3
+        ]
+      },
+      {
+        "text": "1250ms",
+        "value": 4.0,
+        "key": [
+          51,
+          393,
+          4
+        ]
+      },
+      {
+        "text": "625ms",
+        "value": 5.0,
+        "key": [
+          51,
+          393,
+          5
+        ]
+      },
+      {
+        "text": "312,5ms",
+        "value": 6.0,
+        "key": [
+          51,
+          393,
+          6
+        ]
+      },
+      {
+        "text": "156,25ms",
+        "value": 7.0,
+        "key": [
+          51,
+          393,
+          7
+        ]
+      },
+      {
+        "text": "78,125ms",
+        "value": 8.0,
+        "key": [
+          51,
+          393,
+          8
+        ]
+      }
+    ],
+    "395": [
+      {
+        "text": "Master",
+        "value": 0.0,
+        "key": [
+          51,
+          395,
+          0
+        ]
+      },
+      {
+        "text": "Slave",
+        "value": 1.0,
+        "key": [
+          51,
+          395,
+          1
+        ]
+      }
+    ],
+    "396": [
+      {
+        "text": "1200",
+        "value": 1.0,
+        "key": [
+          51,
+          396,
+          1
+        ]
+      },
+      {
+        "text": "2400",
+        "value": 2.0,
+        "key": [
+          51,
+          396,
+          2
+        ]
+      },
+      {
+        "text": "4800",
+        "value": 3.0,
+        "key": [
+          51,
+          396,
+          3
+        ]
+      },
+      {
+        "text": "9600",
+        "value": 4.0,
+        "key": [
+          51,
+          396,
+          4
+        ]
+      },
+      {
+        "text": "19200",
+        "value": 5.0,
+        "key": [
+          51,
+          396,
+          5
+        ]
+      },
+      {
+        "text": "38400",
+        "value": 6.0,
+        "key": [
+          51,
+          396,
+          6
+        ]
+      },
+      {
+        "text": "57600",
+        "value": 7.0,
+        "key": [
+          51,
+          396,
+          7
+        ]
+      },
+      {
+        "text": "115200",
+        "value": 8.0,
+        "key": [
+          51,
+          396,
+          8
+        ]
+      }
+    ],
+    "397": [
+      {
+        "text": "None",
+        "value": 0.0,
+        "key": [
+          51,
+          397,
+          0
+        ]
+      },
+      {
+        "text": "Even",
+        "value": 1.0,
+        "key": [
+          51,
+          397,
+          1
+        ]
+      },
+      {
+        "text": "Odd",
+        "value": 2.0,
+        "key": [
+          51,
+          397,
+          2
+        ]
+      }
+    ],
+    "398": [
+      {
+        "text": "activated",
+        "value": 0.0,
+        "key": [
+          51,
+          398,
+          0
+        ]
+      },
+      {
+        "text": "deactivated",
+        "value": 1.0,
+        "key": [
+          51,
+          398,
+          1
+        ]
+      },
+      {
+        "text": "Heartbeat activated",
+        "value": 2.0,
+        "key": [
+          51,
+          398,
+          2
+        ]
+      }
+    ],
+    "399": [
+      {
+        "text": "125 kbit/sec-Default",
+        "value": 0.0,
+        "key": [
+          51,
+          399,
+          0
+        ]
+      },
+      {
+        "text": "10 kbit/sec",
+        "value": 1.0,
+        "key": [
+          51,
+          399,
+          1
+        ]
+      },
+      {
+        "text": "20 kbit/sec",
+        "value": 2.0,
+        "key": [
+          51,
+          399,
+          2
+        ]
+      },
+      {
+        "text": "50 kbit/sec",
+        "value": 3.0,
+        "key": [
+          51,
+          399,
+          3
+        ]
+      },
+      {
+        "text": "100 kbit/sec",
+        "value": 4.0,
+        "key": [
+          51,
+          399,
+          4
+        ]
+      },
+      {
+        "text": "125 kbit/sec",
+        "value": 5.0,
+        "key": [
+          51,
+          399,
+          5
+        ]
+      },
+      {
+        "text": "250 kbit/sec",
+        "value": 6.0,
+        "key": [
+          51,
+          399,
+          6
+        ]
+      },
+      {
+        "text": "500 kbit/sec",
+        "value": 7.0,
+        "key": [
+          51,
+          399,
+          7
+        ]
+      },
+      {
+        "text": "1000 kbit/sec",
+        "value": 8.0,
+        "key": [
+          51,
+          399,
+          8
+        ]
+      }
+    ],
+    "404": [
+      {
+        "text": "1st language",
+        "value": 0.0,
+        "key": [
+          51,
+          404,
+          0
+        ]
+      },
+      {
+        "text": "2nd language",
+        "value": 1.0,
+        "key": [
+          51,
+          404,
+          1
+        ]
+      }
+    ],
+    "406": [
+      {
+        "text": "local (SECOM)",
+        "value": 0.0,
+        "key": [
+          51,
+          406,
+          0
+        ]
+      },
+      {
+        "text": "network",
+        "value": 1.0,
+        "key": [
+          51,
+          406,
+          1
+        ]
+      },
+      {
+        "text": "batch queue",
+        "value": 2.0,
+        "key": [
+          51,
+          406,
+          2
+        ]
+      },
+      {
+        "text": "reserved",
+        "value": 3.0,
+        "key": [
+          51,
+          406,
+          3
+        ]
+      },
+      {
+        "text": "several batch queues",
+        "value": 4.0,
+        "key": [
+          51,
+          406,
+          4
+        ]
+      }
+    ],
+    "407": [
+      {
+        "text": "delete automatically",
+        "value": 0.0,
+        "key": [
+          51,
+          407,
+          0
+        ]
+      },
+      {
+        "text": "no auto delete(Host)",
+        "value": 1.0,
+        "key": [
+          51,
+          407,
+          1
+        ]
+      }
+    ],
+    "408": [
+      {
+        "text": "not active",
+        "value": 0.0,
+        "key": [
+          51,
+          408,
+          0
+        ]
+      },
+      {
+        "text": "active",
+        "value": 1.0,
+        "key": [
+          51,
+          408,
+          1
+        ]
+      },
+      {
+        "text": "active + functions",
+        "value": 2.0,
+        "key": [
+          51,
+          408,
+          2
+        ]
+      },
+      {
+        "text": "active + extended",
+        "value": 3.0,
+        "key": [
+          51,
+          408,
+          3
+        ]
+      },
+      {
+        "text": "functions + extended",
+        "value": 4.0,
+        "key": [
+          51,
+          408,
+          4
+        ]
+      }
+    ],
+    "409": [
+      {
+        "text": "not active",
+        "value": 0.0,
+        "key": [
+          51,
+          409,
+          0
+        ]
+      },
+      {
+        "text": "active",
+        "value": 1.0,
+        "key": [
+          51,
+          409,
+          1
+        ]
+      },
+      {
+        "text": "active + delete",
+        "value": 2.0,
+        "key": [
+          51,
+          409,
+          2
+        ]
+      }
+    ],
+    "413": [
+      {
+        "text": "RS485 (default)",
+        "value": 0.0,
+        "key": [
+          51,
+          413,
+          0
+        ]
+      },
+      {
+        "text": "KOAX",
+        "value": 1.0,
+        "key": [
+          51,
+          413,
+          1
+        ]
+      }
+    ],
+    "414": [
+      {
+        "text": "standard",
+        "value": 0.0,
+        "key": [
+          51,
+          414,
+          0
+        ]
+      },
+      {
+        "text": "clear step",
+        "value": 1.0,
+        "key": [
+          51,
+          414,
+          1
+        ]
+      },
+      {
+        "text": "main function step",
+        "value": 2.0,
+        "key": [
+          51,
+          414,
+          2
+        ]
+      },
+      {
+        "text": "look ahead",
+        "value": 3.0,
+        "key": [
+          51,
+          414,
+          3
+        ]
+      }
+    ],
+    "415": [
+      {
+        "text": "not active",
+        "value": 0.0,
+        "key": [
+          51,
+          415,
+          0
+        ]
+      },
+      {
+        "text": "manual selection",
+        "value": 1.0,
+        "key": [
+          51,
+          415,
+          1
+        ]
+      },
+      {
+        "text": "manual+automatic",
+        "value": 2.0,
+        "key": [
+          51,
+          415,
+          2
+        ]
+      }
+    ],
+    "418": [
+      {
+        "text": "not active",
+        "value": 0.0,
+        "key": [
+          51,
+          418,
+          0
+        ]
+      },
+      {
+        "text": "from Memocard",
+        "value": 1.0,
+        "key": [
+          51,
+          418,
+          1
+        ]
+      },
+      {
+        "text": "from network drive",
+        "value": 2.0,
+        "key": [
+          51,
+          418,
+          2
+        ]
+      }
+    ],
+    "419": [
+      {
+        "text": "delete file",
+        "value": 1.0,
+        "key": [
+          51,
+          419,
+          1
+        ]
+      },
+      {
+        "text": "keep file",
+        "value": 0.0,
+        "key": [
+          51,
+          419,
+          0
+        ]
+      }
+    ],
+    "425": [
+      {
+        "text": "not active",
+        "value": 0.0,
+        "key": [
+          51,
+          425,
+          0
+        ]
+      },
+      {
+        "text": "jump all fcts",
+        "value": 2.0,
+        "key": [
+          51,
+          425,
+          2
+        ]
+      },
+      {
+        "text": "jump synchron fcts",
+        "value": 1.0,
+        "key": [
+          51,
+          425,
+          1
+        ]
+      }
+    ],
+    "420": [
+      {
+        "text": "not active",
+        "value": 0.0,
+        "key": [
+          51,
+          420,
+          0
+        ]
+      },
+      {
+        "text": "COM 1",
+        "value": 1.0,
+        "key": [
+          51,
+          420,
+          1
+        ]
+      },
+      {
+        "text": "COM 2",
+        "value": 2.0,
+        "key": [
+          51,
+          420,
+          2
+        ]
+      }
+    ],
+    "429": [
+      {
+        "text": "change parameter",
+        "value": 0.0,
+        "key": [
+          51,
+          429,
+          0
+        ]
+      },
+      {
+        "text": "don't change param.",
+        "value": 1.0,
+        "key": [
+          51,
+          429,
+          1
+        ]
+      }
+    ],
+    "430": [
+      {
+        "text": "not activated",
+        "value": 0.0,
+        "key": [
+          51,
+          430,
+          0
+        ]
+      },
+      {
+        "text": "active with MLG file",
+        "value": 1.0,
+        "key": [
+          51,
+          430,
+          1
+        ]
+      },
+      {
+        "text": "active with .T files",
+        "value": 2.0,
+        "key": [
+          51,
+          430,
+          2
+        ]
+      },
+      {
+        "text": "without status files",
+        "value": 3.0,
+        "key": [
+          51,
+          430,
+          3
+        ]
+      }
+    ],
+    "431": [
+      {
+        "text": "online diagram",
+        "value": 0.0,
+        "key": [
+          51,
+          431,
+          0
+        ]
+      },
+      {
+        "text": "batch info",
+        "value": 1.0,
+        "key": [
+          51,
+          431,
+          1
+        ]
+      },
+      {
+        "text": "diagram+batch info",
+        "value": 2.0,
+        "key": [
+          51,
+          431,
+          2
+        ]
+      }
+    ],
+    "434": [
+      {
+        "text": "local program(SECOM)",
+        "value": 0.0,
+        "key": [
+          51,
+          434,
+          0
+        ]
+      },
+      {
+        "text": "network program",
+        "value": 1.0,
+        "key": [
+          51,
+          434,
+          1
+        ]
+      },
+      {
+        "text": "callOff file network",
+        "value": 2.0,
+        "key": [
+          51,
+          434,
+          2
+        ]
+      },
+      {
+        "text": "reserved",
+        "value": 3.0,
+        "key": [
+          51,
+          434,
+          3
+        ]
+      },
+      {
+        "text": "reserved",
+        "value": 4.0,
+        "key": [
+          51,
+          434,
+          4
+        ]
+      },
+      {
+        "text": "set mode by PLC",
+        "value": 5.0,
+        "key": [
+          51,
+          434,
+          5
+        ]
+      }
+    ],
+    "438": [
+      {
+        "text": "Select addition",
+        "value": 0.0,
+        "key": [
+          51,
+          438,
+          0
+        ]
+      },
+      {
+        "text": "Program list",
+        "value": 1.0,
+        "key": [
+          51,
+          438,
+          1
+        ]
+      },
+      {
+        "text": "Intervention Potis",
+        "value": 2.0,
+        "key": [
+          51,
+          438,
+          2
+        ]
+      }
+    ],
+    "443": [
+      {
+        "text": "run time",
+        "value": 0.0,
+        "key": [
+          51,
+          443,
+          0
+        ]
+      },
+      {
+        "text": "run & set time",
+        "value": 1.0,
+        "key": [
+          51,
+          443,
+          1
+        ]
+      }
+    ],
+    "447": [
+      {
+        "text": "next step",
+        "value": 1.0,
+        "key": [
+          51,
+          447,
+          1
+        ]
+      },
+      {
+        "text": "Proc.pict./time info",
+        "value": 0.0,
+        "key": [
+          51,
+          447,
+          0
+        ]
+      }
+    ],
+    "446": [
+      {
+        "text": "not from PLC",
+        "value": 0.0,
+        "key": [
+          51,
+          446,
+          0
+        ]
+      },
+      {
+        "text": "only in process pict",
+        "value": 1.0,
+        "key": [
+          51,
+          446,
+          1
+        ]
+      },
+      {
+        "text": "also in Standardmenu",
+        "value": 2.0,
+        "key": [
+          51,
+          446,
+          2
+        ]
+      }
+    ],
+    "451": [
+      {
+        "text": "not active",
+        "value": 0.0,
+        "key": [
+          51,
+          451,
+          0
+        ]
+      },
+      {
+        "text": "active - User",
+        "value": 1.0,
+        "key": [
+          51,
+          451,
+          1
+        ]
+      },
+      {
+        "text": "active - Alarms",
+        "value": 2.0,
+        "key": [
+          51,
+          451,
+          2
+        ]
+      }
+    ],
+    "460": [
+      {
+        "text": "default (1 user)",
+        "value": 0.0,
+        "key": [
+          51,
+          460,
+          0
+        ]
+      },
+      {
+        "text": "several user",
+        "value": 1.0,
+        "key": [
+          51,
+          460,
+          1
+        ]
+      },
+      {
+        "text": "OrgaTEX user",
+        "value": 2.0,
+        "key": [
+          51,
+          460,
+          2
+        ]
+      }
+    ],
+    "462": [
+      {
+        "text": "not active",
+        "value": 0.0,
+        "key": [
+          51,
+          462,
+          0
+        ]
+      },
+      {
+        "text": "with RFID reader",
+        "value": 1.0,
+        "key": [
+          51,
+          462,
+          1
+        ]
+      },
+      {
+        "text": "with barcode reader",
+        "value": 2.0,
+        "key": [
+          51,
+          462,
+          2
+        ]
+      }
+    ],
+    "466": [
+      {
+        "text": "DDMMYY",
+        "value": 0.0,
+        "key": [
+          51,
+          466,
+          0
+        ]
+      },
+      {
+        "text": "MMDDYY",
+        "value": 1.0,
+        "key": [
+          51,
+          466,
+          1
+        ]
+      }
+    ],
+    "467": [
+      {
+        "text": "send changed values",
+        "value": 0.0,
+        "key": [
+          51,
+          467,
+          0
+        ]
+      },
+      {
+        "text": "keep changed values",
+        "value": 1.0,
+        "key": [
+          51,
+          467,
+          1
+        ]
+      }
+    ],
+    "470": [
+      {
+        "text": "not selected",
+        "value": 0.0,
+        "key": [
+          51,
+          470,
+          0
+        ]
+      },
+      {
+        "text": "Slot plc SC515",
+        "value": 3.0,
+        "key": [
+          51,
+          470,
+          3
+        ]
+      },
+      {
+        "text": "Logimat P160",
+        "value": 1.0,
+        "key": [
+          51,
+          470,
+          1
+        ]
+      },
+      {
+        "text": "Logimat P32",
+        "value": 2.0,
+        "key": [
+          51,
+          470,
+          2
+        ]
+      },
+      {
+        "text": "Slot plc SC505",
+        "value": 4.0,
+        "key": [
+          51,
+          470,
+          4
+        ]
+      },
+      {
+        "text": "Compact CP8",
+        "value": 5.0,
+        "key": [
+          51,
+          470,
+          5
+        ]
+      },
+      {
+        "text": "Compact CP16",
+        "value": 6.0,
+        "key": [
+          51,
+          470,
+          6
+        ]
+      },
+      {
+        "text": "Slot plc SC16",
+        "value": 7.0,
+        "key": [
+          51,
+          470,
+          7
+        ]
+      },
+      {
+        "text": "Compact CP14",
+        "value": 8.0,
+        "key": [
+          51,
+          470,
+          8
+        ]
+      },
+      {
+        "text": "Plc SC535",
+        "value": 9.0,
+        "key": [
+          51,
+          470,
+          9
+        ]
+      },
+      {
+        "text": "Plc with Logimat prt",
+        "value": 10.0,
+        "key": [
+          51,
+          470,
+          10
+        ]
+      },
+      {
+        "text": "reserved",
+        "value": 11.0,
+        "key": [
+          51,
+          470,
+          11
+        ]
+      },
+      {
+        "text": "reserved",
+        "value": 12.0,
+        "key": [
+          51,
+          470,
+          12
+        ]
+      },
+      {
+        "text": "reserved",
+        "value": 13.0,
+        "key": [
+          51,
+          470,
+          13
+        ]
+      },
+      {
+        "text": "reserved",
+        "value": 14.0,
+        "key": [
+          51,
+          470,
+          14
+        ]
+      },
+      {
+        "text": "Slot plc SC18D",
+        "value": 15.0,
+        "key": [
+          51,
+          470,
+          15
+        ]
+      },
+      {
+        "text": "Slot plc SC18C",
+        "value": 16.0,
+        "key": [
+          51,
+          470,
+          16
+        ]
+      },
+      {
+        "text": "Slot plc SC20D",
+        "value": 17.0,
+        "key": [
+          51,
+          470,
+          17
+        ]
+      },
+      {
+        "text": "Slot plc SC20C",
+        "value": 18.0,
+        "key": [
+          51,
+          470,
+          18
+        ]
+      }
+    ],
+    "472": [
+      {
+        "text": "compatible mode",
+        "value": 0.0,
+        "key": [
+          51,
+          472,
+          0
+        ]
+      },
+      {
+        "text": "new request filename",
+        "value": 1.0,
+        "key": [
+          51,
+          472,
+          1
+        ]
+      }
+    ],
+    "474": [
+      {
+        "text": "enabled",
+        "value": 0.0,
+        "key": [
+          51,
+          474,
+          0
+        ]
+      },
+      {
+        "text": "disabled",
+        "value": 1.0,
+        "key": [
+          51,
+          474,
+          1
+        ]
+      },
+      {
+        "text": "enabled & logging",
+        "value": 2.0,
+        "key": [
+          51,
+          474,
+          2
+        ]
+      }
+    ],
+    "475": [
+      {
+        "text": "V1 - one slave state",
+        "value": 0.0,
+        "key": [
+          51,
+          475,
+          0
+        ]
+      },
+      {
+        "text": "V2 - more states",
+        "value": 1.0,
+        "key": [
+          51,
+          475,
+          1
+        ]
+      }
+    ],
+    "480": [
+      {
+        "text": "active, max.1 reason",
+        "value": 1.0,
+        "key": [
+          51,
+          480,
+          1
+        ]
+      },
+      {
+        "text": "not active",
+        "value": 0.0,
+        "key": [
+          51,
+          480,
+          0
+        ]
+      },
+      {
+        "text": "active, several",
+        "value": 2.0,
+        "key": [
+          51,
+          480,
+          2
+        ]
+      }
+    ],
+    "492": [
+      {
+        "text": "all machines",
+        "value": 0.0,
+        "key": [
+          51,
+          492,
+          0
+        ]
+      },
+      {
+        "text": "selected machine",
+        "value": 1.0,
+        "key": [
+          51,
+          492,
+          1
+        ]
+      }
+    ],
+    "510": [
+      {
+        "text": "every time",
+        "value": 0.0,
+        "key": [
+          51,
+          510,
+          0
+        ]
+      },
+      {
+        "text": "on request",
+        "value": 2.0,
+        "key": [
+          51,
+          510,
+          2
+        ]
+      },
+      {
+        "text": "never",
+        "value": 1.0,
+        "key": [
+          51,
+          510,
+          1
+        ]
+      }
+    ],
+    "520": [
+      {
+        "text": "blue",
+        "value": 1.0,
+        "key": [
+          51,
+          520,
+          1
+        ]
+      },
+      {
+        "text": "grey",
+        "value": 0.0,
+        "key": [
+          51,
+          520,
+          0
+        ]
+      }
+    ],
+    "530": [
+      {
+        "text": "don't show",
+        "value": 1.0,
+        "key": [
+          51,
+          530,
+          1
+        ]
+      },
+      {
+        "text": "show",
+        "value": 0.0,
+        "key": [
+          51,
+          530,
+          0
+        ]
+      }
+    ]
+  },
+  "cnf_sha256": "2936ceff7a238bfff4b9512ca602d9cc85f132086d279674311432f424bd9f57",
+  "source": "TYPECONF.CNF",
+  "source_policy": "Function ID & parameters strictly decoded from Config/TYPECONF.CNF (never from .AWL PLC logic).",
+  "generated_at": "2026-11-25T17:36:04.786560"
 }

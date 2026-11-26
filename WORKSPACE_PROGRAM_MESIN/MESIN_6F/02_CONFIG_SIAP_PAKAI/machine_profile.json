@@ -6,8 +6,24 @@
   "has_custom_hmi_config": false,
   "status": "baseline_ready",
   "ip_address": "172.16.120.156",
-  "last_synced_at": "2026-11-17T08:58:21.898993",
+  "last_synced_at": "2026-11-25T17:36:09.761585",
   "files_in_hmi_dir": [
-    "PETUNJUK_DOWNLOAD_DARI_HMI.txt"
-  ]
+    "PETUNJUK_DOWNLOAD_DARI_HMI.txt",
+    "USERCONF.CNF"
+  ],
+  "has_typeconf": false,
+  "has_conftext": false,
+  "has_fnlegend": false,
+  "has_userconf": true,
+  "has_machconf": false,
+  "has_awl_plc_program": false,
+  "awl_files": [],
+  "config_sources": {
+    "program_recipes": "PROGRAMS/*.PRG",
+    "function_definitions": "baseline_typeconf",
+    "function_texts_alarms": [],
+    "custom_process_labels": "Config/USERCONF.CNF",
+    "machine_parameters": null,
+    "plc_execution_logic_only": []
+  }
 }

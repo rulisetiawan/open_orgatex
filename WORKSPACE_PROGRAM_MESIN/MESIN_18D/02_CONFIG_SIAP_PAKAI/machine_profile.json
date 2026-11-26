@@ -6,9 +6,10 @@
   "has_custom_hmi_config": true,
   "status": "ready",
   "ip_address": "172.16.130.168",
-  "last_synced_at": "2026-11-24T08:18:54.199143",
+  "last_synced_at": "2026-11-25T17:36:03.788469",
   "files_in_hmi_dir": [
     "CONFTEXT.CNF",
+    "CP14.AWL",
     "FNLEGEND.CNF",
     "MACHCONF.CNF",
     "PETUNJUK_DOWNLOAD_DARI_HMI.txt",
@@ -34,5 +35,22 @@
   "awl_project_names": [
     "iS16714_plc_V4.pro"
   ],
-  "awl_sha256": "37497da27abf20e7a7fbbb248b1382bf3af8cc3f0d5fa3f21ebb4dd953bfa21a"
+  "awl_sha256": "37497da27abf20e7a7fbbb248b1382bf3af8cc3f0d5fa3f21ebb4dd953bfa21a",
+  "has_conftext": true,
+  "has_fnlegend": true,
+  "has_userconf": false,
+  "has_machconf": true,
+  "config_sources": {
+    "program_recipes": "PROGRAMS/*.PRG",
+    "function_definitions": "Config/TYPECONF.CNF",
+    "function_texts_alarms": [
+      "Config/CONFTEXT.CNF",
+      "Config/FNLEGEND.CNF"
+    ],
+    "custom_process_labels": null,
+    "machine_parameters": "Config/MACHCONF.CNF",
+    "plc_execution_logic_only": [
+      "Config/CP14.AWL"
+    ]
+  }
 }

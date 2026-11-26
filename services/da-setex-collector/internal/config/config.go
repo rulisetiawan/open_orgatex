@@ -15,10 +15,11 @@ type Config struct {
 }
 
 type CollectorConfig struct {
-	Name         string `yaml:"name"`
-	LogLevel     string `yaml:"log_level"`
-	MultiMachine bool   `yaml:"multi_machine"`
-	MaxWorkers   int    `yaml:"max_workers"`
+	Name           string   `yaml:"name"`
+	LogLevel       string   `yaml:"log_level"`
+	MultiMachine   bool     `yaml:"multi_machine"`
+	MaxWorkers     int      `yaml:"max_workers"`
+	TargetMachines []string `yaml:"target_machines"`
 }
 
 type DatabaseConfig struct {

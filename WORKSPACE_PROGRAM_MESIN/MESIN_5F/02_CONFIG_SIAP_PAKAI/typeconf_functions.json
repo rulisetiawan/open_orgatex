@@ -2,52 +2,82 @@
   "functions": {
     "1": {
       "id": 1,
-      "name_local": "\u2502\u2560\u2569\u00a2\u2510\u00ac\u2569\u255d",
+      "name_local": "│╠╩¢┐¬╩╝",
       "name": "Program Start",
       "ack": 0,
       "type": 6,
       "parameter_count": 0,
-      "parameters": []
+      "parameters": [],
+      "lines": [
+        1
+      ],
+      "groups": [
+        "System"
+      ]
     },
     "2": {
       "id": 2,
-      "name_local": "\u2502\u2560\u2569\u00a2\u00a2\u00df\u2569\u00b0",
+      "name_local": "│╠╩¢¢ß╩°",
       "name": "Program End",
       "ack": 0,
       "type": 7,
       "parameter_count": 0,
-      "parameters": []
+      "parameters": [],
+      "lines": [
+        1
+      ],
+      "groups": [
+        "System"
+      ]
     },
     "3": {
       "id": 3,
-      "name_local": "\u00e3\u00a2\u00ba\u00ba\u2563\u011e\u2500\u2584",
+      "name_local": "ã¢ºº╣Ğ─▄",
       "name": "Para. Func",
       "ack": 0,
       "type": 0,
       "parameter_count": 0,
-      "parameters": []
+      "parameters": [],
+      "lines": [
+        1
+      ],
+      "groups": [
+        "System"
+      ]
     },
     "4": {
       "id": 4,
-      "name_local": "\u00ce\u00c0\u255d\u00cb\u2510\u00ac\u2569\u255d",
+      "name_local": "ÎÀ╝Ë┐¬╩╝",
       "name": "Addition Start",
       "ack": 0,
       "type": 8,
       "parameter_count": 0,
-      "parameters": []
+      "parameters": [],
+      "lines": [
+        1
+      ],
+      "groups": [
+        "System"
+      ]
     },
     "5": {
       "id": 5,
-      "name_local": "\u00ce\u00c0\u255d\u00cb\u00a2\u00df\u2569\u00b0",
+      "name_local": "ÎÀ╝Ë¢ß╩°",
       "name": "Addition End",
       "ack": 0,
       "type": 9,
       "parameter_count": 0,
-      "parameters": []
+      "parameters": [],
+      "lines": [
+        1
+      ],
+      "groups": [
+        "System"
+      ]
     },
     "121": {
       "id": 121,
-      "name_local": "\u2551\u00b6\u00a2\u00ba\u255a\u00d9\u2593\u255d",
+      "name_local": "║¶¢º╚Ù▓╝",
       "name": "Load",
       "ack": 0,
       "type": 5,
@@ -64,11 +94,13 @@
           "attribute": 0,
           "reserved": 0
         }
-      ]
+      ],
+      "lines": [],
+      "groups": []
     },
     "122": {
       "id": 122,
-      "name_local": "\u2551\u00b6\u00a2\u00ba\u2502\u00f7\u2593\u255d",
+      "name_local": "║¶¢º│÷▓╝",
       "name": "Unload",
       "ack": 0,
       "type": 5,
@@ -85,11 +117,17 @@
           "attribute": 0,
           "reserved": 0
         }
+      ],
+      "lines": [
+        1
+      ],
+      "groups": [
+        "Operator Call"
       ]
     },
     "135": {
       "id": 135,
-      "name_local": "\u2551\u00b6\u00a2\u00ba\u00cd\u00b7\u255d\u2534",
+      "name_local": "║¶¢ºÍ·╝┴",
       "name": "Chemicals",
       "ack": 0,
       "type": 5,
@@ -106,11 +144,17 @@
           "attribute": 0,
           "reserved": 0
         }
+      ],
+      "lines": [
+        1
+      ],
+      "groups": [
+        "Operator Call"
       ]
     },
     "134": {
       "id": 134,
-      "name_local": "\u2551\u00b6\u00a2\u00ba\u255a\u00a5\u2534\u00a4",
+      "name_local": "║¶¢º╚¥┴¤",
       "name": "Colour",
       "ack": 0,
       "type": 5,
@@ -127,11 +171,17 @@
           "attribute": 0,
           "reserved": 0
         }
+      ],
+      "lines": [
+        1
+      ],
+      "groups": [
+        "Operator Call"
       ]
     },
     "138": {
       "id": 138,
-      "name_local": "\u2551\u00b6\u00a2\u00ba\u255a\u00ed\u00aa\u00a8",
+      "name_local": "║¶¢º╚íª¨",
       "name": "Sample",
       "ack": 0,
       "type": 2,
@@ -148,11 +198,17 @@
           "attribute": 0,
           "reserved": 0
         }
+      ],
+      "lines": [
+        1
+      ],
+      "groups": [
+        "Operator Call"
       ]
     },
     "702": {
       "id": 702,
-      "name_local": "\u255d\u00e3\u2534\u2510\u255a\u00d9\u2566\u00ab",
+      "name_local": "╝ã┴┐╚Ù╦«",
       "name": "Pre.DT Qty.",
       "ack": 0,
       "type": 0,
@@ -180,11 +236,17 @@
           "attribute": 0,
           "reserved": 0
         }
+      ],
+      "lines": [
+        1
+      ],
+      "groups": [
+        "Fill"
       ]
     },
     "703": {
       "id": 703,
-      "name_local": "\u2500\u00fa\u2500\u00d4\u255a\u00d9\u2566\u00ab",
+      "name_local": "─ú─Ô╚Ù╦«",
       "name": "Inject AT1",
       "ack": 0,
       "type": 0,
@@ -212,20 +274,32 @@
           "attribute": 0,
           "reserved": 0
         }
+      ],
+      "lines": [
+        1
+      ],
+      "groups": [
+        "Fill"
       ]
     },
     "705": {
       "id": 705,
-      "name_local": "\u255d\u00c3\u00ca\u00f5\u2566\u00ab\u256c\u2557",
+      "name_local": "╝ÃÊõ╦«╬╗",
       "name": "OverFlow Drn TM",
       "ack": 0,
       "type": 0,
       "parameter_count": 0,
-      "parameters": []
+      "parameters": [],
+      "lines": [
+        1
+      ],
+      "groups": [
+        "Fill"
+      ]
     },
     "706": {
       "id": 706,
-      "name_local": "\u255d\u00c3\u00ca\u00f5\u2566\u00ab\u256c\u2557\u255a\u00d9\u2566\u00ab",
+      "name_local": "╝ÃÊõ╦«╬╗╚Ù╦«",
       "name": "All drain Rinse Int.",
       "ack": 0,
       "type": 0,
@@ -242,11 +316,17 @@
           "attribute": 0,
           "reserved": 0
         }
+      ],
+      "lines": [
+        1
+      ],
+      "groups": [
+        "Fill"
       ]
     },
     "710": {
       "id": 710,
-      "name_local": "\u2566\u00ab\u256c\u2557\u253c\u253c\u2566\u00ab",
+      "name_local": "╦«╬╗┼┼╦«",
       "name": "Cycle feed AT2",
       "ack": 0,
       "type": 0,
@@ -285,11 +365,17 @@
           "attribute": 0,
           "reserved": 0
         }
+      ],
+      "lines": [
+        1
+      ],
+      "groups": [
+        "Drain"
       ]
     },
     "720": {
       "id": 720,
-      "name_local": "\u2502\u00bc\u255d\u00c2\u2566\u00ab\u00a4\u2524",
+      "name_local": "│¼╝Â╦«¤┤",
       "name": "Rinse Q'ty",
       "ack": 0,
       "type": 0,
@@ -328,11 +414,13 @@
           "attribute": 0,
           "reserved": 0
         }
-      ]
+      ],
+      "lines": [],
+      "groups": []
     },
     "722": {
       "id": 722,
-      "name_local": "\u2524\u256c\u2569\u00b2\u2566\u00ab\u00a4\u2524",
+      "name_local": "┤╬╩²╦«¤┤",
       "name": "Fill Quantity",
       "ack": 0,
       "type": 0,
@@ -404,11 +492,17 @@
           "attribute": 0,
           "reserved": 0
         }
+      ],
+      "lines": [
+        1
+      ],
+      "groups": [
+        "Rinse"
       ]
     },
     "723": {
       "id": 723,
-      "name_local": "\u00cd\u00c3\u2500\u2584\u2566\u00ab\u00a4\u2524",
+      "name_local": "ÍÃ─▄╦«¤┤",
       "name": "Rinse intelligent",
       "ack": 0,
       "type": 0,
@@ -458,11 +552,13 @@
           "attribute": 0,
           "reserved": 0
         }
-      ]
+      ],
+      "lines": [],
+      "groups": []
     },
     "725": {
       "id": 725,
-      "name_local": "\u255d\u00e3\u2534\u2510\u2566\u00ab\u00a4\u2524",
+      "name_local": "╝ã┴┐╦«¤┤",
       "name": "H.T. Rinse",
       "ack": 0,
       "type": 0,
@@ -523,11 +619,17 @@
           "attribute": 0,
           "reserved": 0
         }
+      ],
+      "lines": [
+        1
+      ],
+      "groups": [
+        "Rinse"
       ]
     },
     "732": {
       "id": 732,
-      "name_local": "\u2534\u00a4\u00a9\u00ce1\u00aa\u00a1\u2557\u00c0\u255d\u00cb\u00aa\u256c",
+      "name_local": "┴¤©Î1ª¡╗À╝Ëª╬",
       "name": "Inject Salt AT1",
       "ack": 0,
       "type": 0,
@@ -588,11 +690,17 @@
           "attribute": 0,
           "reserved": 0
         }
+      ],
+      "lines": [
+        1
+      ],
+      "groups": [
+        "AuxInj"
       ]
     },
     "733": {
       "id": 733,
-      "name_local": "\u2534\u00a4\u00a9\u00ce1\u2592\u255a\u2514\u00b2\u255d\u00cb\u2534\u00a4",
+      "name_local": "┴¤©Î1▒╚└²╝Ë┴¤",
       "name": "Dosing AT1",
       "ack": 0,
       "type": 0,
@@ -664,11 +772,17 @@
           "attribute": 0,
           "reserved": 0
         }
+      ],
+      "lines": [
+        1
+      ],
+      "groups": [
+        "AuxInj"
       ]
     },
     "734": {
       "id": 734,
-      "name_local": "\u2557\u00ec\u2534\u00a4\u00a2\u2534\u2591\u00d7-\u2534\u00a4\u00a9\u00ce1",
+      "name_local": "╗ì┴¤¢┴░×-┴¤©Î1",
       "name": "Mixing AT1",
       "ack": 3,
       "type": 0,
@@ -685,11 +799,17 @@
           "attribute": 0,
           "reserved": 0
         }
+      ],
+      "lines": [
+        3
+      ],
+      "groups": [
+        "Addition Tank 1"
       ]
     },
     "735": {
       "id": 735,
-      "name_local": "\u00a2\u2534\u2591\u00d7\u2557\u00b7\u00a2\u2534\u2591\u00d7-\u2534\u00a4\u00a9\u00ce1",
+      "name_local": "¢┴░×╗·¢┴░×-┴¤©Î1",
       "name": "Stirrer AT1",
       "ack": 3,
       "type": 0,
@@ -706,11 +826,17 @@
           "attribute": 0,
           "reserved": 0
         }
+      ],
+      "lines": [
+        3
+      ],
+      "groups": [
+        "Addition Tank 1"
       ]
     },
     "741": {
       "id": 741,
-      "name_local": "\u2534\u00a4\u00a9\u00ce2\u00cd\u2592\u00a2\u00cb\u255d\u00cb\u2534\u00a4",
+      "name_local": "┴¤©Î2Í▒¢Ë╝Ë┴¤",
       "name": "Inject AT2",
       "ack": 0,
       "type": 0,
@@ -760,11 +886,17 @@
           "attribute": 0,
           "reserved": 0
         }
+      ],
+      "lines": [
+        1
+      ],
+      "groups": [
+        "AT2"
       ]
     },
     "742": {
       "id": 742,
-      "name_local": "\u2534\u00a4\u00a9\u00ce2\u00aa\u00a1\u2557\u00c0\u255d\u00cb\u00aa\u256c",
+      "name_local": "┴¤©Î2ª¡╗À╝Ëª╬",
       "name": "Inject Salt AT2",
       "ack": 0,
       "type": 0,
@@ -825,11 +957,17 @@
           "attribute": 0,
           "reserved": 0
         }
+      ],
+      "lines": [
+        1
+      ],
+      "groups": [
+        "AT2"
       ]
     },
     "743": {
       "id": 743,
-      "name_local": "\u2534\u00a4\u00a9\u00ce2\u00c2\u00bf\u2534\u2510\u255d\u00cb\u2534\u00a4",
+      "name_local": "┴¤©Î2Â¿┴┐╝Ë┴¤",
       "name": "Dosing AT2",
       "ack": 0,
       "type": 0,
@@ -901,11 +1039,17 @@
           "attribute": 0,
           "reserved": 0
         }
+      ],
+      "lines": [
+        1
+      ],
+      "groups": [
+        "AT2"
       ]
     },
     "744": {
       "id": 744,
-      "name_local": "\u2557\u00ec\u2534\u00a4\u00a2\u2534\u2591\u00d7-\u2534\u00a4\u00a9\u00ce2",
+      "name_local": "╗ì┴¤¢┴░×-┴¤©Î2",
       "name": "Mixing AT2",
       "ack": 3,
       "type": 0,
@@ -922,11 +1066,17 @@
           "attribute": 0,
           "reserved": 0
         }
+      ],
+      "lines": [
+        4
+      ],
+      "groups": [
+        "Addition Tank 2"
       ]
     },
     "745": {
       "id": 745,
-      "name_local": "\u00a2\u2534\u2591\u00d7\u2557\u00b7\u00a2\u2534\u2591\u00d7-\u2534\u00a4\u00a9\u00ce2",
+      "name_local": "¢┴░×╗·¢┴░×-┴¤©Î2",
       "name": "Stirrer AT2",
       "ack": 3,
       "type": 0,
@@ -943,20 +1093,32 @@
           "attribute": 0,
           "reserved": 0
         }
+      ],
+      "lines": [
+        4
+      ],
+      "groups": [
+        "Addition Tank 2"
       ]
     },
     "746": {
       "id": 746,
-      "name_local": "\u253c\u253c\u2566\u00ab-\u2534\u00a4\u00a9\u00ce2",
+      "name_local": "┼┼╦«-┴¤©Î2",
       "name": "Cool to safety",
       "ack": 3,
       "type": 0,
       "parameter_count": 0,
-      "parameters": []
+      "parameters": [],
+      "lines": [
+        4
+      ],
+      "groups": [
+        "Addition Tank 2"
+      ]
     },
     "750": {
       "id": 750,
-      "name_local": "ST\u255a\u00d9\u2566\u00ab-\u2554\u00b2\u256c\u252c",
+      "name_local": "ST╚Ù╦«-╔²╬┬",
       "name": "ST Fill-Heat",
       "ack": 3,
       "type": 0,
@@ -984,11 +1146,13 @@
           "attribute": 0,
           "reserved": 0
         }
-      ]
+      ],
+      "lines": [],
+      "groups": []
     },
     "752": {
       "id": 752,
-      "name_local": "\u00c8\u00f1\u255a\u255a\u255d\u00e3\u2569\u2592\u2566\u00ab\u00a4\u2524",
+      "name_local": "Èñ╚╚╝ã╩▒╦«¤┤",
       "name": "pH Ctrl(Light Acid)",
       "ack": 0,
       "type": 0,
@@ -1027,11 +1191,13 @@
           "attribute": 0,
           "reserved": 0
         }
-      ]
+      ],
+      "lines": [],
+      "groups": []
     },
     "753": {
       "id": 753,
-      "name_local": "\u00c8\u00f1\u255a\u255a\u2524\u256c\u2569\u00b2\u2566\u00ab\u00a4\u2524",
+      "name_local": "Èñ╚╚┤╬╩²╦«¤┤",
       "name": "Heat Rinse Inverval",
       "ack": 0,
       "type": 0,
@@ -1081,11 +1247,13 @@
           "attribute": 0,
           "reserved": 0
         }
-      ]
+      ],
+      "lines": [],
+      "groups": []
     },
     "754": {
       "id": 754,
-      "name_local": "\u00c8\u00f1\u255a\u255a\u255d\u00e3\u2593\u255d\u00cd\u2584\u00e3\u250c\u2569\u00b2\u2566\u00ab\u00a4\u2524",
+      "name_local": "Èñ╚╚╝ã▓╝Í▄ã┌╩²╦«¤┤",
       "name": "HeatRineFabricCycles",
       "ack": 0,
       "type": 0,
@@ -1124,11 +1292,13 @@
           "attribute": 0,
           "reserved": 0
         }
-      ]
+      ],
+      "lines": [],
+      "groups": []
     },
     "780": {
       "id": 780,
-      "name_local": "\u2551\u00b6\u00a2\u00ba\u2569\u00cd\u00c2\u00bb\u255d\u00cb\u00aa\u256c",
+      "name_local": "║¶¢º╩ÍÂ»╝Ëª╬",
       "name": "Call Manual Salt",
       "ack": 0,
       "type": 5,
@@ -1145,11 +1315,13 @@
           "attribute": 0,
           "reserved": 0
         }
-      ]
+      ],
+      "lines": [],
+      "groups": []
     },
     "782": {
       "id": 782,
-      "name_local": "\u2551\u00b6\u00a2\u00ba\u255d\u00ec\u2593\u00daPH\u00cd\u00c1!",
+      "name_local": "║¶¢º╝ì▓ÚPHÍÁ!",
       "name": "Check pH",
       "ack": 0,
       "type": 2,
@@ -1177,11 +1349,17 @@
           "attribute": 0,
           "reserved": 0
         }
+      ],
+      "lines": [
+        1
+      ],
+      "groups": [
+        "Operator Call"
       ]
     },
     "783": {
       "id": 783,
-      "name_local": "\u2551\u00b6\u00a2\u00ba\u00c3\u00d5\u00a4\u2524\u2563\u00b2\u252c\u2566\u00e3\u00b8",
+      "name_local": "║¶¢ºÃÕ¤┤╣²┬╦ã¸",
       "name": "Check Filter",
       "ack": 0,
       "type": 5,
@@ -1198,11 +1376,13 @@
           "attribute": 0,
           "reserved": 0
         }
-      ]
+      ],
+      "lines": [],
+      "groups": []
     },
     "800": {
       "id": 800,
-      "name_local": "\u00c3\u00d5\u00a4\u2524\u00cd\u00b8\u00a9\u00ce",
+      "name_local": "ÃÕ¤┤Í¸©Î",
       "name": "Spray VSP3/Bypass",
       "ack": 3,
       "type": 0,
@@ -1219,11 +1399,13 @@
           "attribute": 0,
           "reserved": 0
         }
-      ]
+      ],
+      "lines": [],
+      "groups": []
     },
     "810": {
       "id": 810,
-      "name_local": "\u00ba\u00ba\u2557\u00b7\u2569\u2592\u255d\u00f5",
+      "name_local": "ºº╗·╩▒╝õ",
       "name": "Run time",
       "ack": 0,
       "type": 0,
@@ -1251,11 +1433,13 @@
           "attribute": 0,
           "reserved": 0
         }
-      ]
+      ],
+      "lines": [],
+      "groups": []
     },
     "760": {
       "id": 760,
-      "name_local": "\u00c0\ufffd\u2557\u00b7",
+      "name_local": "À�╗·",
       "name": "Blower",
       "ack": 1,
       "type": 0,
@@ -1316,11 +1500,17 @@
           "attribute": 0,
           "reserved": 0
         }
+      ],
+      "lines": [
+        2
+      ],
+      "groups": [
+        "Speed setting"
       ]
     },
     "711": {
       "id": 711,
-      "name_local": "\u00a9\u2580\u256c\u252c\u253c\u253c\u2566\u00ab",
+      "name_local": "©▀╬┬┼┼╦«",
       "name": "Inject AT2",
       "ack": 0,
       "type": 0,
@@ -1337,11 +1527,17 @@
           "attribute": 0,
           "reserved": 0
         }
+      ],
+      "lines": [
+        1
+      ],
+      "groups": [
+        "Drain"
       ]
     },
     "784": {
       "id": 784,
-      "name_local": "\u2551\u00b6\u00a2\u00ba\u255a\u00d9\u2593\u255d-\u256c\u252c\u2510\u00cf",
+      "name_local": "║¶¢º╚Ù▓╝-╬┬┐Ï",
       "name": "Load-Temp.Control",
       "ack": 0,
       "type": 5,
@@ -1380,11 +1576,17 @@
           "attribute": 0,
           "reserved": 0
         }
+      ],
+      "lines": [
+        1
+      ],
+      "groups": [
+        "Operator Call"
       ]
     },
     "811": {
       "id": 811,
-      "name_local": "\u256c\u252c\u00c2\u255a\u2510\u00cf\u00cd\u00e3",
+      "name_local": "╬┬Â╚┐ÏÍã",
       "name": "Temperature Control",
       "ack": 0,
       "type": 0,
@@ -1434,11 +1636,13 @@
           "attribute": 0,
           "reserved": 0
         }
-      ]
+      ],
+      "lines": [],
+      "groups": []
     },
     "737": {
       "id": 737,
-      "name_local": "\u2534\u00a4\u00a9\u00ce1\u2510\u00ec\u255d\u00cb\u2534\u00a4",
+      "name_local": "┴¤©Î1┐ì╝Ë┴¤",
       "name": "Inj AT1",
       "ack": 0,
       "type": 0,
@@ -1488,11 +1692,17 @@
           "attribute": 0,
           "reserved": 0
         }
+      ],
+      "lines": [
+        1
+      ],
+      "groups": [
+        "AuxInj"
       ]
     },
     "141": {
       "id": 141,
-      "name_local": "\u00cd\u00b8\u00a9\u00ce\u256c\u252c\u2510\u00cf",
+      "name_local": "Í¸©Î╬┬┐Ï",
       "name": "Keep Temperature",
       "ack": 0,
       "type": 0,
@@ -1531,11 +1741,17 @@
           "attribute": 0,
           "reserved": 0
         }
+      ],
+      "lines": [
+        1
+      ],
+      "groups": [
+        "Dyeing"
       ]
     },
     "882": {
       "id": 882,
-      "name_local": "\u00a9\u2592\u00a9\u00ce--\u00ed\u00c1\u00cd\u00b8\u00a9\u00ce",
+      "name_local": "©▒©Î--íÁÍ¸©Î",
       "name": "ST1 --> MC",
       "ack": 0,
       "type": 0,
@@ -1563,11 +1779,17 @@
           "attribute": 0,
           "reserved": 0
         }
+      ],
+      "lines": [
+        1
+      ],
+      "groups": [
+        "Fill"
       ]
     },
     "731": {
       "id": 731,
-      "name_local": "\u2592\u255a\u2514\u00b2\u255d\u00cb\u2534\u00a4-\u2534\u00a4\u00a9\u00ce1/2",
+      "name_local": "▒╚└²╝Ë┴¤-┴¤©Î1/2",
       "name": "Inject AT1/2",
       "ack": 4,
       "type": 0,
@@ -1617,11 +1839,13 @@
           "attribute": 0,
           "reserved": 0
         }
-      ]
+      ],
+      "lines": [],
+      "groups": []
     },
     "726": {
       "id": 726,
-      "name_local": "\u255d\u00e3\u2569\u2592/\u255a\u011e\u2569\u00b2\u2566\u00ab\u00a4\u2524",
+      "name_local": "╝ã╩▒/╚Ğ╩²╦«¤┤",
       "name": "Direct Cooling Rinse",
       "ack": 0,
       "type": 0,
@@ -1693,11 +1917,17 @@
           "attribute": 0,
           "reserved": 0
         }
+      ],
+      "lines": [
+        1
+      ],
+      "groups": [
+        "Rinse"
       ]
     },
     "761": {
       "id": 761,
-      "name_local": "\u2560\u00df\u2593\u255d\u252c\u00cd1",
+      "name_local": "╠ß▓╝┬Í1",
       "name": "Winch speed1",
       "ack": 1,
       "type": 0,
@@ -1769,11 +1999,17 @@
           "attribute": 0,
           "reserved": 0
         }
+      ],
+      "lines": [
+        5
+      ],
+      "groups": [
+        "Winch"
       ]
     },
     "770": {
       "id": 770,
-      "name_local": "\u2557\u00bf\u255a\u00b8",
+      "name_local": "╗¿╚¸",
       "name": "Spary",
       "ack": 1,
       "type": 0,
@@ -1790,11 +2026,17 @@
           "attribute": 0,
           "reserved": 0
         }
+      ],
+      "lines": [
+        6
+      ],
+      "groups": [
+        "spary"
       ]
     },
     "771": {
       "id": 771,
-      "name_local": "\u2560\u00df\u2593\u255d\u252c\u00cd2",
+      "name_local": "╠ß▓╝┬Í2",
       "name": "Winch speed",
       "ack": 1,
       "type": 0,
@@ -1822,20 +2064,32 @@
           "attribute": 0,
           "reserved": 0
         }
+      ],
+      "lines": [
+        7
+      ],
+      "groups": [
+        "AT1 Operation"
       ]
     },
     "736": {
       "id": 736,
-      "name_local": "\u253c\u253c\u2566\u00ab-\u2534\u00a4\u00a9\u00ce1",
+      "name_local": "┼┼╦«-┴¤©Î1",
       "name": "Drain AT1",
       "ack": 3,
       "type": 0,
       "parameter_count": 0,
-      "parameters": []
+      "parameters": [],
+      "lines": [
+        3
+      ],
+      "groups": [
+        "Addition Tank 1"
+      ]
     },
     "666": {
       "id": 666,
-      "name_local": "\u2534\u00a4\u00a9\u00ce2 \u2551\u00b6\u00a2\u00ba\u252c\u00f5\u2557\u00bb\u2534\u00a4",
+      "name_local": "┴¤©Î2 ║¶¢º┬õ╗»┴¤",
       "name": "Call Prep.AT2",
       "ack": 3,
       "type": 14,
@@ -1907,11 +2161,17 @@
           "attribute": 0,
           "reserved": 0
         }
+      ],
+      "lines": [
+        4
+      ],
+      "groups": [
+        "Addition Tank 2"
       ]
     },
     "516": {
       "id": 516,
-      "name_local": "\u2534\u00a4\u00a9\u00ce1 \u00ce\u255d\u2592\u00a9OK",
+      "name_local": "┴¤©Î1 Î╝▒©OK",
       "name": "Prep. AT1 ->MC ok",
       "ack": 3,
       "type": 0,
@@ -1928,11 +2188,17 @@
           "attribute": 0,
           "reserved": 0
         }
+      ],
+      "lines": [
+        3
+      ],
+      "groups": [
+        "Addition Tank 1"
       ]
     },
     "536": {
       "id": 536,
-      "name_local": "\u2534\u00a4\u00a9\u00ce2 \u00ce\u255d\u2592\u00a9OK",
+      "name_local": "┴¤©Î2 Î╝▒©OK",
       "name": "Prep. AT2 ->Mc ok",
       "ack": 3,
       "type": 0,
@@ -1949,11 +2215,17 @@
           "attribute": 0,
           "reserved": 0
         }
+      ],
+      "lines": [
+        4
+      ],
+      "groups": [
+        "Addition Tank 2"
       ]
     },
     "756": {
       "id": 756,
-      "name_local": "\u2534\u00a4\u00a9\u00ce1 \u2551\u00b6\u00a2\u00ba\u252c\u00f5\u2557\u00bb\u2534\u00a4",
+      "name_local": "┴¤©Î1 ║¶¢º┬õ╗»┴¤",
       "name": "Call Prep.AT1",
       "ack": 3,
       "type": 14,
@@ -2025,20 +2297,28 @@
           "attribute": 0,
           "reserved": 0
         }
+      ],
+      "lines": [
+        3
+      ],
+      "groups": [
+        "Addition Tank 1"
       ]
     },
     "514": {
       "id": 514,
-      "name_local": "\u2534\u00a4\u00a9\u00ce1 \u00c3\u00d5\u00a4\u2524",
+      "name_local": "┴¤©Î1 ÃÕ¤┤",
       "name": "Clean ADD1",
       "ack": 3,
       "type": 0,
       "parameter_count": 0,
-      "parameters": []
+      "parameters": [],
+      "lines": [],
+      "groups": []
     },
     "730": {
       "id": 730,
-      "name_local": "\u2534\u00a4\u2550\u25911\u2592\u00a9\u2534\u00a4",
+      "name_local": "┴¤═░1▒©┴¤",
       "name": "Fill OR Return AT1",
       "ack": 0,
       "type": 0,
@@ -2099,11 +2379,17 @@
           "attribute": 0,
           "reserved": 0
         }
+      ],
+      "lines": [
+        1
+      ],
+      "groups": [
+        "Operator Call"
       ]
     },
     "144": {
       "id": 144,
-      "name_local": "\u00c8\u2566\u00ba\u00ba",
+      "name_local": "È╦ºº",
       "name": "Runtime",
       "ack": 0,
       "type": 0,
@@ -2120,11 +2406,17 @@
           "attribute": 0,
           "reserved": 0
         }
+      ],
+      "lines": [
+        1
+      ],
+      "groups": [
+        "Dyeing"
       ]
     },
     "145": {
       "id": 145,
-      "name_local": "\u2554\u00b2\u256c\u252c",
+      "name_local": "╔²╬┬",
       "name": "Heating",
       "ack": 0,
       "type": 0,
@@ -2163,11 +2455,17 @@
           "attribute": 0,
           "reserved": 0
         }
+      ],
+      "lines": [
+        1
+      ],
+      "groups": [
+        "Dyeing"
       ]
     },
     "146": {
       "id": 146,
-      "name_local": "\u00a2\u00c1\u256c\u252c",
+      "name_local": "¢Á╬┬",
       "name": "Cooling",
       "ack": 0,
       "type": 0,
@@ -2206,11 +2504,17 @@
           "attribute": 0,
           "reserved": 0
         }
+      ],
+      "lines": [
+        1
+      ],
+      "groups": [
+        "Dyeing"
       ]
     },
     "739": {
       "id": 739,
-      "name_local": "\u2534\u00a4\u2550\u25911\u255a\u00d9\u2566\u00ab",
+      "name_local": "┴¤═░1╚Ù╦«",
       "name": "Fill OR Return AT1",
       "ack": 3,
       "type": 0,
@@ -2271,11 +2575,17 @@
           "attribute": 0,
           "reserved": 0
         }
+      ],
+      "lines": [
+        3
+      ],
+      "groups": [
+        "Addition Tank 1"
       ]
     },
     "749": {
       "id": 749,
-      "name_local": "\u2534\u00a4\u2550\u25912\u255a\u00d9\u2566\u00ab",
+      "name_local": "┴¤═░2╚Ù╦«",
       "name": "Fill OR Return AT2",
       "ack": 3,
       "type": 0,
@@ -2336,11 +2646,17 @@
           "attribute": 0,
           "reserved": 0
         }
+      ],
+      "lines": [
+        4
+      ],
+      "groups": [
+        "Addition Tank 2"
       ]
     },
     "740": {
       "id": 740,
-      "name_local": "\u2534\u00a4\u2550\u25912\u2592\u00a9\u2534\u00a4",
+      "name_local": "┴¤═░2▒©┴¤",
       "name": "Clear Keeped Level",
       "ack": 0,
       "type": 0,
@@ -2401,11 +2717,17 @@
           "attribute": 0,
           "reserved": 0
         }
+      ],
+      "lines": [
+        1
+      ],
+      "groups": [
+        "Operator Call"
       ]
     },
     "679": {
       "id": 679,
-      "name_local": "\u00a9\u2592\u00a9\u00ce\u00a2\u00b0\u2566\u00ab",
+      "name_local": "©▒©Î¢°╦«",
       "name": "Fill ST1 Level",
       "ack": 3,
       "type": 0,
@@ -2466,20 +2788,32 @@
           "attribute": 0,
           "reserved": 0
         }
+      ],
+      "lines": [
+        8
+      ],
+      "groups": [
+        "Stock Tank 1"
       ]
     },
     "551": {
       "id": 551,
-      "name_local": "\u00a9\u2592\u00a9\u00ce\u253c\u253c\u2566\u00ab",
+      "name_local": "©▒©Î┼┼╦«",
       "name": "Drain ST1",
       "ack": 3,
       "type": 0,
       "parameter_count": 0,
-      "parameters": []
+      "parameters": [],
+      "lines": [
+        8
+      ],
+      "groups": [
+        "Stock Tank 1"
+      ]
     },
     "678": {
       "id": 678,
-      "name_local": "\u00a9\u2592\u00a9\u00ce\u2566\u00ab\u2534\u2510\u00a2\u00b0\u2566\u00ab",
+      "name_local": "©▒©Î╦«┴┐¢°╦«",
       "name": "Fill ST1 Quantity",
       "ack": 3,
       "type": 0,
@@ -2540,11 +2874,17 @@
           "attribute": 0,
           "reserved": 0
         }
+      ],
+      "lines": [
+        8
+      ],
+      "groups": [
+        "Stock Tank 1"
       ]
     },
     "676": {
       "id": 676,
-      "name_local": "\u2551\u00b6\u00a2\u00ba\u00ce\u255d\u2592\u00a9\u00a9\u2592\u00a9\u00ce",
+      "name_local": "║¶¢ºÎ╝▒©©▒©Î",
       "name": "Call Prep. ST1",
       "ack": 3,
       "type": 14,
@@ -2616,11 +2956,17 @@
           "attribute": 0,
           "reserved": 0
         }
+      ],
+      "lines": [
+        8
+      ],
+      "groups": [
+        "Stock Tank 1"
       ]
     },
     "880": {
       "id": 880,
-      "name_local": "\u00ca\u00ae\u2550\u25911\u00ce\u00f3\u255a\u00d9\u00a9\u2592\u00a9\u00ce",
+      "name_local": "Ê®═░1Îó╚Ù©▒©Î",
       "name": "Transfer AT1 -> ST1",
       "ack": 3,
       "type": 0,
@@ -2648,11 +2994,17 @@
           "attribute": 0,
           "reserved": 0
         }
+      ],
+      "lines": [
+        8
+      ],
+      "groups": [
+        "Stock Tank 1"
       ]
     },
     "881": {
       "id": 881,
-      "name_local": "\u00ca\u00ae\u2550\u25912\u00ce\u00f3\u255a\u00d9\u00a9\u2592\u00a9\u00ce",
+      "name_local": "Ê®═░2Îó╚Ù©▒©Î",
       "name": "Transfer AT2 -> ST1",
       "ack": 3,
       "type": 0,
@@ -2680,13 +3032,19 @@
           "attribute": 0,
           "reserved": 0
         }
+      ],
+      "lines": [
+        8
+      ],
+      "groups": [
+        "Stock Tank 1"
       ]
     }
   },
   "parameters": {
     "1": {
       "id": 1,
-      "name_local": "\u00cd\u00b8\u00a9\u00ce\u2554\u00d7\u00c2\u00bf\u2569\u2592\u255d\u00f5",
+      "name_local": "Í¸©Î╔×Â¿╩▒╝õ",
       "name": "Set Time Main",
       "unit_local": "min",
       "unit": "min",
@@ -2713,7 +3071,7 @@
     },
     "2": {
       "id": 2,
-      "name_local": "\u00cd\u00b8\u00a9\u00ce\u2592\u00fa\u2557\u00f1\u2569\u2592\u255d\u00f5",
+      "name_local": "Í¸©Î▒ú╗ñ╩▒╝õ",
       "name": "Protect Time Main",
       "unit_local": "min",
       "unit": "min",
@@ -2740,10 +3098,10 @@
     },
     "3": {
       "id": 3,
-      "name_local": "\u2554\u00d7\u00c2\u00bf\u256c\u252c\u00c2\u255a",
+      "name_local": "╔×Â¿╬┬Â╚",
       "name": "Set Temp.",
-      "unit_local": "\u00ed\u00b5",
-      "unit": "\u00b0C",
+      "unit_local": "íµ",
+      "unit": "°C",
       "scale": {
         "digits_before": 3,
         "digits_after": 0,
@@ -2767,10 +3125,10 @@
     },
     "4": {
       "id": 4,
-      "name_local": "\u2554\u00b2\u256c\u252c\u00c3\u00b7\u252c\u2569",
+      "name_local": "╔²╬┬Ã·┬╩",
       "name": "Gradient",
-      "unit_local": "\u00ed\u00b5/min",
-      "unit": "\u00b0C/min",
+      "unit_local": "íµ/min",
+      "unit": "°C/min",
       "scale": {
         "digits_before": 2,
         "digits_after": 1,
@@ -2794,7 +3152,7 @@
     },
     "5": {
       "id": 5,
-      "name_local": "\u00c8\u2566\u00ba\u00ba\u2569\u2592\u255d\u00f5",
+      "name_local": "È╦ºº╩▒╝õ",
       "name": "Hold Time",
       "unit_local": "min",
       "unit": "min",
@@ -2821,7 +3179,7 @@
     },
     "7": {
       "id": 7,
-      "name_local": "\u255a\u00d9\u2566\u00ab\u2514\u00d3\u2592\u00ad",
+      "name_local": "╚Ù╦«└Ó▒­",
       "name": "Water Type",
       "unit_local": "",
       "unit": "",
@@ -2848,7 +3206,7 @@
     },
     "8": {
       "id": 8,
-      "name_local": "\u2566\u00ab\u256c\u2557\u2566\u00ab\u2534\u2510",
+      "name_local": "╦«╬╗╦«┴┐",
       "name": "Level",
       "unit_local": "L",
       "unit": "",
@@ -2875,7 +3233,7 @@
     },
     "9": {
       "id": 9,
-      "name_local": "\u255a\u00d9\u2566\u00ab\u2534\u2510",
+      "name_local": "╚Ù╦«┴┐",
       "name": "Quantity",
       "unit_local": "L",
       "unit": "L",
@@ -2902,10 +3260,10 @@
     },
     "10": {
       "id": 10,
-      "name_local": "\u2557\u00ec\u2551\u00a4\u2566\u00ab\u256c\u252c\u00c2\u255a",
+      "name_local": "╗ì║¤╦«╬┬Â╚",
       "name": "Blend water temp.",
-      "unit_local": "\u00ed\u00b5",
-      "unit": "\u00b0C",
+      "unit_local": "íµ",
+      "unit": "°C",
       "scale": {
         "digits_before": 3,
         "digits_after": 0,
@@ -2929,7 +3287,7 @@
     },
     "13": {
       "id": 13,
-      "name_local": "\u00a4\u2524\u2566\u00ab\u2569\u2592\u255d\u00f5",
+      "name_local": "¤┤╦«╩▒╝õ",
       "name": "Rinse Time",
       "unit_local": "min",
       "unit": "min",
@@ -2956,7 +3314,7 @@
     },
     "14": {
       "id": 14,
-      "name_local": "\u00aa\u00ed\u00c8\u00b1\u2569\u2592\u255d\u00f5/\u255a\u011e\u2569\u00b2",
+      "name_local": "ªíÈ±╩▒╝õ/╚Ğ╩²",
       "name": "Rinse Quantity",
       "unit_local": "",
       "unit": "",
@@ -2983,7 +3341,7 @@
     },
     "15": {
       "id": 15,
-      "name_local": "\u2593\u255d\u00aa\u00a1\u2557\u00c0\u00cd\u2584\u00e3\u250c",
+      "name_local": "▓╝ª¡╗ÀÍ▄ã┌",
       "name": "Fabric Cycle Time",
       "unit_local": "s",
       "unit": "s",
@@ -3010,7 +3368,7 @@
     },
     "17": {
       "id": 17,
-      "name_local": "\u2524\u256c\u2569\u00b2/\u00cd\u2584\u00e3\u250c",
+      "name_local": "┤╬╩²/Í▄ã┌",
       "name": "Interval",
       "unit_local": "",
       "unit": "",
@@ -3037,7 +3395,7 @@
     },
     "74": {
       "id": 74,
-      "name_local": "\u253c\ufffd\u00ce\u00ec\u00aa\u2563\u2534\u011e",
+      "name_local": "┼�Îìª╣┴Ğ",
       "name": "Nozzle Pressure",
       "unit_local": "bar",
       "unit": "bar",
@@ -3064,7 +3422,7 @@
     },
     "18": {
       "id": 18,
-      "name_local": "\u00c1\u255a\u2524\u00b2\u2569\u2592\u255d\u00f5",
+      "name_local": "Á╚┤²╩▒╝õ",
       "name": "Waiting Time",
       "unit_local": "min",
       "unit": "min",
@@ -3091,7 +3449,7 @@
     },
     "19": {
       "id": 19,
-      "name_local": "\u253c\u253c\u2566\u00ab\u2514\u00d3\u2592\u00ad",
+      "name_local": "┼┼╦«└Ó▒­",
       "name": "DrainType",
       "unit_local": "",
       "unit": "",
@@ -3118,7 +3476,7 @@
     },
     "20": {
       "id": 20,
-      "name_local": "Dosing \u00c3\u00b7\u00a4\u2580\u2551\u253c\u252c\u00d9",
+      "name_local": "Dosing Ã·¤▀║┼┬Ù",
       "name": "Dosing Curve ADD1",
       "unit_local": "",
       "unit": "",
@@ -3145,7 +3503,7 @@
     },
     "22": {
       "id": 22,
-      "name_local": "Dosing \u255d\u00cb\u2534\u00a4\u2569\u2592\u255d\u00f5",
+      "name_local": "Dosing ╝Ë┴¤╩▒╝õ",
       "name": "Dosing Time ADD1",
       "unit_local": "min",
       "unit": "min",
@@ -3172,7 +3530,7 @@
     },
     "36": {
       "id": 36,
-      "name_local": "\u2551\u00b6\u00a2\u00ba\u2593\u2518\u00ce\u00b8\u00c8\u2592\u2569\u2592\u255d\u00f5",
+      "name_local": "║¶¢º▓┘Î¸È▒╩▒╝õ",
       "name": "Alert time",
       "unit_local": "min",
       "unit": "min",
@@ -3199,7 +3557,7 @@
     },
     "75": {
       "id": 75,
-      "name_local": "\u253c\ufffd\u00ce\u00ec\u256c\u2557\u00cd\u251c",
+      "name_local": "┼�Îì╬╗Í├",
       "name": "Vario Nozzle",
       "unit_local": "",
       "unit": "",
@@ -3280,7 +3638,7 @@
     },
     "83": {
       "id": 83,
-      "name_local": "\u2566\u2518\u00c2\u255a1",
+      "name_local": "╦┘Â╚1",
       "name": "Reel 1",
       "unit_local": "M/min",
       "unit": "M/min",
@@ -3307,7 +3665,7 @@
     },
     "84": {
       "id": 84,
-      "name_local": "\u2566\u2518\u00c2\u255a2",
+      "name_local": "╦┘Â╚2",
       "name": "Reel 2",
       "unit_local": "M/min",
       "unit": "M/min",
@@ -3334,7 +3692,7 @@
     },
     "85": {
       "id": 85,
-      "name_local": "\u2566\u2518\u00c2\u255a3",
+      "name_local": "╦┘Â╚3",
       "name": "Speed3",
       "unit_local": "M/min",
       "unit": "M/min",
@@ -3361,7 +3719,7 @@
     },
     "86": {
       "id": 86,
-      "name_local": "\u2566\u2518\u00c2\u255a4",
+      "name_local": "╦┘Â╚4",
       "name": "Speed4",
       "unit_local": "M/min",
       "unit": "M/min",
@@ -3388,7 +3746,7 @@
     },
     "87": {
       "id": 87,
-      "name_local": "\u2566\u2518\u00c2\u255a5",
+      "name_local": "╦┘Â╚5",
       "name": "Speed",
       "unit_local": "M/min",
       "unit": "M/min",
@@ -3415,7 +3773,7 @@
     },
     "88": {
       "id": 88,
-      "name_local": "\u2566\u2518\u00c2\u255a6",
+      "name_local": "╦┘Â╚6",
       "name": "Speed",
       "unit_local": "M/min",
       "unit": "M/min",
@@ -3658,7 +4016,7 @@
     },
     "113": {
       "id": 113,
-      "name_local": "\u2534\u00a4\u00a9\u00ce1\u255d\u00cb\u2534\u00a4\u00c3\u00b7\u00a4\u2580",
+      "name_local": "┴¤©Î1╝Ë┴¤Ã·¤▀",
       "name": "Dosing Curve ADD1",
       "unit_local": "",
       "unit": "",
@@ -3685,7 +4043,7 @@
     },
     "114": {
       "id": 114,
-      "name_local": "\u2534\u00a4\u00a9\u00ce1Dos\u255d\u00cb\u2534\u00a4\u2534\u2510",
+      "name_local": "┴¤©Î1Dos╝Ë┴¤┴┐",
       "name": "Dosing Quantity ADD1",
       "unit_local": "L",
       "unit": "L",
@@ -3712,7 +4070,7 @@
     },
     "115": {
       "id": 115,
-      "name_local": "\u2534\u00a4\u00a9\u00ce\u00c3\u00b7\u00a4\u2580\u255d\u00cb\u2534\u00a4\u2569\u2592\u255d\u00f5",
+      "name_local": "┴¤©ÎÃ·¤▀╝Ë┴¤╩▒╝õ",
       "name": "Dosing Time ADD1",
       "unit_local": "min",
       "unit": "min",
@@ -3793,7 +4151,7 @@
     },
     "134": {
       "id": 134,
-      "name_local": "\u2534\u00a4\u00a9\u00ce1\u255a\u00d9\u2566\u00ab\u00cd\u00cd\u2514\u00d3",
+      "name_local": "┴¤©Î1╚Ù╦«ÍÍ└Ó",
       "name": "Valve DT",
       "unit_local": "",
       "unit": "",
@@ -3820,7 +4178,7 @@
     },
     "135": {
       "id": 135,
-      "name_local": "\u2534\u00a4\u00a9\u00ce1\u2566\u00ab\u256c\u2557",
+      "name_local": "┴¤©Î1╦«╬╗",
       "name": "Fill Lev   DT",
       "unit_local": "%",
       "unit": "",
@@ -3847,10 +4205,10 @@
     },
     "136": {
       "id": 136,
-      "name_local": "\u2534\u00a4\u00a9\u00ce1\u256c\u252c\u00c2\u255a",
+      "name_local": "┴¤©Î1╬┬Â╚",
       "name": "Temperature AT1",
-      "unit_local": "\u00ed\u00b5",
-      "unit": "\u00ed\u00b5",
+      "unit_local": "íµ",
+      "unit": "íµ",
       "scale": {
         "digits_before": 3,
         "digits_after": 0,
@@ -3874,7 +4232,7 @@
     },
     "139": {
       "id": 139,
-      "name_local": "\u2534\u00a4\u00a9\u00ce1\u00a2\u2534\u2591\u00d7\u2569\u2592\u255d\u00f5",
+      "name_local": "┴¤©Î1¢┴░×╩▒╝õ",
       "name": "Circulat. time  DT",
       "unit_local": "min",
       "unit": "min",
@@ -3901,7 +4259,7 @@
     },
     "140": {
       "id": 140,
-      "name_local": "\u2534\u00a4\u00a9\u00ce2\u00a2\u2534\u2591\u00d7\u2569\u2592\u255d\u00f5",
+      "name_local": "┴¤©Î2¢┴░×╩▒╝õ",
       "name": "Mixing Time AT2",
       "unit_local": "min",
       "unit": "min",
@@ -3928,7 +4286,7 @@
     },
     "141": {
       "id": 141,
-      "name_local": "\u2534\u00a4\u00a9\u00ce1\u2551\u00b6\u00a2\u00ba\u2551\u253c\u252c\u00d9",
+      "name_local": "┴¤©Î1║¶¢º║┼┬Ù",
       "name": "Preparation no ADD1",
       "unit_local": "",
       "unit": "",
@@ -3955,7 +4313,7 @@
     },
     "174": {
       "id": 174,
-      "name_local": "\u255a\u00d9\u2566\u00ab\u00c0\u011f\u251c\u253c-ST",
+      "name_local": "╚Ù╦«Àğ├┼-ST",
       "name": "Filling Valve ST",
       "unit_local": "",
       "unit": "",
@@ -3982,7 +4340,7 @@
     },
     "175": {
       "id": 175,
-      "name_local": "\u2566\u00ab\u256c\u2557-AST",
+      "name_local": "╦«╬╗-AST",
       "name": "Level ST",
       "unit_local": "",
       "unit": "",
@@ -4009,10 +4367,10 @@
     },
     "176": {
       "id": 176,
-      "name_local": "\u256c\u252c\u00c2\u255a-ST",
+      "name_local": "╬┬Â╚-ST",
       "name": "Temperature ST",
-      "unit_local": "\u00ed\u00b5",
-      "unit": "\u00ed\u00b5",
+      "unit_local": "íµ",
+      "unit": "íµ",
       "scale": {
         "digits_before": 3,
         "digits_after": 0,
@@ -4036,7 +4394,7 @@
     },
     "177": {
       "id": 177,
-      "name_local": "\u255a\u2584\u00a2\u00d4\u2569\u2592\u255d\u00f5-ST",
+      "name_local": "╚▄¢Ô╩▒╝õ-ST",
       "name": "Dissolving Time ST",
       "unit_local": "min",
       "unit": "min",
@@ -4063,7 +4421,7 @@
     },
     "183": {
       "id": 183,
-      "name_local": "\u00aa\u00a1\u2557\u00c0\u00cd\u2584\u00e3\u250c",
+      "name_local": "ª¡╗ÀÍ▄ã┌",
       "name": "Cycle Time",
       "unit_local": "S",
       "unit": "S",
@@ -4090,7 +4448,7 @@
     },
     "184": {
       "id": 184,
-      "name_local": "\u00a9\u2592\u00a9\u00ce\u00ba\u00fa\u00aa\u00da\u2551\u253c",
+      "name_local": "©▒©ÎºúªÚ║┼",
       "name": "Check NO.",
       "unit_local": "",
       "unit": "",
@@ -4117,7 +4475,7 @@
     },
     "186": {
       "id": 186,
-      "name_local": "\u00cd\u00b8\u2592\u251c\u2566\u2518\u00c2\u255a\u2554\u00d7\u00c2\u00bf",
+      "name_local": "Í¸▒├╦┘Â╚╔×Â¿",
       "name": "Pump Speed",
       "unit_local": "%",
       "unit": "%",
@@ -4144,10 +4502,10 @@
     },
     "257": {
       "id": 257,
-      "name_local": "\u2557\u00ec\u2551\u00a4\u2566\u00ab\u256c\u252c\u00c2\u255a",
+      "name_local": "╗ì║¤╦«╬┬Â╚",
       "name": "Temperature mixing W",
-      "unit_local": "\u00ed\u00b5",
-      "unit": "\u00ed\u00b5",
+      "unit_local": "íµ",
+      "unit": "íµ",
       "scale": {
         "digits_before": 3,
         "digits_after": 0,
@@ -4171,7 +4529,7 @@
     },
     "270": {
       "id": 270,
-      "name_local": "\u255d\u00cb\u2534\u00a4\u00c0\u011f\u00aa\u00ed\u00c8\u00b1",
+      "name_local": "╝Ë┴¤ÀğªíÈ±",
       "name": "Choose feed val.",
       "unit_local": "1,2",
       "unit": "1,2",
@@ -4198,7 +4556,7 @@
     },
     "271": {
       "id": 271,
-      "name_local": "\u2592\u00fa\u00aa\u2563\u2569\u2592\u255d\u00f5",
+      "name_local": "▒úª╣╩▒╝õ",
       "name": "AT1 to MC?",
       "unit_local": "S",
       "unit": "",
@@ -4225,7 +4583,7 @@
     },
     "272": {
       "id": 272,
-      "name_local": "\u2502\u00d5\u00a4\u2524\u2524\u256c\u2569\u00b2",
+      "name_local": "│Õ¤┤┤╬╩²",
       "name": "Rinse Q'ty (ind.)",
       "unit_local": "",
       "unit": "%",
@@ -4252,7 +4610,7 @@
     },
     "273": {
       "id": 273,
-      "name_local": "\u2510\u00ac\u2592\u251c?",
+      "name_local": "┐¬▒├?",
       "name": "Seam Detection?",
       "unit_local": "",
       "unit": "",
@@ -4279,7 +4637,7 @@
     },
     "274": {
       "id": 274,
-      "name_local": "\u2534\u00a4\u00a9\u00ce2\u255a\u00d9\u2566\u00ab\u00c0\u011f\u2569\u00b2",
+      "name_local": "┴¤©Î2╚Ù╦«Àğ╩²",
       "name": "Pressure Control",
       "unit_local": "",
       "unit": "",
@@ -4306,7 +4664,7 @@
     },
     "275": {
       "id": 275,
-      "name_local": "\u2534\u00a4\u00a9\u00ce2\u2566\u00ab\u256c\u2557",
+      "name_local": "┴¤©Î2╦«╬╗",
       "name": "Drain at beginning?",
       "unit_local": "%",
       "unit": "",
@@ -4333,7 +4691,7 @@
     },
     "280": {
       "id": 280,
-      "name_local": "\u2592\u00fa\u2502\u00cd\u2569\u2592\u255d\u00f5",
+      "name_local": "▒ú│Í╩▒╝õ",
       "name": "Reel ON?",
       "unit_local": "min",
       "unit": "",
@@ -4387,7 +4745,7 @@
     },
     "283": {
       "id": 283,
-      "name_local": "\u00a4\u2524\u00a9\u00ce\u2569\u2592\u255d\u00f5",
+      "name_local": "¤┤©Î╩▒╝õ",
       "name": "AT1 Feeding Speed",
       "unit_local": "Min",
       "unit": "",
@@ -4441,7 +4799,7 @@
     },
     "291": {
       "id": 291,
-      "name_local": "\u253c\ufffd\u00ce\u00ec\u00aa\u00ed\u00c8\u00b1",
+      "name_local": "┼�ÎìªíÈ±",
       "name": "Change ACID?",
       "unit_local": "0,1,2,3",
       "unit": "Yes/No",
@@ -4495,7 +4853,7 @@
     },
     "279": {
       "id": 279,
-      "name_local": "\u2557\u00bf\u255a\u00b8",
+      "name_local": "╗¿╚¸",
       "name": "P-Drain Delay",
       "unit_local": "",
       "unit": "min",
@@ -4522,7 +4880,7 @@
     },
     "146": {
       "id": 146,
-      "name_local": "\u2534\u00a4\u2550\u25911\u00ce\u2524\u2560\u00bc",
+      "name_local": "┴¤═░1Î┤╠¼",
       "name": "AT1 State",
       "unit_local": "",
       "unit": "",
@@ -4549,7 +4907,7 @@
     },
     "166": {
       "id": 166,
-      "name_local": "\u2534\u00a4\u2550\u25912\u00ce\u2524\u2560\u00bc",
+      "name_local": "┴¤═░2Î┤╠¼",
       "name": "AT2 State",
       "unit_local": "",
       "unit": "",
@@ -4603,7 +4961,7 @@
     },
     "292": {
       "id": 292,
-      "name_local": "\u2591\u250c\u2593\u255d\u2566\u2518\u00c2\u255a\u2554\u00d7\u00c2\u00bf",
+      "name_local": "░┌▓╝╦┘Â╚╔×Â¿",
       "name": "pH Value start",
       "unit_local": "%",
       "unit": "pH",
@@ -4630,7 +4988,7 @@
     },
     "276": {
       "id": 276,
-      "name_local": "\u2534\u00a4\u00a9\u00ce\u00aa\u00ed\u00c8\u00b1",
+      "name_local": "┴¤©ÎªíÈ±",
       "name": "Set Length 1",
       "unit_local": "1,2",
       "unit": "M",
@@ -4657,9 +5015,9 @@
     },
     "137": {
       "id": 137,
-      "name_local": "\u2534\u00a4\u00a9\u00ce2\u256c\u252c\u00c2\u255a",
+      "name_local": "┴¤©Î2╬┬Â╚",
       "name": "Dissolving time  DT",
-      "unit_local": "\u00ed\u00b5",
+      "unit_local": "íµ",
       "unit": "min",
       "scale": {
         "digits_before": 3,
@@ -4684,7 +5042,7 @@
     },
     "296": {
       "id": 296,
-      "name_local": "\u00a9\u2592\u00a9\u00ce\u00c3\u00d5\u00a4\u2524\u2524\u256c\u2569\u00b2",
+      "name_local": "©▒©ÎÃÕ¤┤┤╬╩²",
       "name": "Feed Value",
       "unit_local": "",
       "unit": "c.c.",
@@ -4711,7 +5069,7 @@
     },
     "67": {
       "id": 67,
-      "name_local": "\u2569\u00c3\u00c0\u00b1\u00c1\u255d\u2593\u255d\u252c\u00cd\u00c1\u00b8\u2566\u2518",
+      "name_local": "╩ÃÀ±Á╝▓╝┬ÍÁ¸╦┘",
       "name": "injustwinchspeed",
       "unit_local": "",
       "unit": "",
@@ -4738,7 +5096,7 @@
     },
     "142": {
       "id": 142,
-      "name_local": "\u255d\u00cb\u2534\u00a4\u2592\u255a\u2514\u00b2\u00c0\u011f",
+      "name_local": "╝Ë┴¤▒╚└²Àğ",
       "name": "Dos Size",
       "unit_local": "%",
       "unit": "%",
@@ -4765,7 +5123,7 @@
     },
     "73": {
       "id": 73,
-      "name_local": "\u00cd\u00b8\u2592\u251c\u2566\u2518\u00c2\u255a",
+      "name_local": "Í¸▒├╦┘Â╚",
       "name": "Pump Speed %",
       "unit_local": "%",
       "unit": "%",
@@ -4792,7 +5150,7 @@
     },
     "281": {
       "id": 281,
-      "name_local": "\u253c\ufffd\u00ce\u00ec",
+      "name_local": "┼�Îì",
       "name": "Feedback Open?",
       "unit_local": "",
       "unit": "",
@@ -4819,7 +5177,7 @@
     },
     "76": {
       "id": 76,
-      "name_local": "\u00c0\ufffd\u2557\u00b7\u2566\u2518\u00c2\u255a",
+      "name_local": "À�╗·╦┘Â╚",
       "name": "Blower",
       "unit_local": "%",
       "unit": "%",
@@ -4846,7 +5204,7 @@
     },
     "187": {
       "id": 187,
-      "name_local": "\u00cd\u00b8\u2592\u251c\u00aa\u2563\u2534\u011e\u2554\u00d7\u00c2\u00bf",
+      "name_local": "Í¸▒├ª╣┴Ğ╔×Â¿",
       "name": "Pump pinch",
       "unit_local": "kg",
       "unit": "kg",
@@ -4873,10 +5231,10 @@
     },
     "12": {
       "id": 12,
-      "name_local": "\u00a4\u2524\u2566\u00ab\u2569\u2592\u253c\u253c\u2566\u00ab\u2569\u00c3\u00c0\u00b1\u2510\u00cf\u00cd\u00e3",
+      "name_local": "¤┤╦«╩▒┼┼╦«╩ÃÀ±┐ÏÍã",
       "name": "Gradient Blendwater",
       "unit_local": "",
-      "unit": "\u00b0C/min",
+      "unit": "°C/min",
       "scale": {
         "digits_before": 1,
         "digits_after": 0,
@@ -5008,10 +5366,10 @@
     },
     "278": {
       "id": 278,
-      "name_local": "\u2566\u00ab\u00a4\u2524\u255a\u00d9\u2566\u00ab\u2566\u2518\u00c2\u255a",
+      "name_local": "╦«¤┤╚Ù╦«╦┘Â╚",
       "name": "Preheat Tank temp.",
       "unit_local": "%",
-      "unit": "\u00b0C",
+      "unit": "°C",
       "scale": {
         "digits_before": 3,
         "digits_after": 0,
@@ -5035,7 +5393,7 @@
     },
     "138": {
       "id": 138,
-      "name_local": "\u2534\u00a4\u00a9\u00ce1\u00a2\u2534\u2591\u00d7",
+      "name_local": "┴¤©Î1¢┴░×",
       "name": "Mixer  DT",
       "unit_local": "",
       "unit": "",
@@ -5062,7 +5420,7 @@
     },
     "158": {
       "id": 158,
-      "name_local": "\u2534\u00a4\u00a9\u00ce2\u00a2\u2534\u2591\u00d7",
+      "name_local": "┴¤©Î2¢┴░×",
       "name": "Mixer AT",
       "unit_local": "",
       "unit": "",
@@ -5089,7 +5447,7 @@
     },
     "284": {
       "id": 284,
-      "name_local": "\u00c0\ufffd\u2557\u00b72\u2566\u2518\u00c2\u255a",
+      "name_local": "À�╗·2╦┘Â╚",
       "name": "AT2 Feeding Speed",
       "unit_local": "%",
       "unit": "",
@@ -5116,7 +5474,7 @@
     },
     "285": {
       "id": 285,
-      "name_local": "\u00c0\ufffd\u2557\u00b73\u2566\u2518\u00c2\u255a",
+      "name_local": "À�╗·3╦┘Â╚",
       "name": "Backflow ON?",
       "unit_local": "%",
       "unit": "",
@@ -5143,7 +5501,7 @@
     },
     "161": {
       "id": 161,
-      "name_local": "\u2534\u00a4\u00a9\u00ce2\u2551\u00b6\u00a2\u00ba\u2551\u253c\u252c\u00d9",
+      "name_local": "┴¤©Î2║¶¢º║┼┬Ù",
       "name": "Preparation no AT2",
       "unit_local": "",
       "unit": "",
@@ -5170,7 +5528,7 @@
     },
     "163": {
       "id": 163,
-      "name_local": "\u2534\u00a4\u00a9\u00ce2\u2550\u2591\u2551\u253c",
+      "name_local": "┴¤©Î2═░║┼",
       "name": "tank no. AT2",
       "unit_local": "",
       "unit": "",
@@ -5197,7 +5555,7 @@
     },
     "160": {
       "id": 160,
-      "name_local": "\u2534\u00a4\u00a9\u00ce2\u253c\u00f5\u00c0\u00a2\u2551\u253c",
+      "name_local": "┴¤©Î2┼õÀ¢║┼",
       "name": "Recipe number AT2",
       "unit_local": "",
       "unit": "",
@@ -5224,7 +5582,7 @@
     },
     "165": {
       "id": 165,
-      "name_local": "\u2534\u00a4\u00a9\u00ce2\ufffd\u00a5\u2560\u00bf\u2551\u253c",
+      "name_local": "┴¤©Î2�¥╠¿║┼",
       "name": "Station No AT2",
       "unit_local": "",
       "unit": "",
@@ -5251,7 +5609,7 @@
     },
     "164": {
       "id": 164,
-      "name_local": "\u2534\u00a4\u00a9\u00ce2\u00ba\u00fa\u00aa\u00da\u2551\u253c",
+      "name_local": "┴¤©Î2ºúªÚ║┼",
       "name": "Prep. release AT2",
       "unit_local": "",
       "unit": "",
@@ -5278,7 +5636,7 @@
     },
     "169": {
       "id": 169,
-      "name_local": "\u2534\u00a4\u00a9\u00ce2\u00ba\u00d7\u00ca\u00ac\u00c8\u250c",
+      "name_local": "┴¤©Î2º×Ê¬È┌",
       "name": "needed for AT2 in",
       "unit_local": "min",
       "unit": "min",
@@ -5305,7 +5663,7 @@
     },
     "151": {
       "id": 151,
-      "name_local": "\u2534\u00a4\u00a9\u00ce2\u2554\u00d7\u00c2\u00bf\u2569\u2592\u255d\u00f5",
+      "name_local": "┴¤©Î2╔×Â¿╩▒╝õ",
       "name": "Set time AT",
       "unit_local": "min",
       "unit": "min",
@@ -5332,7 +5690,7 @@
     },
     "152": {
       "id": 152,
-      "name_local": "\u2534\u00a4\u00a9\u00ce2\u2592\u00fa\u2557\u00f1\u2569\u2592\u255d\u00f5",
+      "name_local": "┴¤©Î2▒ú╗ñ╩▒╝õ",
       "name": "Protect time AT",
       "unit_local": "min",
       "unit": "min",
@@ -5359,7 +5717,7 @@
     },
     "60": {
       "id": 60,
-      "name_local": "\u255d\u00ec\u2593\u00da\u2551\u00b6\u00a2\u00ba\u2551\u253c\u252c\u00d9",
+      "name_local": "╝ì▓Ú║¶¢º║┼┬Ù",
       "name": "Check prep. number",
       "unit_local": "",
       "unit": "",
@@ -5386,7 +5744,7 @@
     },
     "143": {
       "id": 143,
-      "name_local": "\u2534\u00a4\u00a9\u00ce1\u2550\u2591\u2551\u253c",
+      "name_local": "┴¤©Î1═░║┼",
       "name": "Tank No ADD1",
       "unit_local": "",
       "unit": "",
@@ -5413,7 +5771,7 @@
     },
     "144": {
       "id": 144,
-      "name_local": "\u2534\u00a4\u00a9\u00ce1\u00ba\u00fa\u00aa\u00da\u2551\u253c",
+      "name_local": "┴¤©Î1ºúªÚ║┼",
       "name": "Prep. release ADD1",
       "unit_local": "",
       "unit": "",
@@ -5440,7 +5798,7 @@
     },
     "145": {
       "id": 145,
-      "name_local": "\u2534\u00a4\u00a9\u00ce1\ufffd\u00a5\u2560\u00bf\u2551\u253c",
+      "name_local": "┴¤©Î1�¥╠¿║┼",
       "name": "Station No ADD1",
       "unit_local": "",
       "unit": "",
@@ -5467,7 +5825,7 @@
     },
     "150": {
       "id": 150,
-      "name_local": "\u2534\u00a4\u00a9\u00ce1\u253c\u00f5\u00c0\u00a2\u2551\u253c",
+      "name_local": "┴¤©Î1┼õÀ¢║┼",
       "name": "Recipe number AT1",
       "unit_local": "",
       "unit": "",
@@ -5494,7 +5852,7 @@
     },
     "149": {
       "id": 149,
-      "name_local": "\u2534\u00a4\u00a9\u00ce1\u00ba\u00d7\u00ca\u00ac\u00c8\u250c",
+      "name_local": "┴¤©Î1º×Ê¬È┌",
       "name": "needed for AT1 in",
       "unit_local": "min",
       "unit": "min",
@@ -5521,7 +5879,7 @@
     },
     "178": {
       "id": 178,
-      "name_local": "\u00a9\u2592\u00a9\u00ce\u00a2\u2534\u2591\u00d7",
+      "name_local": "©▒©Î¢┴░×",
       "name": "stirrer ST1",
       "unit_local": "",
       "unit": "",
@@ -5575,7 +5933,7 @@
     },
     "173": {
       "id": 173,
-      "name_local": "\u00a9\u2592\u00a9\u00ce\u255a\u00d9\u2566\u00ab\u2534\u2510",
+      "name_local": "©▒©Î╚Ù╦«┴┐",
       "name": "Fill Quantity ST1",
       "unit_local": "L",
       "unit": "L",
@@ -5629,7 +5987,7 @@
     },
     "181": {
       "id": 181,
-      "name_local": "\u00a9\u2592\u00a9\u00ce\u00ce\u255d\u2592\u00a9\u2551\u253c\u252c\u00d9",
+      "name_local": "©▒©ÎÎ╝▒©║┼┬Ù",
       "name": "Preparation no ST1",
       "unit_local": "",
       "unit": "",
@@ -5656,7 +6014,7 @@
     },
     "180": {
       "id": 180,
-      "name_local": "\u00a9\u2592\u00a9\u00ce\u253c\u00f5\u00c0\u00a2\u2551\u253c",
+      "name_local": "©▒©Î┼õÀ¢║┼",
       "name": "Recipe number ST1",
       "unit_local": "",
       "unit": "",
@@ -5683,7 +6041,7 @@
     },
     "185": {
       "id": 185,
-      "name_local": "\u00a9\u2592\u00a9\u00ce\ufffd\u00a5\u2560\u00bf\u2551\u253c",
+      "name_local": "©▒©Î�¥╠¿║┼",
       "name": "Station No ST1",
       "unit_local": "",
       "unit": "",
@@ -5710,7 +6068,7 @@
     },
     "189": {
       "id": 189,
-      "name_local": "\u00a9\u2592\u00a9\u00ce\u00ba\u00d7\u00ca\u00ac\u00c8\u250c",
+      "name_local": "©▒©Îº×Ê¬È┌",
       "name": "needed for ST1 in",
       "unit_local": "min",
       "unit": "min",
@@ -5737,10 +6095,10 @@
     },
     "294": {
       "id": 294,
-      "name_local": "\u00ca\u00ae\u2550\u25911->\u00a9\u2592\u00a9\u00ce\u00c3\u00d5\u00a4\u2524\u2524\u256c\u2569\u00b2",
+      "name_local": "Ê®═░1->©▒©ÎÃÕ¤┤┤╬╩²",
       "name": "Temp. start",
       "unit_local": "",
-      "unit": "\u00b0C",
+      "unit": "°C",
       "scale": {
         "digits_before": 1,
         "digits_after": 0,
@@ -5764,7 +6122,7 @@
     },
     "295": {
       "id": 295,
-      "name_local": "\u00ca\u00ae\u2550\u25912->\u00a9\u2592\u00a9\u00ce\u00c3\u00d5\u00a4\u2524\u2524\u256c\u2569\u00b2",
+      "name_local": "Ê®═░2->©▒©ÎÃÕ¤┤┤╬╩²",
       "name": "Pump Hz",
       "unit_local": "",
       "unit": "Hz",
@@ -5790,6 +6148,2439 @@
       }
     }
   },
+  "resources": {
+    "3": {
+      "id": 3,
+      "name": "AT1 Operation",
+      "type": 3,
+      "disabled": false
+    },
+    "4": {
+      "id": 4,
+      "name": "AT2 Operation",
+      "type": 3,
+      "disabled": false
+    },
+    "5": {
+      "id": 5,
+      "name": "TK.Clean",
+      "type": 2,
+      "disabled": false
+    },
+    "1": {
+      "id": 1,
+      "name": "main tank",
+      "type": 1,
+      "disabled": false
+    },
+    "2": {
+      "id": 2,
+      "name": "Pressure Control",
+      "type": 2,
+      "disabled": false
+    },
+    "6": {
+      "id": 6,
+      "name": "pH Control",
+      "type": 2,
+      "disabled": false
+    },
+    "7": {
+      "id": 7,
+      "name": "Speed setting",
+      "type": 2,
+      "disabled": false
+    },
+    "8": {
+      "id": 8,
+      "name": "PREHEAT TANK",
+      "type": 3,
+      "disabled": false
+    }
+  },
+  "groups": [
+    {
+      "name": "Dyeing",
+      "line": 1,
+      "disabled": false,
+      "ids": [
+        141,
+        144,
+        145,
+        146
+      ]
+    },
+    {
+      "name": "Fill",
+      "line": 1,
+      "disabled": false,
+      "ids": [
+        702,
+        703,
+        882,
+        705,
+        706
+      ]
+    },
+    {
+      "name": "Rinse",
+      "line": 1,
+      "disabled": false,
+      "ids": [
+        726,
+        725,
+        722
+      ]
+    },
+    {
+      "name": "Drain",
+      "line": 1,
+      "disabled": false,
+      "ids": [
+        710,
+        711
+      ]
+    },
+    {
+      "name": "System",
+      "line": 1,
+      "disabled": false,
+      "ids": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ]
+    },
+    {
+      "name": "AuxInj",
+      "line": 1,
+      "disabled": false,
+      "ids": [
+        737,
+        733,
+        732
+      ]
+    },
+    {
+      "name": "Operator Call",
+      "line": 1,
+      "disabled": false,
+      "ids": [
+        784,
+        122,
+        138,
+        135,
+        134,
+        782,
+        730,
+        740
+      ]
+    },
+    {
+      "name": "Speed setting",
+      "line": 2,
+      "disabled": false,
+      "ids": [
+        760
+      ]
+    },
+    {
+      "name": "Addition Tank 2",
+      "line": 4,
+      "disabled": false,
+      "ids": [
+        749,
+        744,
+        745,
+        746,
+        666,
+        536
+      ]
+    },
+    {
+      "name": "AT2",
+      "line": 1,
+      "disabled": false,
+      "ids": [
+        743,
+        741,
+        742
+      ]
+    },
+    {
+      "name": "Addition Tank 1",
+      "line": 3,
+      "disabled": false,
+      "ids": [
+        739,
+        734,
+        735,
+        736,
+        756,
+        516
+      ]
+    },
+    {
+      "name": "Winch",
+      "line": 5,
+      "disabled": false,
+      "ids": [
+        761
+      ]
+    },
+    {
+      "name": "AT1 Operation",
+      "line": 7,
+      "disabled": false,
+      "ids": [
+        771
+      ]
+    },
+    {
+      "name": "spary",
+      "line": 6,
+      "disabled": false,
+      "ids": [
+        770
+      ]
+    },
+    {
+      "name": "Stock Tank 1",
+      "line": 8,
+      "disabled": false,
+      "ids": [
+        679,
+        678,
+        551,
+        676,
+        880,
+        881
+      ]
+    }
+  ],
+  "text_choices": {
+    "6": [
+      {
+        "text": "F.back/ Yes",
+        "value": 2.0,
+        "key": [
+          51,
+          6,
+          2
+        ]
+      },
+      {
+        "text": "F.back/ No",
+        "value": 1.0,
+        "key": [
+          51,
+          6,
+          1
+        ]
+      },
+      {
+        "text": "nozzle1+2",
+        "value": 3.0,
+        "key": [
+          51,
+          6,
+          3
+        ]
+      },
+      {
+        "text": "nozzle3",
+        "value": 4.0,
+        "key": [
+          51,
+          6,
+          4
+        ]
+      },
+      {
+        "text": "nozzle4",
+        "value": 5.0,
+        "key": [
+          51,
+          6,
+          5
+        ]
+      },
+      {
+        "text": "Off",
+        "value": 6.0,
+        "key": [
+          51,
+          6,
+          6
+        ]
+      }
+    ],
+    "12": [
+      {
+        "text": "no",
+        "value": 0.0,
+        "key": [
+          51,
+          12,
+          0
+        ]
+      },
+      {
+        "text": "yes",
+        "value": 1.0,
+        "key": [
+          51,
+          12,
+          1
+        ]
+      }
+    ],
+    "11": [
+      {
+        "text": "No Backflow",
+        "value": 0.0,
+        "key": [
+          51,
+          11,
+          0
+        ]
+      },
+      {
+        "text": "With Backflow",
+        "value": 1.0,
+        "key": [
+          51,
+          11,
+          1
+        ]
+      }
+    ],
+    "525": [
+      {
+        "text": "CSVUC analog",
+        "value": 3.0,
+        "key": [
+          51,
+          525,
+          3
+        ]
+      },
+      {
+        "text": "Log file",
+        "value": 0.0,
+        "key": [
+          51,
+          525,
+          0
+        ]
+      },
+      {
+        "text": "CSV analog",
+        "value": 1.0,
+        "key": [
+          51,
+          525,
+          1
+        ]
+      },
+      {
+        "text": "CSVUC analog&digital",
+        "value": 4.0,
+        "key": [
+          51,
+          525,
+          4
+        ]
+      },
+      {
+        "text": "CSV analog & digital",
+        "value": 2.0,
+        "key": [
+          51,
+          525,
+          2
+        ]
+      }
+    ],
+    "31": [
+      {
+        "text": "wash",
+        "value": 1.0,
+        "key": [
+          51,
+          31,
+          1
+        ]
+      },
+      {
+        "text": "Prep",
+        "value": 0.0,
+        "key": [
+          51,
+          31,
+          0
+        ]
+      }
+    ],
+    "2": [
+      {
+        "text": "drain valve 3",
+        "value": 3.0,
+        "key": [
+          51,
+          2,
+          3
+        ]
+      },
+      {
+        "text": "drain (Clean)",
+        "value": 1.0,
+        "key": [
+          51,
+          2,
+          1
+        ]
+      },
+      {
+        "text": "drain (Dirty)",
+        "value": 2.0,
+        "key": [
+          51,
+          2,
+          2
+        ]
+      },
+      {
+        "text": "drain valve 4",
+        "value": 4.0,
+        "key": [
+          51,
+          2,
+          4
+        ]
+      }
+    ],
+    "9": [
+      {
+        "text": "without pump",
+        "value": 0.0,
+        "key": [
+          51,
+          9,
+          0
+        ]
+      },
+      {
+        "text": "50Hz",
+        "value": 1.0,
+        "key": [
+          51,
+          9,
+          1
+        ]
+      }
+    ],
+    "5": [
+      {
+        "text": "NOZZLE 1+2+3",
+        "value": 3.0,
+        "key": [
+          51,
+          5,
+          4
+        ]
+      },
+      {
+        "text": "Feedback",
+        "value": 1.0,
+        "key": [
+          51,
+          5,
+          2
+        ]
+      },
+      {
+        "text": "Water Fill",
+        "value": 0.0,
+        "key": [
+          51,
+          5,
+          1
+        ]
+      },
+      {
+        "text": "NOZZLE 1+2",
+        "value": 2.0,
+        "key": [
+          51,
+          5,
+          3
+        ]
+      }
+    ],
+    "1": [
+      {
+        "text": "Cold Water",
+        "value": 1.0,
+        "key": [
+          51,
+          1,
+          1
+        ]
+      },
+      {
+        "text": "Hot Water",
+        "value": 2.0,
+        "key": [
+          51,
+          1,
+          2
+        ]
+      },
+      {
+        "text": "Hot Recovery Water",
+        "value": 3.0,
+        "key": [
+          51,
+          1,
+          3
+        ]
+      },
+      {
+        "text": "water type 4",
+        "value": 4.0,
+        "key": [
+          51,
+          1,
+          4
+        ]
+      }
+    ],
+    "3": [
+      {
+        "text": "1 tube",
+        "value": 1.0,
+        "key": [
+          51,
+          3,
+          1
+        ]
+      },
+      {
+        "text": "2 tube",
+        "value": 2.0,
+        "key": [
+          51,
+          3,
+          2
+        ]
+      }
+    ],
+    "4": [
+      {
+        "text": "1st Drain/Yes",
+        "value": 1.0,
+        "key": [
+          51,
+          4,
+          1
+        ]
+      },
+      {
+        "text": "Inject Back",
+        "value": 2.0,
+        "key": [
+          51,
+          4,
+          2
+        ]
+      }
+    ],
+    "302": [
+      {
+        "text": "no",
+        "value": 0.0,
+        "key": [
+          51,
+          302,
+          0
+        ]
+      },
+      {
+        "text": "yes",
+        "value": 1.0,
+        "key": [
+          51,
+          302,
+          1
+        ]
+      }
+    ],
+    "303": [
+      {
+        "text": "off",
+        "value": 0.0,
+        "key": [
+          51,
+          303,
+          0
+        ]
+      },
+      {
+        "text": "on",
+        "value": 1.0,
+        "key": [
+          51,
+          303,
+          1
+        ]
+      }
+    ],
+    "10": [
+      {
+        "text": "Slow",
+        "value": 0.0,
+        "key": [
+          51,
+          10,
+          1
+        ]
+      },
+      {
+        "text": "Middle",
+        "value": 1.0,
+        "key": [
+          51,
+          10,
+          2
+        ]
+      }
+    ],
+    "390": [
+      {
+        "text": "PT100 not selected",
+        "value": 0.0,
+        "key": [
+          51,
+          390,
+          0
+        ]
+      },
+      {
+        "text": "PT100 DIN",
+        "value": 1.0,
+        "key": [
+          51,
+          390,
+          1
+        ]
+      },
+      {
+        "text": "PT100 JIS",
+        "value": 2.0,
+        "key": [
+          51,
+          390,
+          2
+        ]
+      }
+    ],
+    "391": [
+      {
+        "text": "0..20mA",
+        "value": 0.0,
+        "key": [
+          51,
+          391,
+          0
+        ]
+      },
+      {
+        "text": "4..20mA",
+        "value": 1.0,
+        "key": [
+          51,
+          391,
+          1
+        ]
+      },
+      {
+        "text": "0..20mA with alarm",
+        "value": 2.0,
+        "key": [
+          51,
+          391,
+          2
+        ]
+      },
+      {
+        "text": "4..20mA with alarm",
+        "value": 3.0,
+        "key": [
+          51,
+          391,
+          3
+        ]
+      }
+    ],
+    "392": [
+      {
+        "text": "0..20mA",
+        "value": 0.0,
+        "key": [
+          51,
+          392,
+          0
+        ]
+      },
+      {
+        "text": "4..20mA",
+        "value": 1.0,
+        "key": [
+          51,
+          392,
+          1
+        ]
+      }
+    ],
+    "393": [
+      {
+        "text": "1250ms (Default)",
+        "value": 0.0,
+        "key": [
+          51,
+          393,
+          0
+        ]
+      },
+      {
+        "text": "reserved",
+        "value": 1.0,
+        "key": [
+          51,
+          393,
+          1
+        ]
+      },
+      {
+        "text": "5000ms",
+        "value": 2.0,
+        "key": [
+          51,
+          393,
+          2
+        ]
+      },
+      {
+        "text": "2500ms",
+        "value": 3.0,
+        "key": [
+          51,
+          393,
+          3
+        ]
+      },
+      {
+        "text": "1250ms",
+        "value": 4.0,
+        "key": [
+          51,
+          393,
+          4
+        ]
+      },
+      {
+        "text": "625ms",
+        "value": 5.0,
+        "key": [
+          51,
+          393,
+          5
+        ]
+      },
+      {
+        "text": "312,5ms",
+        "value": 6.0,
+        "key": [
+          51,
+          393,
+          6
+        ]
+      },
+      {
+        "text": "156,25ms",
+        "value": 7.0,
+        "key": [
+          51,
+          393,
+          7
+        ]
+      },
+      {
+        "text": "78,125ms",
+        "value": 8.0,
+        "key": [
+          51,
+          393,
+          8
+        ]
+      }
+    ],
+    "395": [
+      {
+        "text": "Master",
+        "value": 0.0,
+        "key": [
+          51,
+          395,
+          0
+        ]
+      },
+      {
+        "text": "Slave",
+        "value": 1.0,
+        "key": [
+          51,
+          395,
+          1
+        ]
+      }
+    ],
+    "396": [
+      {
+        "text": "1200",
+        "value": 1.0,
+        "key": [
+          51,
+          396,
+          1
+        ]
+      },
+      {
+        "text": "2400",
+        "value": 2.0,
+        "key": [
+          51,
+          396,
+          2
+        ]
+      },
+      {
+        "text": "4800",
+        "value": 3.0,
+        "key": [
+          51,
+          396,
+          3
+        ]
+      },
+      {
+        "text": "9600",
+        "value": 4.0,
+        "key": [
+          51,
+          396,
+          4
+        ]
+      },
+      {
+        "text": "19200",
+        "value": 5.0,
+        "key": [
+          51,
+          396,
+          5
+        ]
+      },
+      {
+        "text": "38400",
+        "value": 6.0,
+        "key": [
+          51,
+          396,
+          6
+        ]
+      },
+      {
+        "text": "57600",
+        "value": 7.0,
+        "key": [
+          51,
+          396,
+          7
+        ]
+      },
+      {
+        "text": "115200",
+        "value": 8.0,
+        "key": [
+          51,
+          396,
+          8
+        ]
+      }
+    ],
+    "397": [
+      {
+        "text": "None",
+        "value": 0.0,
+        "key": [
+          51,
+          397,
+          0
+        ]
+      },
+      {
+        "text": "Even",
+        "value": 1.0,
+        "key": [
+          51,
+          397,
+          1
+        ]
+      },
+      {
+        "text": "Odd",
+        "value": 2.0,
+        "key": [
+          51,
+          397,
+          2
+        ]
+      }
+    ],
+    "398": [
+      {
+        "text": "activated",
+        "value": 0.0,
+        "key": [
+          51,
+          398,
+          0
+        ]
+      },
+      {
+        "text": "deactivated",
+        "value": 1.0,
+        "key": [
+          51,
+          398,
+          1
+        ]
+      },
+      {
+        "text": "Heartbeat activated",
+        "value": 2.0,
+        "key": [
+          51,
+          398,
+          2
+        ]
+      }
+    ],
+    "399": [
+      {
+        "text": "125 kbit/sec-Default",
+        "value": 0.0,
+        "key": [
+          51,
+          399,
+          0
+        ]
+      },
+      {
+        "text": "10 kbit/sec",
+        "value": 1.0,
+        "key": [
+          51,
+          399,
+          1
+        ]
+      },
+      {
+        "text": "20 kbit/sec",
+        "value": 2.0,
+        "key": [
+          51,
+          399,
+          2
+        ]
+      },
+      {
+        "text": "50 kbit/sec",
+        "value": 3.0,
+        "key": [
+          51,
+          399,
+          3
+        ]
+      },
+      {
+        "text": "100 kbit/sec",
+        "value": 4.0,
+        "key": [
+          51,
+          399,
+          4
+        ]
+      },
+      {
+        "text": "125 kbit/sec",
+        "value": 5.0,
+        "key": [
+          51,
+          399,
+          5
+        ]
+      },
+      {
+        "text": "250 kbit/sec",
+        "value": 6.0,
+        "key": [
+          51,
+          399,
+          6
+        ]
+      },
+      {
+        "text": "500 kbit/sec",
+        "value": 7.0,
+        "key": [
+          51,
+          399,
+          7
+        ]
+      },
+      {
+        "text": "1000 kbit/sec",
+        "value": 8.0,
+        "key": [
+          51,
+          399,
+          8
+        ]
+      }
+    ],
+    "404": [
+      {
+        "text": "1st language",
+        "value": 0.0,
+        "key": [
+          51,
+          404,
+          0
+        ]
+      },
+      {
+        "text": "2nd language",
+        "value": 1.0,
+        "key": [
+          51,
+          404,
+          1
+        ]
+      }
+    ],
+    "406": [
+      {
+        "text": "local (SECOM)",
+        "value": 0.0,
+        "key": [
+          51,
+          406,
+          0
+        ]
+      },
+      {
+        "text": "network",
+        "value": 1.0,
+        "key": [
+          51,
+          406,
+          1
+        ]
+      },
+      {
+        "text": "batch queue",
+        "value": 2.0,
+        "key": [
+          51,
+          406,
+          2
+        ]
+      },
+      {
+        "text": "reserved",
+        "value": 3.0,
+        "key": [
+          51,
+          406,
+          3
+        ]
+      },
+      {
+        "text": "several batch queues",
+        "value": 4.0,
+        "key": [
+          51,
+          406,
+          4
+        ]
+      }
+    ],
+    "407": [
+      {
+        "text": "delete automatically",
+        "value": 0.0,
+        "key": [
+          51,
+          407,
+          0
+        ]
+      },
+      {
+        "text": "no auto delete(Host)",
+        "value": 1.0,
+        "key": [
+          51,
+          407,
+          1
+        ]
+      }
+    ],
+    "408": [
+      {
+        "text": "not active",
+        "value": 0.0,
+        "key": [
+          51,
+          408,
+          0
+        ]
+      },
+      {
+        "text": "active",
+        "value": 1.0,
+        "key": [
+          51,
+          408,
+          1
+        ]
+      },
+      {
+        "text": "active + functions",
+        "value": 2.0,
+        "key": [
+          51,
+          408,
+          2
+        ]
+      },
+      {
+        "text": "active + extended",
+        "value": 3.0,
+        "key": [
+          51,
+          408,
+          3
+        ]
+      },
+      {
+        "text": "functions + extended",
+        "value": 4.0,
+        "key": [
+          51,
+          408,
+          4
+        ]
+      }
+    ],
+    "409": [
+      {
+        "text": "not active",
+        "value": 0.0,
+        "key": [
+          51,
+          409,
+          0
+        ]
+      },
+      {
+        "text": "active",
+        "value": 1.0,
+        "key": [
+          51,
+          409,
+          1
+        ]
+      },
+      {
+        "text": "active + delete",
+        "value": 2.0,
+        "key": [
+          51,
+          409,
+          2
+        ]
+      }
+    ],
+    "413": [
+      {
+        "text": "RS485 (default)",
+        "value": 0.0,
+        "key": [
+          51,
+          413,
+          0
+        ]
+      },
+      {
+        "text": "KOAX",
+        "value": 1.0,
+        "key": [
+          51,
+          413,
+          1
+        ]
+      }
+    ],
+    "414": [
+      {
+        "text": "standard",
+        "value": 0.0,
+        "key": [
+          51,
+          414,
+          0
+        ]
+      },
+      {
+        "text": "clear step",
+        "value": 1.0,
+        "key": [
+          51,
+          414,
+          1
+        ]
+      },
+      {
+        "text": "main function step",
+        "value": 2.0,
+        "key": [
+          51,
+          414,
+          2
+        ]
+      },
+      {
+        "text": "look ahead",
+        "value": 3.0,
+        "key": [
+          51,
+          414,
+          3
+        ]
+      }
+    ],
+    "415": [
+      {
+        "text": "not active",
+        "value": 0.0,
+        "key": [
+          51,
+          415,
+          0
+        ]
+      },
+      {
+        "text": "manual selection",
+        "value": 1.0,
+        "key": [
+          51,
+          415,
+          1
+        ]
+      },
+      {
+        "text": "manual+automatic",
+        "value": 2.0,
+        "key": [
+          51,
+          415,
+          2
+        ]
+      }
+    ],
+    "418": [
+      {
+        "text": "not active",
+        "value": 0.0,
+        "key": [
+          51,
+          418,
+          0
+        ]
+      },
+      {
+        "text": "from Memocard",
+        "value": 1.0,
+        "key": [
+          51,
+          418,
+          1
+        ]
+      },
+      {
+        "text": "from network drive",
+        "value": 2.0,
+        "key": [
+          51,
+          418,
+          2
+        ]
+      }
+    ],
+    "419": [
+      {
+        "text": "keep file",
+        "value": 0.0,
+        "key": [
+          51,
+          419,
+          0
+        ]
+      },
+      {
+        "text": "delete file",
+        "value": 1.0,
+        "key": [
+          51,
+          419,
+          1
+        ]
+      }
+    ],
+    "420": [
+      {
+        "text": "not active",
+        "value": 0.0,
+        "key": [
+          51,
+          420,
+          0
+        ]
+      },
+      {
+        "text": "COM 1",
+        "value": 1.0,
+        "key": [
+          51,
+          420,
+          1
+        ]
+      },
+      {
+        "text": "COM 2",
+        "value": 2.0,
+        "key": [
+          51,
+          420,
+          2
+        ]
+      }
+    ],
+    "425": [
+      {
+        "text": "not active",
+        "value": 0.0,
+        "key": [
+          51,
+          425,
+          0
+        ]
+      },
+      {
+        "text": "jump synchron fcts",
+        "value": 1.0,
+        "key": [
+          51,
+          425,
+          1
+        ]
+      },
+      {
+        "text": "jump all fcts",
+        "value": 2.0,
+        "key": [
+          51,
+          425,
+          2
+        ]
+      }
+    ],
+    "429": [
+      {
+        "text": "change parameter",
+        "value": 0.0,
+        "key": [
+          51,
+          429,
+          0
+        ]
+      },
+      {
+        "text": "don't change param.",
+        "value": 1.0,
+        "key": [
+          51,
+          429,
+          1
+        ]
+      }
+    ],
+    "430": [
+      {
+        "text": "not activated",
+        "value": 0.0,
+        "key": [
+          51,
+          430,
+          0
+        ]
+      },
+      {
+        "text": "active with MLG file",
+        "value": 1.0,
+        "key": [
+          51,
+          430,
+          1
+        ]
+      },
+      {
+        "text": "active with .T files",
+        "value": 2.0,
+        "key": [
+          51,
+          430,
+          2
+        ]
+      },
+      {
+        "text": "without status files",
+        "value": 3.0,
+        "key": [
+          51,
+          430,
+          3
+        ]
+      }
+    ],
+    "431": [
+      {
+        "text": "online diagram",
+        "value": 0.0,
+        "key": [
+          51,
+          431,
+          0
+        ]
+      },
+      {
+        "text": "batch info",
+        "value": 1.0,
+        "key": [
+          51,
+          431,
+          1
+        ]
+      },
+      {
+        "text": "diagram+batch info",
+        "value": 2.0,
+        "key": [
+          51,
+          431,
+          2
+        ]
+      }
+    ],
+    "434": [
+      {
+        "text": "local program(SECOM)",
+        "value": 0.0,
+        "key": [
+          51,
+          434,
+          0
+        ]
+      },
+      {
+        "text": "network program",
+        "value": 1.0,
+        "key": [
+          51,
+          434,
+          1
+        ]
+      },
+      {
+        "text": "callOff file network",
+        "value": 2.0,
+        "key": [
+          51,
+          434,
+          2
+        ]
+      },
+      {
+        "text": "reserved",
+        "value": 3.0,
+        "key": [
+          51,
+          434,
+          3
+        ]
+      },
+      {
+        "text": "reserved",
+        "value": 4.0,
+        "key": [
+          51,
+          434,
+          4
+        ]
+      },
+      {
+        "text": "set mode by PLC",
+        "value": 5.0,
+        "key": [
+          51,
+          434,
+          5
+        ]
+      }
+    ],
+    "438": [
+      {
+        "text": "Select addition",
+        "value": 0.0,
+        "key": [
+          51,
+          438,
+          0
+        ]
+      },
+      {
+        "text": "Program list",
+        "value": 1.0,
+        "key": [
+          51,
+          438,
+          1
+        ]
+      },
+      {
+        "text": "Intervention Potis",
+        "value": 2.0,
+        "key": [
+          51,
+          438,
+          2
+        ]
+      }
+    ],
+    "440": [
+      {
+        "text": "don't display",
+        "value": 0.0,
+        "key": [
+          51,
+          440,
+          0
+        ]
+      },
+      {
+        "text": "DDMMYY",
+        "value": 1.0,
+        "key": [
+          51,
+          440,
+          1
+        ]
+      },
+      {
+        "text": "MMDDYY",
+        "value": 2.0,
+        "key": [
+          51,
+          440,
+          2
+        ]
+      },
+      {
+        "text": "DDMSTRYY",
+        "value": 3.0,
+        "key": [
+          51,
+          440,
+          3
+        ]
+      },
+      {
+        "text": "MSTRDDYY",
+        "value": 4.0,
+        "key": [
+          51,
+          440,
+          4
+        ]
+      }
+    ],
+    "441": [
+      {
+        "text": "don't display",
+        "value": 0.0,
+        "key": [
+          51,
+          441,
+          0
+        ]
+      },
+      {
+        "text": "AM/PM",
+        "value": 1.0,
+        "key": [
+          51,
+          441,
+          1
+        ]
+      },
+      {
+        "text": "24 hours",
+        "value": 2.0,
+        "key": [
+          51,
+          441,
+          2
+        ]
+      }
+    ],
+    "443": [
+      {
+        "text": "run time",
+        "value": 0.0,
+        "key": [
+          51,
+          443,
+          0
+        ]
+      },
+      {
+        "text": "run & set time",
+        "value": 1.0,
+        "key": [
+          51,
+          443,
+          1
+        ]
+      }
+    ],
+    "446": [
+      {
+        "text": "not from PLC",
+        "value": 0.0,
+        "key": [
+          51,
+          446,
+          0
+        ]
+      },
+      {
+        "text": "only in process pict",
+        "value": 1.0,
+        "key": [
+          51,
+          446,
+          1
+        ]
+      },
+      {
+        "text": "also in Standardmenu",
+        "value": 2.0,
+        "key": [
+          51,
+          446,
+          2
+        ]
+      }
+    ],
+    "447": [
+      {
+        "text": "Proc.pict./time info",
+        "value": 0.0,
+        "key": [
+          51,
+          447,
+          0
+        ]
+      },
+      {
+        "text": "next step",
+        "value": 1.0,
+        "key": [
+          51,
+          447,
+          1
+        ]
+      }
+    ],
+    "451": [
+      {
+        "text": "not active",
+        "value": 0.0,
+        "key": [
+          51,
+          451,
+          0
+        ]
+      },
+      {
+        "text": "active - User",
+        "value": 1.0,
+        "key": [
+          51,
+          451,
+          1
+        ]
+      },
+      {
+        "text": "active - Alarms",
+        "value": 2.0,
+        "key": [
+          51,
+          451,
+          2
+        ]
+      }
+    ],
+    "460": [
+      {
+        "text": "default (1 user)",
+        "value": 0.0,
+        "key": [
+          51,
+          460,
+          0
+        ]
+      },
+      {
+        "text": "several user",
+        "value": 1.0,
+        "key": [
+          51,
+          460,
+          1
+        ]
+      },
+      {
+        "text": "OrgaTEX user",
+        "value": 2.0,
+        "key": [
+          51,
+          460,
+          2
+        ]
+      }
+    ],
+    "462": [
+      {
+        "text": "not active",
+        "value": 0.0,
+        "key": [
+          51,
+          462,
+          0
+        ]
+      },
+      {
+        "text": "with RFID reader",
+        "value": 1.0,
+        "key": [
+          51,
+          462,
+          1
+        ]
+      },
+      {
+        "text": "with barcode reader",
+        "value": 2.0,
+        "key": [
+          51,
+          462,
+          2
+        ]
+      }
+    ],
+    "466": [
+      {
+        "text": "DDMMYY",
+        "value": 0.0,
+        "key": [
+          51,
+          466,
+          0
+        ]
+      },
+      {
+        "text": "MMDDYY",
+        "value": 1.0,
+        "key": [
+          51,
+          466,
+          1
+        ]
+      }
+    ],
+    "467": [
+      {
+        "text": "send changed values",
+        "value": 0.0,
+        "key": [
+          51,
+          467,
+          0
+        ]
+      },
+      {
+        "text": "keep changed values",
+        "value": 1.0,
+        "key": [
+          51,
+          467,
+          1
+        ]
+      }
+    ],
+    "470": [
+      {
+        "text": "not selected",
+        "value": 0.0,
+        "key": [
+          51,
+          470,
+          0
+        ]
+      },
+      {
+        "text": "Logimat P160",
+        "value": 1.0,
+        "key": [
+          51,
+          470,
+          1
+        ]
+      },
+      {
+        "text": "Logimat P32",
+        "value": 2.0,
+        "key": [
+          51,
+          470,
+          2
+        ]
+      },
+      {
+        "text": "Slot plc SC515",
+        "value": 3.0,
+        "key": [
+          51,
+          470,
+          3
+        ]
+      },
+      {
+        "text": "Slot plc SC505",
+        "value": 4.0,
+        "key": [
+          51,
+          470,
+          4
+        ]
+      },
+      {
+        "text": "Compact CP8",
+        "value": 5.0,
+        "key": [
+          51,
+          470,
+          5
+        ]
+      },
+      {
+        "text": "Compact CP16",
+        "value": 6.0,
+        "key": [
+          51,
+          470,
+          6
+        ]
+      },
+      {
+        "text": "Slot plc SC16",
+        "value": 7.0,
+        "key": [
+          51,
+          470,
+          7
+        ]
+      },
+      {
+        "text": "Compact CP14",
+        "value": 8.0,
+        "key": [
+          51,
+          470,
+          8
+        ]
+      },
+      {
+        "text": "Plc SC535",
+        "value": 9.0,
+        "key": [
+          51,
+          470,
+          9
+        ]
+      },
+      {
+        "text": "Plc with Logimat prt",
+        "value": 10.0,
+        "key": [
+          51,
+          470,
+          10
+        ]
+      },
+      {
+        "text": "reserved",
+        "value": 11.0,
+        "key": [
+          51,
+          470,
+          11
+        ]
+      },
+      {
+        "text": "reserved",
+        "value": 12.0,
+        "key": [
+          51,
+          470,
+          12
+        ]
+      },
+      {
+        "text": "reserved",
+        "value": 13.0,
+        "key": [
+          51,
+          470,
+          13
+        ]
+      },
+      {
+        "text": "reserved",
+        "value": 14.0,
+        "key": [
+          51,
+          470,
+          14
+        ]
+      },
+      {
+        "text": "Slot plc SC18D",
+        "value": 15.0,
+        "key": [
+          51,
+          470,
+          15
+        ]
+      },
+      {
+        "text": "Slot plc SC18C",
+        "value": 16.0,
+        "key": [
+          51,
+          470,
+          16
+        ]
+      },
+      {
+        "text": "Slot plc SC20D",
+        "value": 17.0,
+        "key": [
+          51,
+          470,
+          17
+        ]
+      },
+      {
+        "text": "Slot plc SC20C",
+        "value": 18.0,
+        "key": [
+          51,
+          470,
+          18
+        ]
+      }
+    ],
+    "472": [
+      {
+        "text": "compatible mode",
+        "value": 0.0,
+        "key": [
+          51,
+          472,
+          0
+        ]
+      },
+      {
+        "text": "new request filename",
+        "value": 1.0,
+        "key": [
+          51,
+          472,
+          1
+        ]
+      }
+    ],
+    "474": [
+      {
+        "text": "enabled",
+        "value": 0.0,
+        "key": [
+          51,
+          474,
+          0
+        ]
+      },
+      {
+        "text": "disabled",
+        "value": 1.0,
+        "key": [
+          51,
+          474,
+          1
+        ]
+      },
+      {
+        "text": "enabled & logging",
+        "value": 2.0,
+        "key": [
+          51,
+          474,
+          2
+        ]
+      }
+    ],
+    "475": [
+      {
+        "text": "V1 - one slave state",
+        "value": 0.0,
+        "key": [
+          51,
+          475,
+          0
+        ]
+      },
+      {
+        "text": "V2 - more states",
+        "value": 1.0,
+        "key": [
+          51,
+          475,
+          1
+        ]
+      }
+    ],
+    "480": [
+      {
+        "text": "not active",
+        "value": 0.0,
+        "key": [
+          51,
+          480,
+          0
+        ]
+      },
+      {
+        "text": "active, max.1 reason",
+        "value": 1.0,
+        "key": [
+          51,
+          480,
+          1
+        ]
+      },
+      {
+        "text": "active, several",
+        "value": 2.0,
+        "key": [
+          51,
+          480,
+          2
+        ]
+      }
+    ],
+    "492": [
+      {
+        "text": "all machines",
+        "value": 0.0,
+        "key": [
+          51,
+          492,
+          0
+        ]
+      },
+      {
+        "text": "selected machine",
+        "value": 1.0,
+        "key": [
+          51,
+          492,
+          1
+        ]
+      }
+    ],
+    "510": [
+      {
+        "text": "every time",
+        "value": 0.0,
+        "key": [
+          51,
+          510,
+          0
+        ]
+      },
+      {
+        "text": "never",
+        "value": 1.0,
+        "key": [
+          51,
+          510,
+          1
+        ]
+      },
+      {
+        "text": "on request",
+        "value": 2.0,
+        "key": [
+          51,
+          510,
+          2
+        ]
+      }
+    ],
+    "520": [
+      {
+        "text": "grey",
+        "value": 0.0,
+        "key": [
+          51,
+          520,
+          0
+        ]
+      },
+      {
+        "text": "blue",
+        "value": 1.0,
+        "key": [
+          51,
+          520,
+          1
+        ]
+      }
+    ],
+    "530": [
+      {
+        "text": "show",
+        "value": 0.0,
+        "key": [
+          51,
+          530,
+          0
+        ]
+      },
+      {
+        "text": "don't show",
+        "value": 1.0,
+        "key": [
+          51,
+          530,
+          1
+        ]
+      }
+    ],
+    "540": [
+      {
+        "text": "allowed",
+        "value": 0.0,
+        "key": [
+          51,
+          540,
+          0
+        ]
+      },
+      {
+        "text": "locked",
+        "value": 1.0,
+        "key": [
+          51,
+          540,
+          1
+        ]
+      }
+    ],
+    "301": [
+      {
+        "text": "not active",
+        "value": 0.0,
+        "key": [
+          51,
+          301,
+          0
+        ]
+      },
+      {
+        "text": "active",
+        "value": 1.0,
+        "key": [
+          51,
+          301,
+          1
+        ]
+      }
+    ],
+    "7": [
+      {
+        "text": "Circulation Valve",
+        "value": 0.0,
+        "key": [
+          51,
+          7,
+          0
+        ]
+      },
+      {
+        "text": "Mixer",
+        "value": 1.0,
+        "key": [
+          51,
+          7,
+          1
+        ]
+      }
+    ],
+    "8": [
+      {
+        "text": "timer",
+        "value": 0.0,
+        "key": [
+          51,
+          8,
+          0
+        ]
+      },
+      {
+        "text": "Cool Water",
+        "value": 1.0,
+        "key": [
+          51,
+          8,
+          1
+        ]
+      }
+    ],
+    "21": [
+      {
+        "text": "valve 1",
+        "value": 1.0,
+        "key": [
+          51,
+          21,
+          1
+        ]
+      },
+      {
+        "text": "valve 2",
+        "value": 2.0,
+        "key": [
+          51,
+          21,
+          2
+        ]
+      },
+      {
+        "text": "valve 3",
+        "value": 3.0,
+        "key": [
+          51,
+          21,
+          3
+        ]
+      },
+      {
+        "text": "valve 4",
+        "value": 4.0,
+        "key": [
+          51,
+          21,
+          4
+        ]
+      },
+      {
+        "text": "valve 5",
+        "value": 5.0,
+        "key": [
+          51,
+          21,
+          5
+        ]
+      }
+    ],
+    "22": [
+      {
+        "text": "NO",
+        "value": 0.0,
+        "key": [
+          51,
+          22,
+          0
+        ]
+      },
+      {
+        "text": "yes",
+        "value": 1.0,
+        "key": [
+          51,
+          22,
+          1
+        ]
+      }
+    ],
+    "32": [
+      {
+        "text": "Prep",
+        "value": 0.0,
+        "key": [
+          51,
+          32,
+          0
+        ]
+      },
+      {
+        "text": "wash",
+        "value": 1.0,
+        "key": [
+          51,
+          32,
+          1
+        ]
+      }
+    ],
+    "13": [
+      {
+        "text": "NO",
+        "value": 0.0,
+        "key": [
+          51,
+          13,
+          0
+        ]
+      },
+      {
+        "text": "Yes",
+        "value": 1.0,
+        "key": [
+          51,
+          13,
+          1
+        ]
+      }
+    ],
+    "15": [
+      {
+        "text": "Heat  Cool Analog",
+        "value": 0.0,
+        "key": [
+          51,
+          15,
+          0
+        ]
+      },
+      {
+        "text": "Heat  Cool Digital",
+        "value": 1.0,
+        "key": [
+          51,
+          15,
+          1
+        ]
+      },
+      {
+        "text": "Heat analog Cool dig",
+        "value": 2.0,
+        "key": [
+          51,
+          15,
+          2
+        ]
+      },
+      {
+        "text": "heatdig coolanalog",
+        "value": 3.0,
+        "key": [
+          51,
+          15,
+          3
+        ]
+      }
+    ],
+    "14": [
+      {
+        "text": "Fill 1",
+        "value": 1.0,
+        "key": [
+          51,
+          14,
+          1
+        ]
+      },
+      {
+        "text": "Fill 2",
+        "value": 2.0,
+        "key": [
+          51,
+          14,
+          2
+        ]
+      },
+      {
+        "text": "Fill 3",
+        "value": 3.0,
+        "key": [
+          51,
+          14,
+          3
+        ]
+      }
+    ]
+  },
+  "cnf_sha256": "f78df93abdb078601fddb34d5879198e272d3d541fe49e742f8c53116dc62761",
   "source": "TYPECONF.CNF",
-  "generated_at": "2026-11-25T16:59:04.545928"
+  "source_policy": "Function ID & parameters strictly decoded from Config/TYPECONF.CNF (never from .AWL PLC logic).",
+  "generated_at": "2026-11-25T17:36:08.107820"
 }

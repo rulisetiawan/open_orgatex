@@ -1,0 +1,33 @@
+{
+  "source": "MACHCONF.CNF",
+  "sha256": "22c2f9e5061ff3dbf48a8d481b33cf0b4361e2681d44cd35da05151e75f6a0ce",
+  "size_bytes": 9728,
+  "record_count": 108,
+  "metadata_strings": [
+    "Dry Mach",
+    "Standart Boya Makinesi",
+    "Canlar",
+    "F002",
+    "SMM-ORGATEX",
+    "Orgatex",
+    "orgatex",
+    "\\OT\\PROCEDUR",
+    "\\OT\\REPORTS",
+    "\\OT\\MACHINES",
+    "\\OT\\BATCH",
+    "\\OT\\DOSING",
+    "\\OT\\OPTIDYE",
+    "SECOM-",
+    "SE Asia Standard Time",
+    "lar Proje",
+    "\\OT\\CFG\\USER",
+    "setex-online.com",
+    "Canlar Mekatronik",
+    "Turkey Standard Time",
+    "rkiye Standart Saati",
+    "rkiye Yaz Saati",
+    "(UTC+03:00)",
+    "stanbul"
+  ],
+  "generated_at": "2026-11-26T07:57:54.579635"
+}

@@ -3,6 +3,11 @@ collector:
   log_level: "info" # debug, info, warn, error
   multi_machine: true
   max_workers: 12
+  # Fokus mesin pilot saat ini: hanya 10B & 1F
+  # Kosongkan ([]) jika nanti ingin memantau seluruh mesin aktif di database
+  target_machines:
+    - "10B"
+    - "1F"
 
 database:
   url: "postgresql://postgres:sensorSMM!@192.168.100.30:5433/pt_smm_jetflow"

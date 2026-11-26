@@ -1,0 +1,24 @@
+{
+  "source": "MACHCONF.CNF",
+  "sha256": "222cd314ae2cf1769f4c33a9430877ea3981cf610450d70bd8c4c850f2a34b9c",
+  "size_bytes": 6656,
+  "record_count": 57,
+  "metadata_strings": [
+    "NAME",
+    "F005",
+    "SMM-ORGATEX",
+    "ORGATEX",
+    "orgatex",
+    "\\OT\\PROCEDUR",
+    "\\OT\\REPORTS",
+    "\\OT\\MACHINES",
+    "\\OT\\BATCH",
+    "\\OT\\DOSING",
+    "\\OT\\OPTIDYE",
+    "SECOM-",
+    "proxy",
+    "SE Asia Standard Time",
+    "\\OT\\CFG\\USER"
+  ],
+  "generated_at": "2026-11-25T17:36:08.165825"
+}

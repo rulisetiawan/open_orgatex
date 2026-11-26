@@ -3,12 +3,34 @@
   "folder_name": "MESIN_DA01",
   "controller_type": "SETEX SECOM 777 (Windows CE)",
   "max_temp_c": 140.0,
-  "has_custom_hmi_config": false,
-  "status": "baseline_ready",
+  "has_custom_hmi_config": true,
+  "status": "ready",
   "ip_address": "192.168.1.95",
-  "last_synced_at": "2026-11-18T08:03:45.916564",
+  "last_synced_at": "2026-11-25T17:36:11.992548",
   "files_in_hmi_dir": [
-    "PETUNJUK_DOWNLOAD_DARI_HMI.txt"
+    "ALRIC_CE.TBM",
+    "CONFTEXT.CNF",
+    "FCTIC757.TBM",
+    "FNLEGEND.CNF",
+    "FUNCP757.TBM",
+    "GRPIC757.TBM",
+    "HFUNICON.TBM",
+    "HGRPICON.TBM",
+    "LOGOP757.TBM",
+    "MACHCONF.CNF",
+    "MESSAGES",
+    "PASSCODE.CNF",
+    "PETUNJUK_DOWNLOAD_DARI_HMI.txt",
+    "PROCI757.TBM",
+    "PROCP757.TBM",
+    "PRSMP757.TBM",
+    "SC26.AWL",
+    "STATP757.TBM",
+    "STPIC_CE.TBM",
+    "TYPECONF.CNF",
+    "TYPECONT.CNF",
+    "TYPEFORM.CNF",
+    "USERCONF.CNF"
   ],
   "has_awl_plc_program": true,
   "awl_files": [
@@ -20,5 +42,23 @@
   "awl_project_names": [
     "hSMKM25001_Numune_V1.pro"
   ],
-  "awl_sha256": "d45241aa0dc07d72e3780b82044e0585e144f1a2cf6ad0b2acdda8a4e3d34a20"
+  "awl_sha256": "d45241aa0dc07d72e3780b82044e0585e144f1a2cf6ad0b2acdda8a4e3d34a20",
+  "has_typeconf": true,
+  "has_conftext": true,
+  "has_fnlegend": true,
+  "has_userconf": true,
+  "has_machconf": true,
+  "config_sources": {
+    "program_recipes": "PROGRAMS/*.PRG",
+    "function_definitions": "Config/TYPECONF.CNF",
+    "function_texts_alarms": [
+      "Config/CONFTEXT.CNF",
+      "Config/FNLEGEND.CNF"
+    ],
+    "custom_process_labels": "Config/USERCONF.CNF",
+    "machine_parameters": "Config/MACHCONF.CNF",
+    "plc_execution_logic_only": [
+      "Config/SC26.AWL"
+    ]
+  }
 }

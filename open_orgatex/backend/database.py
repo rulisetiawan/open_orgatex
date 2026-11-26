@@ -356,6 +356,32 @@ def ensure_iw_tables(target_engine, is_postgres: bool = False):
     except Exception as e:
         logger.warning(f"ensure_iw_tables notice: {e}")
 
+def ensure_program_uniqueness(target_engine, is_postgres: bool = False):
+    """
+    Ensures no duplicate program_components exist within the same machine
+    (level, machine_code, number), while allowing the same program number
+    across different machines, and adds a unique index to prevent future duplicates.
+    """
+    try:
+        from .services.db_sync_service import DBSyncService
+        SessionTmp = sessionmaker(bind=target_engine)
+        sess = SessionTmp()
+        try:
+            DBSyncService.deduplicate_program_components(sess)
+        finally:
+            sess.close()
+
+        prefix = "public." if is_postgres else ""
+        with target_engine.connect() as conn:
+            conn.execute(text(
+                f"CREATE UNIQUE INDEX IF NOT EXISTS ux_program_components_lvl_mach_num "
+                f"ON {prefix}program_components (level, UPPER(TRIM(COALESCE(machine_code, 'TD12'))), TRIM(number));"
+            ))
+            conn.commit()
+    except Exception as e:
+        logger.warning(f"ensure_program_uniqueness notice: {e}")
+
+
 def is_pg_reachable(url: str, timeout: float = 0.5) -> bool:
     try:
         parsed = urlparse(url)
@@ -382,6 +408,7 @@ def init_db(retries=1, delay=1):
         ensure_essential_machines(engine, is_postgres=False)
         ensure_queue_tables(engine, is_postgres=False)
         ensure_iw_tables(engine, is_postgres=False)
+        ensure_program_uniqueness(engine, is_postgres=False)
         logger.info(f"OpenOrgaTEX Local SQLite database initialized: {sqlite_target}")
         return
 
@@ -416,6 +443,7 @@ def init_db(retries=1, delay=1):
             ensure_essential_machines(engine, is_postgres=True)
             ensure_queue_tables(engine, is_postgres=True)
             ensure_iw_tables(engine, is_postgres=True)
+            ensure_program_uniqueness(engine, is_postgres=True)
             return
         except Exception as e:
             logger.warning(f"PostgreSQL connection attempt failed: {e}")
@@ -432,6 +460,7 @@ def init_db(retries=1, delay=1):
     ensure_essential_machines(engine, is_postgres=False)
     ensure_queue_tables(engine, is_postgres=False)
     ensure_iw_tables(engine, is_postgres=False)
+    ensure_program_uniqueness(engine, is_postgres=False)
     logger.info(f"SQLite local fallback database initialized at: {local_db_path}")
 
 def get_db():

@@ -6,12 +6,13 @@
   "has_custom_hmi_config": true,
   "status": "ready",
   "ip_address": "172.16.120.154",
-  "last_synced_at": "2026-11-25T16:18:13.763539",
+  "last_synced_at": "2026-11-25T17:36:07.096723",
   "files_in_hmi_dir": [
     "CONFTEXT.CNF",
     "FNLEGEND.CNF",
     "MACHCONF.CNF",
     "PETUNJUK_DOWNLOAD_DARI_HMI.txt",
+    "SC26.AWL",
     "TYPECONF.CNF",
     "TYPECONT.CNF",
     "TYPEFORM.CNF",
@@ -29,5 +30,23 @@
   "awl_project_names": [
     "iSarana_797_v1.pro"
   ],
-  "awl_sha256": "848b37d5a209ac26de9e0a68668312a6828c18df089a43163f9037112a82150a"
+  "awl_sha256": "848b37d5a209ac26de9e0a68668312a6828c18df089a43163f9037112a82150a",
+  "has_typeconf": true,
+  "has_conftext": true,
+  "has_fnlegend": true,
+  "has_userconf": true,
+  "has_machconf": true,
+  "config_sources": {
+    "program_recipes": "PROGRAMS/*.PRG",
+    "function_definitions": "Config/TYPECONF.CNF",
+    "function_texts_alarms": [
+      "Config/CONFTEXT.CNF",
+      "Config/FNLEGEND.CNF"
+    ],
+    "custom_process_labels": "Config/USERCONF.CNF",
+    "machine_parameters": "Config/MACHCONF.CNF",
+    "plc_execution_logic_only": [
+      "Config/SC26.AWL"
+    ]
+  }
 }

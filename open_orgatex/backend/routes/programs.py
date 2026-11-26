@@ -10,6 +10,8 @@ from typing import List, Optional, Any, Dict
 from sqlalchemy.orm import Session
 import os
 import json
+import time
+import struct
 import base64
 import hashlib
 from datetime import datetime
@@ -24,7 +26,10 @@ from ..models.schema_pg import (
     StepFunctionParameter,
     Machine
 )
-from ..services.machine_config_service import fetch_machine_programs_from_hmi
+from ..services.machine_config_service import (
+    fetch_machine_programs_from_hmi,
+    sync_machine_ready_config,
+)
 from ..utils.secom_codec import (
     parse_prg_binary,
     serialize_prg_binary,
@@ -104,7 +109,7 @@ class TreatmentIn(BaseModel):
     parameters: Optional[Dict[str, float]] = {}
     steps: Optional[List[StepIn]] = []
 
-# Standard Treatment Library (Sub-Programs)
+# Standard Treatment Library (Sub-Programs) — Strictly uses verified TYPECONF.CNF Function IDs
 DEFAULT_TREATMENTS = [
     {
         "id": 1,
@@ -115,27 +120,22 @@ DEFAULT_TREATMENTS = [
             {
                 "step_no": 1,
                 "label": "Isi Air Hangat",
-                "functions": [{"function_id": 713, "name": "Water Fill", "column": 1, "params": [1.0, 3200.0]}]
+                "functions": [{"function_id": 713, "name": "Fill Level", "column": 1, "params": [1.0, 3200.0]}]
             },
             {
                 "step_no": 2,
-                "label": "Injeksi Kimia S/B (Kostik & H2O2)",
-                "functions": [{"function_id": 85, "name": "Dosing Tank 1", "column": 1, "params": [10.0, 100.0]}]
+                "label": "Injeksi Kimia S/B (AT1)",
+                "functions": [{"function_id": 938, "name": "Dosing Prpgression 1", "column": 1, "params": [40.0, 1.5, 0.0, 1.0, 10.0]}]
             },
             {
                 "step_no": 3,
-                "label": "Pemanasan ke 98°C",
-                "functions": [{"function_id": 141, "name": "Heating", "column": 1, "params": [98.0, 2.5]}]
+                "label": "Pemanasan & Tahan Suhu 98°C",
+                "functions": [{"function_id": 141, "name": "Temperature Control", "column": 1, "params": [98.0, 2.5, 45.0]}]
             },
             {
                 "step_no": 4,
-                "label": "Tahan Suhu 98°C",
-                "functions": [{"function_id": 121, "name": "Hold", "column": 1, "params": [45.0]}]
-            },
-            {
-                "step_no": 5,
                 "label": "Drain Total",
-                "functions": [{"function_id": 61, "name": "Drain", "column": 1, "params": []}]
+                "functions": [{"function_id": 71, "name": "Drain Percent", "column": 1, "params": [100.0, 1.0, 0.0]}]
             }
         ]
     },
@@ -149,39 +149,34 @@ DEFAULT_TREATMENTS = [
                 "step_no": 1,
                 "label": "Isi Air Celup & Pompa",
                 "functions": [
-                    {"function_id": 713, "name": "Water Fill", "column": 1, "params": [1.0, 3000.0]},
-                    {"function_id": 404, "name": "Circulation Pump", "column": 2, "params": [85.0]}
+                    {"function_id": 713, "name": "Fill Level", "column": 1, "params": [1.0, 3000.0]},
+                    {"function_id": 404, "name": "Dye Liquor Pump", "column": 2, "params": [30.0, 85.0]}
                 ]
             },
             {
                 "step_no": 2,
-                "label": "Dosing Garam Glauber (Tank 1)",
-                "functions": [{"function_id": 85, "name": "Dosing Tank 1", "column": 1, "params": [15.0, 100.0]}]
+                "label": "Dosing Garam Glauber (AT1)",
+                "functions": [{"function_id": 938, "name": "Dosing Prpgression 1", "column": 1, "params": [40.0, 1.5, 0.0, 1.0, 15.0]}]
             },
             {
                 "step_no": 3,
-                "label": "Dosing Zat Warna (Tank 2)",
-                "functions": [{"function_id": 86, "name": "Dosing Tank 2", "column": 1, "params": [20.0, 100.0]}]
+                "label": "Dosing Zat Warna (AT2)",
+                "functions": [{"function_id": 939, "name": "Dosing Prpgression 2", "column": 1, "params": [40.0, 1.5, 0.0, 1.0, 20.0]}]
             },
             {
                 "step_no": 4,
-                "label": "Heating ke Suhu 60°C",
-                "functions": [{"function_id": 141, "name": "Heating", "column": 1, "params": [60.0, 1.5]}]
+                "label": "Heating & Fiksasi Suhu 60°C",
+                "functions": [{"function_id": 141, "name": "Temperature Control", "column": 1, "params": [60.0, 1.5, 45.0]}]
             },
             {
                 "step_no": 5,
-                "label": "Penahanan Suhu & Fiksasi 60°C",
-                "functions": [{"function_id": 121, "name": "Hold", "column": 1, "params": [45.0]}]
+                "label": "Cooling ke 50°C",
+                "functions": [{"function_id": 141, "name": "Temperature Control", "column": 1, "params": [50.0, 2.0, 5.0]}]
             },
             {
                 "step_no": 6,
-                "label": "Cooling ke 50°C",
-                "functions": [{"function_id": 144, "name": "Cooling", "column": 1, "params": [50.0, 2.0]}]
-            },
-            {
-                "step_no": 7,
                 "label": "Drain Larutan Celup",
-                "functions": [{"function_id": 61, "name": "Drain", "column": 1, "params": []}]
+                "functions": [{"function_id": 71, "name": "Drain Percent", "column": 1, "params": [100.0, 1.0, 0.0]}]
             }
         ]
     },
@@ -194,27 +189,22 @@ DEFAULT_TREATMENTS = [
             {
                 "step_no": 1,
                 "label": "Isi Air Bersih",
-                "functions": [{"function_id": 713, "name": "Water Fill", "column": 1, "params": [1.0, 3000.0]}]
+                "functions": [{"function_id": 713, "name": "Fill Level", "column": 1, "params": [1.0, 3000.0]}]
             },
             {
                 "step_no": 2,
-                "label": "Dosing Sabun Pencuci (Tank 1)",
-                "functions": [{"function_id": 85, "name": "Dosing Tank 1", "column": 1, "params": [5.0, 100.0]}]
+                "label": "Dosing Sabun Pencuci (AT1)",
+                "functions": [{"function_id": 938, "name": "Dosing Prpgression 1", "column": 1, "params": [50.0, 2.0, 0.0, 1.0, 5.0]}]
             },
             {
                 "step_no": 3,
-                "label": "Pemanasan ke 95°C",
-                "functions": [{"function_id": 141, "name": "Heating", "column": 1, "params": [95.0, 2.5]}]
+                "label": "Pemanasan & Hold Sabun 95°C",
+                "functions": [{"function_id": 141, "name": "Temperature Control", "column": 1, "params": [95.0, 2.5, 20.0]}]
             },
             {
                 "step_no": 4,
-                "label": "Hold Sabun 95°C",
-                "functions": [{"function_id": 121, "name": "Hold", "column": 1, "params": [20.0]}]
-            },
-            {
-                "step_no": 5,
                 "label": "Drain",
-                "functions": [{"function_id": 61, "name": "Drain", "column": 1, "params": []}]
+                "functions": [{"function_id": 71, "name": "Drain Percent", "column": 1, "params": [100.0, 1.0, 0.0]}]
             }
         ]
     },
@@ -227,20 +217,17 @@ DEFAULT_TREATMENTS = [
             {
                 "step_no": 1,
                 "label": "Isi Air Bilas",
-                "functions": [{"function_id": 713, "name": "Water Fill", "column": 1, "params": [1.0, 2500.0]}]
+                "functions": [{"function_id": 713, "name": "Fill Level", "column": 1, "params": [1.0, 2500.0]}]
             },
             {
                 "step_no": 2,
                 "label": "Bilas Dingin 10 Menit",
-                "functions": [{"function_id": 127, "name": "Rinse", "column": 1, "params": [10.0]}]
+                "functions": [{"function_id": 710, "name": "Rinse Time Mode", "column": 1, "params": [1.0, 1.0, 10.0, 1.0]}]
             },
             {
                 "step_no": 3,
-                "label": "Drain Akhir & Selesai",
-                "functions": [
-                    {"function_id": 61, "name": "Drain", "column": 1, "params": []},
-                    {"function_id": 2, "name": "End of Program", "column": 2, "params": []}
-                ]
+                "label": "Drain Akhir",
+                "functions": [{"function_id": 71, "name": "Drain Percent", "column": 1, "params": [100.0, 1.0, 0.0]}]
             }
         ]
     }
@@ -270,6 +257,206 @@ def _get_detail_dir():
         if os.path.exists(d):
             return d
     return None
+
+
+def load_machine_config_bundle(machine_no: str) -> Dict[str, Any]:
+    """
+    Loads machine-specific SECOM configuration strictly from non-AWL .CNF files:
+      - Config/TYPECONF.CNF -> functions, parameters, resources, groups, text_choices
+      - Config/CONFTEXT.CNF & FNLEGEND.CNF -> texts/alarms metadata
+      - Config/USERCONF.CNF -> main_labels (1..20) & nachsatz_labels
+      - Config/MACHCONF.CNF -> machine parameters metadata
+    Never reads Function IDs or Program IDs from .AWL PLC execution files.
+    """
+    clean_no = (machine_no or "TD12").strip().upper().replace("MESIN_", "")
+    m_folder = f"MESIN_{clean_no}"
+    m_path = os.path.join(MACHINE_WORKSPACE_BASE, m_folder)
+    is_template_fallback = False
+
+    if not os.path.isdir(m_path):
+        m_path = os.path.join(MACHINE_WORKSPACE_BASE, "_TEMPLATE_MESIN_BARU")
+        is_template_fallback = True
+
+    raw_dir = os.path.join(m_path, "01_CONFIG_DARI_HMI")
+    config_dir = os.path.join(m_path, "02_CONFIG_SIAP_PAKAI")
+    tf_path = os.path.join(config_dir, "typeconf_functions.json")
+    uc_path = os.path.join(config_dir, "userconf_labels.json")
+    mc_path = os.path.join(config_dir, "machconf_info.json")
+    prof_path = os.path.join(config_dir, "machine_profile.json")
+
+    raw_tc = os.path.join(raw_dir, "TYPECONF.CNF")
+    raw_uc = os.path.join(raw_dir, "USERCONF.CNF")
+    raw_mc = os.path.join(raw_dir, "MACHCONF.CNF")
+
+    typeconf_data: Dict[str, Any] = {}
+    if os.path.exists(tf_path):
+        try:
+            with open(tf_path, "r", encoding="utf-8") as f:
+                typeconf_data = json.load(f)
+        except Exception:
+            typeconf_data = {}
+
+    # Auto-redecode from raw TYPECONF.CNF if JSON is missing or lacks resources/text_choices/lines
+    needs_resync = False
+    if not is_template_fallback and os.path.exists(raw_tc):
+        if not typeconf_data.get("functions") or not typeconf_data.get("resources"):
+            needs_resync = True
+    if not is_template_fallback and os.path.exists(raw_uc) and not os.path.exists(uc_path):
+        needs_resync = True
+    if not is_template_fallback and os.path.exists(raw_mc) and not os.path.exists(mc_path):
+        needs_resync = True
+
+    if needs_resync:
+        try:
+            sync_machine_ready_config(clean_no)
+            if os.path.exists(tf_path):
+                with open(tf_path, "r", encoding="utf-8") as f:
+                    typeconf_data = json.load(f)
+        except Exception:
+            pass
+
+    userconf_labels = _load_json_file(uc_path, {})
+    machconf_info = _load_json_file(mc_path, {})
+    profile = _load_json_file(prof_path, {})
+
+    raw_files = os.listdir(raw_dir) if os.path.isdir(raw_dir) else []
+    raw_upper = {f.upper(): f for f in raw_files}
+    awl_files = [f for f in raw_files if f.upper().endswith(".AWL")]
+
+    config_sources = {
+        "program_recipes": "PROGRAMS/*.PRG",
+        "function_definitions": "Config/TYPECONF.CNF" if "TYPECONF.CNF" in raw_upper else "baseline_typeconf",
+        "function_texts_alarms": [
+            f"Config/{raw_upper[k]}" for k in ("CONFTEXT.CNF", "FNLEGEND.CNF") if k in raw_upper
+        ],
+        "custom_process_labels": f"Config/{raw_upper['USERCONF.CNF']}" if "USERCONF.CNF" in raw_upper else None,
+        "machine_parameters": f"Config/{raw_upper['MACHCONF.CNF']}" if "MACHCONF.CNF" in raw_upper else None,
+        "plc_execution_logic_only": [f"Config/{f}" for f in awl_files],
+        "has_machine_typeconf": "TYPECONF.CNF" in raw_upper,
+        "is_template_fallback": is_template_fallback,
+    }
+
+    return {
+        "machine_no": clean_no,
+        "folder": m_folder,
+        "profile": profile,
+        "config_sources": config_sources,
+        "typeconf_sha256": typeconf_data.get("cnf_sha256"),
+        "functions_count": len(typeconf_data.get("functions", {})),
+        "parameters_count": len(typeconf_data.get("parameters", {})),
+        "functions": typeconf_data.get("functions", {}),
+        "parameters": typeconf_data.get("parameters", {}),
+        "resources": typeconf_data.get("resources", {}),
+        "groups": typeconf_data.get("groups", []),
+        "text_choices": typeconf_data.get("text_choices", {}),
+        "userconf_labels": userconf_labels,
+        "machconf": machconf_info,
+    }
+
+
+def validate_steps_against_typeconf(
+    machine_no: str,
+    steps: List[Any],
+    enrich_names: bool = True
+) -> Dict[str, Any]:
+    """
+    Strictly validates all Function IDs and parameter bounds in `steps` against
+    the target machine's Config/TYPECONF.CNF (never against .AWL).
+    Prevents sending undefined or wrong Function IDs to the PLC.
+    """
+    bundle = load_machine_config_bundle(machine_no)
+    funcs = bundle.get("functions") or {}
+    params_defs = bundle.get("parameters") or {}
+    clean_no = bundle["machine_no"]
+
+    errors: List[Dict[str, Any]] = []
+    warnings: List[Dict[str, Any]] = []
+
+    if not funcs:
+        return {
+            "valid": True,
+            "machine_no": clean_no,
+            "errors": [],
+            "warnings": [{"message": f"TYPECONF.CNF untuk mesin {clean_no} belum tersedia, validasi dilewati."}],
+            "typeconf_source": bundle["config_sources"]["function_definitions"],
+            "typeconf_sha256": bundle.get("typeconf_sha256"),
+        }
+
+    for s_idx, st in enumerate(steps or [], start=1):
+        step_no = st.step_no if hasattr(st, "step_no") else st.get("step_no", s_idx)
+        st_funcs = st.functions if hasattr(st, "functions") else (st.get("functions") or [])
+        for fn in st_funcs:
+            fid = fn.function_id if hasattr(fn, "function_id") else fn.get("function_id")
+            col = (fn.column if hasattr(fn, "column") else fn.get("column")) or 1
+            f_params = (fn.params if hasattr(fn, "params") else fn.get("params")) or []
+            fid_str = str(fid)
+
+            if fid_str not in funcs:
+                errors.append({
+                    "step_no": step_no,
+                    "column": col,
+                    "function_id": fid,
+                    "message": (
+                        f"Step #{step_no} (Slot {col}): Function ID F{fid} TIDAK TERDAFTAR di "
+                        f"Config/TYPECONF.CNF Mesin {clean_no} (sumber: {bundle['config_sources']['function_definitions']})."
+                    )
+                })
+                continue
+
+            f_def = funcs[fid_str]
+            official_name = f_def.get("name") or f_def.get("name_local") or f"F{fid}"
+            if enrich_names:
+                if hasattr(fn, "name") and not fn.name:
+                    fn.name = official_name
+                elif isinstance(fn, dict) and not fn.get("name"):
+                    fn["name"] = official_name
+
+            # Check allowed column/slot if TYPECONF defines lines
+            allowed_lines = f_def.get("lines") or []
+            if allowed_lines and int(col) not in allowed_lines:
+                warnings.append({
+                    "step_no": step_no,
+                    "column": col,
+                    "function_id": fid,
+                    "message": (
+                        f"Step #{step_no}: Function F{fid} ({official_name}) pada Mesin {clean_no} "
+                        f"normalnya berjalan di Slot {allowed_lines}, bukan Slot {col}."
+                    )
+                })
+
+            # Check parameter limits defined in TYPECONF.CNF
+            for p_i, p_meta in enumerate(f_def.get("parameters") or []):
+                if p_i >= len(f_params):
+                    continue
+                try:
+                    val = float(f_params[p_i])
+                except Exception:
+                    continue
+                p_min = p_meta.get("minimum")
+                p_max = p_meta.get("maximum")
+                p_def_obj = params_defs.get(str(p_meta.get("definition_id")), {})
+                p_name = p_def_obj.get("name") or f"P{p_i + 1}"
+                if p_min is not None and p_max is not None and p_max > p_min:
+                    if val < p_min - 1e-4 or val > p_max + 1e-4:
+                        warnings.append({
+                            "step_no": step_no,
+                            "column": col,
+                            "function_id": fid,
+                            "param_index": p_i + 1,
+                            "message": (
+                                f"Step #{step_no} F{fid} ({official_name}) {p_name}={val} "
+                                f"di luar batas TYPECONF [{p_min}..{p_max}]."
+                            )
+                        })
+
+    return {
+        "valid": len(errors) == 0,
+        "machine_no": clean_no,
+        "errors": errors,
+        "warnings": warnings,
+        "typeconf_source": bundle["config_sources"]["function_definitions"],
+        "typeconf_sha256": bundle.get("typeconf_sha256"),
+    }
 
 # =============================================================================
 # API ROUTES: SUB-PROGRAMS (TREATMENTS - LEVEL 2)
@@ -410,34 +597,98 @@ def delete_treatment(treatment_id: str):
 # API ROUTES: MASTER PROGRAMS (PROCEDURES - LEVEL 1)
 # =============================================================================
 
+def _norm_machine(machine_code: Optional[str]) -> str:
+    clean = str(machine_code or "TD12").strip().upper()
+    if clean.startswith("MESIN_"):
+        clean = clean[6:]
+    return clean or "TD12"
+
+
+def _norm_pno_str(p_no: Any) -> str:
+    s = str(p_no or "").strip()
+    if s.isdigit():
+        return str(int(s))
+    return s.upper()
+
+
+def _custom_key(machine_code: Optional[str], p_no: Any) -> str:
+    return f"{_norm_machine(machine_code)}:{_norm_pno_str(p_no)}"
+
+
+def _custom_lookup(custom: Dict[str, Any], p_no: Any, machine_code: Optional[str] = None) -> Optional[Dict[str, Any]]:
+    p_str = _norm_pno_str(p_no)
+    if machine_code:
+        m_norm = _norm_machine(machine_code)
+        scoped = custom.get(f"{m_norm}:{p_str}")
+        if isinstance(scoped, dict):
+            return scoped
+        # Legacy flat key only if its machine_code actually matches m_norm
+        flat = custom.get(p_str)
+        if isinstance(flat, dict) and _norm_machine(flat.get("machine_code")) == m_norm:
+            return flat
+        return None
+    # Unscoped lookup: prefer flat or first matching machine entry
+    if p_str in custom and isinstance(custom[p_str], dict):
+        return custom[p_str]
+    for k, v in custom.items():
+        if isinstance(v, dict) and _norm_pno_str(v.get("program_no") or (k.split(":", 1)[1] if ":" in str(k) else k)) == p_str:
+            return v
+    return None
+
+
+def _save_custom_entry(path: str, machine_code: Optional[str], p_no: Any, entry: Dict[str, Any]) -> None:
+    raw = _load_json_file(path, {})
+    clean_store: Dict[str, Any] = {}
+    for k, v in raw.items():
+        if not isinstance(v, dict):
+            continue
+        v_mc = _norm_machine(v.get("machine_code") or (k.split(":", 1)[0] if ":" in str(k) else "TD12"))
+        v_pno = _norm_pno_str(v.get("program_no") or (k.split(":", 1)[1] if ":" in str(k) else k))
+        v["machine_code"] = v_mc
+        clean_store[f"{v_mc}:{v_pno}"] = v
+    m_norm = _norm_machine(machine_code)
+    p_str = _norm_pno_str(p_no)
+    entry["machine_code"] = m_norm
+    clean_store[f"{m_norm}:{p_str}"] = entry
+    _save_json_file(path, clean_store)
+
+
 @router.get("", include_in_schema=False)
 @router.get("/")
 def list_programs(db: Session = Depends(get_db)):
     """
     Lists all available master programs (Procedures, Level=1).
-    Combines PostgreSQL records, OrgaTEX plain export, and custom programs.
+    Deduplicated strictly per (machine_code, program_number) — the same program number
+    on different machines is preserved separately without cross-machine overwriting.
     """
     results = []
-    seen_ids = set()
+    seen_keys = set()  # (machine_code, program_number)
 
     # 1. Custom JSON store
     custom = _load_json_file(META_PATH, {})
 
-    # 2. Read from PostgreSQL (ProgramComponent Level 1)
+    # 2. Read from PostgreSQL/SQLite (ProgramComponent Level 1)
     try:
-        procs = db.query(ProgramComponent).filter(ProgramComponent.level == 1).order_by(ProgramComponent.number).all()
+        procs = db.query(ProgramComponent).filter(ProgramComponent.level == 1).order_by(ProgramComponent.id.desc()).all()
         for p in procs:
             try:
-                pno = int(p.number)
+                pno = int(_norm_pno_str(p.number))
             except Exception:
                 pno = p.id
-            seen_ids.add(pno)
+            m_code = _norm_machine(p.machine_code or "TD12")
+            dedup_key = (m_code, pno)
+            if dedup_key in seen_keys:
+                continue
+            seen_keys.add(dedup_key)
 
-            custom_info = custom.get(str(pno)) or custom.get(pno)
-            m_code = (custom_info.get("machine_code") if custom_info else None) or p.machine_code or "TD12"
-            p_name = (custom_info.get("program_name") if custom_info else None) or p.name
-            t_steps = (len(custom_info.get("steps", [])) if custom_info and "steps" in custom_info else None) or len(p.steps) or sum(len(sub.treatment.steps) for sub in p.sub_program_items if sub.treatment)
-            f_size = (custom_info.get("file_size") if custom_info else None) or (1024 * (t_steps or 1))
+            custom_info = _custom_lookup(custom, pno, m_code)
+            p_name = p.name or (custom_info.get("program_name") if custom_info else None) or f"PROGRAM #{pno}"
+            t_steps = (
+                len(p.steps)
+                or sum(len(sub.treatment.steps) for sub in p.sub_program_items if sub.treatment)
+                or (len(custom_info.get("steps", [])) if custom_info and "steps" in custom_info else 0)
+            )
+            f_size = (custom_info.get("file_size") if custom_info else None) or (384 + 65 * max(1, t_steps))
 
             results.append({
                 "filename": (custom_info.get("filename") if custom_info else None) or f"M_{str(pno).zfill(4)}.PRG",
@@ -451,31 +702,36 @@ def list_programs(db: Session = Depends(get_db)):
     except Exception:
         pass
 
-    # 2. Add remaining programs from custom store
+    # 2.1 Add remaining programs from custom store (per machine)
     for pid_str, prg in custom.items():
+        if not isinstance(prg, dict):
+            continue
         try:
-            pid = int(pid_str)
-            if pid not in seen_ids:
-                seen_ids.add(pid)
+            raw_pid = prg.get("program_no") or (pid_str.split(":", 1)[1] if ":" in str(pid_str) else pid_str)
+            pid = int(_norm_pno_str(raw_pid))
+            m_code = _norm_machine(prg.get("machine_code") or (pid_str.split(":", 1)[0] if ":" in str(pid_str) else "TD12"))
+            dedup_key = (m_code, pid)
+            if dedup_key not in seen_keys:
+                seen_keys.add(dedup_key)
                 results.append({
                     "filename": prg.get("filename") or f"M_{str(pid).zfill(4)}.PRG",
                     "program_number": pid,
                     "program_name": prg.get("program_name", f"PROGRAM #{pid}"),
-                    "machine_code": prg.get("machine_code") or "TD12",
+                    "machine_code": m_code,
                     "total_steps": len(prg.get("steps", [])),
                     "is_custom": True,
-                    "file_size": prg.get("file_size") or (1024 * (len(prg.get("steps", [])) or 1))
+                    "file_size": prg.get("file_size") or (384 + 65 * max(1, len(prg.get("steps", []))))
                 })
         except Exception:
             pass
 
-    # 2.5 Scan WORKSPACE_PROGRAM_MESIN for local machine programs
+    # 2.5 Scan WORKSPACE_PROGRAM_MESIN for local machine programs (dedup per machine)
     try:
         if os.path.isdir(MACHINE_WORKSPACE_BASE):
             for m_dir in sorted(os.listdir(MACHINE_WORKSPACE_BASE)):
                 if not m_dir.startswith("MESIN_"):
                     continue
-                clean_m = m_dir.replace("MESIN_", "")
+                clean_m = _norm_machine(m_dir)
                 full_m = os.path.join(MACHINE_WORKSPACE_BASE, m_dir)
                 for sub in ["03_CONTOH_PRG_DARI_HMI", "04_HASIL_PROGRAM_CELUP"]:
                     sub_p = os.path.join(full_m, sub)
@@ -489,8 +745,9 @@ def list_programs(db: Session = Depends(get_db)):
                                     raw_b = pf.read()
                                 parsed = parse_prg_binary(raw_b)
                                 pno = parsed.get("program_no")
-                                if pno and pno not in seen_ids:
-                                    seen_ids.add(pno)
+                                dedup_key = (clean_m, pno)
+                                if pno and dedup_key not in seen_keys:
+                                    seen_keys.add(dedup_key)
                                     results.append({
                                         "filename": fname,
                                         "program_number": pno,
@@ -513,13 +770,15 @@ def list_programs(db: Session = Depends(get_db)):
                 data = json.load(f)
                 for item in data:
                     pno = item.get("program_number")
-                    if pno not in seen_ids:
-                        seen_ids.add(pno)
+                    m_code = _norm_machine(item.get("machine_code") or "TD12")
+                    dedup_key = (m_code, pno)
+                    if dedup_key not in seen_keys:
+                        seen_keys.add(dedup_key)
                         results.append({
                             "filename": item.get("filename"),
                             "program_number": pno,
                             "program_name": item.get("program_name"),
-                            "machine_code": item.get("machine_code") or "TD12",
+                            "machine_code": m_code,
                             "total_steps": item.get("total_steps", 0),
                             "is_custom": False,
                             "file_size": item.get("file_size", 0)
@@ -534,14 +793,16 @@ def list_programs(db: Session = Depends(get_db)):
                 cat = json.load(f)
                 for t in cat.get("templates", []):
                     tid = t.get("id")
-                    if tid and tid not in seen_ids:
-                        seen_ids.add(tid)
+                    m_code = _norm_machine(t.get("machine_code") or "TD12")
+                    dedup_key = (m_code, tid)
+                    if tid and dedup_key not in seen_keys:
+                        seen_keys.add(dedup_key)
                         raw_len = len(base64.b64decode(t["base64"])) if "base64" in t else 1024
                         results.append({
                             "filename": t.get("filename", f"M_{str(tid).zfill(4)}.PRG"),
                             "program_number": tid,
                             "program_name": t.get("title", f"Template #{tid}"),
-                            "machine_code": t.get("machine_code") or "TD12",
+                            "machine_code": m_code,
                             "total_steps": t.get("steps", 0),
                             "is_custom": False,
                             "file_size": raw_len
@@ -549,7 +810,7 @@ def list_programs(db: Session = Depends(get_db)):
         except Exception:
             pass
 
-    results.sort(key=lambda x: x["program_number"])
+    results.sort(key=lambda x: (x["machine_code"], x["program_number"]))
     return results
 
 
@@ -579,23 +840,33 @@ def get_templates():
 
 
 @router.get("/{program_no}")
-def get_program(program_no: int, db: Session = Depends(get_db)):
+def get_program(program_no: int, machine_code: Optional[str] = None, db: Session = Depends(get_db)):
     """
     Retrieves full Procedure details, including Sub-Programs (Treatments) and flattened steps.
+    When machine_code is provided, resolves strictly for that machine so identical program numbers
+    across different machines never collide.
     """
+    target_m = _norm_machine(machine_code) if machine_code else None
+    pno_norm = _norm_pno_str(program_no)
+
     # 0. Check Custom JSON store first if it has rich sub_programs
     custom = _load_json_file(META_PATH, {})
-    if str(program_no) in custom:
-        c_prg = custom[str(program_no)]
-        if c_prg.get("sub_programs") or c_prg.get("steps"):
-            return c_prg
+    c_prg = _custom_lookup(custom, program_no, target_m)
+    if c_prg and (c_prg.get("sub_programs") or c_prg.get("steps")):
+        return c_prg
 
-    # 1. Check PostgreSQL
+    # 1. Check PostgreSQL / SQLite (matching machine_code first if specified)
     try:
-        p = db.query(ProgramComponent).filter(
-            (ProgramComponent.number == str(program_no)) | (ProgramComponent.id == program_no),
-            ProgramComponent.level == 1
-        ).first()
+        all_procs = db.query(ProgramComponent).filter(ProgramComponent.level == 1).all()
+        matching = [
+            row for row in all_procs
+            if (_norm_pno_str(row.number) == pno_norm or row.id == program_no)
+        ]
+        if target_m:
+            mach_matches = [row for row in matching if _norm_machine(row.machine_code) == target_m]
+            p = mach_matches[0] if mach_matches else None
+        else:
+            p = matching[0] if matching else None
         if p:
             sub_progs = []
             flattened = []
@@ -658,9 +929,8 @@ def get_program(program_no: int, db: Session = Depends(get_db)):
         pass
 
     # 2. Check Custom JSON store
-    custom = _load_json_file(META_PATH, {})
-    if str(program_no) in custom:
-        return custom[str(program_no)]
+    if c_prg:
+        return c_prg
 
     # 3. Check OrgaTEX detail directory
     detail_dir = _get_detail_dir()
@@ -719,10 +989,16 @@ def get_program(program_no: int, db: Session = Depends(get_db)):
     # 5. Check WORKSPACE_PROGRAM_MESIN (03_CONTOH_PRG_DARI_HMI and 04_HASIL_PROGRAM_CELUP)
     try:
         if os.path.isdir(MACHINE_WORKSPACE_BASE):
-            for m_dir in sorted(os.listdir(MACHINE_WORKSPACE_BASE)):
+            dirs_order = sorted(os.listdir(MACHINE_WORKSPACE_BASE))
+            if target_m:
+                pref = f"MESIN_{target_m}"
+                dirs_order = [pref] + [d for d in dirs_order if d != pref]
+            for m_dir in dirs_order:
                 if not m_dir.startswith("MESIN_"):
                     continue
-                clean_m = m_dir.replace("MESIN_", "")
+                clean_m = _norm_machine(m_dir)
+                if target_m and clean_m != target_m:
+                    continue
                 full_m = os.path.join(MACHINE_WORKSPACE_BASE, m_dir)
                 for sub in ["03_CONTOH_PRG_DARI_HMI", "04_HASIL_PROGRAM_CELUP"]:
                     sub_p = os.path.join(full_m, sub)
@@ -827,31 +1103,56 @@ def save_program(p: ProcedureIn, db: Session = Depends(get_db)):
 
         p.steps = flattened_steps
 
-    # 1. Update/Insert in PostgreSQL
+    # 0.5 Strict TYPECONF.CNF Validation (ensure every Function ID exists on target machine's TYPECONF.CNF, never .AWL)
+    target_machine_code = (p.machine_code or "TD12").strip().upper().replace("MESIN_", "")
+    validation_result = validate_steps_against_typeconf(target_machine_code, p.steps or [], enrich_names=True)
+    if not validation_result["valid"]:
+        err_summary = "; ".join(e["message"] for e in validation_result["errors"][:5])
+        if len(validation_result["errors"]) > 5:
+            err_summary += f" (+{len(validation_result['errors']) - 5} error lainnya)"
+        raise HTTPException(
+            status_code=400,
+            detail=f"Validasi TYPECONF.CNF Mesin {target_machine_code} GAGAL — Function ID tidak cocok dan ditolak agar tidak salah kirim ke PLC: {err_summary}"
+        )
+
+    # 1. Update/Insert in PostgreSQL (strictly scoped per machine_code + program_no)
+    p_no_str = _norm_pno_str(p.program_no)
     try:
-        proc = db.query(ProgramComponent).filter(
-            ProgramComponent.number == str(p.program_no),
-            ProgramComponent.level == 1
-        ).first()
+        all_mach_rows = [
+            row for row in db.query(ProgramComponent).filter(ProgramComponent.level == 1).order_by(ProgramComponent.id.asc()).all()
+            if _norm_machine(row.machine_code) == target_machine_code and _norm_pno_str(row.number) == p_no_str
+        ]
+        proc = all_mach_rows[0] if all_mach_rows else None
+        for dup in all_mach_rows[1:]:
+            db.query(ProgramComponentItem).filter(
+                ProgramComponentItem.parent_component_id == dup.id
+            ).update({"parent_component_id": proc.id}, synchronize_session=False)
+            db.query(ProgramComponentItem).filter(
+                ProgramComponentItem.program_component_id == dup.id
+            ).update({"program_component_id": proc.id}, synchronize_session=False)
+            db.delete(dup)
 
         if not proc:
             proc = ProgramComponent(
                 level=1,
                 type=1,
-                number=str(p.program_no),
+                number=p_no_str,
                 name=p.program_name.strip().upper(),
-                machine_code=p.machine_code or "TD12"
+                machine_code=target_machine_code
             )
             db.add(proc)
             db.flush()
         else:
+            proc.number = p_no_str
             proc.name = p.program_name.strip().upper()
-            proc.machine_code = p.machine_code or "TD12"
+            proc.machine_code = target_machine_code
             proc.modification_time = datetime.utcnow()
 
         # Update steps directly if provided
         if p.steps:
-            db.query(Step).filter(Step.parent_component_id == proc.id).delete()
+            for old_s in list(proc.steps):
+                db.delete(old_s)
+            db.flush()
             for st in p.steps:
                 new_s = Step(
                     position=st.step_no,
@@ -893,16 +1194,16 @@ def save_program(p: ProcedureIn, db: Session = Depends(get_db)):
     except Exception:
         pass
 
-    # 2. Keep local JSON fallback synced
-    custom = _load_json_file(META_PATH, {})
-    custom[str(p.program_no)] = p.dict()
-    _save_json_file(META_PATH, custom)
+    # 2. Keep local JSON fallback synced (machine-scoped key)
+    _save_custom_entry(META_PATH, target_machine_code, p.program_no, p.dict())
 
-    # 3. Auto-compile binary M_xxxx.PRG
+    # 3. Auto-compile binary M_xxxx.PRG (machine-scoped cache + flat fallback)
     try:
         if p.steps:
             compiled_bytes = serialize_prg_binary(p.program_no, p.program_name, [s.dict() for s in p.steps])
-            out_file = os.path.join(COMPILED_DIR, f"M_{str(p.program_no).zfill(4)}.PRG")
+            mach_dir = os.path.join(COMPILED_DIR, target_machine_code)
+            os.makedirs(mach_dir, exist_ok=True)
+            out_file = os.path.join(mach_dir, f"M_{str(p.program_no).zfill(4)}.PRG")
             with open(out_file, "wb") as f:
                 f.write(compiled_bytes)
     except Exception:
@@ -912,52 +1213,76 @@ def save_program(p: ProcedureIn, db: Session = Depends(get_db)):
         "status": "success",
         "program_no": p.program_no,
         "program_name": p.program_name,
+        "machine_code": target_machine_code,
         "total_steps": len(p.steps or []),
         "sub_programs_count": len(p.sub_programs or []),
         "table": "program_components (Level 1 Procedure)",
-        "download_url": f"/api/programs/download/{p.program_no}",
-        "message": f"Procedure OrgaTEX M_{str(p.program_no).zfill(4)}.PRG berhasil disimpan dan dikompilasi!"
+        "download_url": f"/api/programs/download/{p.program_no}?machine_code={target_machine_code}",
+        "typeconf_validation": validation_result,
+        "message": f"Procedure OrgaTEX M_{str(p.program_no).zfill(4)}.PRG berhasil divalidasi (TYPECONF.CNF {target_machine_code}), disimpan, dan dikompilasi!"
     }
 
-def get_compiled_prg_bytes(program_no: int, db: Optional[Session] = None) -> bytes:
-    """Retrieves or builds byte-exact SETEX SECOM 777 .PRG binary."""
+def get_compiled_prg_bytes(program_no: int, db: Optional[Session] = None, machine_code: Optional[str] = None) -> bytes:
+    """Retrieves or builds byte-exact SETEX SECOM 777 .PRG binary (machine-scoped when machine_code is given)."""
     p_no = int(program_no)
     if p_no < 1 or p_no > 9999:
         raise ValueError(f"Nomor program SETEX harus antara 1 sampai 9999 (4 digit). Diterima: {program_no}")
 
-    file_path = os.path.join(COMPILED_DIR, f"M_{str(p_no).zfill(4)}.PRG")
-    if os.path.exists(file_path):
-        try:
-            with open(file_path, "rb") as f:
-                raw_data = bytearray(f.read())
-                if len(raw_data) >= 384 and raw_data[:4] == bytes.fromhex("508fc2f5"):
-                    # Pastikan header version (60) dan program type (1) valid untuk SETEX SC797 PRA_ReadAndCheck_Header
-                    needs_update = False
-                    if struct.unpack_from("<I", raw_data, 4)[0] != 60:
-                        struct.pack_into("<I", raw_data, 4, 60)
-                        needs_update = True
-                    if struct.unpack_from("<H", raw_data, 35)[0] != 1:
-                        struct.pack_into("<H", raw_data, 35, 1)
-                        needs_update = True
-                    if needs_update:
-                        with open(file_path, "wb") as f_out:
-                            f_out.write(raw_data)
-                    return bytes(raw_data)
-        except Exception:
-            pass
+    clean_m = _norm_machine(machine_code) if machine_code else None
+    fname = f"M_{str(p_no).zfill(4)}.PRG"
+    candidate_paths = []
+    if clean_m:
+        mach_dir = os.path.join(COMPILED_DIR, clean_m)
+        os.makedirs(mach_dir, exist_ok=True)
+        candidate_paths.append(os.path.join(mach_dir, fname))
+    else:
+        candidate_paths.append(os.path.join(COMPILED_DIR, fname))
 
-    # Try to load program and compile
+    for file_path in candidate_paths:
+        if os.path.exists(file_path):
+            try:
+                with open(file_path, "rb") as f:
+                    raw_data = bytearray(f.read())
+                    if len(raw_data) >= 384 and raw_data[:4] == bytes.fromhex("508fc2f5"):
+                        needs_update = False
+                        if struct.unpack_from("<I", raw_data, 4)[0] != 60:
+                            struct.pack_into("<I", raw_data, 4, 60)
+                            needs_update = True
+                        if struct.unpack_from("<H", raw_data, 35)[0] != 1:
+                            struct.pack_into("<H", raw_data, 35, 1)
+                            needs_update = True
+                        if needs_update:
+                            with open(file_path, "wb") as f_out:
+                                f_out.write(raw_data)
+                        return bytes(raw_data)
+            except Exception:
+                pass
+
+    target_cache = candidate_paths[0]
+
+    # Try to load program and compile (strictly for clean_m when provided)
     try:
-        prg_data = get_program(p_no, db)
+        prg_data = get_program(p_no, machine_code=clean_m, db=db)
         steps = prg_data.get("steps", [])
         if steps:
             title = prg_data.get("program_name", f"PRG {p_no}")
             compiled = serialize_prg_binary(p_no, title, steps)
-            with open(file_path, "wb") as f:
+            with open(target_cache, "wb") as f:
                 f.write(compiled)
             return compiled
     except Exception:
         pass
+
+    # Legacy flat cache fallback if machine-specific binary not found
+    flat_path = os.path.join(COMPILED_DIR, fname)
+    if clean_m and os.path.exists(flat_path):
+        try:
+            with open(flat_path, "rb") as f:
+                raw_data = f.read()
+                if len(raw_data) >= 384 and raw_data[:4] == bytes.fromhex("508fc2f5"):
+                    return raw_data
+        except Exception:
+            pass
 
     # Try reverse-engineered catalog
     if os.path.exists(CATALOG_PATH):
@@ -967,7 +1292,7 @@ def get_compiled_prg_bytes(program_no: int, db: Optional[Session] = None) -> byt
                 for t in cat.get("templates", []):
                     if t.get("id") == p_no and "base64" in t:
                         raw = base64.b64decode(t["base64"])
-                        with open(file_path, "wb") as f:
+                        with open(target_cache, "wb") as f:
                             f.write(raw)
                         return raw
         except Exception:
@@ -976,7 +1301,7 @@ def get_compiled_prg_bytes(program_no: int, db: Optional[Session] = None) -> byt
     # Fallback to minimal valid PRG
     fallback = build_minimal_prg(p_no, f"PRG {p_no}")
     try:
-        with open(file_path, "wb") as f:
+        with open(target_cache, "wb") as f:
             f.write(fallback)
     except Exception:
         pass
@@ -984,10 +1309,10 @@ def get_compiled_prg_bytes(program_no: int, db: Optional[Session] = None) -> byt
 
 
 @router.post("/compile/{program_no}")
-def compile_program_binary(program_no: int, db: Session = Depends(get_db)):
+def compile_program_binary(program_no: int, machine_code: Optional[str] = None, db: Session = Depends(get_db)):
     """
     Compiles Procedure into standard 65-byte SETEX Secom 777CE binary record format.
-    Saves to compiled cache and returns hash and size.
+    Saves to machine-scoped compiled cache and returns hash and size.
     """
     if program_no < 1 or program_no > 9999:
         raise HTTPException(
@@ -996,7 +1321,7 @@ def compile_program_binary(program_no: int, db: Session = Depends(get_db)):
         )
 
     try:
-        prg = get_program(program_no, db)
+        prg = get_program(program_no, machine_code=machine_code, db=db)
     except HTTPException:
         raise
     except Exception as e:
@@ -1012,6 +1337,15 @@ def compile_program_binary(program_no: int, db: Session = Depends(get_db)):
             detail=f"Program #{program_no} belum memiliki langkah proses (steps). Tambahkan minimal satu langkah."
         )
 
+    target_machine = _norm_machine(machine_code or prg.get("machine_code") or "TD12")
+    val = validate_steps_against_typeconf(target_machine, steps, enrich_names=False)
+    if not val["valid"]:
+        err_summary = "; ".join(e["message"] for e in val["errors"][:5])
+        raise HTTPException(
+            status_code=400,
+            detail=f"Kompilasi ditolak — Program #{program_no} mengandung Function ID yang tidak valid untuk TYPECONF.CNF Mesin {target_machine}: {err_summary}"
+        )
+
     title = prg.get("program_name", f"PRG {program_no}")
     try:
         compiled_bytes = serialize_prg_binary(program_no, title, steps)
@@ -1020,7 +1354,9 @@ def compile_program_binary(program_no: int, db: Session = Depends(get_db)):
     except Exception as e:
         raise HTTPException(status_code=400, detail=f"Gagal mengompilasi biner program: {str(e)}")
 
-    out_file = os.path.join(COMPILED_DIR, f"M_{str(program_no).zfill(4)}.PRG")
+    mach_dir = os.path.join(COMPILED_DIR, target_machine)
+    os.makedirs(mach_dir, exist_ok=True)
+    out_file = os.path.join(mach_dir, f"M_{str(program_no).zfill(4)}.PRG")
     try:
         with open(out_file, "wb") as f:
             f.write(compiled_bytes)
@@ -1033,9 +1369,10 @@ def compile_program_binary(program_no: int, db: Session = Depends(get_db)):
 
     return {
         "status": "compiled",
+        "machine_code": target_machine,
         "target_file": f"M_{str(program_no).zfill(4)}.PRG",
         "sha256": sha256,
-        "download_url": f"/api/programs/download/{program_no}",
+        "download_url": f"/api/programs/download/{program_no}?machine_code={target_machine}",
         "header": {
             "program_no": program_no,
             "program_name": title,
@@ -1043,14 +1380,14 @@ def compile_program_binary(program_no: int, db: Session = Depends(get_db)):
             "sub_programs_count": len(prg.get("sub_programs", [])),
             "binary_bytes": actual_size
         },
-        "message": f"Kompilasi sukses! Program M_{str(program_no).zfill(4)}.PRG siap digunakan ({steps_count} langkah, {actual_size} bytes, SHA-256: {sha256[:8]}...)."
+        "message": f"Kompilasi sukses! Program M_{str(program_no).zfill(4)}.PRG ({target_machine}) siap digunakan ({steps_count} langkah, {actual_size} bytes, SHA-256: {sha256[:8]}...)."
     }
 
 
 @router.get("/download/{program_no}")
-def download_program_binary(program_no: int, db: Session = Depends(get_db)):
+def download_program_binary(program_no: int, machine_code: Optional[str] = None, db: Session = Depends(get_db)):
     """Downloads byte-exact SETEX SECOM 777 M_xxxx.PRG binary file."""
-    prg_bytes = get_compiled_prg_bytes(program_no, db)
+    prg_bytes = get_compiled_prg_bytes(program_no, db, machine_code=machine_code)
     filename = f"M_{str(program_no).zfill(4)}.PRG"
     return Response(
         content=prg_bytes,
@@ -1061,7 +1398,7 @@ def download_program_binary(program_no: int, db: Session = Depends(get_db)):
 
 @router.post("/upload-prg")
 async def upload_prg_file(request: Request, machine_code: Optional[str] = "TD12", db: Session = Depends(get_db)):
-    """Uploads and parses a binary SETEX SECOM 777 .PRG file (raw bytes or JSON base64)."""
+    """Uploads and parses a binary SETEX SECOM 777 .PRG file (raw bytes or JSON base64) and upserts per machine."""
     try:
         content_type = request.headers.get("content-type", "")
         filename = "uploaded.PRG"
@@ -1080,16 +1417,16 @@ async def upload_prg_file(request: Request, machine_code: Optional[str] = "TD12"
 
         parsed = parse_prg_binary(content)
         p_no = parsed["program_no"]
-        clean_mach = target_machine.strip().upper().replace("MESIN_", "")
+        clean_mach = _norm_machine(target_machine)
         parsed["machine_code"] = clean_mach
         parsed["filename"] = filename
 
-        custom = _load_json_file(META_PATH, {})
-        custom[str(p_no)] = parsed
-        _save_json_file(META_PATH, custom)
+        _save_custom_entry(META_PATH, clean_mach, p_no, parsed)
 
-        # Save compiled binary cache
-        out_path = os.path.join(COMPILED_DIR, f"M_{str(p_no).zfill(4)}.PRG")
+        # Save machine-scoped compiled binary cache
+        mach_dir = os.path.join(COMPILED_DIR, clean_mach)
+        os.makedirs(mach_dir, exist_ok=True)
+        out_path = os.path.join(mach_dir, f"M_{str(p_no).zfill(4)}.PRG")
         with open(out_path, "wb") as f:
             f.write(content)
 
@@ -1101,6 +1438,65 @@ async def upload_prg_file(request: Request, machine_code: Optional[str] = "TD12"
         with open(os.path.join(m_save_dir, save_name), "wb") as f:
             f.write(content)
 
+        # Upsert into DB & mirror to SQLite (update existing row if same machine+number)
+        try:
+            from ..services.db_sync_service import DBSyncService
+            p_no_str = _norm_pno_str(p_no)
+            existing = [
+                r for r in db.query(ProgramComponent).filter(ProgramComponent.level == 1).order_by(ProgramComponent.id.asc()).all()
+                if _norm_machine(r.machine_code) == clean_mach and _norm_pno_str(r.number) == p_no_str
+            ]
+            proc = existing[0] if existing else None
+            for dup in existing[1:]:
+                db.delete(dup)
+            if not proc:
+                proc = ProgramComponent(
+                    level=1, type=1, number=p_no_str,
+                    name=parsed.get("program_name") or f"PROGRAM #{p_no_str}",
+                    machine_code=clean_mach
+                )
+                db.add(proc)
+                db.flush()
+            else:
+                proc.name = parsed.get("program_name") or proc.name
+                proc.machine_code = clean_mach
+                proc.number = p_no_str
+                proc.modification_time = datetime.utcnow()
+                for old_s in list(proc.steps):
+                    db.delete(old_s)
+                db.flush()
+
+            for st in parsed.get("steps") or []:
+                new_s = Step(
+                    position=int(st.get("step_no") or 1),
+                    parent_component_id=proc.id,
+                    label=str(st.get("label") or "")[:100],
+                    summary_temp=st.get("summary_temp"),
+                    summary_time_min=st.get("summary_time_min") or 0.0,
+                    summary_water_l=st.get("summary_water_l") or 0.0,
+                )
+                db.add(new_s)
+                db.flush()
+                for fn in st.get("functions") or []:
+                    new_fn = StepFunction(
+                        step_id=new_s.id,
+                        resource_number=int(fn.get("column") or 1),
+                        function_number=int(fn.get("function_id") or 0),
+                        function_name=str(fn.get("name") or "")[:100],
+                    )
+                    db.add(new_fn)
+                    db.flush()
+                    for idx, val in enumerate(fn.get("params") or []):
+                        db.add(StepFunctionParameter(
+                            step_function_id=new_fn.id,
+                            function_parameter_number=idx + 1,
+                            value=float(val),
+                        ))
+            db.commit()
+            DBSyncService.mirror_program_to_sqlite(parsed)
+        except Exception:
+            db.rollback()
+
         return {
             "status": "success",
             "message": f"Berkas {filename} berhasil diimpor sebagai Program #{p_no} ({len(parsed['steps'])} langkah) untuk Mesin {clean_mach}.",
@@ -1108,6 +1504,19 @@ async def upload_prg_file(request: Request, machine_code: Optional[str] = "TD12"
         }
     except Exception as e:
         raise HTTPException(status_code=400, detail=f"Gagal mem-parsing berkas .PRG: {str(e)}")
+
+
+@router.post("/deduplicate")
+def deduplicate_programs_endpoint(db: Session = Depends(get_db)):
+    """Removes any duplicate program_components within the same machine in both PG and SQLite."""
+    from ..services.db_sync_service import DBSyncService
+    removed_db = DBSyncService.deduplicate_program_components(db)
+    sync_stats = DBSyncService.sync_all()
+    return {
+        "status": "success",
+        "removed_duplicates_in_active_db": removed_db,
+        "sync_stats": sync_stats
+    }
 
 
 class FetchFromMachineIn(BaseModel):
@@ -1189,63 +1598,51 @@ def fetch_programs_from_machine(machine_no: str, req: Optional[FetchFromMachineI
 # Machine-Specific Workspace Integration
 # =============================================================================
 
+class ValidateProgramIn(BaseModel):
+    steps: List[StepIn] = []
+
+
+@router.post("/validate/{machine_no}")
+def validate_program_for_machine(machine_no: str, payload: ValidateProgramIn):
+    """
+    Validates program steps strictly against the target machine's Config/TYPECONF.CNF
+    (never .AWL) so invalid Function IDs are caught before compiling or sending to PLC.
+    """
+    return validate_steps_against_typeconf(machine_no, payload.steps, enrich_names=False)
+
+
 @router.get("/machine-workspace/{machine_no}/config")
 def get_machine_workspace_config(machine_no: str):
     """
-    Returns specific functions, parameters, and profile for the selected machine
-    from WORKSPACE_PROGRAM_MESIN/MESIN_{machine_no}/02_CONFIG_SIAP_PAKAI/.
+    Returns machine-specific functions, parameters, resources, groups, text_choices,
+    USERCONF labels, MACHCONF metadata, and profile strictly from non-AWL .CNF files
+    in WORKSPACE_PROGRAM_MESIN/MESIN_{machine_no}/02_CONFIG_SIAP_PAKAI/.
     """
-    clean_no = machine_no.upper().replace("MESIN_", "")
-    m_folder = f"MESIN_{clean_no}"
-    m_path = os.path.join(MACHINE_WORKSPACE_BASE, m_folder)
-
-    if not os.path.isdir(m_path):
-        m_path = os.path.join(MACHINE_WORKSPACE_BASE, "_TEMPLATE_MESIN_BARU")
-
-    config_dir = os.path.join(m_path, "02_CONFIG_SIAP_PAKAI")
-    tf_path = os.path.join(config_dir, "typeconf_functions.json")
-    cf_path = os.path.join(config_dir, "conftext_aligned.json")
-    prof_path = os.path.join(config_dir, "machine_profile.json")
-
-    functions = {}
-    if os.path.exists(tf_path):
-        try:
-            with open(tf_path, "r", encoding="utf-8") as f:
-                functions = json.load(f)
-        except Exception:
-            pass
-
-    profile = {}
-    if os.path.exists(prof_path):
-        try:
-            with open(prof_path, "r", encoding="utf-8") as f:
-                profile = json.load(f)
-        except Exception:
-            pass
-
-    return {
-        "machine_no": clean_no,
-        "folder": m_folder,
-        "profile": profile,
-        "functions_count": len(functions.get("functions", {})),
-        "parameters_count": len(functions.get("parameters", {})),
-        "functions": functions.get("functions", {}),
-        "parameters": functions.get("parameters", {})
-    }
+    return load_machine_config_bundle(machine_no)
 
 @router.post("/export-to-machine/{machine_no}/{program_no}")
 def export_program_for_machine(machine_no: str, program_no: int, db: Session = Depends(get_db)):
     """
     Compiles dyeing program and outputs M_xxxx.PRG directly into that machine's
     04_HASIL_PROGRAM_CELUP folder ready for USB Storage transfer or FTP.
+    Strictly validates all Function IDs against machine_no's Config/TYPECONF.CNF first.
     """
-    clean_no = machine_no.upper().replace("MESIN_", "")
+    clean_no = _norm_machine(machine_no)
+    prg_bytes = get_compiled_prg_bytes(program_no, db, machine_code=clean_no)
+    parsed_prg = parse_prg_binary(prg_bytes)
+    val = validate_steps_against_typeconf(clean_no, parsed_prg.get("steps", []), enrich_names=False)
+    if not val["valid"]:
+        err_summary = "; ".join(e["message"] for e in val["errors"][:5])
+        raise HTTPException(
+            status_code=400,
+            detail=f"Ekspor ditolak — Program #{program_no} mengandung Function ID yang tidak valid untuk TYPECONF.CNF Mesin {clean_no}: {err_summary}"
+        )
+
     m_folder = f"MESIN_{clean_no}"
     m_path = os.path.join(MACHINE_WORKSPACE_BASE, m_folder)
     out_dir = os.path.join(m_path, "04_HASIL_PROGRAM_CELUP")
     os.makedirs(out_dir, exist_ok=True)
 
-    prg_bytes = get_compiled_prg_bytes(program_no, db)
     filename = f"M_{str(program_no).zfill(4)}.PRG"
     dest_file = os.path.join(out_dir, filename)
 
@@ -1259,6 +1656,7 @@ def export_program_for_machine(machine_no: str, program_no: int, db: Session = D
         "filename": filename,
         "file_path": dest_file,
         "size_bytes": len(prg_bytes),
+        "typeconf_validation": val,
         "ready_for_transfer": True
     }
 
@@ -1323,11 +1721,29 @@ def transfer_program_to_ftp(program_no: int, req: ProgramFTPTransferIn, db: Sess
 
     filename = f"M_{str(program_no).zfill(4)}.PRG"
     try:
-        prg_bytes = get_compiled_prg_bytes(program_no, db)
+        prg_bytes = get_compiled_prg_bytes(program_no, db, machine_code=clean_code)
     except Exception as e:
         raise HTTPException(
             status_code=400,
             detail=f"Gagal mengompilasi program #{program_no} untuk FTP: {str(e)}"
+        )
+
+    # Strict pre-flight validation against target machine's Config/TYPECONF.CNF before sending to PLC/HMI
+    try:
+        parsed_prg = parse_prg_binary(prg_bytes)
+        val = validate_steps_against_typeconf(clean_code, parsed_prg.get("steps", []), enrich_names=False)
+        if not val["valid"]:
+            err_summary = "; ".join(e["message"] for e in val["errors"][:5])
+            raise HTTPException(
+                status_code=400,
+                detail=f"Transfer FTP ke Mesin {clean_code} DIBLOKIR — {filename} mengandung Function ID yang tidak ada di Config/TYPECONF.CNF Mesin {clean_code}: {err_summary}"
+            )
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Gagal memvalidasi biner {filename} sebelum kirim FTP: {str(e)}"
         )
 
     # Default to /Flashdisk/SC797CE/Programs if 797, else /Storage/sc777ce/Programs

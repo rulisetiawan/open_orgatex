@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 import {
   Wand2,
   X,
@@ -13,6 +14,142 @@ import {
   Layers,
   Cpu
 } from 'lucide-react';
+import fallbackTypeconf from '../../data/typeconf_functions.json';
+
+// Resolve valid Function ID strictly from target machine's Config/TYPECONF.CNF (never hardcoded or from .AWL)
+function resolveMachineFn(funcsMap, role) {
+  const funcs = (funcsMap && Object.keys(funcsMap).length > 0) ? funcsMap : (fallbackTypeconf.functions || {});
+  const vals = Object.values(funcs);
+  const byId = (ids) => {
+    for (const id of ids) {
+      if (funcs[String(id)]) return funcs[String(id)];
+    }
+    return null;
+  };
+  const byName = (keywords, lineReq = 1) => vals.find(f => {
+    const nm = (f.name || '').toLowerCase();
+    const lines = Array.isArray(f.lines) ? f.lines : [];
+    const lineOk = !lineReq || lines.length === 0 || lines.includes(lineReq);
+    return lineOk && keywords.some(k => nm.includes(k));
+  });
+
+  switch (role) {
+    case 'FILL':
+      return byId([713, 722, 22, 21]) || byName(['fill level', 'fill quantity', 'fill'], 1);
+    case 'DOSING_1':
+      return byId([938, 733, 227, 731, 703]) || byName(['dosing', 'inject'], 1);
+    case 'DOSING_2':
+      return byId([939, 743, 228, 741]) || byId([938, 733, 227]) || byName(['dosing', 'inject'], 1);
+    case 'TEMP':
+      return byId([141, 811]) || byName(['temperature control', 'temp'], 1);
+    case 'RUNTIME':
+      return byId([144, 810]) || byName(['runtime', 'run time'], 1);
+    case 'RINSE':
+      return byId([710, 243, 720, 723, 725, 242]) || byName(['rinse'], 1);
+    case 'DRAIN':
+      return byId([71, 706, 705, 61]) || byName(['drain'], 1);
+    case 'PUMP':
+      return byId([404, 760, 771]) || byName(['pump', 'blower'], 2);
+    default:
+      return null;
+  }
+}
+
+function makeFnEntry(fnDef, column = 1, params = []) {
+  if (!fnDef) return null;
+  const pCount = fnDef.parameter_count || (fnDef.parameters || []).length || 0;
+  const padded = [];
+  for (let i = 0; i < 6; i++) {
+    if (i < params.length && params[i] !== undefined) {
+      padded.push(Number(params[i]));
+    } else if (i < pCount && fnDef.parameters?.[i]?.default !== undefined) {
+      padded.push(Number(fnDef.parameters[i].default));
+    } else {
+      padded.push(0);
+    }
+  }
+  const preferredCol = (Array.isArray(fnDef.lines) && fnDef.lines.length > 0 && !fnDef.lines.includes(column))
+    ? fnDef.lines[0]
+    : column;
+  return {
+    function_id: Number(fnDef.id),
+    name: fnDef.name || fnDef.name_local || `F${fnDef.id}`,
+    column: preferredCol,
+    flags: 0,
+    params: padded
+  };
+}
+
+function buildPhaseStepsForMachine(phaseKey, funcsMap, { temp, hold, water, pump }) {
+  const fFill = resolveMachineFn(funcsMap, 'FILL');
+  const fDos1 = resolveMachineFn(funcsMap, 'DOSING_1');
+  const fDos2 = resolveMachineFn(funcsMap, 'DOSING_2');
+  const fTemp = resolveMachineFn(funcsMap, 'TEMP');
+  const fRun = resolveMachineFn(funcsMap, 'RUNTIME');
+  const fDrain = resolveMachineFn(funcsMap, 'DRAIN');
+  const fPump = resolveMachineFn(funcsMap, 'PUMP');
+
+  const withPump = (mainEntry, pumpPct) => {
+    const arr = [mainEntry].filter(Boolean);
+    if (fPump && mainEntry && mainEntry.column === 1) {
+      const pEntry = makeFnEntry(fPump, 2, [30.0, pumpPct]);
+      if (pEntry && pEntry.column > 1) arr.push(pEntry);
+    }
+    return arr;
+  };
+
+  const steps = [];
+  const pushStep = (label, fns) => {
+    const validFns = (fns || []).filter(Boolean);
+    if (validFns.length > 0) {
+      steps.push({ step_no: steps.length + 1, label, functions: validFns });
+    }
+  };
+
+  if (phaseKey === 'SCOUR') {
+    pushStep('Isi Air Hangat S/B', withPump(makeFnEntry(fFill, 1, [1.0, water]), pump));
+    pushStep('Dosing Kostik & H2O2 (AT1)', [makeFnEntry(fDos1, 1, [40.0, 1.5, 0.0, 1.0, 10.0])]);
+    pushStep(`Pemanasan & Tahan ${temp}°C`, [makeFnEntry(fTemp, 1, [temp, 2.5, hold])]);
+    pushStep('Drain Total', [makeFnEntry(fDrain, 1, [100.0, 1.0, 0.0])]);
+  } else if (phaseKey === 'DYE_DISP') {
+    pushStep('Isi Air Celup & Pompa HT', withPump(makeFnEntry(fFill, 1, [1.0, water]), pump));
+    pushStep('Injeksi Zat Warna Disperse', [makeFnEntry(fDos2, 1, [40.0, 1.5, 0.0, 1.0, 15.0])]);
+    pushStep(`Penaikan & Tahan ${temp}°C`, [makeFnEntry(fTemp, 1, [temp, 1.8, hold])]);
+    pushStep('Pendinginan ke 80°C', [makeFnEntry(fTemp, 1, [80.0, 1.8, 5.0])]);
+    pushStep('Drain Larutan Celup', [makeFnEntry(fDrain, 1, [100.0, 1.0, 0.0])]);
+  } else if (phaseKey === 'DYE_REACT') {
+    pushStep('Isi Air & Sirkulasi Reaktif', withPump(makeFnEntry(fFill, 1, [1.0, water]), pump));
+    pushStep('Injeksi Garam Glauber (AT1)', [makeFnEntry(fDos1, 1, [40.0, 1.5, 0.0, 1.0, 15.0])]);
+    pushStep('Injeksi Zat Warna Reaktif (AT2)', [makeFnEntry(fDos2, 1, [40.0, 1.5, 0.0, 1.0, 20.0])]);
+    pushStep(`Pemanasan & Fiksasi ${temp}°C`, [makeFnEntry(fTemp, 1, [temp, 1.5, hold])]);
+    pushStep('Injeksi Alkali Soda Ash (AT1)', [makeFnEntry(fDos1, 1, [temp, 1.5, 0.0, 1.0, 20.0])]);
+    pushStep('Drain Larutan Celup', [makeFnEntry(fDrain, 1, [100.0, 1.0, 0.0])]);
+  } else if (phaseKey === 'DYE_ACID') {
+    pushStep('Isi Air Celup Nilon', withPump(makeFnEntry(fFill, 1, [1.0, water]), pump));
+    pushStep('Dosing Zat Asam & Pewarna', [makeFnEntry(fDos1, 1, [40.0, 1.5, 0.0, 1.0, 15.0])]);
+    pushStep(`Penaikan & Tahan ${temp}°C Nilon`, [makeFnEntry(fTemp, 1, [temp, 2.0, hold])]);
+    pushStep('Drain', [makeFnEntry(fDrain, 1, [100.0, 1.0, 0.0])]);
+  } else if (phaseKey === 'HOT_RINSE') {
+    pushStep('Isi Air Bilas Hangat', withPump(makeFnEntry(fFill, 1, [1.0, water]), pump));
+    pushStep(`Pemanasan Bilas ${temp}°C`, [makeFnEntry(fTemp, 1, [temp, 2.5, hold])]);
+    pushStep('Drain', [makeFnEntry(fDrain, 1, [100.0, 1.0, 0.0])]);
+  } else if (phaseKey === 'SOAP') {
+    pushStep('Isi Air Sabun Bersih', withPump(makeFnEntry(fFill, 1, [1.0, water]), pump));
+    pushStep('Injeksi Sabun Pencuci', [makeFnEntry(fDos1, 1, [50.0, 2.0, 0.0, 1.0, 5.0])]);
+    pushStep(`Pemanasan & Hold Sabun ${temp}°C`, [makeFnEntry(fTemp, 1, [temp, 3.0, hold])]);
+    pushStep('Drain Panas', [makeFnEntry(fDrain, 1, [100.0, 1.0, 0.0])]);
+  } else if (phaseKey === 'COLD_RINSE') {
+    pushStep('Isi Air Dingin Akhir', [makeFnEntry(fFill, 1, [1.0, water])]);
+    pushStep(`Sirkulasi Dingin ${hold}m`, withPump(makeFnEntry(fRun, 1, [hold]), pump));
+    pushStep('Drain Akhir', [makeFnEntry(fDrain, 1, [100.0, 1.0, 0.0])]);
+  } else if (phaseKey === 'SOFTENER') {
+    pushStep('Isi Air Softener', [makeFnEntry(fFill, 1, [1.0, water])]);
+    pushStep('Injeksi Agen Pelembut', [makeFnEntry(fDos1, 1, [40.0, 1.5, 0.0, 1.0, 8.0])]);
+    pushStep(`Sirkulasi Suhu ${temp}°C`, [makeFnEntry(fTemp, 1, [temp, 2.0, hold])]);
+    pushStep('Drain', [makeFnEntry(fDrain, 1, [100.0, 1.0, 0.0])]);
+  }
+  return steps;
+}
 
 const PRESET_FABRICS = [
   {
@@ -208,6 +345,27 @@ export default function SmartRecipeWizardModal({
   const [tuningHold, setTuningHold] = useState(45);
   const [tuningWater, setTuningWater] = useState(2800);
   const [tuningPump, setTuningPump] = useState(90);
+  const [wizardMachineFuncs, setWizardMachineFuncs] = useState(fallbackTypeconf.functions || {});
+
+  useEffect(() => {
+    setTargetMachine(activeMachine);
+  }, [activeMachine]);
+
+  useEffect(() => {
+    if (!isOpen || !targetMachine) return;
+    let cancelled = false;
+    const cleanM = targetMachine.trim().toUpperCase().replace('MESIN_', '');
+    axios.get(`/api/programs/machine-workspace/${cleanM}/config`)
+      .then((res) => {
+        if (!cancelled && res.data?.functions && Object.keys(res.data.functions).length > 0) {
+          setWizardMachineFuncs(res.data.functions);
+        }
+      })
+      .catch(() => {
+        if (!cancelled) setWizardMachineFuncs(fallbackTypeconf.functions || {});
+      });
+    return () => { cancelled = true; };
+  }, [isOpen, targetMachine]);
 
   if (!isOpen) return null;
 
@@ -249,6 +407,13 @@ export default function SmartRecipeWizardModal({
       const finalHold = isDyePhase ? tuningHold : def.hold;
       const finalWater = isDyePhase ? tuningWater : def.water;
 
+      const resolvedSteps = buildPhaseStepsForMachine(pKey, wizardMachineFuncs, {
+        temp: finalTemp,
+        hold: finalHold,
+        water: finalWater,
+        pump: tuningPump
+      });
+
       return {
         id: idx + 1,
         position: idx + 1,
@@ -261,7 +426,7 @@ export default function SmartRecipeWizardModal({
           water_level: finalWater,
           pump_speed: tuningPump
         },
-        steps: def.steps || []
+        steps: resolvedSteps
       };
     });
 

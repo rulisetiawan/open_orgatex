@@ -1,13 +1,55 @@
 {
   "machine_no": "1E",
   "folder_name": "MESIN_1E",
-  "controller_type": "SETEX SECOM 777 (Windows CE)",
+  "controller_type": "SETEX SECOM 797CE",
   "max_temp_c": 140.0,
-  "has_custom_hmi_config": false,
-  "status": "baseline_ready",
+  "has_custom_hmi_config": true,
+  "status": "ready",
   "ip_address": "172.16.120.101",
-  "last_synced_at": "2026-11-17T08:58:19.927256",
+  "last_synced_at": "2026-11-26T07:57:50.176048",
   "files_in_hmi_dir": [
-    "PETUNJUK_DOWNLOAD_DARI_HMI.txt"
-  ]
+    "CONFTEXT.CNF",
+    "CP14.AWL",
+    "FNLEGEND.CNF",
+    "MACHCONF.CNF",
+    "PETUNJUK_DOWNLOAD_DARI_HMI.txt",
+    "SC26.AWL",
+    "TYPECONF.CNF",
+    "TYPECONT.CNF",
+    "TYPEFORM.CNF",
+    "USERCONF.CNF"
+  ],
+  "has_typeconf": true,
+  "has_conftext": true,
+  "has_fnlegend": true,
+  "has_userconf": true,
+  "has_machconf": true,
+  "has_awl_plc_program": true,
+  "awl_files": [
+    "CP14.AWL",
+    "SC26.AWL"
+  ],
+  "config_sources": {
+    "program_recipes": "PROGRAMS/*.PRG",
+    "function_definitions": "Config/TYPECONF.CNF",
+    "function_texts_alarms": [
+      "Config/CONFTEXT.CNF",
+      "Config/FNLEGEND.CNF"
+    ],
+    "custom_process_labels": "Config/USERCONF.CNF",
+    "machine_parameters": "Config/MACHCONF.CNF",
+    "plc_execution_logic_only": [
+      "Config/CP14.AWL",
+      "Config/SC26.AWL"
+    ]
+  },
+  "awl_cpu_types": [
+    "CP14",
+    "UNKNOWN"
+  ],
+  "awl_project_names": [
+    "eSM23021_Plc.pro",
+    "iSMKM25001_sarana.pro"
+  ],
+  "awl_sha256": "df5a05cb6423798c72717be8da136e0a6b32e46fbaa37369be6d23c943a7df8c"
 }

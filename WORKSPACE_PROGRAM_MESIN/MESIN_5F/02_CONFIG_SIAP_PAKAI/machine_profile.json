@@ -6,7 +6,7 @@
   "has_custom_hmi_config": true,
   "status": "ready",
   "ip_address": "172.16.120.155",
-  "last_synced_at": "2026-11-25T16:59:04.553207",
+  "last_synced_at": "2026-11-25T17:36:08.180914",
   "files_in_hmi_dir": [
     "CONFTEXT.CNF",
     "CP14.AWL",
@@ -35,5 +35,25 @@
     "XDongBao707.pro",
     "m_SAF5-2T-2AT-1ST-20200925.pro"
   ],
-  "awl_sha256": "aad1e37d202f84dbf9837123ab38ddeebf2ab09b114f7574f8402fc2e0900cc5"
+  "awl_sha256": "aad1e37d202f84dbf9837123ab38ddeebf2ab09b114f7574f8402fc2e0900cc5",
+  "has_typeconf": true,
+  "has_conftext": true,
+  "has_fnlegend": true,
+  "has_userconf": true,
+  "has_machconf": true,
+  "config_sources": {
+    "program_recipes": "PROGRAMS/*.PRG",
+    "function_definitions": "Config/TYPECONF.CNF",
+    "function_texts_alarms": [
+      "Config/CONFTEXT.CNF",
+      "Config/FNLEGEND.CNF"
+    ],
+    "custom_process_labels": "Config/USERCONF.CNF",
+    "machine_parameters": "Config/MACHCONF.CNF",
+    "plc_execution_logic_only": [
+      "Config/CP14.AWL",
+      "Config/CP16.AWL",
+      "Config/SC20D.AWL"
+    ]
+  }
 }

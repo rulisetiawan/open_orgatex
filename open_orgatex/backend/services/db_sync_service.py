@@ -19,14 +19,15 @@ from datetime import datetime
 from typing import Dict, Any, List, Optional
 from urllib.parse import urlparse
 
-from sqlalchemy import create_engine, text
+from sqlalchemy import create_engine, text, func
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import NullPool
 
 from ..models.schema_pg import (
     Base, Machine, BatchHeader, Recipe, RecipeItem, 
     ProgramHeader, ProgramStep, ProgramStepFunction,
-    ProgramComponent, Step, StepFunction, StepFunctionParameter
+    ProgramComponent, ProgramComponentItem, ProgramComponent2Group,
+    Step, StepFunction, StepFunctionParameter
 )
 
 logger = logging.getLogger("orgatex.db_sync")
@@ -339,29 +340,90 @@ class DBSyncService:
         pg_session.commit()
         return stats
 
+    @staticmethod
+    def _norm_machine(machine_code: Optional[str]) -> str:
+        clean = str(machine_code or "TD12").strip().upper()
+        if clean.startswith("MESIN_"):
+            clean = clean[6:]
+        return clean or "TD12"
+
+    @staticmethod
+    def _norm_prog_no(number: Any) -> str:
+        s = str(number or "").strip()
+        if s.isdigit():
+            return str(int(s))
+        return s.upper()
+
+    @classmethod
+    def deduplicate_program_components(cls, session) -> int:
+        """
+        Removes duplicate ProgramComponent rows within the SAME machine
+        (same level, normalized machine_code, normalized number).
+        Different machines are allowed to share the same program number.
+        """
+        rows = session.query(ProgramComponent).order_by(ProgramComponent.id.asc()).all()
+        groups: Dict[tuple, List[ProgramComponent]] = {}
+        for row in rows:
+            m_norm = cls._norm_machine(row.machine_code)
+            n_norm = cls._norm_prog_no(row.number)
+            key = (row.level, m_norm, n_norm)
+            groups.setdefault(key, []).append(row)
+
+        removed = 0
+        for (lvl, m_norm, n_norm), items in groups.items():
+            # Keep the richest row (most steps, then latest modification/id)
+            items_sorted = sorted(
+                items,
+                key=lambda c: (len(c.steps or []), str(c.modification_time or ""), c.id),
+                reverse=True
+            )
+            keeper = items_sorted[0]
+            if keeper.machine_code != m_norm:
+                keeper.machine_code = m_norm
+            if keeper.number != n_norm:
+                keeper.number = n_norm
+
+            for dup in items_sorted[1:]:
+                session.query(ProgramComponentItem).filter(
+                    ProgramComponentItem.parent_component_id == dup.id
+                ).update({"parent_component_id": keeper.id}, synchronize_session=False)
+                session.query(ProgramComponentItem).filter(
+                    ProgramComponentItem.program_component_id == dup.id
+                ).update({"program_component_id": keeper.id}, synchronize_session=False)
+                session.query(ProgramComponent2Group).filter(
+                    ProgramComponent2Group.program_component_id == dup.id
+                ).update({"program_component_id": keeper.id}, synchronize_session=False)
+                session.delete(dup)
+                removed += 1
+
+        if removed > 0 or any(r.machine_code != cls._norm_machine(r.machine_code) or r.number != cls._norm_prog_no(r.number) for r in rows):
+            session.commit()
+        return removed
+
     @classmethod
     def seed_programs_from_custom_json(cls, session) -> int:
-        """Populates missing programs from programs_custom.json into the given session."""
+        """Populates missing programs from programs_custom.json into the given session (per machine)."""
         if not os.path.exists(PROGRAMS_CUSTOM_PATH):
             return 0
         try:
             with open(PROGRAMS_CUSTOM_PATH, "r", encoding="utf-8") as f:
                 data = json.load(f)
             
-            existing_numbers = {
-                str(c.number).strip().upper() 
+            existing_keys = {
+                (c.level, cls._norm_machine(c.machine_code), cls._norm_prog_no(c.number))
                 for c in session.query(ProgramComponent).filter(ProgramComponent.level == 1).all()
                 if c.number
             }
 
             seeded = 0
             for p_key, prg in data.items():
-                pno = str(prg.get("program_no") or p_key).strip().upper()
-                if pno in existing_numbers:
+                raw_pno = prg.get("program_no") or (p_key.split(":", 1)[1] if ":" in str(p_key) else p_key)
+                pno = cls._norm_prog_no(raw_pno)
+                mcode = cls._norm_machine(prg.get("machine_code") or (p_key.split(":", 1)[0] if ":" in str(p_key) else "TD12"))
+                if not pno or (1, mcode, pno) in existing_keys:
                     continue
 
                 pname = str(prg.get("program_name") or f"PROGRAM #{pno}").strip().upper()
-                mcode = str(prg.get("machine_code") or "TD12")
                 proc = ProgramComponent(
                     level=1,
                     type=1,
@@ -401,7 +463,7 @@ class DBSyncService:
                                 value=val
                             ))
 
-                existing_numbers.add(pno)
+                existing_keys.add((1, mcode, pno))
                 seeded += 1
 
             session.commit()
@@ -414,36 +476,41 @@ class DBSyncService:
     @classmethod
     def sync_programs(cls, pg_session, sqlite_session) -> Dict[str, int]:
         """
-        Bidirectional synchronization of OrgaTEX EDX300 programs:
+        Bidirectional synchronization of OrgaTEX EDX300 programs per (level, machine_code, number):
         ProgramComponent (Procedures & Treatments), Step, StepFunction, StepFunctionParameter,
         as well as legacy ProgramHeader and ProgramStep.
         """
-        stats = {"pulled_to_sqlite": 0, "pushed_to_pg": 0, "steps_synced": 0}
+        stats = {"pulled_to_sqlite": 0, "pushed_to_pg": 0, "steps_synced": 0, "dedup_pg": 0, "dedup_sq": 0}
+
+        # Deduplicate any same-machine duplicates before syncing
+        stats["dedup_pg"] = cls.deduplicate_program_components(pg_session)
+        stats["dedup_sq"] = cls.deduplicate_program_components(sqlite_session)
 
         # Seed any missing programs from programs_custom.json first
         cls.seed_programs_from_custom_json(sqlite_session)
         cls.seed_programs_from_custom_json(pg_session)
 
-        # 1. Sync ProgramComponent (Level 1: Procedures & Level 2: Treatments)
+        # 1. Sync ProgramComponent (Level 1: Procedures & Level 2: Treatments) keyed per machine
         pg_comps = {
-            (c.level, str(c.number).strip().upper()): c 
+            (c.level, cls._norm_machine(c.machine_code), cls._norm_prog_no(c.number)): c
             for c in pg_session.query(ProgramComponent).all() if c.number
         }
         sq_comps = {
-            (c.level, str(c.number).strip().upper()): c 
+            (c.level, cls._norm_machine(c.machine_code), cls._norm_prog_no(c.number)): c
             for c in sqlite_session.query(ProgramComponent).all() if c.number
         }
 
         # 1A. Pull from PG to SQLite
         for key, pg_c in pg_comps.items():
+            lvl, m_norm, n_norm = key
             if key not in sq_comps:
                 new_sq_c = ProgramComponent(
                     level=pg_c.level,
                     type=pg_c.type or 1,
-                    number=pg_c.number,
+                    number=n_norm,
                     name=pg_c.name,
                     comment=pg_c.comment,
-                    machine_code=pg_c.machine_code or "TD12",
+                    machine_code=m_norm,
                     content_type=pg_c.content_type or 0
                 )
                 sqlite_session.add(new_sq_c)
@@ -485,7 +552,8 @@ class DBSyncService:
             else:
                 sq_c = sq_comps[key]
                 sq_c.name = pg_c.name
-                sq_c.machine_code = pg_c.machine_code or sq_c.machine_code
+                sq_c.machine_code = m_norm
+                sq_c.number = n_norm
                 sq_c.comment = pg_c.comment
                 if len(pg_c.steps) > 0 and len(sq_c.steps) == 0:
                     for pg_s in pg_c.steps:
@@ -523,14 +591,15 @@ class DBSyncService:
 
         # 1B. Push from SQLite to PG
         for key, sq_c in sq_comps.items():
+            lvl, m_norm, n_norm = key
             if key not in pg_comps:
                 new_pg_c = ProgramComponent(
                     level=sq_c.level,
                     type=sq_c.type or 1,
-                    number=sq_c.number,
+                    number=n_norm,
                     name=sq_c.name,
                     comment=sq_c.comment,
-                    machine_code=sq_c.machine_code or "TD12",
+                    machine_code=m_norm,
                     content_type=sq_c.content_type or 0
                 )
                 pg_session.add(new_pg_c)
@@ -840,45 +909,54 @@ class DBSyncService:
 
     @classmethod
     def mirror_program_to_sqlite(cls, p):
-        """Real-time mirror of a ProgramComponent/Procedure to local SQLite."""
+        """Real-time mirror of a ProgramComponent/Procedure to local SQLite (scoped per machine_code)."""
         try:
             sq_eng = cls.get_sqlite_engine()
             SqSession = sessionmaker(bind=sq_eng)
             sq = SqSession()
 
-            p_no = str(getattr(p, "program_no", p.get("program_no") if isinstance(p, dict) else 1))
+            raw_pno = getattr(p, "program_no", p.get("program_no") if isinstance(p, dict) else 1)
+            p_no = cls._norm_prog_no(raw_pno)
             p_name = str(getattr(p, "program_name", p.get("program_name", "") if isinstance(p, dict) else "")).strip().upper()
-            m_code = str(getattr(p, "machine_code", p.get("machine_code", "TD12") if isinstance(p, dict) else "TD12"))
+            raw_mc = getattr(p, "machine_code", p.get("machine_code", "TD12") if isinstance(p, dict) else "TD12")
+            m_code = cls._norm_machine(raw_mc)
             steps = getattr(p, "steps", p.get("steps", []) if isinstance(p, dict) else [])
 
-            proc = sq.query(ProgramComponent).filter(
-                ProgramComponent.number == p_no,
-                ProgramComponent.level == 1
-            ).first()
+            candidates = [
+                c for c in sq.query(ProgramComponent).filter(ProgramComponent.level == 1).all()
+                if cls._norm_machine(c.machine_code) == m_code and cls._norm_prog_no(c.number) == p_no
+            ]
+            proc = candidates[0] if candidates else None
+            # Remove any duplicate rows for this same (machine_code, p_no)
+            for dup in candidates[1:]:
+                sq.delete(dup)
 
             if not proc:
                 proc = ProgramComponent(
                     level=1,
                     type=1,
                     number=p_no,
-                    name=p_name,
+                    name=p_name or f"PROGRAM #{p_no}",
                     machine_code=m_code
                 )
                 sq.add(proc)
                 sq.flush()
             else:
-                proc.name = p_name
+                proc.number = p_no
+                proc.name = p_name or proc.name
                 proc.machine_code = m_code
                 proc.modification_time = datetime.now()
 
             if steps:
-                sq.query(Step).filter(Step.parent_component_id == proc.id).delete()
+                for old_s in list(proc.steps):
+                    sq.delete(old_s)
+                sq.flush()
                 for st in steps:
                     s_dict = st.dict() if hasattr(st, "dict") else dict(st)
                     new_s = Step(
                         position=s_dict.get("step_no", 1),
                         parent_component_id=proc.id,
-                        label=s_dict.get("label", ""),
+                        label=str(s_dict.get("label", "") or "")[:100],
                         summary_temp=s_dict.get("summary_temp"),
                         summary_time_min=s_dict.get("summary_time_min"),
                         summary_water_l=s_dict.get("summary_water_l")
@@ -892,7 +970,7 @@ class DBSyncService:
                             step_id=new_s.id,
                             resource_number=fn_dict.get("column", 1),
                             function_number=fn_dict.get("function_id", 0),
-                            function_name=fn_dict.get("name", "")
+                            function_name=str(fn_dict.get("name", "") or "")[:100]
                         )
                         sq.add(new_fn)
                         sq.flush()

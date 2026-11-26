@@ -81,12 +81,41 @@ func main() {
 	if len(targets) == 0 && cfg.PilotMachine.ControllerIP != "" {
 		targets = append(targets, cfg.PilotMachine)
 	}
+
+	// Filter by target_machines (env TARGET_MACHINES or config.yaml collector.target_machines)
+	filterList := cfg.Collector.TargetMachines
+	if envTargets := strings.TrimSpace(os.Getenv("TARGET_MACHINES")); envTargets != "" {
+		filterList = nil
+		for _, part := range strings.Split(envTargets, ",") {
+			if p := strings.TrimSpace(part); p != "" {
+				filterList = append(filterList, p)
+			}
+		}
+	}
+	if len(filterList) > 0 {
+		allowed := make(map[string]bool, len(filterList))
+		for _, m := range filterList {
+			allowed[strings.ToUpper(strings.TrimSpace(m))] = true
+		}
+		var filtered []config.PilotMachineConfig
+		for _, t := range targets {
+			if allowed[strings.ToUpper(strings.TrimSpace(t.MachineID))] {
+				filtered = append(filtered, t)
+			}
+		}
+		targets = filtered
+	}
+
 	if len(targets) == 0 {
 		logger.Error("No target machines configured or found in database")
 		os.Exit(1)
 	}
 
-	logger.Info("Starting multi-machine collector workers", "total_machines", len(targets))
+	var targetNames []string
+	for _, t := range targets {
+		targetNames = append(targetNames, fmt.Sprintf("%s(%s)", t.MachineID, t.ControllerIP))
+	}
+	logger.Info("Starting multi-machine collector workers", "total_machines", len(targets), "targets", strings.Join(targetNames, ", "))
 
 	var wg sync.WaitGroup
 	for idx, mCfg := range targets {
