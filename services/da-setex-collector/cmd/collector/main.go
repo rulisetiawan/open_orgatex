@@ -412,15 +412,21 @@ func runMachineCollector(ctx context.Context, mCfg config.PilotMachineConfig, gl
 						if paramID == 1 {
 							tagName = fmt.Sprintf("SMM.%s.MAIN_TANK.TEMPERATURE_SV", mCfg.AssetID)
 							unit = "°C"
+							val = math.Round(val)
 						} else if paramID == 5 {
-							tagName = fmt.Sprintf("SMM.%s.MAIN_MOTOR.SPEED_SV", mCfg.AssetID)
-							unit = "%"
+							// SET 5 is Holding Time (Time MA, raw seconds / 60 => min), NOT motor speed!
+							tagName = fmt.Sprintf("SMM.%s.PROCESS.HOLDING_TIME_SV", mCfg.AssetID)
+							unit = "min"
 						} else if paramID == 9 {
 							tagName = fmt.Sprintf("SMM.%s.MAIN_TANK.LEVEL_SV", mCfg.AssetID)
 							unit = "L"
 						}
+						roundedVal := math.Round(val*10) / 10
+						if unit == "°C" {
+							roundedVal = math.Round(val)
+						}
 						tagsMap[tagName] = mqtt.TagMetric{
-							Value:   math.Round(val*10) / 10,
+							Value:   roundedVal,
 							Raw:     rawVal,
 							Unit:    unit,
 							Role:    "SV",
@@ -435,7 +441,7 @@ func runMachineCollector(ctx context.Context, mCfg config.PilotMachineConfig, gl
 				if f141Vals, _, err := tcpClient.ReadActiveFunction(141); err == nil && len(f141Vals) >= 3 {
 					if f141Vals[0] > 0 {
 						tagsMap[fmt.Sprintf("SMM.%s.MAIN_TANK.TEMPERATURE_SV", mCfg.AssetID)] = mqtt.TagMetric{
-							Value:   math.Round(float64(f141Vals[0])*10) / 10,
+							Value:   math.Round(float64(f141Vals[0])),
 							Raw:     f141Vals[0],
 							Unit:    "°C",
 							Role:    "SV",

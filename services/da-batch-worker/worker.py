@@ -888,6 +888,103 @@ def get_active_machines() -> List[Dict[str, Any]]:
     return machines
 
 
+def build_act_scada_tags(
+    asset_id: str,
+    st: Dict[str, Any],
+    act_alarm: Optional[Dict[str, Any]] = None,
+) -> Dict[str, Dict[str, Any]]:
+    """Builds standardized SMM.<ASSET_ID>.* SCADA tag metrics from decoded STATUS.ACT & ALARM.ACT."""
+    tags: Dict[str, Dict[str, Any]] = {}
+
+    def _add(suffix: str, val: Any, unit: str = "", role: str = "PV", raw: Any = None) -> None:
+        if val is None:
+            return
+        try:
+            fval = float(val)
+        except Exception:
+            return
+        if fval != fval:
+            return
+        tags[f"SMM.{asset_id}.{suffix}"] = {
+            "value": fval,
+            "raw": raw if raw is not None else val,
+            "unit": unit,
+            "role": role,
+            "quality": 192,
+        }
+
+    # 1. Header & Fault Flags
+    _add("STATUS_ACT.FORMAT_BYTES", st.get("file_size", 0), "byte", "PV")
+    _add("STATUS_ACT.STATUS_RAW", st.get("status_raw", 0), "", "ST")
+    _add("STATUS_ACT.FAULT_WORD", st.get("fault_word", 0), "", "ST")
+    fb = st.get("fault_bits") or {}
+    _add("STATUS_ACT.FAULT_BIT4_PLC_OFFLINE", fb.get("bit4_plc_offline", 0), "", "ALM")
+    _add("STATUS_ACT.FAULT_BIT5_STOP_ALARM", fb.get("bit5_stop_alarm", 0), "", "ALM")
+    _add("STATUS_ACT.FAULT_BIT6_HOLD_ALARM", fb.get("bit6_hold_alarm", 0), "", "ALM")
+    _add("STATUS_ACT.FAULT_BIT7_PLC_OFFLINE", fb.get("bit7_plc_offline", 0), "", "ALM")
+    _add("STATUS_ACT.PLC_OFFLINE_CANDIDATE", fb.get("plc_offline_candidate", 0), "", "ALM")
+
+    # 2. Active Process / Step Block (Block 0)
+    prog_no = st.get("prog_no") or 0
+    step_no = st.get("current_step") or 0
+    _add("STATUS_ACT.PROGRAM_NO", prog_no, "", "PV")
+    _add("STATUS_ACT.STEP_NO", step_no, "step", "PV")
+    if step_no > 0:
+        _add("MACHINE.PROCESS_STEP_CODE", step_no, "step", "PV")
+        _add("PROCESS.STEP_CODE", step_no, "step", "PV")
+    _add("STATUS_ACT.BLOCK_STATE", st.get("block_state", 0), "", "ST")
+    _add("STATUS_ACT.FUNCTION_ID", st.get("function_code", 0), "", "PV")
+    _add("STATUS_ACT.PARAM_COUNT", st.get("param_count", 0), "", "PV")
+
+    # 3. Active Function Parameters (P1..P5, stride 22 bytes)
+    for p in st.get("active_params") or []:
+        idx = int(p.get("index") or 0)
+        if idx <= 0:
+            continue
+        prefix = f"STATUS_ACT.P{idx}"
+        _add(f"{prefix}_VAL_A", p.get("val_a", 0.0), "", "SV")
+        _add(f"{prefix}_VAL_B", p.get("val_b", 0.0), "", "SV")
+        _add(f"{prefix}_RAW", p.get("raw_u16", 0), "", "PV")
+        _add(f"{prefix}_DEF_ID", p.get("def_id", 0), "", "PV")
+        _add(f"{prefix}_MIN", p.get("min", 0.0), "", "SV")
+        _add(f"{prefix}_MAX", p.get("max", 0.0), "", "SV")
+
+    # 4. Step Timer Footer
+    timers = st.get("step_timers") or {}
+    _add("STATUS_ACT.STEP_TIME_TOTAL_MIN", timers.get("total_min", 0), "min", "PV")
+    _add("STATUS_ACT.STEP_TIME_TOTAL_SEC", timers.get("total_sec", 0), "s", "PV")
+    _add("STATUS_ACT.STEP_TIME_PHASE_MIN", timers.get("phase_min", 0), "min", "PV")
+    _add("STATUS_ACT.STEP_TIME_PHASE_SEC", timers.get("phase_sec", 0), "s", "PV")
+
+    # 5. Cumulative Consumption Totalizers (SECOM 777)
+    cons = st.get("consumption") or {}
+    if "water_1_l" in cons:
+        _add("STATUS_ACT.CONSUMPTION_WATER_1_L", cons["water_1_l"], "L", "TOTALIZER")
+    if "water_2_l" in cons:
+        _add("STATUS_ACT.CONSUMPTION_WATER_2_L", cons["water_2_l"], "L", "TOTALIZER")
+    if "water_3_l" in cons:
+        _add("STATUS_ACT.CONSUMPTION_WATER_3_L", cons["water_3_l"], "L", "TOTALIZER")
+    if "water_4_l" in cons:
+        _add("STATUS_ACT.CONSUMPTION_WATER_4_L", cons["water_4_l"], "L", "TOTALIZER")
+    if "electric_kwh" in cons:
+        _add("STATUS_ACT.CONSUMPTION_ELECTRIC_KWH", cons["electric_kwh"], "kWh", "TOTALIZER")
+
+    # 6. ALARM.ACT active alarm state
+    if act_alarm is not None:
+        is_active = 1 if act_alarm.get("is_alarm_active") else 0
+        active_code = 0
+        alarms = act_alarm.get("active_alarms") or []
+        if alarms:
+            try:
+                active_code = int(alarms[0].get("alarm_code") or 0)
+            except Exception:
+                active_code = 0
+        _add("ALARM_ACT.IS_ACTIVE", is_active, "", "ALM")
+        _add("ALARM_ACT.ACTIVE_CODE", active_code, "", "ALM")
+
+    return tags
+
+
 def process_single_machine(m: Dict[str, Any]) -> Dict[str, Any]:
     """Worker task: connects to machine FTP, parses binary structures, publishes to EMQX."""
     m_no = m["machine_no"]
@@ -978,12 +1075,16 @@ def process_single_machine(m: Dict[str, Any]) -> Dict[str, Any]:
             "latency_ms": round((time.time() - t0) * 1000, 1),
         }
 
-    # 1. Parse STATUS.ACT
+    # 1. Parse STATUS.ACT & ALARM.ACT
     batch_no = ""
     step_no = 1
     prog_no = "1"
     prog_name = ""
     m_state = "ONLINE"
+    act_alarm_parsed = None
+    if bundle.get("alarm_bytes"):
+        act_alarm_parsed = SetexFolderReader.read_alarm_act(raw_bytes=bundle["alarm_bytes"])
+
     if bundle.get("status_bytes"):
         st = SetexFolderReader.read_status_act(folder_path="", ip=ip, ftp_port=ftp_port, raw_bytes=bundle["status_bytes"])
         batch_no = st.get("current_batch") or ""
@@ -991,8 +1092,9 @@ def process_single_machine(m: Dict[str, Any]) -> Dict[str, Any]:
         prog_no = st.get("prog_no") or "1"
         prog_name = st.get("program_name") or st.get("program_code") or ""
         m_state = st.get("status") or "RUNNING"
+        act_tags = build_act_scada_tags(asset_id, st, act_alarm=act_alarm_parsed)
 
-        # Publish Status to EMQX
+        # Publish Status + All .ACT SCADA Tags to EMQX
         topic_status = f"smm/jetflow/{asset_id}/status"
         payload_status = {
             "timestamp": datetime.now(timezone.utc).isoformat(),
@@ -1001,7 +1103,11 @@ def process_single_machine(m: Dict[str, Any]) -> Dict[str, Any]:
             "connection_status": "ONLINE" if m_state in ("RUNNING", "ONLINE") else "OFFLINE",
             "batch_no": batch_no,
             "step_no": step_no,
-            "program_no": str(prog_no)
+            "program_no": str(prog_no),
+            "program_code": st.get("program_code") or "",
+            "program_name": prog_name,
+            "function_code": int(st.get("function_code") or 0),
+            "tags": act_tags,
         }
         _mqtt_client.publish(topic_status, json.dumps(payload_status), qos=1, retain=True)
 

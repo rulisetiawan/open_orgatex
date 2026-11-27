@@ -536,12 +536,14 @@ class SetexFolderReader:
                 if raw_m:
                     machine_id = raw_m
 
-            # Batch number at offset 36
+            # Batch number: offset 0x26 (38) is canonical on 777 & 797CE; fallback to offset 36..48 or 6-digit regex
             current_batch = "UNKNOWN"
             if size >= 48:
-                raw_b = data[36:48].split(b'\0')[0].decode('latin1', errors='ignore').strip()
-                if raw_b and re.match(r'^[A-Za-z0-9_-]+$', raw_b):
-                    current_batch = raw_b
+                for b_off in (38, 36):
+                    raw_b = data[b_off:48].split(b'\0')[0].decode('latin1', errors='ignore').strip()
+                    if raw_b and re.match(r'^[A-Za-z0-9_-]+$', raw_b):
+                        current_batch = raw_b
+                        break
 
             # Fallback batch search
             if current_batch == "UNKNOWN":
@@ -564,31 +566,95 @@ class SetexFolderReader:
                 if raw_pn:
                     program_name = raw_pn
 
-            # Step number, Program number, and Function code
+            # Header status & fault words (0x0010 and 0x0020)
+            status_raw = struct.unpack_from("<H", data, 0x10)[0] if size >= 0x12 else 0
+            fault_word = struct.unpack_from("<H", data, 0x20)[0] if size >= 0x22 else 0
+            fault_bits = {
+                "bit4_plc_offline": 1 if (fault_word & (1 << 4)) else 0,
+                "bit5_stop_alarm": 1 if (fault_word & (1 << 5)) else 0,
+                "bit6_hold_alarm": 1 if (fault_word & (1 << 6)) else 0,
+                "bit7_plc_offline": 1 if (fault_word & (1 << 7)) else 0,
+                "plc_offline_candidate": 1 if (fault_word & 0x0090) else 0,
+            }
+
+            # Block 0 (Active Process / Step Block):
+            # - SECOM 777   (10104 B): base = 0x0152, stride = 203
+            # - SECOM 797CE (10188 B): base = 0x0154, stride = 205
+            is_extended = (size == 10188)
+            block_base = 0x0154 if is_extended else 0x0152
+
             prog_no = 0
             step_no = 1
+            block_state = 0
             function_code = 0
+            param_count = 0
+            active_params: List[Dict[str, Any]] = []
+            step_timers = {
+                "total_min": 0,
+                "total_sec": 0,
+                "phase_min": 0,
+                "phase_sec": 0,
+            }
 
-            # Program number at 0x15C (SETEX 797CE / 777)
-            if size >= 0x15E:
-                p_val = struct.unpack_from("<H", data, 0x15C)[0]
+            if size >= block_base + 0x1A:
+                p_val = struct.unpack_from("<H", data, block_base + 0x08)[0]
                 if 1 <= p_val <= 9999:
                     prog_no = p_val
                     if not program_code:
                         program_code = f"M_{prog_no:04d}"
 
-            # Step number:
-            # - SETEX 797CE (Windows CE, size 10188): offset 0x15E
-            # - SECOM 777   (Windows CE, size 10104): offset 0x15C
-            step_offset = 0x15E if size == 10188 else 0x15C
-            if size >= step_offset + 2:
-                s_val = struct.unpack_from("<H", data, step_offset)[0]
+                s_val = struct.unpack_from("<H", data, block_base + 0x0A)[0]
                 if 1 <= s_val <= 250:
                     step_no = s_val
 
-            # Function code is defined authentically by the compiled recipe (.PRG).
-            # Do not inject arbitrary function codes from status memory to avoid corrupting recipe steps.
-            function_code = 0
+                block_state = struct.unpack_from("<H", data, block_base + 0x10)[0]
+                function_code = struct.unpack_from("<H", data, block_base + 0x12)[0]
+                raw_pcount = struct.unpack_from("<H", data, block_base + 0x18)[0]
+                if 0 <= raw_pcount <= 5:
+                    param_count = raw_pcount
+
+                # Decode 22-byte parameter records starting at block_base + 0x1B
+                for idx in range(param_count):
+                    p_off = block_base + 0x1B + (idx * 22)
+                    if p_off + 20 > size:
+                        break
+                    val_a, val_b = struct.unpack_from("<ff", data, p_off)
+                    raw_u16, def_id = struct.unpack_from("<HH", data, p_off + 8)
+                    val_min, val_max = struct.unpack_from("<ff", data, p_off + 12)
+                    # Guard against NaN/Inf
+                    def _clean_f(v: float) -> float:
+                        if v != v or abs(v) > 1e9:
+                            return 0.0
+                        return round(v, 3)
+                    active_params.append({
+                        "index": idx + 1,
+                        "val_a": _clean_f(val_a),
+                        "val_b": _clean_f(val_b),
+                        "raw_u16": raw_u16,
+                        "def_id": def_id,
+                        "min": _clean_f(val_min),
+                        "max": _clean_f(val_max),
+                    })
+
+            if size >= block_base + 0xAD:
+                step_timers["total_min"] = struct.unpack_from("<H", data, block_base + 0x9F)[0]
+                step_timers["total_sec"] = struct.unpack_from("<H", data, block_base + 0xA3)[0]
+                step_timers["phase_min"] = struct.unpack_from("<H", data, block_base + 0xA7)[0]
+                step_timers["phase_sec"] = struct.unpack_from("<H", data, block_base + 0xAB)[0]
+
+            # Cumulative consumption counters (SECOM 777 10104-byte format, float64 LE at 0x2608..0x2637)
+            consumption: Dict[str, float] = {}
+            if not is_extended and size >= 0x2638:
+                for key, off in (
+                    ("water_1_l", 0x2608),
+                    ("water_2_l", 0x2610),
+                    ("water_3_l", 0x2618),
+                    ("water_4_l", 0x2620),
+                    ("electric_kwh", 0x2630),
+                ):
+                    v = struct.unpack_from("<d", data, off)[0]
+                    if v == v and 0.0 <= v <= 1e12:
+                        consumption[key] = round(v, 3)
 
             # Analog readings: Note that STATUS.ACT offset 20 is an internal controller status word (0x0300 / 768),
             # NOT temperature! Real sensor telemetry is read from cyclic datalog PR<batch>.LOG.
@@ -605,14 +671,9 @@ class SetexFolderReader:
                 if 100 <= w_t2 <= 1500 and w_t2 not in (768, 1536):
                     t2 = round(w_t2 / 10.0, 1)
 
-            # Check if 32-bit floats exist in cyclic record block (offset 366..)
-            if size >= 370:
-                try:
-                    f_sp = struct.unpack_from("<f", data, 366)[0]
-                    if 20.0 <= f_sp <= 145.0 and abs(f_sp - 76.8) > 0.1 and abs(f_sp - 90.0) > 0.1:
-                        sp = round(f_sp, 1)
-                except Exception:
-                    pass
+            # For F141 (Temperature Control), P1 val_b is active temperature setpoint
+            if function_code == 141 and active_params and 15.0 <= active_params[0]["val_b"] <= 150.0:
+                sp = round(active_params[0]["val_b"], 1)
 
             return {
                 "status": "RUNNING" if current_batch != "UNKNOWN" else "ONLINE",
@@ -622,7 +683,15 @@ class SetexFolderReader:
                 "program_code": program_code or (f"M_{prog_no:04d}" if prog_no else ""),
                 "program_name": program_name,
                 "current_step": step_no,
+                "status_raw": status_raw,
+                "fault_word": fault_word,
+                "fault_bits": fault_bits,
+                "block_state": block_state,
                 "function_code": function_code,
+                "param_count": param_count,
+                "active_params": active_params,
+                "step_timers": step_timers,
+                "consumption": consumption,
                 "temp_pv": pv,
                 "temp_sp": sp,
                 "temp_pt100_t2": t2,
@@ -999,7 +1068,12 @@ class SetexFolderReader:
         open_alarms: Dict[int, Dict[str, Any]] = {}
         batch_alarms: List[Dict[str, Any]] = []
         setpoint_overrides: List[Dict[str, Any]] = []
-        seen_overrides = set()
+        # Track consecutive identical integer temp_sp (w10) per step to find each step's final stable plateau
+        sp_streak_step: Optional[int] = None
+        sp_streak_val: Optional[int] = None
+        sp_streak_count: int = 0
+        # step_no -> (ts, stable_sp_int) of the last stable plateau (>= 2 consecutive cyclic logs)
+        step_final_sp_plateau: Dict[int, Tuple[datetime, int]] = {}
 
         prev_step: Optional[int] = None
         curr_step = 1
@@ -1140,28 +1214,23 @@ class SetexFolderReader:
                     open_alarms[code_a]["cleared_at"] = dt.isoformat()
                     del open_alarms[code_a]
             elif evt == 3 and dt and len(raw) >= 20 and planned_sv_by_step:
-                w_sp_ramp = struct.unpack_from("<h", raw, 10)[0]
-                w_sp = struct.unpack_from("<h", raw, 16)[0]
-                actual_sp = float(w_sp) if 0 < w_sp <= 150 else (round((w_sp_ramp / 100.0) * 1.5, 1) if w_sp_ramp > 0 else 0.0)
-                planned_sv = planned_sv_by_step.get(curr_step)
-                if planned_sv and actual_sp > 0 and abs(actual_sp - planned_sv) >= 2.0:
-                    ov_key = (curr_step, round(actual_sp, 1))
-                    if ov_key not in seen_overrides:
-                        seen_overrides.add(ov_key)
-                        last_intervent_ts = dt
-                        ov = {
-                            "ts": dt.isoformat(),
-                            "type": "SETPOINT_OVERRIDE",
-                            "step_no": curr_step,
-                            "parameter_name": "Target Temperature",
-                            "unit": "°C",
-                            "value_before": planned_sv,
-                            "value_after": round(actual_sp, 1),
-                            "delta": round(actual_sp - planned_sv, 1),
-                            "detail": f"Setpoint suhu Step {curr_step} berubah {planned_sv}°C -> {round(actual_sp,1)}°C",
-                        }
-                        setpoint_overrides.append(ov)
-                        operator_timeline.append(ov)
+                # Offset 10 (w10) is actual Temp Setpoint (raw 0..10000 => 0..150°C).
+                # Offset 16 (w16) is Main Pump Speed (%), NOT temperature setpoint.
+                w_sp_raw = struct.unpack_from("<h", raw, 10)[0]
+                actual_sp = int(round((w_sp_raw * 150.0) / 10000.0)) if 0 < w_sp_raw <= 10500 else 0
+                if actual_sp > 0:
+                    if sp_streak_step == curr_step and sp_streak_val == actual_sp:
+                        sp_streak_count += 1
+                    else:
+                        sp_streak_step = curr_step
+                        sp_streak_val = actual_sp
+                        sp_streak_count = 1
+                    if sp_streak_count >= 2:
+                        step_final_sp_plateau[curr_step] = (dt, actual_sp)
+                else:
+                    sp_streak_step = curr_step
+                    sp_streak_val = None
+                    sp_streak_count = 0
             elif evt == 10 and len(raw) >= 22:
                 # Batch end consumption totals (water_l, steam_kg, power_kwh)
                 w_water = struct.unpack_from("<I", raw, 10)[0]
@@ -1173,6 +1242,27 @@ class SetexFolderReader:
                     steam_kg = float(w_steam)
                 if 0 < w_power < 1_000_000:
                     power_kwh = float(w_power)
+
+        # Compare each step's final stable temperature plateau (w10) against planned recipe SV
+        for s_no_p, (dt_p, final_sp) in sorted(step_final_sp_plateau.items()):
+            planned_sv = planned_sv_by_step.get(s_no_p)
+            planned_int = int(round(planned_sv)) if planned_sv else 0
+            if planned_int > 0 and abs(final_sp - planned_int) >= 2:
+                if last_intervent_ts is None or dt_p > last_intervent_ts:
+                    last_intervent_ts = dt_p
+                ov = {
+                    "ts": dt_p.isoformat(),
+                    "type": "SETPOINT_OVERRIDE",
+                    "step_no": s_no_p,
+                    "parameter_name": "Target Temperature",
+                    "unit": "°C",
+                    "value_before": planned_int,
+                    "value_after": final_sp,
+                    "delta": final_sp - planned_int,
+                    "detail": f"Setpoint suhu Step {s_no_p} berubah {planned_int}°C -> {final_sp}°C",
+                }
+                setpoint_overrides.append(ov)
+                operator_timeline.append(ov)
 
         # Compute per-step actual duration from sequential evt=261 transitions
         step_actuals: Dict[int, Dict[str, Any]] = {}

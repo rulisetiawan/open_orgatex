@@ -39,13 +39,17 @@ type TelemetryPayload struct {
 }
 
 type StatusPayload struct {
-	Timestamp        time.Time `json:"timestamp"`
-	AssetID          string    `json:"asset_id"`
-	MachineID        string    `json:"machine_id"`
-	ConnectionStatus string    `json:"connection_status"`
-	BatchNo          string    `json:"batch_no"`
-	StepNo           int       `json:"step_no"`
-	ProgramNo        string    `json:"program_no"`
+	Timestamp        time.Time            `json:"timestamp"`
+	AssetID          string               `json:"asset_id"`
+	MachineID        string               `json:"machine_id"`
+	ConnectionStatus string               `json:"connection_status"`
+	BatchNo          string               `json:"batch_no"`
+	StepNo           int                  `json:"step_no"`
+	ProgramNo        string               `json:"program_no"`
+	ProgramCode      string               `json:"program_code,omitempty"`
+	ProgramName      string               `json:"program_name,omitempty"`
+	FunctionCode     int                  `json:"function_code,omitempty"`
+	Tags             map[string]TagMetric `json:"tags,omitempty"`
 }
 
 type CyclicPoint struct {
@@ -485,13 +489,81 @@ func (s *Storage) IngestStatus(ctx context.Context, p StatusPayload) error {
 		s.ensureScadaBatchAndSnapshot(ctx, p.AssetID, p.BatchNo, p.ProgramNo)
 	}
 
-	// Update SCADA step tags (SMM.<ASSET>.MACHINE.PROCESS_STEP_CODE & PROCESS.STEP_CODE)
-	// so sync_jetflow_asset_snapshot updates values_json->>'step_no' in real time from da-batch-worker!
-	if p.StepNo > 0 && p.AssetID != "" {
+	// Update SCADA tags from STATUS.ACT / ALARM.ACT (including MACHINE.PROCESS_STEP_CODE & PROCESS.STEP_CODE)
+	if len(p.Tags) > 0 && p.AssetID != "" {
+		s.upsertScadaStatusTags(ctx, p.AssetID, p.Tags, now)
+	} else if p.StepNo > 0 && p.AssetID != "" {
 		s.upsertScadaStepTag(ctx, p.AssetID, p.StepNo, now)
 	}
 
 	return nil
+}
+
+// upsertScadaStatusTags batch-upserts all STATUS.ACT / ALARM.ACT tags from da-batch-worker
+// into pt_smm_scada.tag_definition & tag_latest, then refreshes asset_snapshot.
+func (s *Storage) upsertScadaStatusTags(ctx context.Context, assetID string, tags map[string]TagMetric, ts time.Time) {
+	aid := strings.TrimSpace(assetID)
+	if aid == "" || len(tags) == 0 {
+		return
+	}
+	var assetExists bool
+	_ = s.scadaPool.QueryRow(ctx, "SELECT EXISTS(SELECT 1 FROM asset WHERE asset_id = $1);", aid).Scan(&assetExists)
+	if !assetExists {
+		return
+	}
+
+	sortedTagNames := make([]string, 0, len(tags))
+	for tagName := range tags {
+		sortedTagNames = append(sortedTagNames, tagName)
+	}
+	sort.Strings(sortedTagNames)
+
+	batchDef := &pgx.Batch{}
+	queryDef := `
+		INSERT INTO tag_definition (tag_code, asset_id, signal_role, engineering_unit, source_status, active, created_at, stale_after_seconds, freshness_mode, display_name)
+		VALUES ($1, $2, $3, $4, 'LIVE', TRUE, NOW(), 600, 'TAG_TIMESTAMP', $1)
+		ON CONFLICT (tag_code) DO UPDATE SET
+			asset_id = EXCLUDED.asset_id,
+			signal_role = EXCLUDED.signal_role,
+			engineering_unit = COALESCE(NULLIF(EXCLUDED.engineering_unit, ''), tag_definition.engineering_unit);
+	`
+	for _, tagName := range sortedTagNames {
+		metric := tags[tagName]
+		role := metric.Role
+		if role == "" {
+			role = "PV"
+		}
+		batchDef.Queue(queryDef, tagName, aid, role, metric.Unit)
+	}
+	brDef := s.scadaPool.SendBatch(ctx, batchDef)
+	for range sortedTagNames {
+		_, _ = brDef.Exec()
+	}
+	_ = brDef.Close()
+
+	batchLatest := &pgx.Batch{}
+	queryLatest := `
+		INSERT INTO tag_latest (tag_code, asset_id, value_number, quality, source_ts, ingested_at, updated_at, message_id)
+		VALUES ($1, $2, $3, 'GOOD', $4, NOW(), NOW(), gen_random_uuid())
+		ON CONFLICT (tag_code) DO UPDATE SET
+			asset_id = EXCLUDED.asset_id,
+			value_number = EXCLUDED.value_number,
+			quality = 'GOOD',
+			source_ts = EXCLUDED.source_ts,
+			ingested_at = NOW(),
+			updated_at = NOW(),
+			message_id = gen_random_uuid();
+	`
+	for _, tagName := range sortedTagNames {
+		metric := tags[tagName]
+		batchLatest.Queue(queryLatest, tagName, aid, metric.Value, ts)
+	}
+	brLatest := s.scadaPool.SendBatch(ctx, batchLatest)
+	if err := brLatest.Close(); err != nil {
+		s.logger.Warn("Error batch updating STATUS.ACT tags in pt_smm_scada", "asset", aid, "error", err)
+	} else {
+		_, _ = s.scadaPool.Exec(ctx, "SELECT sync_jetflow_asset_snapshot($1);", aid)
+	}
 }
 
 // upsertScadaStepTag writes live step_no from da-batch-worker into pt_smm_scada.tag_latest

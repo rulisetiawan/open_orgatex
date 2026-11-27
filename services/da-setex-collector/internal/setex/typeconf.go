@@ -28,12 +28,22 @@ type RegisterMapping struct {
 	FieldName    string  `json:"field_name"`
 }
 
-// Calibrate converts raw uint16 to calibrated engineering units using linear interpolation.
+// Calibrate converts raw register word to calibrated engineering units using linear interpolation.
+// Analog SETEX IW registers (Y2 <= 32767) are signed int16; e.g. 65535 (0xFFFF) is -1 (zero-drift), not 65535.
 func (rm *RegisterMapping) Calibrate(raw uint16) float64 {
-	rawF := float64(raw)
+	var rawF float64
+	if rm.Y2 > 0 && rm.Y2 <= 32767 {
+		rawF = float64(int16(raw))
+	} else {
+		rawF = float64(raw)
+	}
 	deltaY := rm.Y2 - rm.Y1
 	if math.Abs(deltaY) > 1e-6 {
 		val := rm.X1 + (rawF-rm.Y1)*(rm.X2-rm.X1)/deltaY
+		// Clamp small negative sensor zero-drift to engineering min (e.g. -0.001 bar -> 0 bar)
+		if rm.X1 >= 0 && val < rm.X1 {
+			val = rm.X1
+		}
 		if rm.DigitsAfter >= 0 && rm.DigitsAfter <= 4 {
 			pow := math.Pow(10, float64(rm.DigitsAfter))
 			return math.Round(val*pow) / pow

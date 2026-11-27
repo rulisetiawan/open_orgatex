@@ -153,8 +153,15 @@ class InterventionService:
                     continue
 
                 prev_val = baseline.get(param_name)
+                if param_name == "Target Temperature":
+                    cur_val = float(round(cur_val))
+                    prev_val = float(round(prev_val)) if prev_val is not None else None
+                    min_diff = 1.0
+                else:
+                    min_diff = 0.01
+
                 # If value is different from baseline, record intervention!
-                if prev_val is not None and abs(cur_val - prev_val) >= 0.01:
+                if prev_val is not None and abs(cur_val - prev_val) >= min_diff:
                     delta = round(cur_val - prev_val, 2)
                     change_item = {
                         "machine_no": m_no,

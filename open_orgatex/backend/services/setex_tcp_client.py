@@ -217,11 +217,18 @@ class SetexTcpClient:
             val = values[i] if i < len(values) else 0.0
             pid = parameter_ids[i] if i < len(parameter_ids) else 0
             pinfo = spec["params"].get(i, (f"Param P{i+1}", "", 0.0, 9999.0))
+            if not math.isfinite(val):
+                clean_val = 0.0
+            elif pinfo[1] == "°C" or pid == 3:
+                # Match HMI TYPECONF digits_after=0 for temperature setpoint (avoid IEEE-754 60.01 / 89.99)
+                clean_val = float(round(val))
+            else:
+                clean_val = round(val, 2)
             parsed_params.append({
                 "param_no": i + 1,
                 "name": pinfo[0],
                 "unit": pinfo[1],
-                "value": round(val, 2) if math.isfinite(val) else 0.0,
+                "value": clean_val,
                 "parameter_id": pid,
                 "min": pinfo[2],
                 "max": pinfo[3]
@@ -260,7 +267,7 @@ class SetexTcpClient:
             # 1. Read first 20 SET registers (Object 1009)
             set_words = cls.read_block(host, port, 1009, 1, 20, timeout=2.0)
             snapshot["setpoints"] = {
-                "temp_sp": set_words[0] / 10.0 if len(set_words) > 0 and set_words[0] > 0 else 0.0,
+                "temp_sp": float(round(set_words[0] / 10.0)) if len(set_words) > 0 and set_words[0] > 0 else 0.0,
                 "holding_time_sp": set_words[1] if len(set_words) > 1 else 0.0,
                 "gradient_sp": set_words[2] / 10.0 if len(set_words) > 2 else 0.0,
                 "pump_sp": set_words[3] if len(set_words) > 3 else 0.0,
