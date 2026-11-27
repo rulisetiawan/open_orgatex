@@ -12,7 +12,7 @@ from .services.background_ingestion_service import BackgroundIngestionService
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # Startup: Initialize Database (TimescaleDB / PostgreSQL / SQLite)
+    # Startup: Initialize Database (PostgreSQL Only)
     try:
         init_db()
         from .database import get_db
@@ -29,38 +29,12 @@ async def lifespan(app: FastAPI):
     except Exception as e:
         print(f"Warning during DB initialization: {e}")
 
-    # Startup Database Synchronization (PostgreSQL <-> SQLite)
-    try:
-        if DBSyncService.is_pg_reachable():
-            sync_res = DBSyncService.sync_all()
-            print(f"Initial DB Sync: {sync_res.get('message', sync_res.get('status'))}")
-        else:
-            print("PostgreSQL offline during startup. Local SQLite database active.")
-    except Exception as se:
-        print(f"Warning during initial DB sync: {se}")
-
     # Startup Message Broker & Intervention Service
     try:
         await broker.start()
         InterventionService.register_listener()
     except Exception as be:
         print(f"Warning starting Event Broker: {be}")
-
-    # Background Periodic Database Synchronizer (Runs every 45s, non-blocking worker thread)
-    sync_task = None
-    async def periodic_db_sync():
-        while True:
-            await asyncio.sleep(45)
-            try:
-                if DBSyncService.is_pg_reachable():
-                    await asyncio.to_thread(DBSyncService.sync_all)
-            except Exception:
-                pass
-
-    try:
-        sync_task = asyncio.create_task(periodic_db_sync())
-    except Exception:
-        pass
 
     # Background Periodic Controller Log Ingestion Worker (Delegated to dedicated service: da-batch-worker)
     ingest_task = None
@@ -84,9 +58,6 @@ async def lifespan(app: FastAPI):
     # Shutdown
     if ingest_task:
         ingest_task.cancel()
-
-    if sync_task:
-        sync_task.cancel()
 
     try:
         await broker.stop()
@@ -122,12 +93,12 @@ app.include_router(iw_telemetry.router)
 
 @app.get("/api/database/sync-status")
 def get_db_sync_status():
-    """Mengembalikan status sinkronisasi antara PostgreSQL dan SQLite lokal."""
+    """Mengembalikan status koneksi PostgreSQL (SQLite lokal sudah dinonaktifkan)."""
     return DBSyncService.get_sync_status()
 
 @app.post("/api/database/sync")
 def trigger_db_sync():
-    """Memaksa proses sinkronisasi dua arah antara PostgreSQL dan SQLite lokal."""
+    """Mode PostgreSQL-only aktif; tidak lagi melakukan sinkronisasi ke SQLite lokal."""
     return DBSyncService.sync_all()
 
 @app.get("/api/health")

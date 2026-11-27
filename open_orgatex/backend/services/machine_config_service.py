@@ -1085,10 +1085,6 @@ def fetch_machine_programs_from_hmi(
                                 ))
             db.commit()
             break
-
-        # Also mirror updated entries into local SQLite so offline DB stays consistent
-        for parsed in machine_parsed_entries:
-            DBSyncService.mirror_program_to_sqlite(parsed)
     except Exception as e_db:
         logger.warning(f"Failed to sync ProgramComponent & steps to PostgreSQL: {e_db}")
 

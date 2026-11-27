@@ -181,6 +181,12 @@ const Logs = ({ defaultTab = 'active' }) => {
   const [availableAlarmDates, setAvailableAlarmDates] = useState([]);
   const [alarmsLoading, setAlarmsLoading] = useState(false);
 
+  // Refs agar polling setInterval selalu membaca filter tanggal & kategori terbaru (anti stale closure)
+  const selectedAlarmDateRef = useRef(selectedAlarmDate);
+  const alarmFilterCategoryRef = useRef(alarmFilterCategory);
+  selectedAlarmDateRef.current = selectedAlarmDate;
+  alarmFilterCategoryRef.current = alarmFilterCategory;
+
   // Scroll to Alarm section automatically when opened via /alarms route
   useEffect(() => {
     if (defaultTab === 'alarms' && alarmSectionRef.current) {
@@ -270,8 +276,8 @@ const Logs = ({ defaultTab = 'active' }) => {
           ]);
         }
 
-        // Set alarms only if user is not currently viewing a specific filtered date
-        if (!selectedAlarmDate && alarmFilterCategory === 'ALL') {
+        // Set alarms only if user is not currently viewing a specific filtered date/category
+        if (!selectedAlarmDateRef.current && alarmFilterCategoryRef.current === 'ALL') {
           if (Array.isArray(data.alarms) && data.alarms.length > 0) {
             setAlarms(data.alarms);
           } else if (Array.isArray(data.active_alarms) && data.active_alarms.length > 0) {
@@ -2019,6 +2025,10 @@ const Logs = ({ defaultTab = 'active' }) => {
               ];
 
               const filteredEvents = rawEvents.filter(ev => {
+                if (selectedAlarmDate) {
+                  const evDate = ev.date || (ev.timestamp || ev.alarm_timestamp || '').slice(0, 10);
+                  if (evDate && evDate !== selectedAlarmDate) return false;
+                }
                 if (alarmFilterCategory === 'ALARM') return !ev.is_intervention;
                 if (alarmFilterCategory === 'INTERVENTION') return ev.is_intervention;
                 return true;
@@ -2103,11 +2113,25 @@ const Logs = ({ defaultTab = 'active' }) => {
                               {al.step_no ? `Step #${al.step_no}` : '-'}
                             </td>
                             <td className="py-2.5 px-4 font-medium text-black dark:text-white">
-                              <div>
-                                {al.alarm_text || al.description || `Gangguan Kode #${al.alarm_code}`}
-                                {al.batch_no && (
-                                  <span className="ml-2 text-[10px] font-mono text-gray-400">
-                                    (Batch: #{al.batch_no})
+                              <div className="flex flex-col gap-0.5">
+                                <div className="flex flex-wrap items-center gap-1.5">
+                                  <span className="font-semibold">
+                                    {al.alarm_title || al.alarm_text || al.description || `Gangguan Kode #${al.alarm_code}`}
+                                  </span>
+                                  {al.batch_no && (
+                                    <span className="text-[10px] font-mono text-gray-400">
+                                      (Batch: #{al.batch_no})
+                                    </span>
+                                  )}
+                                </div>
+                                {al.alarm_detail && al.alarm_detail.toLowerCase() !== (al.alarm_title || '').toLowerCase() && (
+                                  <span className="text-[11px] font-normal text-gray-600 dark:text-gray-400">
+                                    {al.alarm_detail}
+                                  </span>
+                                )}
+                                {al.alarm_found && al.alarm_source && (
+                                  <span className="text-[10px] font-mono text-gray-400 dark:text-gray-500">
+                                    Sumber: {al.alarm_source}
                                   </span>
                                 )}
                               </div>

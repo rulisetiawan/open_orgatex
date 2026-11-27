@@ -394,15 +394,8 @@ def process_orgatex_batch_import(
                 "error": str(e)
             })
 
-    # Mirror ke SQLite lokal & sinkronisasi file QUEUE.BTD / BATCHREF.REF
+    # Sinkronisasi file QUEUE.BTD / BATCHREF.REF
     if created_objects:
-        try:
-            from ..services.db_sync_service import DBSyncService
-            for obj in created_objects:
-                DBSyncService.mirror_batch_to_sqlite(obj)
-        except Exception as se:
-            logger.warning(f"SQLite mirror on import skipped: {se}")
-
         try:
             from .planning import _batch_to_dict, _sync_planning_json
             all_batches = [_batch_to_dict(b) for b in db.query(BatchHeader).order_by(BatchHeader.created_at.desc()).all()]

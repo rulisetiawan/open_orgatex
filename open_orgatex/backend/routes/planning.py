@@ -389,13 +389,6 @@ def create_batch(req: CreateBatchRequest, db: Session = Depends(get_db)):
     db.commit()
     db.refresh(new_batch)
 
-    # Sinkronisasi real-time ke SQLite lokal
-    try:
-        from ..services.db_sync_service import DBSyncService
-        DBSyncService.mirror_batch_to_sqlite(new_batch)
-    except Exception:
-        pass
-
     import threading
 
     # Sinkronisasi planning.json backup di background thread agar respons HTTP instan (<50ms)
@@ -461,13 +454,6 @@ def update_batch(batch_id: str, req: UpdateBatchStatusRequest, db: Session = Dep
     db.commit()
     db.refresh(target)
 
-    # Sinkronisasi real-time ke SQLite lokal
-    try:
-        from ..services.db_sync_service import DBSyncService
-        DBSyncService.mirror_batch_to_sqlite(target)
-    except Exception:
-        pass
-
     import threading
     all_batches = [_batch_to_dict(b) for b in db.query(BatchHeader).all()]
     threading.Thread(target=_sync_planning_json, args=(all_batches,), daemon=True).start()
@@ -491,19 +477,6 @@ def delete_batch(batch_id: str, db: Session = Depends(get_db)):
         (MachineQueue.batch_ref_no == b_ref) | (MachineQueue.batch_no == b_no)
     ).delete()
     db.commit()
-
-    # Hapus juga dari SQLite lokal
-    try:
-        from ..services.db_sync_service import DBSyncService
-        sq_eng = DBSyncService.get_sqlite_engine()
-        with sq_eng.connect() as conn:
-            conn.execute(text("DELETE FROM batch_headers WHERE batch_ref_no = :ref OR batch_no = :bno"), 
-                         {"ref": b_ref, "bno": b_no})
-            conn.execute(text("DELETE FROM machine_queues WHERE batch_ref_no = :ref OR batch_no = :bno"), 
-                         {"ref": b_ref, "bno": b_no})
-            conn.commit()
-    except Exception:
-        pass
 
     import threading
     all_batches = [_batch_to_dict(b) for b in db.query(BatchHeader).all()]

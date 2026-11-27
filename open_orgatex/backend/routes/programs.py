@@ -1187,13 +1187,6 @@ def save_program(p: ProcedureIn, db: Session = Depends(get_db)):
     except Exception as e:
         db.rollback()
 
-    # Mirror to local SQLite in real time
-    try:
-        from ..services.db_sync_service import DBSyncService
-        DBSyncService.mirror_program_to_sqlite(p)
-    except Exception:
-        pass
-
     # 2. Keep local JSON fallback synced (machine-scoped key)
     _save_custom_entry(META_PATH, target_machine_code, p.program_no, p.dict())
 
@@ -1438,9 +1431,8 @@ async def upload_prg_file(request: Request, machine_code: Optional[str] = "TD12"
         with open(os.path.join(m_save_dir, save_name), "wb") as f:
             f.write(content)
 
-        # Upsert into DB & mirror to SQLite (update existing row if same machine+number)
+        # Upsert into PostgreSQL (update existing row if same machine+number)
         try:
-            from ..services.db_sync_service import DBSyncService
             p_no_str = _norm_pno_str(p_no)
             existing = [
                 r for r in db.query(ProgramComponent).filter(ProgramComponent.level == 1).order_by(ProgramComponent.id.asc()).all()
@@ -1493,7 +1485,6 @@ async def upload_prg_file(request: Request, machine_code: Optional[str] = "TD12"
                             value=float(val),
                         ))
             db.commit()
-            DBSyncService.mirror_program_to_sqlite(parsed)
         except Exception:
             db.rollback()
 
@@ -1508,14 +1499,12 @@ async def upload_prg_file(request: Request, machine_code: Optional[str] = "TD12"
 
 @router.post("/deduplicate")
 def deduplicate_programs_endpoint(db: Session = Depends(get_db)):
-    """Removes any duplicate program_components within the same machine in both PG and SQLite."""
+    """Removes any duplicate program_components within the same machine in PostgreSQL."""
     from ..services.db_sync_service import DBSyncService
     removed_db = DBSyncService.deduplicate_program_components(db)
-    sync_stats = DBSyncService.sync_all()
     return {
         "status": "success",
-        "removed_duplicates_in_active_db": removed_db,
-        "sync_stats": sync_stats
+        "removed_duplicates_in_active_db": removed_db
     }
 
 

@@ -4,7 +4,7 @@ Handles On-The-Fly Reading and Permanent PostgreSQL Ingestion
 """
 
 from fastapi import APIRouter, HTTPException, Depends, Query
-from typing import Optional, List
+from typing import Optional, List, Any
 from datetime import datetime
 from sqlalchemy.orm import Session
 from sqlalchemy import desc, func
@@ -14,8 +14,31 @@ from ..models.schema_pg import Machine, DatalogCyclicRecord, DatalogAlarm, Batch
 from ..services.ingestion import LogIngestionService
 from ..services.reader import SetexFolderReader
 from ..services.setex_tcp_client import SetexTcpClient
+from ..services.alarm_catalog_service import explain_alarm, get_alarm_text
 
 router = APIRouter(prefix="/api/logs", tags=["Logs & Ingestion"])
+
+
+def _resolve_alarm_fields(alarm_code: Any, raw_text: Optional[str], raw_severity: Optional[str], machine_no: str, lang: str = "en") -> dict:
+    """Resolve alarm title, detail, full text, and severity via explain_alarm & get_alarm_text."""
+    info = explain_alarm(alarm_code, machine_no=machine_no, lang=lang)
+    full_text = get_alarm_text(alarm_code, machine_no=machine_no, lang=lang, include_detail=True)
+    raw_clean = (raw_text or "").strip()
+    is_generic_raw = (not raw_clean) or raw_clean.lower().startswith("alarm code #")
+
+    resolved_text = full_text if info.get("found") else (raw_clean if not is_generic_raw else full_text)
+    resolved_title = info.get("title") if info.get("found") else (raw_clean if not is_generic_raw else info.get("title", resolved_text))
+    resolved_detail = info.get("detail") or ""
+    resolved_severity = info.get("severity") if info.get("found") else (raw_severity or ("INFO" if str(alarm_code) == "0" else "WARNING"))
+
+    return {
+        "alarm_text": resolved_text,
+        "alarm_title": resolved_title,
+        "alarm_detail": resolved_detail,
+        "alarm_found": bool(info.get("found")),
+        "alarm_source": info.get("source") or "unknown",
+        "severity": resolved_severity,
+    }
 
 @router.get("/live/{machine_no}")
 def get_live_machine_telemetry(
@@ -354,22 +377,26 @@ def get_batch_history_detail(
         DatalogAlarm.batch_ref_no == ref_clean
     ).order_by(DatalogAlarm.alarm_timestamp.asc()).all()
 
-    formatted_alarms = [
-        {
+    formatted_alarms = []
+    for a in alarms_db:
+        resolved = _resolve_alarm_fields(a.alarm_code, a.alarm_text, a.severity, machine_no=mach_clean, lang="en")
+        formatted_alarms.append({
             "id": a.id,
             "timestamp": a.alarm_timestamp.strftime("%Y-%m-%d %H:%M:%S") if a.alarm_timestamp else "",
             "date": a.alarm_timestamp.strftime("%Y-%m-%d") if a.alarm_timestamp else "",
             "time": a.alarm_timestamp.strftime("%H:%M:%S") if a.alarm_timestamp else "",
             "alarm_code": a.alarm_code,
-            "alarm_text": a.alarm_text,
-            "severity": a.severity or "WARNING",
+            "alarm_text": resolved["alarm_text"],
+            "alarm_title": resolved["alarm_title"],
+            "alarm_detail": resolved["alarm_detail"],
+            "alarm_found": resolved["alarm_found"],
+            "alarm_source": resolved["alarm_source"],
+            "severity": resolved["severity"],
             "step_no": a.step_no,
             "batch_no": a.batch_ref_no,
             "is_intervention": str(a.alarm_code) in ("0", "20", "256", "5899"),
             "category": "INTERVENTION" if str(a.alarm_code) in ("0", "20", "256", "5899") else "ALARM"
-        }
-        for a in alarms_db
-    ]
+        })
 
     # Ambil intervensi untuk batch ini
     interventions_db = db.query(OperatorIntervention).filter(
@@ -456,6 +483,7 @@ def get_stored_alarms(
     order_by: str = Query("datetime", description="Kolom sorting: 'datetime' / 'alarm_timestamp'"),
     order: str = Query("desc", description="Arah urutan: 'desc' (terbaru) atau 'asc' (terlama)"),
     category: Optional[str] = Query(None, description="Filter kategori: 'ALL', 'ALARM', atau 'INTERVENTION'"),
+    lang: str = Query(default="en", description="Bahasa penjelasan alarm: en atau de"),
     limit: int = Query(default=200, le=2000),
     db: Session = Depends(get_db)
 ):
@@ -508,7 +536,8 @@ def get_stored_alarms(
     formatted = []
     for a in alarms:
         code_str = str(a.alarm_code)
-        text_upper = (a.alarm_text or "").upper()
+        resolved = _resolve_alarm_fields(a.alarm_code, a.alarm_text, a.severity, machine_no=m_no, lang=lang)
+        text_upper = (resolved["alarm_text"] or "").upper()
         is_intervention = code_str in INTERVENTION_CODES or any(k in text_upper for k in INTERVENTION_KEYWORDS)
         cat = "INTERVENTION" if is_intervention else "ALARM"
 
@@ -521,8 +550,12 @@ def get_stored_alarms(
             "date": a.alarm_timestamp.strftime("%Y-%m-%d") if a.alarm_timestamp else "",
             "time": a.alarm_timestamp.strftime("%H:%M:%S") if a.alarm_timestamp else "",
             "alarm_code": a.alarm_code,
-            "alarm_text": a.alarm_text,
-            "severity": a.severity or ("INFO" if a.alarm_code == "0" else "WARNING"),
+            "alarm_text": resolved["alarm_text"],
+            "alarm_title": resolved["alarm_title"],
+            "alarm_detail": resolved["alarm_detail"],
+            "alarm_found": resolved["alarm_found"],
+            "alarm_source": resolved["alarm_source"],
+            "severity": resolved["severity"],
             "step_no": a.step_no,
             "batch_no": a.batch_ref_no,
             "is_intervention": is_intervention,

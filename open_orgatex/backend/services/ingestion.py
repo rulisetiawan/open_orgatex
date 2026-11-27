@@ -891,7 +891,7 @@ class LogIngestionService:
             "controller_type": "SETEX 797CE (Windows CE)" if is_797 else (machine.controller_type or "SECOM 777 (Windows CE)"),
             "controller_name": "SETEX Secom 797CE" if is_797 else "SETEX Secom 777",
             "share_folder_path": "/Flashdisk/SC797CE" if is_797 else (machine.share_folder_path or "/Storage/sc777ce"),
-            "database_mode": "POSTGRES" if getattr(database, "IS_POSTGRES", False) else "SQLITE_OFFLINE",
+            "database_mode": "POSTGRES",
             "is_live_hmi": status_info.get("is_ftp_source", False),
             "data_source": status_info.get("data_source", "LOCAL_STORAGE"),
             "hmi_ip": machine.ip_address,
@@ -1206,17 +1206,28 @@ class LogIngestionService:
         if not batch_alarms:
             batch_alarms = alarm_q.order_by(desc(DatalogAlarm.alarm_timestamp)).limit(30).all()
 
-        final_alarms = [
-            {
+        from .alarm_catalog_service import explain_alarm, get_alarm_text
+
+        final_alarms = []
+        for a in batch_alarms:
+            info = explain_alarm(a.alarm_code, machine_no=mach_no, lang="en")
+            full_text = get_alarm_text(a.alarm_code, machine_no=mach_no, lang="en", include_detail=True)
+            raw_clean = (a.alarm_text or "").strip()
+            is_generic_raw = (not raw_clean) or raw_clean.lower().startswith("alarm code #")
+            resolved_text = full_text if info.get("found") else (raw_clean if not is_generic_raw else full_text)
+            resolved_title = info.get("title") if info.get("found") else (raw_clean if not is_generic_raw else info.get("title", resolved_text))
+            final_alarms.append({
                 "timestamp": a.alarm_timestamp.strftime("%Y-%m-%d %H:%M:%S") if a.alarm_timestamp else "",
                 "alarm_code": a.alarm_code,
-                "alarm_text": a.alarm_text,
+                "alarm_text": resolved_text,
+                "alarm_title": resolved_title,
+                "alarm_detail": info.get("detail") or "",
+                "alarm_found": bool(info.get("found")),
+                "alarm_source": info.get("source") or "unknown",
                 "step_no": a.step_no,
-                "severity": a.severity or "WARNING",
+                "severity": info.get("severity") if info.get("found") else (a.severity or "WARNING"),
                 "cleared_at": a.cleared_at.strftime("%Y-%m-%d %H:%M:%S") if a.cleared_at else None,
-            }
-            for a in batch_alarms
-        ]
+            })
         active_alarms = [a for a in final_alarms if not a.get("cleared_at")]
 
         interv_q = db.query(OperatorIntervention).filter(OperatorIntervention.machine_no == mach_no)
@@ -1318,7 +1329,7 @@ class LogIngestionService:
             "controller_type": "SETEX 797CE (Windows CE)" if is_797 else (machine.controller_type or "SECOM 777 (Windows CE)"),
             "controller_name": "SETEX Secom 797CE" if is_797 else "SETEX Secom 777",
             "share_folder_path": machine.share_folder_path or ("/Flashdisk/SC797CE" if is_797 else "/Storage/sc777ce"),
-            "database_mode": "POSTGRES" if getattr(database, "IS_POSTGRES", False) else "SQLITE_OFFLINE",
+            "database_mode": "POSTGRES",
             "is_live_hmi": iw_online,
             "data_source": "DATABASE (da-batch-worker & da-setex-collector)",
             "hmi_ip": machine.ip_address,

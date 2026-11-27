@@ -1,5 +1,7 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
+import api from '../services/api';
+import useVisibilityInterval from '../hooks/useVisibilityInterval';
 import {
   Tv,
   LineChart,
@@ -20,6 +22,28 @@ import {
 const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
   const location = useLocation();
   const { pathname } = location;
+  const [ftpUnreadableCount, setFtpUnreadableCount] = useState(0);
+
+  const fetchFtpUnreadableCount = useCallback(async () => {
+    try {
+      const res = await api.get('/ftp/worker-status', {
+        params: { include_inactive: false },
+      });
+      const summary = res.data?.summary;
+      if (summary) {
+        const count = Number(summary.ftp_unreadable_count ?? summary.ftp_failed_count ?? 0);
+        setFtpUnreadableCount(Number.isFinite(count) ? count : 0);
+      }
+    } catch {
+      // Abaikan error sementara agar sidebar tetap responsif
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchFtpUnreadableCount();
+  }, [fetchFtpUnreadableCount]);
+
+  useVisibilityInterval(fetchFtpUnreadableCount, 30000);
 
   // Auto-close mobile drawer on route change
   useEffect(() => {
@@ -46,7 +70,13 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
         { name: 'Alarm Monitor', path: '/alarms', icon: Bell },
         // Sementara disembunyikan agar tidak membuka koneksi FTP langsung ke kontroler
         // { name: 'FTP Explorer', path: '/ftp', icon: Server },
-        { name: 'Status Baca FTP', path: '/ftp-monitor', icon: ShieldAlert },
+        {
+          name: 'Status Baca FTP',
+          path: '/ftp-monitor',
+          icon: ShieldAlert,
+          badgeCount: ftpUnreadableCount,
+          badgeTitle: `${ftpUnreadableCount} mesin FTP tidak bisa diakses`,
+        },
       ]
     },
     {
@@ -144,7 +174,20 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
                                 : 'text-body dark:text-bodydark group-hover:text-primary dark:group-hover:text-secondary'
                             }`}
                           />
-                          <span className="truncate">{item.name}</span>
+                          <span className="truncate flex-1">{item.name}</span>
+                          {item.badgeCount > 0 && (
+                            <span
+                              title={item.badgeTitle}
+                              aria-label={item.badgeTitle}
+                              className={`ml-auto inline-flex min-w-[20px] items-center justify-center rounded-full px-1.5 py-0.5 text-[10px] font-bold leading-none tabular-nums ${
+                                isActive
+                                  ? 'bg-red-500 text-white ring-1 ring-white/50 shadow-xs'
+                                  : 'bg-red-500 text-white shadow-xs'
+                              }`}
+                            >
+                              {item.badgeCount}
+                            </span>
+                          )}
                         </NavLink>
                       </li>
                     );
