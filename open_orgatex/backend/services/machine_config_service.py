@@ -1113,3 +1113,245 @@ def fetch_machine_programs_from_hmi(
         "programs": parsed_programs,
         "message": msg
     }
+
+
+_SINGLE_PRG_ATTEMPT_CACHE: Dict[tuple, float] = {}
+_SINGLE_PRG_COOLDOWN_SEC = 120.0
+
+
+def download_single_program_from_hmi_to_db(
+    db,
+    machine_no: str,
+    prog_no: int,
+    ip: Optional[str] = None,
+    ftp_port: int = 21,
+    remote_dir: Optional[str] = None,
+    timeout: float = 4.0,
+) -> Optional[Dict[str, Any]]:
+    """
+    Downloads a single missing M_XXXX.PRG file from the machine's SETEX HMI via FTP
+    (or local workspace fallback), parses it, and persists it into PostgreSQL
+    (program_components, steps, step_functions, step_function_parameters).
+    Protected by a cooldown cache per (machine_no, prog_no) to avoid hammering Windows CE FTP.
+    """
+    import time as _time
+    from io import BytesIO
+    from ..utils.secom_codec import parse_prg_binary
+    from ..models.schema_pg import (
+        Machine,
+        ProgramComponent,
+        Step,
+        StepFunction,
+        StepFunctionParameter,
+    )
+
+    clean_no = (machine_no or "").strip().upper().replace("MESIN_", "")
+    if not clean_no or not prog_no or int(prog_no) <= 0:
+        return None
+    pno_int = int(prog_no)
+    p_no_str = str(pno_int)
+    target_fname = f"M_{pno_int:04d}.PRG"
+
+    cache_key = (clean_no, pno_int)
+    now_ts = _time.monotonic()
+    last_try = _SINGLE_PRG_ATTEMPT_CACHE.get(cache_key)
+    if last_try and (now_ts - last_try) < _SINGLE_PRG_COOLDOWN_SEC:
+        return None
+    _SINGLE_PRG_ATTEMPT_CACHE[cache_key] = now_ts
+
+    # Resolve IP & controller folder from DB if not provided
+    if not ip:
+        try:
+            m_row = db.query(Machine).filter(Machine.machine_no == clean_no).first()
+            if m_row:
+                ip = m_row.ip_address
+                ftp_port = m_row.ftp_port or ftp_port
+                if not remote_dir and m_row.controller_type and "797" in m_row.controller_type.upper():
+                    remote_dir = "/Flashdisk/SC797CE/Programs"
+        except Exception:
+            pass
+
+    raw_bytes: Optional[bytes] = None
+    source_used = None
+
+    # 1. Try local workspace copy first (fast, zero network)
+    try:
+        m_dir = ensure_machine_workspace(clean_no)
+        ref_dir = os.path.join(m_dir, "03_CONTOH_PRG_DARI_HMI")
+        out_dir = os.path.join(m_dir, "04_HASIL_PROGRAM_CELUP")
+        os.makedirs(ref_dir, exist_ok=True)
+        for d in (ref_dir, out_dir):
+            if os.path.isdir(d):
+                for fn in os.listdir(d):
+                    if fn.upper() == target_fname.upper():
+                        with open(os.path.join(d, fn), "rb") as f:
+                            raw_bytes = f.read()
+                        source_used = "local_workspace"
+                        break
+            if raw_bytes:
+                break
+    except Exception:
+        ref_dir = None
+
+    # 2. Download single .PRG from HMI via FTP if not found locally
+    if not raw_bytes and ip:
+        ftp = None
+        try:
+            ftp = ftplib.FTP(timeout=timeout)
+            ftp.connect(ip, int(ftp_port or 21))
+            logged_in = False
+            for u, p in [("", ""), ("anonymous", ""), ("setex", "setex"), ("SETEX", "SETEX"), ("admin", "admin")]:
+                try:
+                    if u:
+                        ftp.login(u, p)
+                    else:
+                        ftp.login()
+                    logged_in = True
+                    break
+                except Exception:
+                    continue
+
+            if logged_in:
+                try:
+                    ftp.set_pasv(True)
+                except Exception:
+                    pass
+                try:
+                    ftp.voidcmd("TYPE I")
+                except Exception:
+                    pass
+
+                dirs_to_try = []
+                if remote_dir:
+                    clean_r = remote_dir.strip().rstrip("/\\")
+                    dirs_to_try.extend([clean_r, clean_r.replace("/", "\\")])
+                for c in CANDIDATE_PROGRAM_DIRS:
+                    if c not in dirs_to_try:
+                        dirs_to_try.append(c)
+
+                fname_variants = [target_fname, target_fname.lower(), f"m_{pno_int:04d}.prg"]
+                for target_d in dirs_to_try:
+                    try:
+                        ftp.cwd(target_d)
+                    except Exception:
+                        try:
+                            ftp.cwd(target_d.replace("/", "\\"))
+                        except Exception:
+                            continue
+
+                    for fn_try in fname_variants:
+                        buf = BytesIO()
+                        try:
+                            ftp.retrbinary(f"RETR {fn_try}", buf.write)
+                            data_b = buf.getvalue()
+                            if data_b and len(data_b) >= 64:
+                                raw_bytes = data_b
+                                source_used = f"ftp://{ip}:{ftp_port}{target_d}/{fn_try}"
+                                break
+                        except Exception:
+                            continue
+                    if raw_bytes:
+                        break
+        except Exception as e_ftp:
+            logger.warning(f"Auto-download {target_fname} from {clean_no} ({ip}) failed: {e_ftp}")
+        finally:
+            if ftp:
+                try:
+                    ftp.quit()
+                except Exception:
+                    try:
+                        ftp.close()
+                    except Exception:
+                        pass
+
+        # Save downloaded .PRG into local workspace cache
+        if raw_bytes and ref_dir:
+            try:
+                with open(os.path.join(ref_dir, target_fname), "wb") as wf:
+                    wf.write(raw_bytes)
+            except Exception:
+                pass
+
+    if not raw_bytes:
+        return None
+
+    # 3. Parse binary .PRG and persist into PostgreSQL
+    try:
+        parsed = parse_prg_binary(raw_bytes)
+        if not parsed or not parsed.get("steps"):
+            return None
+
+        prog_name = (parsed.get("program_name") or f"PROGRAM #{p_no_str}").strip()
+        p_row = (
+            db.query(ProgramComponent)
+            .filter(
+                ProgramComponent.level == 1,
+                ProgramComponent.machine_code == clean_no,
+                ProgramComponent.number == p_no_str,
+            )
+            .first()
+        )
+        if p_row:
+            p_row.name = prog_name
+            p_row.modification_time = datetime.utcnow()
+            for old_s in list(p_row.steps):
+                db.delete(old_s)
+            db.flush()
+        else:
+            p_row = ProgramComponent(
+                number=p_no_str,
+                name=prog_name,
+                level=1,
+                type=1,
+                machine_code=clean_no,
+            )
+            db.add(p_row)
+            db.flush()
+
+        for st in parsed.get("steps") or []:
+            new_s = Step(
+                position=int(st.get("step_no") or 1),
+                parent_component_id=p_row.id,
+                label=str(st.get("label") or f"Langkah {st.get('step_no', 1)}")[:100],
+                summary_temp=st.get("summary_temp"),
+                summary_time_min=st.get("summary_time_min") or 0.0,
+                summary_water_l=st.get("summary_water_l") or 0.0,
+            )
+            db.add(new_s)
+            db.flush()
+
+            for fn in st.get("functions") or []:
+                new_fn = StepFunction(
+                    step_id=new_s.id,
+                    resource_number=int(fn.get("column") or 1),
+                    function_number=int(fn.get("function_id") or 0),
+                    function_name=str(fn.get("name") or "")[:100],
+                    acknowledge=int(fn.get("flags") or 0),
+                )
+                db.add(new_fn)
+                db.flush()
+
+                for p_idx, p_val in enumerate(fn.get("params") or []):
+                    try:
+                        f_val = float(p_val)
+                    except Exception:
+                        f_val = 0.0
+                    db.add(StepFunctionParameter(
+                        step_function_id=new_fn.id,
+                        function_parameter_number=p_idx + 1,
+                        value=f_val,
+                    ))
+
+        db.commit()
+        logger.info(
+            f"Auto-downloaded & saved {target_fname} ({prog_name}, {len(parsed.get('steps') or [])} steps) "
+            f"for machine {clean_no} to PostgreSQL from {source_used}"
+        )
+        return parsed
+    except Exception as e_save:
+        logger.warning(f"Failed to parse/save auto-downloaded {target_fname} for {clean_no}: {e_save}")
+        try:
+            db.rollback()
+        except Exception:
+            pass
+        return None

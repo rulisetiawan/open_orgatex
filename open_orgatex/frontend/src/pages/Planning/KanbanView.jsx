@@ -221,13 +221,27 @@ const KanbanView = () => {
     return map;
   }, [batches]);
 
-  const availableGroups = useMemo(() => {
-    const groups = new Set();
+  const { availableGroups, groupCounts } = useMemo(() => {
+    const counts = {};
     machineList.forEach(m => {
-      if (m.group_name) groups.add(m.group_name);
+      const g = (m.group_name || '').trim();
+      if (g) {
+        counts[g] = (counts[g] || 0) + 1;
+      }
     });
-    return ['SEMUA', ...Array.from(groups)];
+    const sortedGroups = Object.keys(counts).sort((a, b) => a.localeCompare(b));
+    return {
+      availableGroups: ['SEMUA', ...sortedGroups],
+      groupCounts: counts,
+    };
   }, [machineList]);
+
+  const handleSelectGroup = (groupVal) => {
+    setSelectedGroup(groupVal);
+    if (groupVal !== 'SEMUA' && machineFilterType === 'KEY_MACHINES') {
+      setMachineFilterType('ALL');
+    }
+  };
 
   const displayedMachines = useMemo(() => {
     let list = [...machineList];
@@ -460,7 +474,7 @@ const KanbanView = () => {
       <div className="flex flex-wrap items-center justify-between gap-2 bg-white dark:bg-boxdark px-3.5 py-2 rounded-xl border border-stroke dark:border-strokedark shadow-xs">
         <div className="flex items-center gap-2">
           <span className="font-bold text-sm tracking-tight text-black dark:text-white">
-            Kanban Board
+            Planning Board
           </span>
           <span className="text-[11px] text-body dark:text-bodydark font-mono hidden md:inline">
             · {batches.length} Batch ({totalQueuedBatches} Antrean)
@@ -516,29 +530,29 @@ const KanbanView = () => {
           {/* ========================================================================= */}
           {/* KOLOM 1 (KIRI): PERENCANAAN (PLANNING)                                    */}
           {/* ========================================================================= */}
-          <div className={`${compactDensity ? 'w-full lg:w-52' : 'w-full lg:w-64'} shrink-0 flex flex-col rounded-xl border border-stroke dark:border-strokedark bg-gray-50/90 dark:bg-[#182234] p-2.5 shadow-xs`}>
+          <div className={`${compactDensity ? 'w-full lg:w-64' : 'w-full lg:w-72'} shrink-0 flex flex-col rounded-xl border border-stroke dark:border-strokedark bg-gray-50/90 dark:bg-[#182234] p-3 shadow-xs`}>
             {/* Header Perencanaan */}
-            <div className="flex items-center justify-between pb-1 mb-1 border-b border-stroke dark:border-strokedark">
-              <div className="flex items-center gap-1">
-                <span className="w-1.5 h-1.5 rounded-full bg-purple-500 ring-1 ring-purple-500/20" />
-                <span className="font-bold text-[10px] text-black dark:text-white uppercase">
+            <div className="flex items-center justify-between pb-2 mb-2 border-b border-stroke dark:border-strokedark">
+              <div className="flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-purple-500 ring-2 ring-purple-500/20" />
+                <span className="font-bold text-xs text-black dark:text-white uppercase tracking-wide">
                   Perencanaan
                 </span>
               </div>
-              <span className="flex h-3.5 px-1 items-center justify-center rounded-full bg-purple-500/20 text-purple-600 dark:text-purple-400 text-[8px] font-black">
+              <span className="flex h-5 px-2 items-center justify-center rounded-full bg-purple-500/20 text-purple-600 dark:text-purple-400 text-[11px] font-black">
                 {planningBatches.length}
               </span>
             </div>
 
             {/* Quick Search Planning */}
-            <div className="mb-1 relative">
-              <Search className="absolute left-1.5 top-1 h-2 w-2 text-gray-400" />
+            <div className="mb-2.5 relative">
+              <Search className="absolute left-2.5 top-2 h-3.5 w-3.5 text-gray-400" />
               <input
                 type="text"
-                placeholder="Cari..."
+                placeholder="Cari batch..."
                 value={planningSearch}
                 onChange={(e) => setPlanningSearch(e.target.value)}
-                className="w-full pl-4 pr-1 py-0.5 rounded border border-stroke dark:border-strokedark bg-white dark:bg-boxdark text-[9px] focus:border-primary focus:outline-none"
+                className="w-full pl-8 pr-2.5 py-1.5 rounded-lg border border-stroke dark:border-strokedark bg-white dark:bg-boxdark text-xs text-black dark:text-white focus:border-primary focus:outline-none"
               />
             </div>
 
@@ -548,7 +562,7 @@ const KanbanView = () => {
                 <div
                   ref={provided.innerRef}
                   {...provided.droppableProps}
-                  className={`flex-1 space-y-1 p-0.5 rounded transition-colors max-h-[820px] overflow-y-auto ${
+                  className={`flex-1 space-y-2 p-1 rounded-lg transition-colors max-h-[820px] overflow-y-auto ${
                     snapshot.isDraggingOver ? 'bg-purple-500/10 border border-dashed border-purple-500/50' : ''
                   }`}
                 >
@@ -559,34 +573,34 @@ const KanbanView = () => {
                           ref={provided.innerRef}
                           {...provided.draggableProps}
                           {...provided.dragHandleProps}
-                          className={`rounded border border-stroke bg-white p-1 shadow-xs dark:border-strokedark dark:bg-boxdark transition-all select-none ${
+                          className={`rounded-lg border border-stroke bg-white ${compactDensity ? 'p-2' : 'p-2.5'} shadow-xs dark:border-strokedark dark:bg-boxdark transition-all select-none ${
                             snapshot.isDragging 
-                              ? 'shadow-xl ring-1 ring-purple-500 scale-102 z-9999' 
+                              ? 'shadow-xl ring-2 ring-purple-500 scale-102 z-9999' 
                               : 'hover:border-purple-500/50'
                           }`}
                         >
                           {/* Row 1: Lot & Ref */}
-                          <div className="flex items-center justify-between gap-0.5 leading-tight mb-0.5">
-                            <span className="font-black text-[9px] text-purple-600 dark:text-purple-400 truncate max-w-[90px]" title={item.batch_no}>
+                          <div className="flex items-center justify-between gap-1.5 leading-snug mb-1">
+                            <span className="font-black text-xs text-purple-600 dark:text-purple-400 truncate max-w-[140px]" title={item.batch_no}>
                               #{item.batch_no}
                             </span>
-                            <span className="text-[7px] font-mono text-gray-400 shrink-0">
+                            <span className="text-[11px] font-mono text-gray-400 shrink-0">
                               {item.reference_no}
                             </span>
                           </div>
 
                           {/* Row 2: Recipe Title */}
-                          <p className="text-[8px] font-bold text-black dark:text-white truncate line-clamp-1 leading-tight mb-0.5" title={item.recipe_name}>
+                          <p className="text-xs font-bold text-black dark:text-white truncate line-clamp-1 leading-snug mb-1" title={item.recipe_name}>
                             {item.recipe_name}
                           </p>
 
                           {/* Row 3: Specs in 1 line */}
-                          <div className="text-[7px] text-gray-400 truncate leading-tight mb-0.5">
+                          <div className="text-[11px] text-gray-400 truncate leading-snug mb-2">
                             <span className="text-gray-700 dark:text-gray-300 font-semibold">{item.article || '-'}</span> · <span className="text-primary font-semibold">{item.color_name}</span> · <span className="font-mono">{item.fabric_weight_kg}kg</span>
                           </div>
 
                           {/* Row 4: Action & Assign */}
-                          <div className="pt-0.5 border-t border-stroke/40 dark:border-strokedark/40 flex items-center justify-between gap-0.5">
+                          <div className="pt-1.5 border-t border-stroke/50 dark:border-strokedark/50 flex items-center justify-between gap-1.5">
                             <select
                               defaultValue=""
                               onChange={(e) => {
@@ -594,7 +608,7 @@ const KanbanView = () => {
                                   handleQuickAssign(item.id, e.target.value);
                                 }
                               }}
-                              className="flex-1 py-0 px-0.5 text-[7px] font-bold rounded border border-stroke dark:border-strokedark bg-white dark:bg-boxdark text-gray-800 dark:text-gray-200 focus:outline-none"
+                              className="flex-1 py-1 px-1.5 text-[11px] font-bold rounded-md border border-stroke dark:border-strokedark bg-white dark:bg-boxdark text-gray-800 dark:text-gray-200 focus:border-primary focus:outline-none cursor-pointer"
                             >
                               <option value="" disabled>Ke Mesin...</option>
                               <option value="DA01">DA01</option>
@@ -609,19 +623,19 @@ const KanbanView = () => {
                             <button
                               type="button"
                               onClick={() => handleDownloadZip(item.id)}
-                              className="p-0.5 text-primary hover:bg-primary/10 rounded"
-                              title="ZIP"
+                              className="p-1.5 text-primary hover:bg-primary/10 rounded-md transition"
+                              title="Unduh ZIP"
                             >
-                              <Download className="h-2 w-2" />
+                              <Download className="h-3.5 w-3.5" />
                             </button>
 
                             <button
                               type="button"
                               onClick={() => handleDeleteBatch(item.id, item.batch_no)}
-                              className="p-0.5 text-gray-400 hover:text-red-500 rounded"
-                              title="Hapus"
+                              className="p-1.5 text-gray-400 hover:text-red-500 hover:bg-red-500/10 rounded-md transition"
+                              title="Hapus Batch"
                             >
-                              <Trash2 className="h-2 w-2" />
+                              <Trash2 className="h-3.5 w-3.5" />
                             </button>
                           </div>
                         </div>
@@ -632,7 +646,7 @@ const KanbanView = () => {
                   {provided.placeholder}
 
                   {planningBatches.length === 0 && (
-                    <div className="h-16 flex flex-col items-center justify-center text-center p-1 text-gray-400 text-[8px] border border-dashed border-stroke dark:border-strokedark rounded">
+                    <div className="h-24 flex flex-col items-center justify-center text-center p-3 text-gray-400 text-xs border border-dashed border-stroke dark:border-strokedark rounded-lg">
                       <span>Kosong</span>
                     </div>
                   )}
@@ -648,70 +662,89 @@ const KanbanView = () => {
           <div className="flex-1 min-w-0 space-y-1">
             
             {/* Filter Toolbar Ringkas */}
-            <div className="bg-white dark:bg-boxdark px-2 py-0.5 rounded-md border border-stroke dark:border-strokedark shadow-xs flex items-center justify-between gap-1 text-[9px]">
-              <div className="flex items-center gap-1 overflow-x-auto">
-                <span className="font-bold text-gray-400 text-[8px] uppercase">Filter:</span>
+            <div className="bg-white dark:bg-boxdark px-2.5 py-1.5 rounded-lg border border-stroke dark:border-strokedark shadow-xs flex flex-wrap items-center justify-between gap-2 text-[11px]">
+              <div className="flex flex-wrap items-center gap-1.5">
+                <span className="font-bold text-gray-400 text-[10px] uppercase">Filter:</span>
                 
                 <button
-                  onClick={() => setMachineFilterType('KEY_MACHINES')}
-                  className={`px-1.5 py-0.2 rounded font-bold transition shrink-0 ${
+                  type="button"
+                  onClick={() => {
+                    setMachineFilterType('KEY_MACHINES');
+                    setSelectedGroup('SEMUA');
+                  }}
+                  className={`px-2 py-1 rounded-md font-bold transition shrink-0 ${
                     machineFilterType === 'KEY_MACHINES'
-                      ? 'bg-primary text-white'
-                      : 'bg-gray-100 dark:bg-meta-4 text-gray-600 dark:text-gray-300'
+                      ? 'bg-primary text-white shadow-xs'
+                      : 'bg-gray-100 dark:bg-meta-4 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-meta-4/80'
                   }`}
                 >
                   DA01 & M_95
                 </button>
 
                 <button
+                  type="button"
                   onClick={() => setMachineFilterType('WITH_QUEUES')}
-                  className={`px-1.5 py-0.2 rounded font-bold transition shrink-0 flex items-center gap-0.5 ${
+                  className={`px-2 py-1 rounded-md font-bold transition shrink-0 flex items-center gap-1 ${
                     machineFilterType === 'WITH_QUEUES'
-                      ? 'bg-emerald-600 text-white'
-                      : 'bg-gray-100 dark:bg-meta-4 text-gray-600 dark:text-gray-300'
+                      ? 'bg-emerald-600 text-white shadow-xs'
+                      : 'bg-gray-100 dark:bg-meta-4 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-meta-4/80'
                   }`}
                 >
                   <span>Ada Antrean ({totalMachinesWithQueue})</span>
                 </button>
 
                 <button
+                  type="button"
                   onClick={() => setMachineFilterType('ALL')}
-                  className={`px-1.5 py-0.2 rounded font-bold transition shrink-0 ${
+                  className={`px-2 py-1 rounded-md font-bold transition shrink-0 ${
                     machineFilterType === 'ALL'
-                      ? 'bg-primary text-white'
-                      : 'bg-gray-100 dark:bg-meta-4 text-gray-600 dark:text-gray-300'
+                      ? 'bg-primary text-white shadow-xs'
+                      : 'bg-gray-100 dark:bg-meta-4 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-meta-4/80'
                   }`}
                 >
                   Semua ({machineList.length})
                 </button>
 
-                {availableGroups.length > 2 && (
-                  <select
-                    value={selectedGroup}
-                    onChange={(e) => setSelectedGroup(e.target.value)}
-                    className="py-0 px-1 rounded border border-stroke dark:border-strokedark bg-gray-50 dark:bg-boxdark-2 text-[8px] font-semibold focus:outline-none shrink-0"
+                <div className="flex items-center gap-1.5 pl-1 border-l border-stroke dark:border-strokedark">
+                  <label
+                    htmlFor="board-jalur-filter"
+                    className="font-bold text-gray-400 text-[10px] uppercase shrink-0"
                   >
-                    {availableGroups.map(g => (
-                      <option key={g} value={g}>{g}</option>
-                    ))}
+                    Jalur:
+                  </label>
+                  <select
+                    id="board-jalur-filter"
+                    value={selectedGroup}
+                    onChange={(e) => handleSelectGroup(e.target.value)}
+                    className="py-1 px-2 rounded-md border border-stroke dark:border-strokedark bg-gray-50 dark:bg-boxdark-2 text-[11px] font-semibold text-black dark:text-white focus:border-primary focus:outline-none cursor-pointer"
+                    title="Filter mesin berdasarkan jalur / area"
+                  >
+                    <option value="SEMUA">Semua Jalur ({machineList.length})</option>
+                    {availableGroups
+                      .filter((g) => g !== 'SEMUA')
+                      .map((g) => (
+                        <option key={g} value={g}>
+                          {g} ({groupCounts[g] || 0})
+                        </option>
+                      ))}
                   </select>
-                )}
+                </div>
               </div>
 
               <div className="relative shrink-0">
-                <Search className="absolute left-1 top-1 h-2 w-2 text-gray-400" />
+                <Search className="absolute left-2 top-1.5 h-3 w-3 text-gray-400" />
                 <input
                   type="text"
                   placeholder="Cari mesin..."
                   value={machineSearch}
                   onChange={(e) => setMachineSearch(e.target.value)}
-                  className="pl-3.5 pr-1 py-0.2 rounded border border-stroke dark:border-strokedark bg-gray-50 dark:bg-boxdark-2 text-[9px] focus:outline-none w-24 sm:w-28"
+                  className="pl-6 pr-2 py-1 rounded-md border border-stroke dark:border-strokedark bg-gray-50 dark:bg-boxdark-2 text-[11px] text-black dark:text-white focus:border-primary focus:outline-none w-32 sm:w-40"
                 />
               </div>
             </div>
 
             {/* DAFTAR BARIS MESIN (SWIMLANES): JALUR ANTREAN DI KIRI, BLOK MESIN DI UJUNG KANAN */}
-            <div className="space-y-1">
+            <div className={compactDensity ? 'space-y-1.5' : 'space-y-2.5'}>
               {displayedMachines.map((m) => {
                 const machNo = m.machine_no;
                 // items is sorted position ascending: items[0] is #1, items[last] is #N
@@ -721,7 +754,7 @@ const KanbanView = () => {
                 return (
                   <div 
                     key={machNo}
-                    className="flex flex-row items-stretch rounded-md border border-stroke dark:border-strokedark bg-white dark:bg-[#182234] shadow-xs overflow-hidden transition-all hover:border-primary/40 min-h-[52px]"
+                    className={`flex flex-row items-stretch rounded-xl border border-stroke dark:border-strokedark bg-white dark:bg-[#182234] shadow-xs overflow-hidden transition-all hover:border-primary/40 ${compactDensity ? 'min-h-[78px]' : 'min-h-[104px]'}`}
                   >
                     {/* ========================================================= */}
                     {/* BAGIAN KIRI/TENGAH: JALUR ANTREAN MENEMPEL KE MESIN DI KANAN */}
@@ -736,14 +769,14 @@ const KanbanView = () => {
                           <div
                             ref={provided.innerRef}
                             {...provided.droppableProps}
-                            className={`flex-1 flex flex-row items-stretch gap-1 p-1 overflow-x-auto transition-colors ${
+                            className={`flex-1 flex flex-row items-stretch gap-2 p-2 overflow-x-auto transition-colors ${
                               snapshot.isDraggingOver 
                                 ? 'bg-primary/10 border-2 border-dashed border-primary/50' 
                                 : 'bg-slate-50/40 dark:bg-[#101726]/60'
                             }`}
                           >
                             {items.length === 0 ? (
-                              <div className="w-full h-full min-h-[46px] flex items-center justify-center p-1 border border-dashed border-stroke/60 dark:border-strokedark/60 rounded text-gray-400 text-[8px]">
+                              <div className={`w-full h-full ${compactDensity ? 'min-h-[60px]' : 'min-h-[84px]'} flex items-center justify-center p-2 border border-dashed border-stroke/60 dark:border-strokedark/60 rounded-lg text-gray-400 text-xs`}>
                                 <span>Antrean Kosong · Tarik batch ke sini</span>
                               </div>
                             ) : (
@@ -764,26 +797,26 @@ const KanbanView = () => {
                                       ref={provided.innerRef}
                                       {...provided.draggableProps}
                                       {...provided.dragHandleProps}
-                                      className={`w-[105px] shrink-0 rounded border p-1 shadow-xs dark:bg-boxdark flex flex-col justify-between select-none transition-all ${
+                                      className={`${compactDensity ? 'w-[155px] p-1.5' : 'w-[185px] p-2.5'} shrink-0 rounded-lg border shadow-xs dark:bg-boxdark flex flex-col justify-between select-none transition-all ${
                                         isFirstInQueue 
                                           ? 'border-primary ring-1 ring-primary/40 bg-primary/5 dark:bg-primary/10' 
                                           : 'border-stroke bg-white dark:border-strokedark'
                                       } ${
                                         snapshot.isDragging 
-                                          ? 'shadow-xl ring-1 ring-primary scale-102 z-9999' 
+                                          ? 'shadow-xl ring-2 ring-primary scale-102 z-9999' 
                                           : 'hover:border-primary/50'
                                       }`}
                                     >
                                       <div>
                                         {/* Row 1: Index + Lot No + Status */}
-                                        <div className="flex items-center justify-between gap-0.5 leading-tight mb-0.5">
-                                          <div className="flex items-center gap-0.5 truncate">
-                                            <span className={`text-[7px] font-black px-1 py-0 rounded shrink-0 ${
+                                        <div className="flex items-center justify-between gap-1 leading-snug mb-1">
+                                          <div className="flex items-center gap-1 truncate">
+                                            <span className={`text-[10px] font-black px-1.5 py-0.5 rounded shrink-0 ${
                                               isFirstInQueue ? 'bg-primary text-white shadow-xs' : 'bg-gray-200 dark:bg-meta-4 text-gray-700 dark:text-gray-300'
                                             }`}>
                                               #{queuePos}
                                             </span>
-                                            <span className="font-black text-[8px] text-primary truncate" title={item.batch_no}>
+                                            <span className="font-black text-xs text-primary truncate" title={item.batch_no}>
                                               {item.batch_no}
                                             </span>
                                           </div>
@@ -791,7 +824,7 @@ const KanbanView = () => {
                                           <select
                                             value={item.status || 'QUEUED'}
                                             onChange={(e) => handleStatusChange(item.id, e.target.value)}
-                                            className={`text-[7px] font-bold px-0.5 py-0 rounded border focus:outline-none cursor-pointer ${statusMeta.color} shrink-0`}
+                                            className={`text-[10px] font-bold px-1 py-0.5 rounded border focus:outline-none cursor-pointer ${statusMeta.color} shrink-0`}
                                           >
                                             <option value="QUEUED">Q</option>
                                             <option value="WAITING_LA">LA</option>
@@ -802,18 +835,18 @@ const KanbanView = () => {
                                         </div>
 
                                         {/* Row 2: Recipe Name / Program */}
-                                        <p className="text-[7px] font-bold text-black dark:text-white truncate leading-tight mb-0.5" title={item.recipe_name}>
+                                        <p className="text-xs font-bold text-black dark:text-white truncate leading-snug mb-0.5" title={item.recipe_name}>
                                           {item.recipe_name}
                                         </p>
 
                                         {/* Row 3: Specs */}
-                                        <div className="text-[7px] text-gray-400 font-mono truncate leading-tight">
+                                        <div className="text-[11px] text-gray-400 font-mono truncate leading-snug">
                                           {item.reference_no} · {item.fabric_weight_kg}kg
                                         </div>
                                       </div>
 
                                       {/* Action Row */}
-                                      <div className="pt-0.5 border-t border-stroke/40 dark:border-strokedark/40 flex items-center justify-between gap-0.5 mt-0.5">
+                                      <div className="pt-1.5 border-t border-stroke/50 dark:border-strokedark/50 flex items-center justify-between gap-1 mt-1.5">
                                         {isDA01 ? (
                                           <button
                                             type="button"
@@ -823,7 +856,7 @@ const KanbanView = () => {
                                               setDispatchModel('network_ot');
                                               setFtpDispatchModalOpen(true);
                                             }}
-                                            className="px-1 py-0 rounded bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-[7px] font-bold border border-emerald-500/20"
+                                            className="px-2 py-0.5 rounded-md bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-[10px] font-bold border border-emerald-500/20 transition"
                                             title="Kirim FTP DA01"
                                           >
                                             FTP
@@ -832,30 +865,30 @@ const KanbanView = () => {
                                           <button
                                             type="button"
                                             onClick={() => handleStatusChange(item.id, 'PLANNING')}
-                                            className="px-1 py-0 rounded bg-purple-500/10 hover:bg-purple-500/20 text-purple-600 dark:text-purple-400 text-[7px] font-bold border border-purple-500/20"
+                                            className="px-2 py-0.5 rounded-md bg-purple-500/10 hover:bg-purple-500/20 text-purple-600 dark:text-purple-400 text-[10px] font-bold border border-purple-500/20 transition"
                                             title="Kembalikan ke Planning"
                                           >
                                             Plan
                                           </button>
                                         )}
 
-                                        <div className="flex items-center gap-0.5">
+                                        <div className="flex items-center gap-1">
                                           <button
                                             type="button"
                                             onClick={() => handleDownloadZip(item.id)}
-                                            className="p-0.5 text-primary hover:bg-primary/10 rounded"
-                                            title="ZIP"
+                                            className="p-1 text-primary hover:bg-primary/10 rounded-md transition"
+                                            title="Unduh ZIP"
                                           >
-                                            <Download className="h-2 w-2" />
+                                            <Download className="h-3.5 w-3.5" />
                                           </button>
 
                                           <button
                                             type="button"
                                             onClick={() => handleDeleteBatch(item.id, item.batch_no)}
-                                            className="p-0.5 text-gray-400 hover:text-red-500 rounded"
-                                            title="Hapus"
+                                            className="p-1 text-gray-400 hover:text-red-500 hover:bg-red-500/10 rounded-md transition"
+                                            title="Hapus Batch"
                                           >
-                                            <Trash2 className="h-2 w-2" />
+                                            <Trash2 className="h-3.5 w-3.5" />
                                           </button>
                                         </div>
                                       </div>
@@ -874,14 +907,14 @@ const KanbanView = () => {
                     {/* ========================================================= */}
                     {/* BAGIAN UJUNG KANAN: IDENTITAS MESIN (MENEMPEL DI SISI KANAN!) */}
                     {/* ========================================================= */}
-                    <div className="w-24 sm:w-28 shrink-0 bg-slate-50 dark:bg-[#151d2c] p-1 flex flex-col justify-between items-center text-center border-l border-stroke dark:border-strokedark">
+                    <div className={`${compactDensity ? 'w-32 sm:w-36 p-2' : 'w-36 sm:w-44 p-2.5'} shrink-0 bg-slate-50 dark:bg-[#151d2c] flex flex-col justify-between items-center text-center border-l border-stroke dark:border-strokedark`}>
                       <div className="w-full">
                         {/* Nama Mesin & Badge */}
-                        <div className="flex items-center justify-between gap-0.5 mb-0.5">
-                          <span className="text-xs font-black font-mono tracking-tight text-primary">
+                        <div className="flex items-center justify-between gap-1 mb-1">
+                          <span className="text-sm font-black font-mono tracking-tight text-primary">
                             {machNo}
                           </span>
-                          <span className={`text-[7px] font-bold px-1 py-0 rounded-full ${
+                          <span className={`text-[11px] font-bold px-2 py-0.5 rounded-full ${
                             items.length > 0
                               ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20'
                               : 'bg-gray-200 dark:bg-meta-4 text-gray-500'
@@ -890,26 +923,26 @@ const KanbanView = () => {
                           </span>
                         </div>
 
-                        <div className="text-[7px] text-gray-400 font-mono truncate">
+                        <div className="text-[11px] text-gray-400 font-mono truncate">
                           {m.ip_address || '172.16.110.100'}
                         </div>
                       </div>
 
                       {/* Tombol aksi mesin di ujung kanan */}
-                      <div className="w-full mt-0.5 pt-0.5 border-t border-stroke/50 dark:border-strokedark/50 space-y-0.5">
+                      <div className="w-full mt-2 pt-2 border-t border-stroke/50 dark:border-strokedark/50 space-y-1.5">
                         {isDA01 ? (
                           <button
                             type="button"
                             onClick={() => handleBulkSendToHmi(machNo)}
                             disabled={isBulkSending || items.length === 0}
-                            className="w-full flex items-center justify-center gap-0.5 py-0.5 px-0.5 rounded bg-emerald-600 hover:bg-emerald-500 disabled:opacity-40 text-white text-[8px] font-bold shadow-xs transition leading-none"
+                            className="w-full flex items-center justify-center gap-1 py-1 px-2 rounded-md bg-emerald-600 hover:bg-emerald-500 disabled:opacity-40 text-white text-[11px] font-bold shadow-xs transition leading-none"
                             title="Kirim bulk antrean ke HMI"
                           >
-                            <Send className={`h-2 w-2 ${isBulkSending ? 'animate-spin' : ''}`} />
+                            <Send className={`h-3 w-3 ${isBulkSending ? 'animate-spin' : ''}`} />
                             <span>Kirim HMI</span>
                           </button>
                         ) : (
-                          <div className="text-[7px] text-gray-400 font-mono text-center leading-none">
+                          <div className="text-[10px] text-gray-400 font-mono text-center leading-none py-0.5">
                             Read-Only
                           </div>
                         )}
@@ -918,10 +951,10 @@ const KanbanView = () => {
                           type="button"
                           onClick={() => handleDownloadQueueZip(machNo)}
                           disabled={items.length === 0}
-                          className="w-full flex items-center justify-center gap-0.5 py-0.2 px-0.5 rounded border border-stroke dark:border-strokedark bg-white dark:bg-boxdark text-[7px] font-bold text-gray-600 dark:text-gray-300 disabled:opacity-40 transition leading-none"
+                          className="w-full flex items-center justify-center gap-1 py-1 px-2 rounded-md border border-stroke dark:border-strokedark bg-white dark:bg-boxdark hover:bg-gray-50 dark:hover:bg-meta-4 text-[10px] font-bold text-gray-600 dark:text-gray-300 disabled:opacity-40 transition leading-none"
                           title="Unduh QUEUE.BTD"
                         >
-                          <Download className="h-1.5 w-1.5" />
+                          <Download className="h-3 w-3" />
                           <span>QUEUE</span>
                         </button>
                       </div>
@@ -932,8 +965,8 @@ const KanbanView = () => {
               })}
 
               {displayedMachines.length === 0 && (
-                <div className="p-3 text-center bg-white dark:bg-boxdark rounded-md border border-stroke dark:border-strokedark text-gray-400 text-[9px]">
-                  Tidak ada mesin cocok dengan "{machineSearch}".
+                <div className="p-6 text-center bg-white dark:bg-boxdark rounded-xl border border-stroke dark:border-strokedark text-gray-400 text-xs">
+                  Tidak ada mesin cocok dengan filter saat ini.
                 </div>
               )}
             </div>

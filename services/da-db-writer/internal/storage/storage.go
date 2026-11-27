@@ -9,6 +9,7 @@ import (
 	"sort"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/jackc/pgx/v5"
@@ -16,9 +17,11 @@ import (
 )
 
 type Storage struct {
-	jetflowPool *pgxpool.Pool
-	scadaPool   *pgxpool.Pool
-	logger      *slog.Logger
+	jetflowPool  *pgxpool.Pool
+	scadaPool    *pgxpool.Pool
+	logger       *slog.Logger
+	knownAssets  sync.Map // map[string]bool (asset_id -> exists in pt_smm_scada.asset)
+	knownTagDefs sync.Map // map[string]struct{} (tag_code already registered in tag_definition)
 }
 
 type TagMetric struct {
@@ -362,6 +365,225 @@ func (s *Storage) IngestTelemetry(ctx context.Context, p TelemetryPayload) error
 		}
 		brJf := s.jetflowPool.SendBatch(ctx, batchJf)
 		_ = brJf.Close()
+	}
+
+	return nil
+}
+
+// isKnownScadaAsset checks (with in-memory cache) whether asset_id exists in pt_smm_scada.asset.
+func (s *Storage) isKnownScadaAsset(ctx context.Context, assetID string) bool {
+	if assetID == "" {
+		return false
+	}
+	if v, ok := s.knownAssets.Load(assetID); ok {
+		return v.(bool)
+	}
+	var exists bool
+	if err := s.scadaPool.QueryRow(ctx, "SELECT EXISTS(SELECT 1 FROM asset WHERE asset_id = $1);", assetID).Scan(&exists); err == nil {
+		// Only permanently cache positive hits so newly registered assets are picked up
+		if exists {
+			s.knownAssets.Store(assetID, true)
+		}
+		return exists
+	}
+	return false
+}
+
+// IngestTelemetryBatch persists a batch of telemetry payloads efficiently:
+//   - Bulk-copies ALL historian rows into datalog_iw_records via pgx.CopyFrom (1 round-trip)
+//   - Deduplicates latest snapshot per machine for live_iw_telemetry, machines, and pt_smm_scada.tag_latest
+//   - Caches asset existence and tag_definition registrations in memory to avoid redundant writes
+func (s *Storage) IngestTelemetryBatch(ctx context.Context, payloads []TelemetryPayload) error {
+	if len(payloads) == 0 {
+		return nil
+	}
+
+	// 1. Collect all historian rows & keep latest payload per machine_id
+	latestByMachine := make(map[string]TelemetryPayload, len(payloads))
+	copyRows := make([][]interface{}, 0, len(payloads)*32)
+
+	for _, p := range payloads {
+		now := p.Timestamp
+		if now.IsZero() {
+			now = time.Now()
+		}
+		p.Timestamp = now
+
+		if prev, ok := latestByMachine[p.MachineID]; !ok || !now.Before(prev.Timestamp) {
+			latestByMachine[p.MachineID] = p
+		}
+
+		for tagName, metric := range p.Tags {
+			var rawInt int
+			switch v := metric.Raw.(type) {
+			case float64:
+				rawInt = int(v)
+			case int:
+				rawInt = v
+			case uint16:
+				rawInt = int(v)
+			case uint32:
+				rawInt = int(v)
+			default:
+				rawInt = int(metric.Value)
+			}
+			copyRows = append(copyRows, []interface{}{
+				now, p.MachineID, p.AssetID, p.BatchNo, p.StepNo, tagName, metric.Value, rawInt, metric.Quality,
+			})
+		}
+	}
+
+	// 2. Bulk COPY all historian rows into datalog_iw_records in 1 round-trip
+	if len(copyRows) > 0 {
+		_, err := s.jetflowPool.CopyFrom(
+			ctx,
+			pgx.Identifier{"datalog_iw_records"},
+			[]string{"time", "machine_id", "asset_id", "batch_no", "step_no", "tag_name", "value", "raw_value", "quality"},
+			pgx.CopyFromRows(copyRows),
+		)
+		if err != nil {
+			s.logger.Warn("Error bulk copying datalog_iw_records", "rows", len(copyRows), "error", err)
+		}
+	}
+
+	// 3. Batch upsert live_iw_telemetry & machines (deduplicated per machine, sorted deterministically)
+	machineIDs := make([]string, 0, len(latestByMachine))
+	for mID := range latestByMachine {
+		machineIDs = append(machineIDs, mID)
+	}
+	sort.Strings(machineIDs)
+
+	queryLive := `
+		INSERT INTO live_iw_telemetry
+		(machine_id, asset_id, last_updated, connection_status, batch_no, step_no, program_no, telemetry_json)
+		VALUES ($1, $2, $3, 'ONLINE', $4, $5, $6, $7)
+		ON CONFLICT (machine_id) DO UPDATE SET
+			asset_id = EXCLUDED.asset_id,
+			last_updated = EXCLUDED.last_updated,
+			connection_status = 'ONLINE',
+			batch_no = COALESCE(NULLIF(EXCLUDED.batch_no, ''), live_iw_telemetry.batch_no),
+			step_no = CASE WHEN EXCLUDED.step_no > 0 THEN EXCLUDED.step_no ELSE live_iw_telemetry.step_no END,
+			program_no = COALESCE(NULLIF(EXCLUDED.program_no, ''), live_iw_telemetry.program_no),
+			telemetry_json = EXCLUDED.telemetry_json;
+	`
+	queryMachine := `
+		UPDATE machines
+		SET current_temp = $1,
+		    current_batch = COALESCE(NULLIF($2, ''), current_batch),
+		    current_step = CASE WHEN $3 > 0 THEN $3 ELSE current_step END,
+		    last_ping_time = $4,
+		    status = 'RUNNING'
+		WHERE machine_no = $5;
+	`
+
+	liveBatch := &pgx.Batch{}
+	for _, mID := range machineIDs {
+		p := latestByMachine[mID]
+		telemetryBytes, _ := json.Marshal(p.Tags)
+		liveBatch.Queue(queryLive, p.MachineID, p.AssetID, p.Timestamp, p.BatchNo, p.StepNo, p.ProgramNo, telemetryBytes)
+
+		var currentTemp float64
+		for k, v := range p.Tags {
+			if k == fmt.Sprintf("SMM.%s.MAIN_TANK.TEMPERATURE_PV", p.AssetID) || k == fmt.Sprintf("SMM.%s.CONTROLLER.IW_1_PV", p.AssetID) {
+				currentTemp = v.Value
+				break
+			}
+		}
+		if currentTemp > 0 {
+			liveBatch.Queue(queryMachine, currentTemp, p.BatchNo, p.StepNo, p.Timestamp, p.MachineID)
+		}
+	}
+	if liveBatch.Len() > 0 {
+		brLive := s.jetflowPool.SendBatch(ctx, liveBatch)
+		if err := brLive.Close(); err != nil {
+			s.logger.Warn("Error batch updating live_iw_telemetry/machines", "machines", len(machineIDs), "error", err)
+		}
+	}
+
+	// 4. Batch upsert SCADA tag_definition (new tags only) & tag_latest (deduplicated per tag)
+	queryDef := `
+		INSERT INTO tag_definition (tag_code, asset_id, signal_role, engineering_unit, source_status, active, created_at, stale_after_seconds, freshness_mode, display_name)
+		VALUES ($1, $2, $3, $4, 'LIVE', TRUE, NOW(), 60, 'TAG_TIMESTAMP', $1)
+		ON CONFLICT (tag_code) DO UPDATE SET
+			asset_id = EXCLUDED.asset_id;
+	`
+	queryScada := `
+		INSERT INTO tag_latest (tag_code, asset_id, value_number, quality, source_ts, ingested_at, updated_at, message_id)
+		VALUES ($1, $2, $3, 'GOOD', $4, NOW(), NOW(), gen_random_uuid())
+		ON CONFLICT (tag_code) DO UPDATE SET
+			asset_id = EXCLUDED.asset_id,
+			value_number = EXCLUDED.value_number,
+			quality = 'GOOD',
+			source_ts = EXCLUDED.source_ts,
+			ingested_at = NOW(),
+			updated_at = NOW(),
+			message_id = gen_random_uuid();
+	`
+
+	defBatch := &pgx.Batch{}
+	newDefTags := make([]string, 0)
+	scadaBatch := &pgx.Batch{}
+	syncedAssets := make([]string, 0, len(machineIDs))
+
+	for _, mID := range machineIDs {
+		p := latestByMachine[mID]
+		if len(p.Tags) == 0 || !s.isKnownScadaAsset(ctx, p.AssetID) {
+			continue
+		}
+		syncedAssets = append(syncedAssets, p.AssetID)
+
+		sortedTags := make([]string, 0, len(p.Tags))
+		for tagName := range p.Tags {
+			sortedTags = append(sortedTags, tagName)
+		}
+		sort.Strings(sortedTags)
+
+		for _, tagName := range sortedTags {
+			metric := p.Tags[tagName]
+			if _, seen := s.knownTagDefs.Load(tagName); !seen {
+				role := metric.Role
+				if role == "" {
+					role = "PV"
+				}
+				defBatch.Queue(queryDef, tagName, p.AssetID, role, metric.Unit)
+				newDefTags = append(newDefTags, tagName)
+			}
+			scadaBatch.Queue(queryScada, tagName, p.AssetID, metric.Value, p.Timestamp)
+		}
+	}
+
+	if defBatch.Len() > 0 {
+		brDef := s.scadaPool.SendBatch(ctx, defBatch)
+		if err := brDef.Close(); err == nil {
+			for _, tn := range newDefTags {
+				s.knownTagDefs.Store(tn, struct{}{})
+			}
+		} else {
+			s.logger.Warn("Error batch upserting tag_definition", "count", len(newDefTags), "error", err)
+		}
+	}
+
+	if scadaBatch.Len() > 0 {
+		brScada := s.scadaPool.SendBatch(ctx, scadaBatch)
+		if err := brScada.Close(); err != nil {
+			s.logger.Warn("Error batch updating tag_latest in pt_smm_scada", "error", err)
+		} else if len(syncedAssets) > 0 {
+			snapBatch := &pgx.Batch{}
+			for _, aid := range syncedAssets {
+				snapBatch.Queue("UPDATE asset SET data_source = 'LIVE', updated_at = NOW() WHERE asset_id = $1 AND data_source = 'DUMMY';", aid)
+				snapBatch.Queue("SELECT sync_jetflow_asset_snapshot($1);", aid)
+			}
+			brSnap := s.scadaPool.SendBatch(ctx, snapBatch)
+			_ = brSnap.Close()
+		}
+	}
+
+	// 5. Sync SCADA batch_process_run & asset_snapshot for active batches in this flush
+	for _, mID := range machineIDs {
+		p := latestByMachine[mID]
+		if p.BatchNo != "" && p.AssetID != "" {
+			s.ensureScadaBatchAndSnapshot(ctx, p.AssetID, p.BatchNo, p.ProgramNo)
+		}
 	}
 
 	return nil

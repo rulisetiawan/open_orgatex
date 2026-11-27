@@ -376,6 +376,8 @@ export default function Programs() {
       setProgramList(res.data || []);
     } catch (err) {
       console.error('Gagal mengambil daftar program:', err);
+      const msg = err.response?.data?.detail || err.message || 'Timeout / koneksi gagal';
+      toast.error('Gagal memuat daftar program dari database: ' + msg);
     } finally {
       setLoadingList(false);
     }
@@ -1673,7 +1675,16 @@ export default function Programs() {
               </tr>
             </thead>
             <tbody className="divide-y divide-stroke dark:divide-strokedark font-medium">
-              {filteredPrograms.length === 0 ? (
+              {loadingList && filteredPrograms.length === 0 ? (
+                <tr>
+                  <td colSpan="7" className="py-10 text-center text-gray-400">
+                    <div className="flex items-center justify-center gap-2 text-slate-500 dark:text-slate-400">
+                      <RefreshCw className="w-4 h-4 animate-spin text-primary" />
+                      <span>Memuat daftar program dari database...</span>
+                    </div>
+                  </td>
+                </tr>
+              ) : filteredPrograms.length === 0 ? (
                 <tr>
                   <td colSpan="7" className="py-8 text-center text-gray-400">
                     <div className="max-w-md mx-auto space-y-3 py-2">
@@ -2249,24 +2260,6 @@ export default function Programs() {
 
         {/* ACTIONS */}
         <div className="flex flex-wrap items-center gap-2">
-          <button
-            onClick={() => setShowWizardModal(true)}
-            className="flex items-center gap-1.5 px-3 py-2 text-xs font-bold bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white rounded shadow-sm transition active:scale-95"
-            title="Buka Wizard Cepat untuk menyusun resep komplit beserta seluruh sub-programnya"
-          >
-            <Wand2 className="h-3.5 w-3.5" />
-            <span>Wizard Cepat</span>
-          </button>
-
-          <button
-            onClick={() => setShowSubProgramDrawer(true)}
-            className="flex items-center gap-1.5 px-3 py-2 text-xs font-bold bg-indigo-50 dark:bg-indigo-950/40 text-indigo-700 dark:text-indigo-300 border border-indigo-500/30 rounded shadow-sm hover:bg-indigo-100 transition active:scale-95"
-            title="Pilih dan sisipkan modul fasa / sub-program dari katalog"
-          >
-            <BookOpen className="h-3.5 w-3.5 text-indigo-500" />
-            <span>+ Tambah Fasa (Sub)</span>
-          </button>
-
           <button
             onClick={() => {
               const defaultSrc = programList.find(p => p.program_number !== programNo) || programList[0];

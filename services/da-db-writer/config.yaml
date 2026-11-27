@@ -1,8 +1,10 @@
 writer:
   name: "DA-DB-Writer-Service"
   log_level: "info"
-  batch_flush_interval_ms: 1000
-  batch_max_size: 200
+  batch_flush_interval_ms: 500
+  batch_max_size: 500
+  worker_count: 8
+  queue_size: 50000
 
 emqx:
   broker_url: "tcp://192.168.100.30:1883"
@@ -15,5 +17,5 @@ emqx:
 database:
   jetflow_url: "postgresql://postgres:sensorSMM!@192.168.100.30:5433/pt_smm_jetflow?sslmode=disable"
   scada_url: "postgresql://postgres:sensorSMM!@192.168.100.30:5433/pt_smm_scada?sslmode=disable"
-  max_conns: 15
-  min_conns: 3
+  max_conns: 25
+  min_conns: 5

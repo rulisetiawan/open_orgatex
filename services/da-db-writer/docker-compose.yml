@@ -1,12 +1,12 @@
 version: '3.8'
 
 services:
-  da-db-writer:
+  da-db-writer-1:
     build:
       context: .
       dockerfile: Dockerfile
-    image: da-db-writer:1.0.0
-    container_name: da_db_writer
+    image: da-db-writer:1.1.0
+    container_name: da_db_writer_1
     restart: always
 
     # Mode Host Network direkomendasikan pada host Linux
@@ -17,6 +17,7 @@ services:
     environment:
       - TZ=Asia/Jakarta
       - CONFIG_PATH=/app/config.yaml
+      - CLIENT_ID=da_db_writer_1
 
     volumes:
       - ./config.yaml:/app/config.yaml:ro
@@ -24,8 +25,8 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '1.0'        # Maksimal 1 Core CPU (service Go sangat efisien < 5% CPU)
-          memory: 256M       # Maksimal 256 MB RAM (penggunaan aktual Go ~25MB)
+          cpus: '1.0'
+          memory: 384M
         reservations:
           cpus: '0.1'
           memory: 64M
@@ -33,5 +34,34 @@ services:
     logging:
       driver: "json-file"
       options:
-        max-size: "20m"      # Batas rotasi log per file
-        max-file: "5"        # Maksimal 5 file log disimpan
+        max-size: "20m"
+        max-file: "5"
+
+  da-db-writer-2:
+    image: da-db-writer:1.1.0
+    container_name: da_db_writer_2
+    restart: always
+    network_mode: "host"
+
+    environment:
+      - TZ=Asia/Jakarta
+      - CONFIG_PATH=/app/config.yaml
+      - CLIENT_ID=da_db_writer_2
+
+    volumes:
+      - ./config.yaml:/app/config.yaml:ro
+
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 384M
+        reservations:
+          cpus: '0.1'
+          memory: 64M
+
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "20m"
+        max-file: "5"

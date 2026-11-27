@@ -7,8 +7,11 @@ Persists in PostgreSQL / TimescaleDB using OrgaTEX schema (program_components, p
 from fastapi import APIRouter, HTTPException, Depends, Response, Request
 from pydantic import BaseModel, Field
 from typing import List, Optional, Any, Dict
-from sqlalchemy.orm import Session
+from sqlalchemy import text, func, or_
+from sqlalchemy.orm import Session, selectinload
+import logging
 import os
+import re
 import json
 import time
 import struct
@@ -667,25 +670,50 @@ def list_programs(db: Session = Depends(get_db)):
     # 1. Custom JSON store
     custom = _load_json_file(META_PATH, {})
 
-    # 2. Read from PostgreSQL/SQLite (ProgramComponent Level 1)
+    # 2. Read from PostgreSQL (ProgramComponent Level 1) in a SINGLE aggregated query
+    # (Avoids N+1 lazy-loading queries across thousands of programs)
     try:
-        procs = db.query(ProgramComponent).filter(ProgramComponent.level == 1).order_by(ProgramComponent.id.desc()).all()
-        for p in procs:
+        rows = db.execute(text("""
+            WITH direct_steps AS (
+                SELECT parent_component_id, COUNT(*) AS cnt
+                FROM public.steps
+                GROUP BY parent_component_id
+            ),
+            sub_steps AS (
+                SELECT pci.parent_component_id, COALESCE(SUM(ds.cnt), 0) AS cnt
+                FROM public.program_component_items pci
+                LEFT JOIN direct_steps ds ON ds.parent_component_id = pci.program_component_id
+                GROUP BY pci.parent_component_id
+            )
+            SELECT
+                pc.id,
+                pc.number,
+                pc.name,
+                pc.machine_code,
+                COALESCE(NULLIF(ds.cnt, 0), ss.cnt, 0) AS total_steps
+            FROM public.program_components pc
+            LEFT JOIN direct_steps ds ON ds.parent_component_id = pc.id
+            LEFT JOIN sub_steps ss ON ss.parent_component_id = pc.id
+            WHERE pc.level = 1
+            ORDER BY pc.id DESC
+        """)).fetchall()
+
+        for row in rows:
+            pid_row, raw_num, raw_name, raw_mcode, raw_steps = row
             try:
-                pno = int(_norm_pno_str(p.number))
+                pno = int(_norm_pno_str(raw_num))
             except Exception:
-                pno = p.id
-            m_code = _norm_machine(p.machine_code or "TD12")
+                pno = pid_row
+            m_code = _norm_machine(raw_mcode or "TD12")
             dedup_key = (m_code, pno)
             if dedup_key in seen_keys:
                 continue
             seen_keys.add(dedup_key)
 
             custom_info = _custom_lookup(custom, pno, m_code)
-            p_name = p.name or (custom_info.get("program_name") if custom_info else None) or f"PROGRAM #{pno}"
+            p_name = raw_name or (custom_info.get("program_name") if custom_info else None) or f"PROGRAM #{pno}"
             t_steps = (
-                len(p.steps)
-                or sum(len(sub.treatment.steps) for sub in p.sub_program_items if sub.treatment)
+                int(raw_steps or 0)
                 or (len(custom_info.get("steps", [])) if custom_info and "steps" in custom_info else 0)
             )
             f_size = (custom_info.get("file_size") if custom_info else None) or (384 + 65 * max(1, t_steps))
@@ -699,8 +727,8 @@ def list_programs(db: Session = Depends(get_db)):
                 "is_custom": True,
                 "file_size": f_size
             })
-    except Exception:
-        pass
+    except Exception as exc:
+        logging.getLogger("orgatex.programs").warning(f"list_programs DB query failed: {exc}")
 
     # 2.1 Add remaining programs from custom store (per machine)
     for pid_str, prg in custom.items():
@@ -739,6 +767,10 @@ def list_programs(db: Session = Depends(get_db)):
                         continue
                     for fname in sorted(os.listdir(sub_p)):
                         if fname.upper().endswith(".PRG"):
+                            # Fast-skip standard M_XXXX.PRG filenames already loaded from DB
+                            m_fn = re.match(r"^M_0*(\d+)\.PRG$", fname, re.IGNORECASE)
+                            if m_fn and (clean_m, int(m_fn.group(1))) in seen_keys:
+                                continue
                             prg_path = os.path.join(sub_p, fname)
                             try:
                                 with open(prg_path, "rb") as pf:
@@ -855,13 +887,30 @@ def get_program(program_no: int, machine_code: Optional[str] = None, db: Session
     if c_prg and (c_prg.get("sub_programs") or c_prg.get("steps")):
         return c_prg
 
-    # 1. Check PostgreSQL / SQLite (matching machine_code first if specified)
+    # 1. Check PostgreSQL (filtered in SQL + eager-loaded to avoid N+1 queries)
     try:
-        all_procs = db.query(ProgramComponent).filter(ProgramComponent.level == 1).all()
-        matching = [
-            row for row in all_procs
-            if (_norm_pno_str(row.number) == pno_norm or row.id == program_no)
-        ]
+        pno_padded = str(program_no).zfill(4)
+        q = (
+            db.query(ProgramComponent)
+            .options(
+                selectinload(ProgramComponent.steps)
+                .selectinload(Step.functions)
+                .selectinload(StepFunction.parameters),
+                selectinload(ProgramComponent.sub_program_items)
+                .selectinload(ProgramComponentItem.treatment)
+                .selectinload(ProgramComponent.steps)
+                .selectinload(Step.functions)
+                .selectinload(StepFunction.parameters),
+            )
+            .filter(
+                ProgramComponent.level == 1,
+                or_(
+                    func.trim(ProgramComponent.number).in_([pno_norm, pno_padded, str(program_no)]),
+                    ProgramComponent.id == program_no,
+                ),
+            )
+        )
+        matching = q.all()
         if target_m:
             mach_matches = [row for row in matching if _norm_machine(row.machine_code) == target_m]
             p = mach_matches[0] if mach_matches else None

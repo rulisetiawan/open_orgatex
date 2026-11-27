@@ -113,28 +113,6 @@ export default function ProcessPipelineBar({
               <span>Linier Datar</span>
             </button>
           </div>
-
-          {/* Quick Button: Smart Recipe Wizard */}
-          <button
-            type="button"
-            onClick={onOpenWizard}
-            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white rounded-lg shadow-sm transition active:scale-95"
-            title="Buka Wizard Cepat untuk membuat resep lengkap dalam 30 detik"
-          >
-            <Wand2 className="h-3.5 w-3.5" />
-            <span>Wizard Cepat</span>
-          </button>
-
-          {/* Quick Button: Add Sub-Program from Library */}
-          <button
-            type="button"
-            onClick={onOpenDrawer}
-            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold bg-primary hover:bg-primary/90 text-white rounded-lg shadow-sm transition active:scale-95"
-            title="Pilih dan sisipkan modul fasa dari pustaka proses tekstil"
-          >
-            <Plus className="h-3.5 w-3.5" />
-            <span>+ Tambah Fasa</span>
-          </button>
         </div>
       </div>
 
@@ -142,7 +120,7 @@ export default function ProcessPipelineBar({
       <div className="flex items-center gap-2 overflow-x-auto py-2 px-1 no-scrollbar scroll-smooth">
         {subPrograms.length === 0 ? (
           <div className="w-full text-center py-6 text-gray-400 text-xs border-2 border-dashed border-stroke dark:border-strokedark rounded-xl">
-            Belum ada fasa/sub-program. Klik tombol <strong>+ Tambah Fasa</strong> atau <strong>Wizard Cepat</strong> di atas untuk memulai.
+            Belum ada fasa/sub-program terangkai.
           </div>
         ) : (
           subPrograms.map((sub, idx) => {

@@ -82,8 +82,8 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
     {
       groupTitle: 'PLANNING',
       items: [
-        { name: 'Batch Pool', path: '/planning/list', icon: ListFilter },
-        { name: 'Kanban Board', path: '/planning/kanban', icon: Kanban },
+        { name: 'Batch', path: '/planning/list', icon: ListFilter },
+        { name: 'Planning Board', path: '/planning/kanban', icon: Kanban },
         { name: 'Kalender Produksi', path: '/planning/calendar', icon: Calendar },
       ]
     },

@@ -14,6 +14,7 @@ const BatchListView = lazy(() => import('./pages/Planning/BatchListView'));
 const FtpManager = lazy(() => import('./pages/Ftp/FtpManager'));
 const FtpHealthMonitor = lazy(() => import('./pages/Ftp/FtpHealthMonitor'));
 const Logs = lazy(() => import('./pages/Logs'));
+const Alarms = lazy(() => import('./pages/Alarms'));
 const TagMapping = lazy(() => import('./pages/TagMapping'));
 
 function PageLoader() {
@@ -53,7 +54,7 @@ function App() {
               <Route path="/planning/calendar" element={<CalendarView />} />
               <Route path="/ftp" element={<FtpManager />} />
               <Route path="/ftp-monitor" element={<FtpHealthMonitor />} />
-              <Route path="/alarms" element={<Logs defaultTab="alarms" />} />
+              <Route path="/alarms" element={<Alarms />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </Suspense>

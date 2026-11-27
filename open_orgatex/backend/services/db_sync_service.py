@@ -75,6 +75,14 @@ class DBSyncService:
 
         removed = 0
         for (lvl, m_norm, n_norm), items in groups.items():
+            if len(items) == 1:
+                keeper = items[0]
+                if keeper.machine_code != m_norm:
+                    keeper.machine_code = m_norm
+                if keeper.number != n_norm:
+                    keeper.number = n_norm
+                continue
+
             items_sorted = sorted(
                 items,
                 key=lambda c: (len(c.steps or []), str(c.modification_time or ""), c.id),

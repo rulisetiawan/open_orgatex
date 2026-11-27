@@ -927,12 +927,19 @@ class LogIngestionService:
         machine_no: str,
         prog_no: Optional[int] = None,
         program_name: Optional[str] = None,
+        machine_ip: Optional[str] = None,
+        ftp_port: int = 21,
+        auto_download: bool = True,
     ) -> List[Dict[str, Any]]:
         """
-        Loads recipe steps strictly from PostgreSQL/SQLite (program_components + steps +
-        step_functions + step_function_parameters) without any FTP or local PRG download.
+        Loads recipe steps from PostgreSQL (program_components + steps +
+        step_functions + step_function_parameters).
+        If the program is missing for this machine and `auto_download=True`,
+        automatically downloads M_XXXX.PRG from the machine's HMI via FTP and
+        persists it into PostgreSQL first.
         """
         from ..models.schema_pg import ProgramComponent, Step, StepFunction, StepFunctionParameter
+        from .machine_config_service import download_single_program_from_hmi_to_db
 
         clean_m = (machine_no or "").strip().upper()
         p_no_str = str(int(prog_no)) if prog_no and int(prog_no) > 0 else None
@@ -950,6 +957,28 @@ class LogIngestionService:
                 .order_by(desc(ProgramComponent.modification_time), desc(ProgramComponent.id))
                 .first()
             )
+
+        # Auto-download missing .PRG from HMI via FTP & persist to PostgreSQL
+        if not comp and p_no_str and auto_download:
+            downloaded = download_single_program_from_hmi_to_db(
+                db=db,
+                machine_no=clean_m,
+                prog_no=int(p_no_str),
+                ip=machine_ip,
+                ftp_port=ftp_port,
+            )
+            if downloaded:
+                comp = (
+                    db.query(ProgramComponent)
+                    .filter(
+                        ProgramComponent.level == 1,
+                        ProgramComponent.machine_code == clean_m,
+                        ProgramComponent.number == p_no_str,
+                    )
+                    .order_by(desc(ProgramComponent.modification_time), desc(ProgramComponent.id))
+                    .first()
+                )
+
         if not comp and clean_name:
             comp = (
                 db.query(ProgramComponent)
@@ -980,9 +1009,8 @@ class LogIngestionService:
         if not db_steps:
             return []
 
-        m_cat = SetexFolderReader.load_machine_catalog(clean_m) or {}
-        func_cat = m_cat.get("functions") or SetexFolderReader.get_function_catalog() or {}
-        res_cat = m_cat.get("resources") or SetexFolderReader._RESOURCES_CATALOG or {}
+        func_cat = SetexFolderReader.get_function_catalog() or {}
+        res_cat = SetexFolderReader._RESOURCES_CATALOG or {}
 
         out_steps: List[Dict[str, Any]] = []
         for st in db_steps:
@@ -1120,26 +1148,54 @@ class LogIngestionService:
             if isinstance(live_row[5], dict):
                 telemetry_json = live_row[5]
 
-        # Extract key live metrics from telemetry_json
-        def _extract_tag(suffixes):
-            for k, v in telemetry_json.items():
-                ku = str(k).upper()
-                if any(ku.endswith(suf) for suf in suffixes):
-                    if isinstance(v, dict) and v.get("value") is not None:
-                        try:
-                            return float(v["value"])
-                        except Exception:
-                            pass
+        # Extract key live metrics from telemetry_json (strict priority: exact suffix order, excluding aux tanks)
+        def _extract_tag(suffixes, exclude_parts=()):
+            for suf in suffixes:
+                for k, v in telemetry_json.items():
+                    ku = str(k).upper()
+                    if exclude_parts and any(ex in ku for ex in exclude_parts):
+                        continue
+                    if ku.endswith(suf):
+                        if isinstance(v, dict) and v.get("value") is not None:
+                            try:
+                                return float(v["value"])
+                            except Exception:
+                                pass
             return None
 
-        iw_t1 = _extract_tag((".TEMPERATURE_PV", ".MAIN_TANK.TEMPERATURE_PV", "TEMP_PV"))
-        iw_sp = _extract_tag((".TEMPERATURE_SV", ".MAIN_TANK.TEMPERATURE_SV", "TEMP_SV"))
+        _AUX_TANKS = ("ADDITION_TANK", "DOSING_TANK", "SERVICE_TANK", "BLEND_WATER")
+        iw_t1 = _extract_tag((".MAIN_TANK.TEMPERATURE_PV", ".TEMPERATURE_PV", "TEMP_PV"), exclude_parts=_AUX_TANKS)
+        iw_sp = _extract_tag((".MAIN_TANK.TEMPERATURE_SV", ".TEMPERATURE_SV", "TEMP_SV"), exclude_parts=_AUX_TANKS)
         iw_pump = _extract_tag((".MAIN_MOTOR.SPEED_PV", ".PUMP_SPEED_PV", ".SPEED_PV"))
         iw_reel = _extract_tag((".REEL_SPEED_PV", ".WINCH_SPEED_PV"))
-        iw_level = _extract_tag((".MAIN_TANK.LEVEL_PV", ".LEVEL_PV"))
+        iw_level = _extract_tag((".MAIN_TANK.LEVEL_PV", ".LEVEL_PV"), exclude_parts=_AUX_TANKS)
 
-        # 2. Resolve active batch_no (priority: live_iw_telemetry -> machine.current_batch -> latest cyclic record)
-        batch_no = (live_batch or machine.current_batch or "").strip()
+        # 2. Resolve active batch_no & step_no
+        # Priority: machine_ftp_status / machine.current_batch (fresh STATUS.ACT from da-batch-worker)
+        # over live_iw_telemetry (whose batch_no/step_no may be stale when enable_status_act=false)
+        ftp_batch = None
+        ftp_step = None
+        try:
+            ftp_row = db.execute(
+                sa_text("""
+                    SELECT active_batch, current_step
+                    FROM public.machine_ftp_status
+                    WHERE UPPER(machine_no) = :m_no
+                      AND can_read_ftp = TRUE
+                    LIMIT 1
+                """),
+                {"m_no": mach_no},
+            ).fetchone()
+            if ftp_row:
+                ftp_batch = (ftp_row[0] or "").strip() or None
+                ftp_step = int(ftp_row[1]) if ftp_row[1] is not None else None
+        except Exception:
+            try:
+                db.rollback()
+            except Exception:
+                pass
+
+        batch_no = (ftp_batch or machine.current_batch or live_batch or "").strip()
         if not batch_no or batch_no.upper() == "UNKNOWN":
             latest_cyc = (
                 db.query(DatalogCyclicRecord)
@@ -1169,10 +1225,10 @@ class LogIngestionService:
                 )
 
         prog_no = 0
-        if live_prog and str(live_prog).isdigit():
-            prog_no = int(live_prog)
-        elif bh and bh.program_no:
+        if bh and bh.program_no:
             prog_no = int(bh.program_no)
+        elif live_prog and str(live_prog).isdigit():
+            prog_no = int(live_prog)
 
         program_name = (bh.recipe_name if bh and bh.recipe_name else f"Program #{prog_no}" if prog_no else "-")
         program_code = f"M_{prog_no:04d}" if prog_no > 0 else "-"
@@ -1248,8 +1304,16 @@ class LogIngestionService:
             for iv in intervs
         ]
 
-        # 6. Load recipe steps from DB & enrich with cyclic telemetry timings
-        recipe_steps = LogIngestionService.load_recipe_steps_from_db(db, mach_no, prog_no=prog_no, program_name=program_name)
+        # 6. Load recipe steps from DB (auto-downloading missing .PRG from HMI to DB if needed)
+        recipe_steps = LogIngestionService.load_recipe_steps_from_db(
+            db,
+            mach_no,
+            prog_no=prog_no,
+            program_name=program_name,
+            machine_ip=machine.ip_address,
+            ftp_port=machine.ftp_port or 21,
+            auto_download=True,
+        )
 
         step_times: Dict[int, Dict[str, Any]] = {}
         for r in curve_rows:
@@ -1280,7 +1344,7 @@ class LogIngestionService:
                     "has_temp_target": True,
                 })
 
-        curr_step = int(live_step or machine.current_step or (curve[-1]["step_no"] if curve else 1))
+        curr_step = int(ftp_step or machine.current_step or live_step or (curve[-1]["step_no"] if curve else 1))
         for st in recipe_steps:
             s_no = int(st.get("no") or 1)
             st_info = step_times.get(s_no)

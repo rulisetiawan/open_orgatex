@@ -352,16 +352,20 @@ class SetexFolderReader:
                             except Exception:
                                 pass
 
-            # Ambil PRG HANYA dari folder batch aktif jika belum ada di DB dan belum di cache.
-            # Folder Programs/ tidak dipakai: isinya master program lokal HMI, belum tentu resep batch ini.
+            # Prioritas ambil PRG dari folder batch aktif dulu; jika tidak ada dan prog_no diketahui,
+            # fallback ke folder Programs/ di HMI agar seluruh step & parameter tetap terbaca dan tersimpan ke DB.
             candidate_prg_targets = []
             if batch_no and not result.get("prg_from_db") and not result.get("prg_bytes"):
                 if is_797:
                     if prog_no:
                         candidate_prg_targets.append(f"/Flashdisk/SC797CE/BATCH/{batch_no}/M_{prog_no:04d}.PRG")
                     candidate_prg_targets.append(f"/Flashdisk/SC797CE/BATCH/{batch_no}")
+                    if prog_no:
+                        candidate_prg_targets.append(f"/Flashdisk/SC797CE/Programs/M_{prog_no:04d}.PRG")
                 else:
                     candidate_prg_targets.append(f"/Storage/sc777ce/BATCH/{batch_no}")
+                    if prog_no:
+                        candidate_prg_targets.append(f"/Storage/sc777ce/Programs/M_{prog_no:04d}.PRG")
 
             if result.get("prg_bytes"):
                 candidate_prg_targets = []  # sudah ada di cache, skip download

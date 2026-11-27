@@ -6,7 +6,9 @@ import (
 	"log/slog"
 	"os"
 	"os/signal"
+	"strings"
 	"syscall"
+	"time"
 
 	"da-db-writer/internal/config"
 	"da-db-writer/internal/mqtt"
@@ -22,7 +24,10 @@ func main() {
 	logger.Info("Starting DA-DB-Writer Enterprise Database Consumer (Go Edition)", "version", "1.0.0")
 
 	// 1. Load Config
-	cfgPath := "config.yaml"
+	cfgPath := os.Getenv("CONFIG_PATH")
+	if cfgPath == "" {
+		cfgPath = "config.yaml"
+	}
 	if len(os.Args) > 1 {
 		cfgPath = os.Args[1]
 	}
@@ -57,15 +62,28 @@ func main() {
 	defer store.Close()
 	logger.Info("Connected to PostgreSQL databases (pt_smm_jetflow & pt_smm_scada)")
 
-	// 3. Initialize EMQX Consumer with Shared Subscription
-	clientID := fmt.Sprintf("%s_%d", cfg.EMQX.ClientID, os.Getpid())
+	// 3. Initialize EMQX Consumer with Shared Subscription (unique client_id per replica)
+	clientID := strings.TrimSpace(os.Getenv("CLIENT_ID"))
+	if clientID == "" {
+		host, _ := os.Hostname()
+		if host == "" {
+			host = "node"
+		}
+		clientID = fmt.Sprintf("%s_%s_%d", cfg.EMQX.ClientID, host, os.Getpid())
+	}
 	consumer, err := mqtt.NewConsumer(
-		cfg.EMQX.BrokerURL,
-		clientID,
-		cfg.EMQX.Username,
-		cfg.EMQX.Password,
-		cfg.EMQX.SharedGroup,
-		cfg.EMQX.TopicFilter,
+		mqtt.ConsumerOptions{
+			BrokerURL:          cfg.EMQX.BrokerURL,
+			ClientID:           clientID,
+			Username:           cfg.EMQX.Username,
+			Password:           cfg.EMQX.Password,
+			SharedGroup:        cfg.EMQX.SharedGroup,
+			TopicFilter:        cfg.EMQX.TopicFilter,
+			BatchMaxSize:       cfg.Writer.BatchMaxSize,
+			BatchFlushInterval: time.Duration(cfg.Writer.BatchFlushIntervalMs) * time.Millisecond,
+			WorkerCount:        cfg.Writer.WorkerCount,
+			QueueSize:          cfg.Writer.QueueSize,
+		},
 		store,
 		logger,
 	)

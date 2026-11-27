@@ -263,10 +263,10 @@ const Logs = ({ defaultTab = 'active' }) => {
           const currentSteps = data.steps || [];
           const sp = data.curve.map((pt) => {
             const step = currentSteps.find((s) => s.no === pt.step_no);
-            if (step && !isStepWithTempSetpoint(step)) return null;
+            if (step && !isStepWithTempSetpoint(step)) return 0;
             const targetT = getStepTargetTemp(step);
             if (targetT !== null && targetT > 0) return targetT;
-            return (pt.temp_sp !== undefined && pt.temp_sp !== null && pt.temp_sp > 0 && Math.abs(pt.temp_sp - 90.0) > 0.1) ? pt.temp_sp : null;
+            return (pt.temp_sp !== undefined && pt.temp_sp !== null && pt.temp_sp > 0 && Math.abs(pt.temp_sp - 90.0) > 0.1) ? pt.temp_sp : 0;
           });
 
           setChartCategories(cats);
@@ -342,9 +342,7 @@ const Logs = ({ defaultTab = 'active' }) => {
     }
   };
 
-  useEffect(() => {
-    fetchAlarms(selectedMachine, selectedAlarmDate, alarmFilterCategory, alarmSortOrder);
-  }, [selectedMachine, selectedAlarmDate, alarmFilterCategory, alarmSortOrder]);
+  // Alarm sekarang memiliki halaman terpisah (/alarms) tanpa polling realtime.
 
   // Fetch Riwayat Batch yang sudah dikerjakan
   const fetchArchiveBatches = async (mach = archiveFilterMach, search = archiveSearch) => {
@@ -422,7 +420,6 @@ const Logs = ({ defaultTab = 'active' }) => {
           { title: 'Sinkronisasi Selesai!' }
         );
         fetchLiveLog();
-        fetchAlarms();
       }
     } catch (err) {
       toast.error(`Gagal sinkronisasi: ${err.message}`);
@@ -696,10 +693,10 @@ const Logs = ({ defaultTab = 'active' }) => {
       const pv = activeCurvePoints.map((pt) => pt.temp_pv);
       const sp = activeCurvePoints.map((pt) => {
         const step = activeSteps.find((s) => Number(s.no) === Number(pt.step_no));
-        if (step && !isStepWithTempSetpoint(step)) return null;
+        if (step && !isStepWithTempSetpoint(step)) return 0;
         const targetT = getStepTargetTemp(step);
         if (targetT !== null && targetT > 0) return targetT;
-        return (pt.temp_sp !== undefined && pt.temp_sp !== null && pt.temp_sp > 0 && Math.abs(pt.temp_sp - 90.0) > 0.1) ? pt.temp_sp : null;
+        return (pt.temp_sp !== undefined && pt.temp_sp !== null && pt.temp_sp > 0 && Math.abs(pt.temp_sp - 90.0) > 0.1) ? pt.temp_sp : 0;
       });
       return [
         { name: 'Suhu Aktual Bejana T1 (PV °C)', data: pv },
@@ -711,10 +708,10 @@ const Logs = ({ defaultTab = 'active' }) => {
       const pv = selectedArchiveBatch.curve.map((pt) => pt.temp_pv);
       const sp = selectedArchiveBatch.curve.map((pt) => {
         const step = archiveSteps.find((s) => Number(s.no) === Number(pt.step_no));
-        if (step && !isStepWithTempSetpoint(step)) return null;
+        if (step && !isStepWithTempSetpoint(step)) return 0;
         const targetT = getStepTargetTemp(step);
         if (targetT !== null && targetT > 0) return targetT;
-        return (pt.temp_sp !== undefined && pt.temp_sp !== null && pt.temp_sp > 0 && Math.abs(pt.temp_sp - 90.0) > 0.1) ? pt.temp_sp : null;
+        return (pt.temp_sp !== undefined && pt.temp_sp !== null && pt.temp_sp > 0 && Math.abs(pt.temp_sp - 90.0) > 0.1) ? pt.temp_sp : 0;
       });
       return [
         { name: 'Suhu Aktual Bejana T1 (PV °C)', data: pv },
@@ -1348,7 +1345,7 @@ const Logs = ({ defaultTab = 'active' }) => {
                   const activeStepNum = effectiveData?.current_step || currentStepNo;
                   const activeSt = stepsList.find((s) => s.no === activeStepNum);
                   if (!activeSt || !isStepWithTempSetpoint(activeSt)) {
-                    return '-';
+                    return '0 °C';
                   }
                   const stTarget = getStepTargetTemp(activeSt);
                   if (stTarget !== null && stTarget > 0) {
@@ -1357,7 +1354,7 @@ const Logs = ({ defaultTab = 'active' }) => {
                   if (effectiveData?.current_sp !== undefined && effectiveData.current_sp > 0 && Math.abs(effectiveData.current_sp - 90.0) > 0.1) {
                     return `${effectiveData.current_sp} °C`;
                   }
-                  return '-';
+                  return '0 °C';
                 })()}
               </h3>
               <span className="text-[10px] text-gray-400">
@@ -1846,354 +1843,22 @@ const Logs = ({ defaultTab = 'active' }) => {
         )}
       </div>
 
-      {/* TRACK 3 & 4: ALARMS & OPERATOR INTERVENTIONS (UCDocPanelAlarm) */}
-      <div
-        ref={alarmSectionRef}
-        className={`rounded-xl border bg-white shadow-sm dark:bg-boxdark ${
-          defaultTab === 'alarms'
-            ? 'border-warning/60 ring-2 ring-warning/20'
-            : 'border-stroke dark:border-strokedark'
-        }`}
-      >
-        {/* HEADER & DATE FILTER CONTROLS */}
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between py-3.5 px-6 border-b border-stroke dark:border-strokedark gap-3">
-          <div>
-            <div className="flex flex-wrap items-center gap-2">
-              <AlertTriangle className="h-4 w-4 text-warning" />
-              <h4 className="text-sm font-bold text-black dark:text-white uppercase tracking-wider">
-                Alarm & Intervensi ({effectiveMachine})
-              </h4>
-              {selectedAlarmDate ? (
-                <span className="text-[11px] bg-primary/10 text-primary font-bold px-2 py-0.5 rounded border border-primary/20 flex items-center gap-1">
-                  <Calendar className="h-3 w-3" /> Tanggal: {selectedAlarmDate}
-                </span>
-              ) : (
-                <span className="text-[11px] bg-gray-100 dark:bg-meta-4 text-gray-600 dark:text-gray-300 font-semibold px-2 py-0.5 rounded border border-stroke dark:border-strokedark">
-                  Semua Tanggal
-                </span>
-              )}
-            </div>
-          </div>
-
-          {/* CONTROLS BERDASARKAN TANGGAL */}
-          <div className="flex flex-wrap items-center gap-2">
-            <div className="flex items-center gap-1.5 bg-gray-50 dark:bg-meta-4/40 px-2.5 py-1.5 rounded border border-stroke dark:border-strokedark shadow-sm">
-              <Calendar className="h-3.5 w-3.5 text-primary" />
-              <span className="text-[11px] font-semibold text-gray-700 dark:text-gray-300">Pilih Tanggal:</span>
-              <input
-                type="date"
-                value={selectedAlarmDate}
-                onChange={(e) => setSelectedAlarmDate(e.target.value)}
-                className="text-xs font-mono font-bold text-black dark:text-white bg-transparent outline-none cursor-pointer"
-                title="Pilih tanggal kejadian alarm & intervensi HMI"
-              />
-              {selectedAlarmDate && (
-                <button
-                  onClick={() => setSelectedAlarmDate('')}
-                  className="text-gray-400 hover:text-danger ml-1 p-0.5"
-                  title="Hapus filter tanggal"
-                >
-                  <X className="h-3.5 w-3.5" />
-                </button>
-              )}
-            </div>
-
-            {/* QUICK PRESET BUTTONS */}
-            <button
-              onClick={() => {
-                const today = new Date().toISOString().split('T')[0];
-                setSelectedAlarmDate(today);
-              }}
-              className={`px-2.5 py-1.5 text-xs font-semibold rounded border transition-colors ${selectedAlarmDate === new Date().toISOString().split('T')[0]
-                ? 'bg-primary text-white border-primary shadow-xs'
-                : 'bg-white dark:bg-boxdark text-gray-700 dark:text-gray-300 border-stroke dark:border-strokedark hover:bg-gray-100 dark:hover:bg-meta-4'
-                }`}
-            >
-              Hari Ini
-            </button>
-
-            <button
-              onClick={() => setSelectedAlarmDate('')}
-              className={`px-2.5 py-1.5 text-xs font-semibold rounded border transition-colors ${!selectedAlarmDate
-                ? 'bg-primary text-white border-primary shadow-xs'
-                : 'bg-white dark:bg-boxdark text-gray-700 dark:text-gray-300 border-stroke dark:border-strokedark hover:bg-gray-100 dark:hover:bg-meta-4'
-                }`}
-            >
-              Semua Tanggal
-            </button>
-
-            {/* ORDER BY DATE TIME TOGGLE */}
-            <button
-              onClick={() => setAlarmSortOrder(prev => prev === 'desc' ? 'asc' : 'desc')}
-              className="flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-semibold rounded border border-stroke dark:border-strokedark bg-white dark:bg-boxdark hover:bg-gray-100 dark:hover:bg-meta-4 text-black dark:text-white shadow-sm"
-              title="Klik untuk mengubah urutan Date Time (Terbaru / Terlama)"
-            >
-              <ArrowUpDown className="h-3.5 w-3.5 text-primary" />
-              <span className="text-[11px] text-gray-500">Order by:</span>
-              <span className="font-bold text-primary font-mono text-[11px]">
-                Date Time ({alarmSortOrder === 'desc' ? 'DESC ↓' : 'ASC ↑'})
-              </span>
-            </button>
-
-            <button
-              onClick={() => fetchAlarms()}
-              disabled={alarmsLoading}
-              className="p-1.5 rounded border border-stroke dark:border-strokedark bg-white dark:bg-boxdark hover:bg-gray-100 dark:hover:bg-meta-4 text-gray-600 dark:text-gray-300 shadow-sm"
-              title="Segarkan Riwayat Alarm"
-            >
-              <RefreshCw className={`h-3.5 w-3.5 ${alarmsLoading ? 'animate-spin text-primary' : ''}`} />
-            </button>
-          </div>
+      {/* TRACK 3: LINK KE HALAMAN ALARM MONITOR TERPISAH */}
+      <div className="rounded-xl border border-stroke dark:border-strokedark bg-white dark:bg-boxdark px-5 py-3.5 shadow-xs flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+        <div className="flex items-center gap-2.5">
+          <AlertTriangle className="h-4 w-4 text-warning shrink-0" />
+          <span className="text-xs font-semibold text-gray-700 dark:text-gray-300">
+            Riwayat Alarm &amp; Intervensi HMI Mesin <strong className="font-mono text-black dark:text-white">{effectiveMachine}</strong> kini tersedia pada halaman terpisah (mode manual non-realtime).
+          </span>
         </div>
-
-        {/* SUB-BAR: KATEGORI & CHIPS TANGGAL TERSEDIA */}
-        <div className="flex flex-wrap items-center justify-between gap-3 px-6 py-2.5 bg-gray-50/60 dark:bg-meta-4/20 border-b border-stroke dark:border-strokedark text-xs">
-          {/* TABS KATEGORI */}
-          <div className="flex items-center gap-1.5">
-            <span className="text-[11px] font-semibold text-gray-500 mr-1 flex items-center gap-1">
-              <Filter className="h-3 w-3" /> Filter Tipe:
-            </span>
-            <button
-              onClick={() => setAlarmFilterCategory('ALL')}
-              className={`px-2 py-0.5 rounded text-[11px] font-bold transition-colors ${alarmFilterCategory === 'ALL'
-                ? 'bg-primary text-white'
-                : 'bg-white dark:bg-boxdark border border-stroke dark:border-strokedark text-gray-600 dark:text-gray-400 hover:text-black dark:hover:text-white'
-                }`}
-            >
-              Semua ({displayAlarms.length})
-            </button>
-            <button
-              onClick={() => setAlarmFilterCategory('ALARM')}
-              className={`px-2 py-0.5 rounded text-[11px] font-bold transition-colors ${alarmFilterCategory === 'ALARM'
-                ? 'bg-amber-500 text-white'
-                : 'bg-white dark:bg-boxdark border border-stroke dark:border-strokedark text-gray-600 dark:text-gray-400 hover:text-black dark:hover:text-white'
-                }`}
-            >
-              Alarm Sistem ({displayAlarms.filter(a => !(a.is_intervention || ['0', '20', '256', '5899'].includes(String(a.alarm_code)))).length})
-            </button>
-            <button
-              onClick={() => setAlarmFilterCategory('INTERVENTION')}
-              className={`px-2 py-0.5 rounded text-[11px] font-bold transition-colors ${alarmFilterCategory === 'INTERVENTION'
-                ? 'bg-blue-600 text-white'
-                : 'bg-white dark:bg-boxdark border border-stroke dark:border-strokedark text-gray-600 dark:text-gray-400 hover:text-black dark:hover:text-white'
-                }`}
-            >
-              Intervensi Operator ({displayAlarms.filter(a => a.is_intervention || ['0', '20', '256', '5899'].includes(String(a.alarm_code))).length})
-            </button>
-          </div>
-
-          {/* CHIPS TANGGAL CEPAT */}
-          {availableAlarmDates.length > 0 && (
-            <div className="flex items-center gap-1 overflow-x-auto py-0.5">
-              <span className="text-[11px] text-gray-400 flex items-center gap-1 mr-1">
-                <CalendarDays className="h-3 w-3" /> Tanggal Arsip:
-              </span>
-              {availableAlarmDates.map((dt) => (
-                <button
-                  key={dt}
-                  onClick={() => setSelectedAlarmDate(dt)}
-                  className={`px-2 py-0.5 rounded font-mono text-[10px] font-bold border transition-colors ${selectedAlarmDate === dt
-                    ? 'bg-primary text-white border-primary shadow-xs'
-                    : 'bg-white dark:bg-boxdark border-stroke dark:border-strokedark text-gray-600 dark:text-gray-400 hover:border-primary'
-                    }`}
-                  title={`Tampilkan riwayat tanggal ${dt}`}
-                >
-                  {dt}
-                </button>
-              ))}
-            </div>
-          )}
-        </div>
-
-        {/* TABEL DATA (STRICT ORDER BY DATE TIME) */}
-        <div className="p-4 overflow-x-auto">
-          {displayAlarms.length > 0 || (effectiveData?.interventions && effectiveData.interventions.length > 0) ? (
-            (() => {
-              // Merge alarms with recorded operator parameter interventions
-              const rawEvents = [
-                ...displayAlarms,
-                ...(effectiveData?.interventions || []).map(inv => ({
-                  id: `inv-${inv.id}`,
-                  timestamp: inv.timestamp,
-                  alarm_code: 'SET-MOD',
-                  alarm_text: inv.notes,
-                  step_no: inv.step_no,
-                  is_intervention: true,
-                  category: 'INTERVENTION',
-                  severity: 'WARNING'
-                }))
-              ];
-
-              const filteredEvents = rawEvents.filter(ev => {
-                if (selectedAlarmDate) {
-                  const evDate = ev.date || (ev.timestamp || ev.alarm_timestamp || '').slice(0, 10);
-                  if (evDate && evDate !== selectedAlarmDate) return false;
-                }
-                if (alarmFilterCategory === 'ALARM') return !ev.is_intervention;
-                if (alarmFilterCategory === 'INTERVENTION') return ev.is_intervention;
-                return true;
-              });
-
-              // Pastikan data terurut strictly berdasarkan Date Time sesuai alarmSortOrder
-              const sortedAlarms = filteredEvents.sort((a, b) => {
-                const rawA = a.timestamp || a.alarm_timestamp || '';
-                const rawB = b.timestamp || b.alarm_timestamp || '';
-                const tA = rawA ? new Date(rawA.replace(' ', 'T')).getTime() : 0;
-                const tB = rawB ? new Date(rawB.replace(' ', 'T')).getTime() : 0;
-                return alarmSortOrder === 'asc' ? tA - tB : tB - tA;
-              });
-
-              return (
-                <div className="space-y-3">
-                  <table className="w-full text-left text-xs">
-                    <thead>
-                      <tr className="border-b border-stroke dark:border-strokedark text-gray-500">
-                        <th
-                          onClick={() => setAlarmSortOrder(prev => prev === 'desc' ? 'asc' : 'desc')}
-                          className="py-2.5 px-4 font-bold cursor-pointer hover:bg-gray-100 dark:hover:bg-meta-4/40 select-none group transition-colors"
-                          title="Klik untuk membalik urutan kronologis Tanggal & Waktu (Order By Date Time)"
-                        >
-                          <div className="flex items-center gap-1.5 text-black dark:text-white">
-                            <span>Tanggal & Waktu Kejadian</span>
-                            <div className="flex items-center text-primary">
-                              {alarmSortOrder === 'desc' ? (
-                                <ArrowDown className="h-3.5 w-3.5" />
-                              ) : (
-                                <ArrowUp className="h-3.5 w-3.5" />
-                              )}
-                              <span className="text-[10px] font-mono font-bold uppercase ml-0.5">
-                                ({alarmSortOrder.toUpperCase()})
-                              </span>
-                            </div>
-                          </div>
-                        </th>
-                        <th className="py-2.5 px-4 font-bold">Tipe Kejadian</th>
-                        <th className="py-2.5 px-4 font-bold">Kode</th>
-                        <th className="py-2.5 px-4 font-bold">Langkah / Step</th>
-                        <th className="py-2.5 px-4 font-bold">Deskripsi Gangguan / Intervensi HMI</th>
-                        <th className="py-2.5 px-4 font-bold">Tingkat Bahaya</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-stroke dark:divide-strokedark">
-                      {sortedAlarms.map((al, idx) => {
-                        const isInterv = al.is_intervention || ['0', '20', '256', '5899'].includes(String(al.alarm_code));
-                        const rawTs = al.timestamp || al.alarm_timestamp || '';
-                        const [dPart, tPart] = rawTs.includes(' ') ? rawTs.split(' ') : [al.date || rawTs, al.time || ''];
-
-                        return (
-                          <tr key={idx} className="hover:bg-gray-50 dark:hover:bg-meta-4/20 transition-colors">
-                            <td className="py-2.5 px-4 font-mono">
-                              <div className="flex flex-col">
-                                <span className="font-bold text-black dark:text-white flex items-center gap-1">
-                                  <Calendar className="h-3 w-3 text-primary inline" />
-                                  {dPart}
-                                </span>
-                                <span className="text-[10px] text-gray-500">{tPart}</span>
-                              </div>
-                            </td>
-                            <td className="py-2.5 px-4">
-                              {isInterv ? (
-                                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-bold bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20">
-                                  <UserCheck className="h-3 w-3" />
-                                  INTERVENSI HMI
-                                </span>
-                              ) : (
-                                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-bold bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20">
-                                  <AlertTriangle className="h-3 w-3" />
-                                  ALARM SISTEM
-                                </span>
-                              )}
-                            </td>
-                            <td className="py-2.5 px-4 font-bold font-mono">
-                              <span className={isInterv ? 'text-blue-600 dark:text-blue-400' : 'text-danger'}>
-                                {isInterv ? `HMI-${al.alarm_code}` : `ALR-${al.alarm_code}`}
-                              </span>
-                            </td>
-                            <td className="py-2.5 px-4 font-mono text-gray-600 dark:text-gray-300">
-                              {al.step_no ? `Step #${al.step_no}` : '-'}
-                            </td>
-                            <td className="py-2.5 px-4 font-medium text-black dark:text-white">
-                              <div className="flex flex-col gap-0.5">
-                                <div className="flex flex-wrap items-center gap-1.5">
-                                  <span className="font-semibold">
-                                    {al.alarm_title || al.alarm_text || al.description || `Gangguan Kode #${al.alarm_code}`}
-                                  </span>
-                                  {al.batch_no && (
-                                    <span className="text-[10px] font-mono text-gray-400">
-                                      (Batch: #{al.batch_no})
-                                    </span>
-                                  )}
-                                </div>
-                                {al.alarm_detail && al.alarm_detail.toLowerCase() !== (al.alarm_title || '').toLowerCase() && (
-                                  <span className="text-[11px] font-normal text-gray-600 dark:text-gray-400">
-                                    {al.alarm_detail}
-                                  </span>
-                                )}
-                                {al.alarm_found && al.alarm_source && (
-                                  <span className="text-[10px] font-mono text-gray-400 dark:text-gray-500">
-                                    Sumber: {al.alarm_source}
-                                  </span>
-                                )}
-                              </div>
-                            </td>
-                            <td className="py-2.5 px-4">
-                              <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${al.severity === 'CRITICAL'
-                                ? 'bg-danger/10 text-danger border border-danger/20'
-                                : al.severity === 'INFO'
-                                  ? 'bg-success/10 text-success border border-success/20'
-                                  : 'bg-warning/10 text-warning border border-warning/20'
-                                }`}>
-                                {al.severity || 'WARNING'}
-                              </span>
-                            </td>
-                          </tr>
-                        );
-                      })}
-                    </tbody>
-                  </table>
-
-                  {/* FOOTER INFORMASI */}
-                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 text-[11px] text-gray-500 pt-2 border-t border-stroke dark:border-strokedark px-1">
-                    <div className="flex flex-wrap items-center gap-2">
-                      <span>
-                        Menampilkan <strong className="text-black dark:text-white">{sortedAlarms.length}</strong> catatan
-                        {selectedAlarmDate ? ` pada tanggal ${selectedAlarmDate}` : ' dari seluruh arsip'} untuk Mesin {effectiveMachine}.
-                      </span>
-                      <span className="inline-flex items-center gap-1 text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-primary/10 text-primary border border-primary/20">
-                        ORDER BY: DATETIME ({alarmSortOrder.toUpperCase()})
-                      </span>
-                    </div>
-                    {selectedAlarmDate && (
-                      <button
-                        onClick={() => setSelectedAlarmDate('')}
-                        className="text-primary hover:underline font-semibold"
-                      >
-                        Tampilkan Semua Tanggal →
-                      </button>
-                    )}
-                  </div>
-                </div>
-              );
-            })()
-          ) : (
-            <div className="text-center py-10 text-gray-400">
-              <CheckCircle2 className="h-8 w-8 text-success mx-auto mb-2" />
-              <p className="text-xs font-semibold text-gray-700 dark:text-gray-300">
-                {selectedAlarmDate
-                  ? `Tidak ada riwayat alarm atau intervensi HMI Mesin ${effectiveMachine} pada tanggal ${selectedAlarmDate}.`
-                  : `Tidak ada catatan alarm aktif pada Mesin ${effectiveMachine}.`}
-              </p>
-              {selectedAlarmDate && (
-                <button
-                  onClick={() => setSelectedAlarmDate('')}
-                  className="mt-2 text-xs font-bold text-primary hover:underline inline-flex items-center gap-1"
-                >
-                  ← Reset Filter & Tampilkan Semua Tanggal
-                </button>
-              )}
-            </div>
-          )}
-        </div>
+        <button
+          type="button"
+          onClick={() => navigate(`/alarms?machine=${encodeURIComponent(effectiveMachine)}`)}
+          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-amber-500/10 hover:bg-amber-500/20 text-amber-700 dark:text-amber-300 border border-amber-500/30 text-xs font-bold transition shrink-0 cursor-pointer"
+        >
+          <span>Buka Alarm Monitor</span>
+          <ChevronRight className="h-3.5 w-3.5" />
+        </button>
       </div>
       </>
       )}

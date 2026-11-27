@@ -301,7 +301,7 @@ const BatchListView = () => {
         <div>
           <h2 className="text-xl md:text-2xl font-bold tracking-tight text-black dark:text-white flex items-center gap-2">
             <Layers className="h-6 w-6 text-primary" />
-            Batch Pool
+            Batch
           </h2>
         </div>
 

@@ -18,6 +18,8 @@ type WriterConfig struct {
 	LogLevel             string `yaml:"log_level"`
 	BatchFlushIntervalMs int    `yaml:"batch_flush_interval_ms"`
 	BatchMaxSize         int    `yaml:"batch_max_size"`
+	WorkerCount          int    `yaml:"worker_count"`
+	QueueSize            int    `yaml:"queue_size"`
 }
 
 type EMQXConfig struct {
@@ -48,10 +50,16 @@ func LoadConfig(path string) (*Config, error) {
 	}
 
 	if cfg.Writer.BatchFlushIntervalMs <= 0 {
-		cfg.Writer.BatchFlushIntervalMs = 1000
+		cfg.Writer.BatchFlushIntervalMs = 500
 	}
 	if cfg.Writer.BatchMaxSize <= 0 {
-		cfg.Writer.BatchMaxSize = 200
+		cfg.Writer.BatchMaxSize = 500
+	}
+	if cfg.Writer.WorkerCount <= 0 {
+		cfg.Writer.WorkerCount = 8
+	}
+	if cfg.Writer.QueueSize <= 0 {
+		cfg.Writer.QueueSize = 50000
 	}
 	if cfg.EMQX.SharedGroup == "" {
 		cfg.EMQX.SharedGroup = "db_writers"
