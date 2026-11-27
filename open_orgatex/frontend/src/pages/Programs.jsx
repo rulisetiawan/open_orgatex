@@ -34,7 +34,8 @@ import {
   ListTree,
   List,
   Layers,
-  BookOpen
+  BookOpen,
+  Calculator
 } from 'lucide-react';
 
 import TempCurveChart from '../components/Charts/TempCurveChart';
@@ -177,7 +178,7 @@ export const getStepSummary = (step) => {
 };
 
 export default function Programs() {
-  const { toast } = useToast();
+  const { toast, confirmTwice } = useToast();
   // Navigation / View State
   const [viewMode, setViewMode] = useState('LIST'); // 'LIST' or 'EDITOR'
 
@@ -449,7 +450,26 @@ export default function Programs() {
   const [machineConfigSources, setMachineConfigSources] = useState(null);
   const [parallelOptions, setParallelOptions] = useState(POPULAR_PARALLEL_FUNCTIONS);
 
+  // Parameter Formulas assigned to the active machine's Machine Group
+  const [availableFormulas, setAvailableFormulas] = useState([]);
+  const [activeMachineGroupName, setActiveMachineGroupName] = useState('');
+
   const effectiveConfigMachine = viewMode === 'EDITOR' ? machineCode : activeMachine;
+
+  // Fetch Parameter Formulas deployed to this machine's group
+  useEffect(() => {
+    const fetchGroupFormulas = async () => {
+      try {
+        const cleanNo = (effectiveConfigMachine || activeMachine).trim().toUpperCase().replace('MESIN_', '');
+        const res = await axios.get(`/api/formulas/`, { params: { machine_no: cleanNo } });
+        setAvailableFormulas(res.data?.formulas || []);
+        setActiveMachineGroupName(res.data?.machine_group || '');
+      } catch {
+        setAvailableFormulas([]);
+      }
+    };
+    fetchGroupFormulas();
+  }, [effectiveConfigMachine, activeMachine]);
 
   // Fetch machine-specific workspace configuration (TYPECONF.CNF, CONFTEXT.CNF, USERCONF.CNF, MACHCONF.CNF per machine)
   useEffect(() => {
@@ -577,6 +597,19 @@ export default function Programs() {
     }
     const targetM = (mCode || activeMachine).trim().toUpperCase();
     const targetObj = availableMachines.find(m => m.machine_no.toUpperCase() === targetM) || selectedMachineObj;
+    const targetIp = targetObj?.ip_address || '-';
+    const prgFileName = `M_${String(num).padStart(4, '0')}.PRG`;
+
+    const approved = await confirmTwice({
+      title1: `Konfirmasi 1/2 — Kirim Resep ke HMI ${targetM}`,
+      message1: `Anda akan mengirim file program ${prgFileName} ke kontroler HMI Mesin ${targetM} (IP: ${targetIp}:21, Direktori: ${customDir || currentRemoteDir}).\n\nPastikan nomor mesin dan program sudah benar.`,
+      confirmText1: 'Lanjut ke Konfirmasi Akhir (1/2)',
+      title2: `⚠️ KONFIRMASI AKHIR (2/2) — Tulis ke HMI ${targetM}`,
+      message2: `PERINGATAN: Tindakan ini akan menulis langsung ${prgFileName} ke storage kontroler HMI Mesin ${targetM} (${targetIp}) dan dapat menimpa program dengan nomor yang sama.\n\nApakah Anda YAKIN ingin mengirim sekarang?`,
+      confirmText2: `Ya, Kirim ke HMI ${targetM}`,
+    });
+    if (!approved) return;
+
     setIsTransferringFtp(true);
     try {
       const res = await axios.post(`/api/programs/transfer-ftp/${pNo}`, {
@@ -1368,6 +1401,69 @@ export default function Programs() {
     setSteps(updated);
   };
 
+  // Bind or unbind a Parameter Formula (`fx`) to a specific function parameter slot
+  const handleBindParamFormula = (fnIdx, pIdx, formulaId, outputKey = null) => {
+    const updated = [...steps];
+    const step = updated[selectedStepIdx];
+    const fn = step.functions[fnIdx];
+    if (!fn) return;
+    if (!fn.param_formulas) fn.param_formulas = {};
+    if (!fn.params) fn.params = [0, 0, 0, 0, 0, 0];
+
+    if (!formulaId) {
+      delete fn.param_formulas[String(pIdx)];
+    } else {
+      const fObj = availableFormulas.find((f) => Number(f.id) === Number(formulaId));
+      const resolvedOutKey =
+        outputKey ||
+        (fObj?.output_mode === 'MULTI' && fObj?.outputs?.length > 0 ? fObj.outputs[0].key : null);
+      fn.param_formulas[String(pIdx)] = {
+        formula_id: Number(formulaId),
+        output_key: resolvedOutKey,
+      };
+      // Set fallback numeric preview from formula default
+      if (fObj) {
+        const outSpec = resolvedOutKey
+          ? (fObj.outputs || []).find((o) => o.key === resolvedOutKey)
+          : null;
+        const fb = outSpec?.default_fallback ?? fObj.default_fallback;
+        if (fb !== null && fb !== undefined && Number.isFinite(Number(fb))) {
+          fn.params[pIdx] = Number(fb);
+        }
+      }
+    }
+    setSteps(updated);
+  };
+
+  // Apply a Multi-Parameter Formula packet to multiple parameter slots at once (1 click)
+  const handleApplyMultiFormulaPacket = (fnIdx, formulaId, maxParams = 6) => {
+    const fObj = availableFormulas.find((f) => Number(f.id) === Number(formulaId));
+    if (!fObj || fObj.output_mode !== 'MULTI' || !Array.isArray(fObj.outputs)) return;
+    const updated = [...steps];
+    const step = updated[selectedStepIdx];
+    const fn = step.functions[fnIdx];
+    if (!fn) return;
+    if (!fn.param_formulas) fn.param_formulas = {};
+    if (!fn.params) fn.params = [0, 0, 0, 0, 0, 0];
+
+    let applied = 0;
+    fObj.outputs.forEach((outSpec, idx) => {
+      const slotIdx = outSpec.default_param_slot ? Number(outSpec.default_param_slot) - 1 : idx;
+      if (slotIdx >= 0 && slotIdx < maxParams) {
+        fn.param_formulas[String(slotIdx)] = {
+          formula_id: Number(fObj.id),
+          output_key: outSpec.key,
+        };
+        if (outSpec.default_fallback !== null && outSpec.default_fallback !== undefined) {
+          fn.params[slotIdx] = Number(outSpec.default_fallback) || 0;
+        }
+        applied++;
+      }
+    });
+    setSteps(updated);
+    toast.success(`Paket formula "${fObj.name}" dipasang ke ${applied} parameter sekaligus!`);
+  };
+
   // Add Parallel Function (Column 2..13)
   const handleAddParallelFunction = (funcId, col) => {
     const updated = [...steps];
@@ -2079,11 +2175,21 @@ export default function Programs() {
                     M_{String(ftpTransferModal.program_number).padStart(4, '0')}.PRG ({ftpTransferModal.program_name})
                   </strong>
                 </div>
-                <div className="flex justify-between items-center pb-2 border-b border-stroke dark:border-strokedark">
-                  <span className="text-gray-500 font-medium">Mesin Target:</span>
-                  <span className="font-bold text-primary font-mono">
-                    Mesin {ftpTransferModal.machine_code || activeMachine}
-                  </span>
+                <div className="flex justify-between items-center pb-2 border-b border-stroke dark:border-strokedark gap-2">
+                  <span className="text-gray-500 font-medium shrink-0">Mesin Target HMI:</span>
+                  <select
+                    value={ftpTransferModal.machine_code || activeMachine}
+                    onChange={(e) =>
+                      setFtpTransferModal((prev) => ({ ...prev, machine_code: e.target.value }))
+                    }
+                    className="font-mono text-xs font-bold text-primary bg-white dark:bg-boxdark border border-stroke dark:border-strokedark rounded px-2 py-1 outline-none max-w-[240px]"
+                  >
+                    {availableMachines.map((m) => (
+                      <option key={m.machine_no} value={m.machine_no}>
+                        {m.machine_no} — {m.ip_address} ({m.group_name || 'HMI'})
+                      </option>
+                    ))}
+                  </select>
                 </div>
                 <div className="flex justify-between items-center pb-2 border-b border-stroke dark:border-strokedark">
                   <span className="text-gray-500 font-medium">IP Controller:</span>
@@ -2786,16 +2892,39 @@ export default function Programs() {
 
               {/* FUNGSI UTAMA (SLOT 1) */}
               <div className="bg-gray-50/80 dark:bg-meta-4/30 p-4 rounded-lg border border-stroke dark:border-strokedark space-y-3">
-                <div className="flex items-center justify-between">
+                <div className="flex flex-wrap items-center justify-between gap-2">
                   <span className="text-xs font-bold uppercase tracking-wider text-black dark:text-white flex items-center gap-1.5">
                     <Sliders className="h-3.5 w-3.5 text-primary" />
                     Fungsi Utama (Slot 1)
                   </span>
-                  {isBoundaryStep && (
-                    <span className="text-[10px] bg-amber-50 text-amber-700 font-bold px-2 py-0.5 rounded border border-amber-500/20">
-                      Terkunci (Batas Siklus SECOM)
-                    </span>
-                  )}
+                  <div className="flex items-center gap-2">
+                    {!isBoundaryStep && availableFormulas.some((f) => f.output_mode === 'MULTI') && (
+                      <select
+                        value=""
+                        onChange={(e) => {
+                          if (e.target.value) {
+                            handleApplyMultiFormulaPacket(0, Number(e.target.value), fDef?.parameters?.length || 6);
+                          }
+                        }}
+                        className="text-[11px] font-bold rounded border border-indigo-400 bg-indigo-50 dark:bg-indigo-950/40 text-indigo-700 dark:text-indigo-300 px-2 py-1 outline-none cursor-pointer"
+                        title="Pasang 1 formula paket ke banyak parameter sekaligus"
+                      >
+                        <option value="">⚡ fx Paket Parameter...</option>
+                        {availableFormulas
+                          .filter((f) => f.output_mode === 'MULTI')
+                          .map((f) => (
+                            <option key={f.id} value={f.id}>
+                              {f.code} · {f.name} ({f.outputs?.length || 0} param)
+                            </option>
+                          ))}
+                      </select>
+                    )}
+                    {isBoundaryStep && (
+                      <span className="text-[10px] bg-amber-50 text-amber-700 font-bold px-2 py-0.5 rounded border border-amber-500/20">
+                        Terkunci (Batas Siklus SECOM)
+                      </span>
+                    )}
+                  </div>
                 </div>
 
                 {!isBoundaryStep && (
@@ -2822,50 +2951,136 @@ export default function Programs() {
                       const pUnit = paramDef?.unit || '';
                       const curVal = mainFn?.params?.[pIdx] ?? 0;
                       const choices = getChoicesForParam(paramDef, { text_choices: machineTextChoices });
+                      const rawBinding = mainFn?.param_formulas?.[String(pIdx)];
+                      const boundFormulaId = typeof rawBinding === 'object' ? rawBinding?.formula_id : rawBinding;
+                      const boundOutputKey = typeof rawBinding === 'object' ? rawBinding?.output_key : null;
+                      const boundFormula = boundFormulaId
+                        ? availableFormulas.find((f) => Number(f.id) === Number(boundFormulaId))
+                        : null;
 
                       return (
-                        <div key={pIdx} className="bg-white dark:bg-boxdark p-3 rounded border border-stroke dark:border-strokedark shadow-sm">
-                          <label className="block text-[11px] font-bold text-gray-700 dark:text-gray-300 truncate" title={pName}>
-                            P{pIdx + 1}: {pName}
-                          </label>
-                          <div className="flex items-center gap-1.5 mt-1.5">
-                            {choices.length > 0 ? (
-                              <select
-                                value={curVal}
-                                onChange={(e) => handleUpdateParam(0, pIdx, e.target.value)}
-                                className="w-full text-xs font-bold rounded border border-stroke bg-white dark:bg-boxdark py-1.5 px-2 text-black dark:text-white outline-none focus:border-primary transition"
+                        <div
+                          key={pIdx}
+                          className={`p-3 rounded border shadow-sm transition ${
+                            boundFormulaId
+                              ? 'bg-indigo-50/60 dark:bg-indigo-950/25 border-indigo-400 dark:border-indigo-700'
+                              : 'bg-white dark:bg-boxdark border-stroke dark:border-strokedark'
+                          }`}
+                        >
+                          <div className="flex items-center justify-between gap-1">
+                            <label className="block text-[11px] font-bold text-gray-700 dark:text-gray-300 truncate" title={pName}>
+                              P{pIdx + 1}: {pName}
+                            </label>
+                            {!isBoundaryStep && (
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  if (boundFormulaId) {
+                                    handleBindParamFormula(0, pIdx, null);
+                                  } else if (availableFormulas.length > 0) {
+                                    handleBindParamFormula(0, pIdx, availableFormulas[0].id);
+                                  } else {
+                                    toast.info(
+                                      `Belum ada formula yang dikirim ke grup mesin "${activeMachineGroupName || effectiveConfigMachine}". Buat & kirim di menu Formula Parameter.`
+                                    );
+                                  }
+                                }}
+                                title={boundFormulaId ? 'Kembalikan ke angka manual' : 'Isi otomatis dengan Formula (fx)'}
+                                className={`shrink-0 inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[10px] font-black transition ${
+                                  boundFormulaId
+                                    ? 'bg-indigo-600 text-white hover:bg-rose-600'
+                                    : 'bg-gray-100 dark:bg-meta-4 text-gray-500 hover:bg-indigo-100 hover:text-indigo-700'
+                                }`}
                               >
-                                {!choices.some(c => c.value === curVal) && (
-                                  <option value={curVal}>{curVal} · Nilai Asli</option>
+                                <Calculator className="h-2.5 w-2.5" />
+                                <span>{boundFormulaId ? 'fx ×' : 'fx'}</span>
+                              </button>
+                            )}
+                          </div>
+
+                          {boundFormulaId ? (
+                            <div className="mt-1.5 space-y-1.5">
+                              <select
+                                value={boundFormulaId}
+                                onChange={(e) => handleBindParamFormula(0, pIdx, Number(e.target.value))}
+                                className="w-full text-[11px] font-bold rounded border border-indigo-300 dark:border-indigo-700 bg-white dark:bg-slate-900 py-1 px-1.5 text-indigo-800 dark:text-indigo-200 outline-none"
+                              >
+                                {!boundFormula && (
+                                  <option value={boundFormulaId}>Formula #{boundFormulaId}</option>
                                 )}
-                                {choices.map(c => (
-                                  <option key={c.value} value={c.value}>
-                                    {c.text} ({c.value})
+                                {availableFormulas.map((f) => (
+                                  <option key={f.id} value={f.id}>
+                                    {f.code} · {f.name}
                                   </option>
                                 ))}
                               </select>
-                            ) : (
-                              <>
+                              {boundFormula?.output_mode === 'MULTI' && boundFormula.outputs?.length > 0 && (
+                                <select
+                                  value={boundOutputKey || boundFormula.outputs[0].key}
+                                  onChange={(e) => handleBindParamFormula(0, pIdx, boundFormulaId, e.target.value)}
+                                  className="w-full text-[10px] font-semibold rounded border border-indigo-200 dark:border-indigo-800 bg-white dark:bg-slate-900 py-1 px-1.5 text-black dark:text-white outline-none"
+                                >
+                                  {boundFormula.outputs.map((o) => (
+                                    <option key={o.key} value={o.key}>
+                                      Output: {o.label} {o.unit ? `(${o.unit})` : ''}
+                                    </option>
+                                  ))}
+                                </select>
+                              )}
+                              <div className="flex items-center gap-1.5 text-[10px] text-indigo-700 dark:text-indigo-300">
+                                <span className="shrink-0">Fallback:</span>
                                 <input
                                   type="number"
                                   step="any"
                                   value={curVal}
                                   onChange={(e) => handleUpdateParam(0, pIdx, e.target.value)}
-                                  className="w-full text-xs font-mono font-bold rounded border border-stroke bg-transparent py-1.5 px-2 text-black dark:text-white outline-none focus:border-primary transition"
+                                  className="w-20 text-[11px] font-mono font-bold rounded border border-indigo-200 dark:border-indigo-800 bg-white dark:bg-slate-900 py-0.5 px-1.5 text-black dark:text-white"
                                 />
-                                {pUnit && (
-                                  <span className="text-[11px] font-bold text-gray-500 font-mono bg-gray-100 dark:bg-meta-4 px-1.5 py-1 rounded">
-                                    {pUnit}
-                                  </span>
+                                {pUnit && <span className="font-mono">{pUnit}</span>}
+                              </div>
+                            </div>
+                          ) : (
+                            <>
+                              <div className="flex items-center gap-1.5 mt-1.5">
+                                {choices.length > 0 ? (
+                                  <select
+                                    value={curVal}
+                                    onChange={(e) => handleUpdateParam(0, pIdx, e.target.value)}
+                                    className="w-full text-xs font-bold rounded border border-stroke bg-white dark:bg-boxdark py-1.5 px-2 text-black dark:text-white outline-none focus:border-primary transition"
+                                  >
+                                    {!choices.some(c => c.value === curVal) && (
+                                      <option value={curVal}>{curVal} · Nilai Asli</option>
+                                    )}
+                                    {choices.map(c => (
+                                      <option key={c.value} value={c.value}>
+                                        {c.text} ({c.value})
+                                      </option>
+                                    ))}
+                                  </select>
+                                ) : (
+                                  <>
+                                    <input
+                                      type="number"
+                                      step="any"
+                                      value={curVal}
+                                      onChange={(e) => handleUpdateParam(0, pIdx, e.target.value)}
+                                      className="w-full text-xs font-mono font-bold rounded border border-stroke bg-transparent py-1.5 px-2 text-black dark:text-white outline-none focus:border-primary transition"
+                                    />
+                                    {pUnit && (
+                                      <span className="text-[11px] font-bold text-gray-500 font-mono bg-gray-100 dark:bg-meta-4 px-1.5 py-1 rounded">
+                                        {pUnit}
+                                      </span>
+                                    )}
+                                  </>
                                 )}
-                              </>
-                            )}
-                          </div>
-                          <span className="text-[9px] text-gray-400 block mt-1">
-                            {choices.length > 0
-                              ? 'Pilihan diskrit dari CNF mesin'
-                              : `Min: ${pMeta.minimum} · Maks: ${Math.round(pMeta.maximum)}`}
-                          </span>
+                              </div>
+                              <span className="text-[9px] text-gray-400 block mt-1">
+                                {choices.length > 0
+                                  ? 'Pilihan diskrit dari CNF mesin'
+                                  : `Min: ${pMeta.minimum} · Maks: ${Math.round(pMeta.maximum)}`}
+                              </span>
+                            </>
+                          )}
                         </div>
                       );
                     })}
@@ -2950,39 +3165,88 @@ export default function Programs() {
                                   const pUnit = paramDef?.unit || '';
                                   const curVal = fn.params?.[pIdx] ?? 0;
                                   const choices = getChoicesForParam(paramDef, { text_choices: machineTextChoices });
+                                  const rawBinding = fn?.param_formulas?.[String(pIdx)];
+                                  const boundFormulaId = typeof rawBinding === 'object' ? rawBinding?.formula_id : rawBinding;
+                                  const boundOutputKey = typeof rawBinding === 'object' ? rawBinding?.output_key : null;
+                                  const boundFormula = boundFormulaId
+                                    ? availableFormulas.find((f) => Number(f.id) === Number(boundFormulaId))
+                                    : null;
 
                                   return (
-                                    <div key={pIdx}>
-                                      <label className="block text-[10px] font-bold text-gray-500 truncate" title={pName}>{pName}</label>
-                                      <div className="flex items-center gap-1 mt-1">
-                                        {choices.length > 0 ? (
+                                    <div key={pIdx} className={boundFormulaId ? 'p-1.5 rounded bg-indigo-50/60 dark:bg-indigo-950/25 border border-indigo-300 dark:border-indigo-700' : ''}>
+                                      <div className="flex items-center justify-between gap-1">
+                                        <label className="block text-[10px] font-bold text-gray-500 truncate" title={pName}>{pName}</label>
+                                        <button
+                                          type="button"
+                                          onClick={() => {
+                                            if (boundFormulaId) handleBindParamFormula(actualIdx, pIdx, null);
+                                            else if (availableFormulas.length > 0) handleBindParamFormula(actualIdx, pIdx, availableFormulas[0].id);
+                                            else toast.info(`Belum ada formula untuk grup mesin "${activeMachineGroupName || effectiveConfigMachine}".`);
+                                          }}
+                                          className={`px-1 py-0.5 rounded text-[9px] font-black ${
+                                            boundFormulaId
+                                              ? 'bg-indigo-600 text-white hover:bg-rose-600'
+                                              : 'bg-gray-100 dark:bg-meta-4 text-gray-500 hover:text-indigo-600'
+                                          }`}
+                                        >
+                                          {boundFormulaId ? 'fx×' : 'fx'}
+                                        </button>
+                                      </div>
+                                      {boundFormulaId ? (
+                                        <div className="mt-1 space-y-1">
                                           <select
-                                            value={curVal}
-                                            onChange={(e) => handleUpdateParam(actualIdx, pIdx, e.target.value)}
-                                            className="w-full text-xs font-bold rounded border border-stroke bg-white dark:bg-boxdark py-1 px-1.5 text-black dark:text-white outline-none focus:border-primary transition"
+                                            value={boundFormulaId}
+                                            onChange={(e) => handleBindParamFormula(actualIdx, pIdx, Number(e.target.value))}
+                                            className="w-full text-[10px] font-bold rounded border border-indigo-300 bg-white dark:bg-slate-900 py-0.5 px-1 text-indigo-800 dark:text-indigo-200"
                                           >
-                                            {!choices.some(c => c.value === curVal) && (
-                                              <option value={curVal}>{curVal}</option>
-                                            )}
-                                            {choices.map(c => (
-                                              <option key={c.value} value={c.value}>
-                                                {c.text} ({c.value})
-                                              </option>
+                                            {!boundFormula && <option value={boundFormulaId}>Formula #{boundFormulaId}</option>}
+                                            {availableFormulas.map((f) => (
+                                              <option key={f.id} value={f.id}>{f.code} · {f.name}</option>
                                             ))}
                                           </select>
-                                        ) : (
-                                          <>
-                                            <input
-                                              type="number"
-                                              step="any"
+                                          {boundFormula?.output_mode === 'MULTI' && boundFormula.outputs?.length > 0 && (
+                                            <select
+                                              value={boundOutputKey || boundFormula.outputs[0].key}
+                                              onChange={(e) => handleBindParamFormula(actualIdx, pIdx, boundFormulaId, e.target.value)}
+                                              className="w-full text-[9px] rounded border border-indigo-200 bg-white dark:bg-slate-900 py-0.5 px-1"
+                                            >
+                                              {boundFormula.outputs.map((o) => (
+                                                <option key={o.key} value={o.key}>{o.label}</option>
+                                              ))}
+                                            </select>
+                                          )}
+                                        </div>
+                                      ) : (
+                                        <div className="flex items-center gap-1 mt-1">
+                                          {choices.length > 0 ? (
+                                            <select
                                               value={curVal}
                                               onChange={(e) => handleUpdateParam(actualIdx, pIdx, e.target.value)}
-                                              className="w-full text-xs font-mono font-bold rounded border border-stroke bg-transparent py-1 px-1.5 text-black dark:text-white outline-none focus:border-primary"
-                                            />
-                                            {pUnit && <span className="text-[10px] text-gray-400 font-mono">{pUnit}</span>}
-                                          </>
-                                        )}
-                                      </div>
+                                              className="w-full text-xs font-bold rounded border border-stroke bg-white dark:bg-boxdark py-1 px-1.5 text-black dark:text-white outline-none focus:border-primary transition"
+                                            >
+                                              {!choices.some(c => c.value === curVal) && (
+                                                <option value={curVal}>{curVal}</option>
+                                              )}
+                                              {choices.map(c => (
+                                                <option key={c.value} value={c.value}>
+                                                  {c.text} ({c.value})
+                                                </option>
+                                              ))}
+                                            </select>
+                                          ) : (
+                                            <>
+                                              <input
+                                                type="number"
+                                                step="any"
+                                                value={curVal}
+                                                onChange={(e) => handleUpdateParam(actualIdx, pIdx, e.target.value)}
+                                                className="w-full text-xs font-mono font-bold rounded border border-stroke bg-transparent py-1 px-1.5 text-black dark:text-white outline-none focus:border-primary"
+                                              />
+                                              {pUnit && <span className="text-[10px] text-gray-400 font-mono">{pUnit}</span>}
+                                            </>
+                                          )}
+                                        </div>
+                                      )}
                                     </div>
                                   );
                                 })}

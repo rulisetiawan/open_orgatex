@@ -234,6 +234,76 @@ class StepFunction(Base):
     step = relationship("Step", back_populates="functions")
     parameters = relationship("StepFunctionParameter", back_populates="step_function", cascade="all, delete-orphan", order_by="StepFunctionParameter.function_parameter_number")
 
+class ParameterFormula(Base):
+    """
+    Formula dinamis untuk mengisi parameter step program celup (P1..P6).
+    Mendukung 4 tipe: MATH, IF_ELSE, RANGE_TABLE, LOOKUP_TABLE
+    dan 2 mode output: SINGLE (1 parameter) atau MULTI (paket banyak parameter).
+    """
+    __tablename__ = 'parameter_formulas'
+
+    id = Column(BigInteger().with_variant(Integer, "sqlite"), primary_key=True, autoincrement=True)
+    code = Column(String(60), unique=True, nullable=False, index=True)
+    name = Column(String(180), nullable=False)
+    description = Column(Text, nullable=True)
+    formula_type = Column(String(30), nullable=False, default='MATH')       # MATH | IF_ELSE | RANGE_TABLE | LOOKUP_TABLE
+    output_mode = Column(String(20), nullable=False, default='SINGLE')      # SINGLE | MULTI
+    target_function_id = Column(Integer, nullable=True)                     # Opsional: ID fungsi TYPECONF (mis. 141, 713)
+    target_function_name = Column(String(120), nullable=True)
+    outputs_json = Column(Text, nullable=True)                              # JSON list definisi output (untuk SINGLE/MULTI)
+    definition_json = Column(Text, nullable=False)                          # JSON definisi rumus/aturan
+    unit = Column(String(30), default='')
+    decimal_places = Column(Integer, default=1)
+    min_value = Column(Numeric(12, 4), nullable=True)
+    max_value = Column(Numeric(12, 4), nullable=True)
+    default_fallback = Column(Numeric(12, 4), default=0.0)
+    apply_all_groups = Column(Boolean, default=False)
+    is_active = Column(Boolean, default=True)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
+
+    machine_groups = relationship(
+        "FormulaMachineGroup",
+        back_populates="formula",
+        cascade="all, delete-orphan"
+    )
+    machines = relationship(
+        "FormulaMachine",
+        back_populates="formula",
+        cascade="all, delete-orphan"
+    )
+
+
+class FormulaMachineGroup(Base):
+    """Relasi pengiriman (assignment) Formula ke Grup Mesin (machines.group_name)."""
+    __tablename__ = 'formula_machine_groups'
+    __table_args__ = (
+        UniqueConstraint('formula_id', 'machine_group_name', name='uq_formula_machine_group'),
+    )
+
+    id = Column(BigInteger().with_variant(Integer, "sqlite"), primary_key=True, autoincrement=True)
+    formula_id = Column(BigInteger, ForeignKey('parameter_formulas.id', ondelete='CASCADE'), nullable=False, index=True)
+    machine_group_name = Column(String(100), nullable=False, index=True)
+    deployed_at = Column(DateTime(timezone=True), server_default=func.now())
+
+    formula = relationship("ParameterFormula", back_populates="machine_groups")
+
+
+class FormulaMachine(Base):
+    """Relasi pengiriman (assignment) Formula langsung ke Mesin spesifik (machines.machine_no)."""
+    __tablename__ = 'formula_machines'
+    __table_args__ = (
+        UniqueConstraint('formula_id', 'machine_no', name='uq_formula_machine'),
+    )
+
+    id = Column(BigInteger().with_variant(Integer, "sqlite"), primary_key=True, autoincrement=True)
+    formula_id = Column(BigInteger, ForeignKey('parameter_formulas.id', ondelete='CASCADE'), nullable=False, index=True)
+    machine_no = Column(String(50), nullable=False, index=True)
+    deployed_at = Column(DateTime(timezone=True), server_default=func.now())
+
+    formula = relationship("ParameterFormula", back_populates="machines")
+
+
 class StepFunctionParameter(Base):
     """
     OrgaTEX StepFunctionParameter (Nilai numerik slot parameter fungsi kontroler)
@@ -246,6 +316,8 @@ class StepFunctionParameter(Base):
     attribute = Column(Integer, default=0)
     value = Column(Numeric(12, 4), default=0.0)
     treatment_parameter_number = Column(Integer)
+    formula_id = Column(BigInteger, ForeignKey('parameter_formulas.id', ondelete='SET NULL'), nullable=True)
+    formula_output_key = Column(String(100), nullable=True)
 
     step_function = relationship("StepFunction", back_populates="parameters")
 
@@ -320,12 +392,18 @@ class BatchHeader(Base):
     liquor_ratio = Column(Numeric(5, 2), default=8.0)
     total_water_l = Column(Numeric(12, 2), nullable=True)
     fabric_length = Column(Numeric(10, 2), default=200.0)
+    fabric_type = Column(String(50), nullable=True)
+    color_shade = Column(String(30), nullable=True)
+    fabric_gsm = Column(Numeric(8, 2), nullable=True)
+    dye_type = Column(String(50), nullable=True)
+    chamber_count = Column(Integer, nullable=True)
     import_state = Column(Integer, default=0)
     note1 = Column(Text, nullable=True)
     type_of_procedure_no = Column(Integer, default=1)
     process_type_1 = Column(Integer, default=1)
     process_type_2 = Column(Integer, default=1)
     parameters_json = Column(Text, nullable=True)  # JSON map of OrgaTEX batch parameters (e.g. {"11": 2, "15": ..., "20": 6})
+    resolved_formula_params_json = Column(Text, nullable=True)  # Snapshot hasil evaluasi formula saat buat batch
     status = Column(String(30), default='QUEUED')
     position = Column(Integer, default=1)
     planned_start_time = Column(DateTime(timezone=True), nullable=True)

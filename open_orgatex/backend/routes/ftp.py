@@ -458,24 +458,38 @@ def dispatch_batch_via_ftp(req: FTPDispatchBatchRequest):
     if not target_batch:
         raise HTTPException(status_code=404, detail=f"Batch dengan ID '{req.batch_id}' tidak ditemukan di sistem")
 
-    # RESTRIKSI KESELAMATAN: Hanya mesin DA01 yang diizinkan menulis ke kontroler HMI/FTP
+    # Semua mesin HMI kini diizinkan menerima pengiriman batch (dengan 2x konfirmasi di UI)
     mach_code = str(target_batch.get("machine_no", "DA01")).strip().upper()
-    if mach_code != "DA01":
-        raise HTTPException(
-            status_code=403,
-            detail=f"Akses Ditolak: Penulisan ke kontroler FTP untuk mesin '{mach_code}' dinonaktifkan demi keselamatan operasional. Saat ini HANYA mesin DA01 yang diizinkan menulis ke kontroler."
-        )
+    resolved_ip = (req.ip or "").strip()
+    resolved_port = int(req.port or 21)
+    try:
+        from ..database import get_db
+        from ..models.schema_pg import Machine
+        for db in get_db():
+            m_obj = db.query(Machine).filter(Machine.machine_no == mach_code).first()
+            if m_obj and m_obj.ip_address:
+                if not resolved_ip or (resolved_ip == "192.168.1.95" and mach_code not in ("DA01", "M_95")):
+                    resolved_ip = m_obj.ip_address.strip()
+                if m_obj.ftp_port:
+                    resolved_port = int(m_obj.ftp_port)
+            break
+    except Exception:
+        pass
+    if not resolved_ip:
+        raise HTTPException(status_code=400, detail=f"IP Address FTP untuk mesin '{mach_code}' tidak ditemukan.")
 
     ref_no = str(target_batch.get("reference_no", clean_ref)).zfill(6)
     prog_no = int(target_batch.get("program_no", 1))
     prg_name = f"M_{prog_no:04d}.PRG"
 
     try:
-        # Generate binary files in memory
+        # Generate binary files in memory (evaluasi formula parameter batch jika ada)
         prg_bytes = None
         try:
-            from .programs import get_compiled_prg_bytes
-            prg_bytes = get_compiled_prg_bytes(prog_no)
+            from .programs import get_compiled_prg_bytes, get_compiled_prg_bytes_for_batch
+            prg_bytes = get_compiled_prg_bytes_for_batch(prog_no, target_batch, machine_code=mach_code)
+            if not prg_bytes or len(prg_bytes) < 65:
+                prg_bytes = get_compiled_prg_bytes(prog_no, machine_code=mach_code)
         except Exception:
             pass
         if not prg_bytes or len(prg_bytes) < 65:
@@ -495,7 +509,7 @@ def dispatch_batch_via_ftp(req: FTPDispatchBatchRequest):
             program_title=target_batch.get("recipe_name", f"Prog {prog_no}")
         )
 
-        ftp = _get_ftp_connection(req.ip, req.port, req.username, req.password)
+        ftp = _get_ftp_connection(resolved_ip, resolved_port, req.username, req.password)
         try:
             ftp.set_pasv(True)
         except Exception:
@@ -1376,19 +1390,24 @@ def bulk_replace_machine_queue(req: FTPBulkReplaceQueueRequest):
     """
     Mengirim seluruh antrean aktif (QUEUED, WAITING_LA, RUNNING) untuk mesin ke HMI secara bulk.
     Mengunggah folder batch (BATCHREF.REF & M_xxxx.PRG) dan mereplace berkas QUEUE.BTD di kontroler.
-    PERINGATAN KESELAMATAN: Hanya diizinkan untuk mesin DA01!
+    Berlaku untuk seluruh mesin HMI (dilindungi 2x konfirmasi di UI).
     """
     clean_mach = req.machine_no.strip().upper()
-    if clean_mach != "DA01":
-        raise HTTPException(
-            status_code=403,
-            detail=f"Akses Ditolak: Penulisan antrean ke HMI untuk mesin '{clean_mach}' dinonaktifkan demi keselamatan operasional. Saat ini HANYA mesin DA01 yang diizinkan menulis ke kontroler."
-        )
 
     from ..database import get_db
-    from ..models.schema_pg import BatchHeader, MachineQueue
+    from ..models.schema_pg import BatchHeader, MachineQueue, Machine
     from ..utils.secom_codec import create_batchref_binary, build_minimal_prg, generate_queue_btd
-    from .programs import get_compiled_prg_bytes
+    from .programs import get_compiled_prg_bytes, get_compiled_prg_bytes_for_batch
+
+    # Resolve IP & port mesin dari database jika tidak diisi atau masih default DA01
+    for db in get_db():
+        m_obj = db.query(Machine).filter(Machine.machine_no == clean_mach).first()
+        if m_obj and m_obj.ip_address:
+            if not req.ip or (req.ip.strip() == "192.168.1.95" and clean_mach not in ("DA01", "M_95")):
+                req.ip = m_obj.ip_address.strip()
+            if m_obj.ftp_port:
+                req.port = int(m_obj.ftp_port)
+        break
 
     batches = []
     for db in get_db():
@@ -1496,9 +1515,13 @@ def bulk_replace_machine_queue(req: FTPBulkReplaceQueueRequest):
             )
 
             prg_bytes = None
-            if get_compiled_prg_bytes:
+            try:
+                prg_bytes = get_compiled_prg_bytes_for_batch(prog_no, b, machine_code=clean_mach)
+            except Exception:
+                pass
+            if (not prg_bytes or len(prg_bytes) < 65) and get_compiled_prg_bytes:
                 try:
-                    prg_bytes = get_compiled_prg_bytes(prog_no)
+                    prg_bytes = get_compiled_prg_bytes(prog_no, machine_code=clean_mach)
                 except Exception:
                     pass
             if not prg_bytes or len(prg_bytes) < 65:

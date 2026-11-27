@@ -16,6 +16,8 @@ import {
 } from 'lucide-react';
 import axios from 'axios';
 import { useToast } from '../../context/ToastContext';
+import BatchFormulaPreview from '../../components/Formulas/BatchFormulaPreview';
+import { FABRIC_TYPE_OPTIONS, COLOR_SHADE_OPTIONS, DYE_TYPE_OPTIONS } from '../../utils/formulaEval';
 
 const API_BASE = '/api/planning';
 
@@ -28,7 +30,7 @@ const STATUS_CONFIG = {
 };
 
 const KanbanView = () => {
-  const { toast, confirm } = useToast();
+  const { toast, confirm, confirmTwice } = useToast();
   const [compactDensity, setCompactDensity] = useState(false);
   const [batches, setBatches] = useState([]);
   const [machineList, setMachineList] = useState([]);
@@ -62,6 +64,13 @@ const KanbanView = () => {
     color_name: 'UNGU TUA',
     fabric_weight_kg: 350.0,
     liquor_ratio: 8.0,
+    fabric_length: 200.0,
+    fabric_type: 'COTTON',
+    color_shade: 'SEDANG',
+    fabric_gsm: 180,
+    dye_type: 'REACTIVE',
+    chamber_count: 1,
+    redye: 0,
     status: 'PLANNING'
   });
 
@@ -73,15 +82,8 @@ const KanbanView = () => {
   const [isDispatching, setIsDispatching] = useState(false);
   const [isBulkSending, setIsBulkSending] = useState(false);
 
-  // Bulk Send Antrean to HMI Controller (Khusus Mesin DA01 / M_95)
+  // Bulk Send Antrean to Any HMI Controller (dengan 2x Popup Konfirmasi)
   const handleBulkSendToHmi = async (machNo = 'DA01') => {
-    if (machNo !== 'DA01' && machNo !== 'M_95') {
-      toast.warning(`Pengiriman massal (bulk) ke HMI hanya diizinkan untuk Mesin DA01/M_95. Mesin ${machNo} dalam mode read-only.`, {
-        title: 'Peringatan Keamanan',
-      });
-      return;
-    }
-
     const queuedBatches = batches.filter(
       b => b.machine_no === machNo && (b.status === 'QUEUED' || b.status === 'WAITING_LA' || b.status === 'RUNNING')
     );
@@ -91,19 +93,24 @@ const KanbanView = () => {
       return;
     }
 
-    const confirmMsg = `Sistem akan mengompilasi ${queuedBatches.length} batch antrean ke berkas QUEUE.BTD dan mengunggahnya ke kontroler HMI mesin ${machNo}.\n\nApakah Anda yakin ingin mereplace antrean di HMI ${machNo} sekarang?`;
+    const machObj = machines.find(m => m.machine_no === machNo);
+    const targetIp = machObj?.ip_address || (machNo === 'DA01' || machNo === 'M_95' ? '192.168.1.95' : '172.16.110.100');
 
-    const ok = await confirm(confirmMsg, {
-      title: `Kirim Bulk ke HMI ${machNo}`,
-      confirmText: 'Ya, Kirim Antrean',
+    const approved = await confirmTwice({
+      title1: `Konfirmasi 1/2 — Kirim Bulk Antrean ke HMI ${machNo}`,
+      message1: `Sistem akan mengompilasi ${queuedBatches.length} batch antrean ke berkas QUEUE.BTD & folder batch, lalu mengunggahnya ke HMI Mesin ${machNo} (${targetIp}:21).\n\nPastikan urutan antrean sudah benar.`,
+      confirmText1: 'Lanjut ke Konfirmasi Akhir (1/2)',
+      title2: `⚠️ KONFIRMASI AKHIR (2/2) — Replace Antrean HMI ${machNo}`,
+      message2: `PERINGATAN: Tindakan ini akan MENIMPA (replace) antrean aktif QUEUE.BTD di kontroler produksi HMI Mesin ${machNo} (${targetIp}) dengan ${queuedBatches.length} batch.\n\nApakah Anda YAKIN 100% ingin mengirim sekarang?`,
+      confirmText2: `Ya, Kirim Antrean ke HMI ${machNo}`,
     });
-    if (!ok) return;
+    if (!approved) return;
 
     setIsBulkSending(true);
     try {
       const res = await axios.post('/api/ftp/bulk-replace-queue', {
         machine_no: machNo,
-        ip: '192.168.1.95',
+        ip: targetIp,
         port: 21
       });
       toast.success(res.data.message || `Berhasil mengirim ${queuedBatches.length} batch antrean ke HMI ${machNo}!`);
@@ -424,10 +431,19 @@ const KanbanView = () => {
 
   const handleExecuteDispatch = async () => {
     if (!batchToDispatch) return;
-    if (batchToDispatch.machine_no !== 'DA01' && batchToDispatch.machine_no !== 'M_95') {
-      toast.warning('Pengiriman FTP dibatasi HANYA untuk Mesin DA01/M_95.', { title: 'Peringatan Keamanan' });
-      return;
-    }
+    const machNo = batchToDispatch.machine_no;
+    const targetIp = dispatchIp.trim();
+
+    const approved = await confirmTwice({
+      title1: `Konfirmasi 1/2 — Kirim Batch ke HMI ${machNo}`,
+      message1: `Batch: ${batchToDispatch.batch_no} (Ref: ${batchToDispatch.reference_no})\nProgram: M_${String(batchToDispatch.program_no || 1).padStart(4, '0')}.PRG\nTarget HMI: Mesin ${machNo} (${targetIp}:21)\n\nPastikan mesin dan batch sudah benar.`,
+      confirmText1: 'Lanjut ke Konfirmasi Akhir (1/2)',
+      title2: `⚠️ KONFIRMASI AKHIR (2/2) — Tulis Batch ke HMI ${machNo}`,
+      message2: `PERINGATAN: File BATCHREF.REF & .PRG akan ditulis langsung ke kontroler HMI Mesin ${machNo} (${targetIp}).\n\nApakah Anda YAKIN 100% ingin mengirim batch ini sekarang?`,
+      confirmText2: `Ya, Kirim ke HMI ${machNo}`,
+    });
+    if (!approved) return;
+
     setIsDispatching(true);
     try {
       let targetDir = '/Network/F/OT/BATCH';
@@ -847,30 +863,19 @@ const KanbanView = () => {
 
                                       {/* Action Row */}
                                       <div className="pt-1.5 border-t border-stroke/50 dark:border-strokedark/50 flex items-center justify-between gap-1 mt-1.5">
-                                        {isDA01 ? (
-                                          <button
-                                            type="button"
-                                            onClick={() => {
-                                              setBatchToDispatch(item);
-                                              setDispatchIp('192.168.1.95');
-                                              setDispatchModel('network_ot');
-                                              setFtpDispatchModalOpen(true);
-                                            }}
-                                            className="px-2 py-0.5 rounded-md bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-[10px] font-bold border border-emerald-500/20 transition"
-                                            title="Kirim FTP DA01"
-                                          >
-                                            FTP
-                                          </button>
-                                        ) : (
-                                          <button
-                                            type="button"
-                                            onClick={() => handleStatusChange(item.id, 'PLANNING')}
-                                            className="px-2 py-0.5 rounded-md bg-purple-500/10 hover:bg-purple-500/20 text-purple-600 dark:text-purple-400 text-[10px] font-bold border border-purple-500/20 transition"
-                                            title="Kembalikan ke Planning"
-                                          >
-                                            Plan
-                                          </button>
-                                        )}
+                                        <button
+                                          type="button"
+                                          onClick={() => {
+                                            setBatchToDispatch(item);
+                                            setDispatchIp(m.ip_address || (isDA01 ? '192.168.1.95' : '172.16.110.100'));
+                                            setDispatchModel('network_ot');
+                                            setFtpDispatchModalOpen(true);
+                                          }}
+                                          className="px-2 py-0.5 rounded-md bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-[10px] font-bold border border-emerald-500/20 transition"
+                                          title={`Kirim FTP ke HMI ${machNo} (2x Konfirmasi)`}
+                                        >
+                                          FTP
+                                        </button>
 
                                         <div className="flex items-center gap-1">
                                           <button
@@ -928,24 +933,18 @@ const KanbanView = () => {
                         </div>
                       </div>
 
-                      {/* Tombol aksi mesin di ujung kanan */}
+                      {/* Tombol aksi mesin di ujung kanan (Semua HMI — dengan 2x Konfirmasi) */}
                       <div className="w-full mt-2 pt-2 border-t border-stroke/50 dark:border-strokedark/50 space-y-1.5">
-                        {isDA01 ? (
-                          <button
-                            type="button"
-                            onClick={() => handleBulkSendToHmi(machNo)}
-                            disabled={isBulkSending || items.length === 0}
-                            className="w-full flex items-center justify-center gap-1 py-1 px-2 rounded-md bg-emerald-600 hover:bg-emerald-500 disabled:opacity-40 text-white text-[11px] font-bold shadow-xs transition leading-none"
-                            title="Kirim bulk antrean ke HMI"
-                          >
-                            <Send className={`h-3 w-3 ${isBulkSending ? 'animate-spin' : ''}`} />
-                            <span>Kirim HMI</span>
-                          </button>
-                        ) : (
-                          <div className="text-[10px] text-gray-400 font-mono text-center leading-none py-0.5">
-                            Read-Only
-                          </div>
-                        )}
+                        <button
+                          type="button"
+                          onClick={() => handleBulkSendToHmi(machNo)}
+                          disabled={isBulkSending || items.length === 0}
+                          className="w-full flex items-center justify-center gap-1 py-1 px-2 rounded-md bg-emerald-600 hover:bg-emerald-500 disabled:opacity-40 text-white text-[11px] font-bold shadow-xs transition leading-none"
+                          title={`Kirim bulk antrean ke HMI ${machNo} (2x Konfirmasi)`}
+                        >
+                          <Send className={`h-3 w-3 ${isBulkSending ? 'animate-spin' : ''}`} />
+                          <span>Kirim HMI</span>
+                        </button>
 
                         <button
                           type="button"
@@ -1133,6 +1132,76 @@ const KanbanView = () => {
                   </div>
                 </div>
               </div>
+
+              <div className="grid grid-cols-3 gap-2 p-1.5 rounded bg-indigo-50/40 dark:bg-indigo-950/15 border border-indigo-200/70 dark:border-indigo-800/40 text-[9px]">
+                <div>
+                  <label className="block text-gray-500 mb-0.5">Jenis Kain</label>
+                  <select
+                    value={form.fabric_type}
+                    onChange={(e) => setForm({ ...form, fabric_type: e.target.value })}
+                    className="w-full rounded border border-stroke px-1 py-0.5 text-[11px] font-bold dark:border-strokedark dark:bg-boxdark"
+                  >
+                    {FABRIC_TYPE_OPTIONS.map((ft) => (
+                      <option key={ft} value={ft}>{ft}</option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-gray-500 mb-0.5">Shade Warna</label>
+                  <select
+                    value={form.color_shade}
+                    onChange={(e) => setForm({ ...form, color_shade: e.target.value })}
+                    className="w-full rounded border border-stroke px-1 py-0.5 text-[11px] font-bold dark:border-strokedark dark:bg-boxdark"
+                  >
+                    {COLOR_SHADE_OPTIONS.map((sh) => (
+                      <option key={sh} value={sh}>{sh}</option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-gray-500 mb-0.5">Zat Warna</label>
+                  <select
+                    value={form.dye_type}
+                    onChange={(e) => setForm({ ...form, dye_type: e.target.value })}
+                    className="w-full rounded border border-stroke px-1 py-0.5 text-[11px] dark:border-strokedark dark:bg-boxdark"
+                  >
+                    {DYE_TYPE_OPTIONS.map((dt) => (
+                      <option key={dt} value={dt}>{dt}</option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-gray-500 mb-0.5">Gramasi (GSM)</label>
+                  <input
+                    type="number"
+                    value={form.fabric_gsm}
+                    onChange={(e) => setForm({ ...form, fabric_gsm: Number(e.target.value) })}
+                    className="w-full rounded border border-stroke px-1 py-0.5 text-[11px] font-mono dark:border-strokedark dark:bg-boxdark"
+                  />
+                </div>
+                <div>
+                  <label className="block text-gray-500 mb-0.5">Panjang (m)</label>
+                  <input
+                    type="number"
+                    value={form.fabric_length}
+                    onChange={(e) => setForm({ ...form, fabric_length: Number(e.target.value) })}
+                    className="w-full rounded border border-stroke px-1 py-0.5 text-[11px] font-mono dark:border-strokedark dark:bg-boxdark"
+                  />
+                </div>
+                <div>
+                  <label className="block text-gray-500 mb-0.5">Redye</label>
+                  <select
+                    value={form.redye}
+                    onChange={(e) => setForm({ ...form, redye: Number(e.target.value) })}
+                    className="w-full rounded border border-stroke px-1 py-0.5 text-[11px] dark:border-strokedark dark:bg-boxdark"
+                  >
+                    <option value={0}>Normal (0)</option>
+                    <option value={1}>Redye (1)</option>
+                  </select>
+                </div>
+              </div>
+
+              <BatchFormulaPreview form={form} />
 
               <div className="flex items-center justify-end gap-1.5 pt-1.5 border-t border-stroke dark:border-strokedark">
                 <button

@@ -47,12 +47,18 @@ def ensure_batch_header_columns(target_engine, is_postgres: bool = True):
                 ("procedure_no", "VARCHAR(255)"),
                 ("total_water_l", "NUMERIC(12, 2)"),
                 ("fabric_length", "NUMERIC(10, 2) DEFAULT 200.0"),
+                ("fabric_type", "VARCHAR(50)"),
+                ("color_shade", "VARCHAR(30)"),
+                ("fabric_gsm", "NUMERIC(8, 2)"),
+                ("dye_type", "VARCHAR(50)"),
+                ("chamber_count", "INT"),
                 ("import_state", "INT DEFAULT 0"),
                 ("note1", "TEXT"),
                 ("type_of_procedure_no", "INT DEFAULT 1"),
                 ("process_type_1", "INT DEFAULT 1"),
                 ("process_type_2", "INT DEFAULT 1"),
                 ("parameters_json", "TEXT"),
+                ("resolved_formula_params_json", "TEXT"),
                 ("position", "INT DEFAULT 1")
             ]
             for col_name, col_type in needed:
@@ -215,6 +221,67 @@ def ensure_iw_tables(target_engine, is_postgres: bool = True):
         logger.warning(f"ensure_iw_tables notice: {e}")
 
 
+def ensure_formula_tables(target_engine, is_postgres: bool = True):
+    """
+    Memastikan tabel parameter_formulas, formula_machine_groups, dan kolom
+    formula_id / formula_output_key pada step_function_parameters tersedia di PostgreSQL.
+    """
+    try:
+        with target_engine.connect() as conn:
+            conn.execute(text("""
+                CREATE TABLE IF NOT EXISTS public.parameter_formulas (
+                    id BIGSERIAL PRIMARY KEY,
+                    code VARCHAR(60) NOT NULL UNIQUE,
+                    name VARCHAR(180) NOT NULL,
+                    description TEXT,
+                    formula_type VARCHAR(30) NOT NULL DEFAULT 'MATH',
+                    output_mode VARCHAR(20) NOT NULL DEFAULT 'SINGLE',
+                    target_function_id INT,
+                    target_function_name VARCHAR(120),
+                    outputs_json TEXT,
+                    definition_json TEXT NOT NULL,
+                    unit VARCHAR(30) DEFAULT '',
+                    decimal_places INT DEFAULT 1,
+                    min_value NUMERIC(12, 4),
+                    max_value NUMERIC(12, 4),
+                    default_fallback NUMERIC(12, 4) DEFAULT 0.0,
+                    apply_all_groups BOOLEAN DEFAULT FALSE,
+                    is_active BOOLEAN DEFAULT TRUE,
+                    created_at TIMESTAMPTZ DEFAULT NOW(),
+                    updated_at TIMESTAMPTZ DEFAULT NOW()
+                );
+                CREATE TABLE IF NOT EXISTS public.formula_machine_groups (
+                    id BIGSERIAL PRIMARY KEY,
+                    formula_id BIGINT NOT NULL REFERENCES public.parameter_formulas(id) ON DELETE CASCADE,
+                    machine_group_name VARCHAR(100) NOT NULL,
+                    deployed_at TIMESTAMPTZ DEFAULT NOW(),
+                    CONSTRAINT uq_formula_machine_group UNIQUE (formula_id, machine_group_name)
+                );
+                CREATE INDEX IF NOT EXISTS idx_fmg_formula_id ON public.formula_machine_groups(formula_id);
+                CREATE INDEX IF NOT EXISTS idx_fmg_group_name ON public.formula_machine_groups(machine_group_name);
+                CREATE TABLE IF NOT EXISTS public.formula_machines (
+                    id BIGSERIAL PRIMARY KEY,
+                    formula_id BIGINT NOT NULL REFERENCES public.parameter_formulas(id) ON DELETE CASCADE,
+                    machine_no VARCHAR(50) NOT NULL,
+                    deployed_at TIMESTAMPTZ DEFAULT NOW(),
+                    CONSTRAINT uq_formula_machine UNIQUE (formula_id, machine_no)
+                );
+                CREATE INDEX IF NOT EXISTS idx_fm_formula_id ON public.formula_machines(formula_id);
+                CREATE INDEX IF NOT EXISTS idx_fm_machine_no ON public.formula_machines(machine_no);
+            """))
+            conn.execute(text(
+                "ALTER TABLE public.step_function_parameters "
+                "ADD COLUMN IF NOT EXISTS formula_id BIGINT REFERENCES public.parameter_formulas(id) ON DELETE SET NULL;"
+            ))
+            conn.execute(text(
+                "ALTER TABLE public.step_function_parameters "
+                "ADD COLUMN IF NOT EXISTS formula_output_key VARCHAR(100);"
+            ))
+            conn.commit()
+    except Exception as e:
+        logger.warning(f"ensure_formula_tables notice: {e}")
+
+
 def ensure_program_uniqueness(target_engine, is_postgres: bool = True):
     """
     Ensures no duplicate program_components exist within the same machine
@@ -288,6 +355,7 @@ def init_db(retries=1, delay=1):
     ensure_essential_machines(engine, is_postgres=True)
     ensure_queue_tables(engine, is_postgres=True)
     ensure_iw_tables(engine, is_postgres=True)
+    ensure_formula_tables(engine, is_postgres=True)
     ensure_program_uniqueness(engine, is_postgres=True)
 
 

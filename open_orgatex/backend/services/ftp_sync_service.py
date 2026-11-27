@@ -25,7 +25,7 @@ from ..utils.secom_codec import (
     build_minimal_prg,
     generate_queue_btd
 )
-from ..routes.programs import get_compiled_prg_bytes
+from ..routes.programs import get_compiled_prg_bytes, get_compiled_prg_bytes_for_batch
 
 logger = logging.getLogger("sync_ftp_batches")
 
@@ -216,12 +216,32 @@ def sync_all_batches_to_ftp(ftp_host: str = FTP_HOST, ftp_port: int = FTP_PORT) 
             custom_params=custom_params
         )
 
-        # Ambil binary program M_xxxx.PRG
+        # Ambil binary program M_xxxx.PRG (evaluasi formula berdasarkan input batch)
         prg_bytes = None
         try:
-            prg_bytes = get_compiled_prg_bytes(prog_no)
+            b_ctx = {
+                "machine_no": mach_no,
+                "fabric_weight_kg": float(b.fabric_weight_kg or 350.0),
+                "liquor_ratio": float(b.liquor_ratio or 8.0),
+                "total_water_l": float(b.total_water_l) if b.total_water_l is not None else None,
+                "fabric_length": float(b.fabric_length) if getattr(b, "fabric_length", None) is not None else 200.0,
+                "fabric_type": getattr(b, "fabric_type", None) or "",
+                "color_shade": getattr(b, "color_shade", None) or "",
+                "fabric_gsm": float(b.fabric_gsm) if getattr(b, "fabric_gsm", None) is not None else 180.0,
+                "dye_type": getattr(b, "dye_type", None) or "",
+                "chamber_count": getattr(b, "chamber_count", None) or 1,
+                "redye": getattr(b, "redye", 0) or 0,
+                "article": b.article or "",
+                "color_name": b.color_name or "",
+                "color_code": b.color_code or "",
+                "customer": b.customer or "",
+            }
+            prg_bytes = get_compiled_prg_bytes_for_batch(prog_no, b_ctx, db=db, machine_code=mach_no)
         except Exception:
-            pass
+            try:
+                prg_bytes = get_compiled_prg_bytes(prog_no)
+            except Exception:
+                pass
         if not prg_bytes or len(prg_bytes) < 65:
             prg_bytes = build_minimal_prg(prog_no, recipe_title)
 
@@ -433,12 +453,32 @@ def sync_single_batch_to_ftp(
         custom_params=custom_params
     )
 
-    # 2. Ambil binary program M_xxxx.PRG
+    # 2. Ambil binary program M_xxxx.PRG (evaluasi formula berdasarkan input batch)
     prg_bytes = None
     try:
-        prg_bytes = get_compiled_prg_bytes(prog_no)
+        tb_ctx = {
+            "machine_no": mach_no,
+            "fabric_weight_kg": float(target_batch.fabric_weight_kg or 350.0),
+            "liquor_ratio": float(target_batch.liquor_ratio or 8.0),
+            "total_water_l": float(target_batch.total_water_l) if target_batch.total_water_l is not None else None,
+            "fabric_length": float(target_batch.fabric_length) if getattr(target_batch, "fabric_length", None) is not None else 200.0,
+            "fabric_type": getattr(target_batch, "fabric_type", None) or "",
+            "color_shade": getattr(target_batch, "color_shade", None) or "",
+            "fabric_gsm": float(target_batch.fabric_gsm) if getattr(target_batch, "fabric_gsm", None) is not None else 180.0,
+            "dye_type": getattr(target_batch, "dye_type", None) or "",
+            "chamber_count": getattr(target_batch, "chamber_count", None) or 1,
+            "redye": getattr(target_batch, "redye", 0) or 0,
+            "article": target_batch.article or "",
+            "color_name": target_batch.color_name or "",
+            "color_code": target_batch.color_code or "",
+            "customer": target_batch.customer or "",
+        }
+        prg_bytes = get_compiled_prg_bytes_for_batch(prog_no, tb_ctx, db=db, machine_code=mach_no)
     except Exception:
-        pass
+        try:
+            prg_bytes = get_compiled_prg_bytes(prog_no)
+        except Exception:
+            pass
     if not prg_bytes or len(prg_bytes) < 65:
         prg_bytes = build_minimal_prg(prog_no, recipe_title)
 

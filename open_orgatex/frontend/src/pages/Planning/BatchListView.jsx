@@ -23,6 +23,8 @@ import {
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '../../context/ToastContext';
+import BatchFormulaPreview from '../../components/Formulas/BatchFormulaPreview';
+import { FABRIC_TYPE_OPTIONS, COLOR_SHADE_OPTIONS, DYE_TYPE_OPTIONS } from '../../utils/formulaEval';
 
 const API_BASE = '/api/planning';
 
@@ -37,7 +39,7 @@ const STATUS_CONFIG = {
 
 const BatchListView = () => {
   const navigate = useNavigate();
-  const { toast, confirm } = useToast();
+  const { toast, confirm, confirmTwice } = useToast();
   const [batches, setBatches] = useState([]);
   const [machineList, setMachineList] = useState([]);
   const [programList, setProgramList] = useState([]);
@@ -62,6 +64,13 @@ const BatchListView = () => {
     color_name: 'UNGU TUA',
     fabric_weight_kg: 350.0,
     liquor_ratio: 8.0,
+    fabric_length: 200.0,
+    fabric_type: 'COTTON',
+    color_shade: 'SEDANG',
+    fabric_gsm: 180,
+    dye_type: 'REACTIVE',
+    chamber_count: 1,
+    redye: 0,
     status: 'PLANNING'
   });
 
@@ -78,8 +87,18 @@ const BatchListView = () => {
   const [isDispatching, setIsDispatching] = useState(false);
   const [isSyncingFTP, setIsSyncingFTP] = useState(false);
 
-  // Sync All Batch Folders to FTP Controller (192.168.1.95)
+  // Sync All Batch Folders to FTP Controller (2x Konfirmasi)
   const handleSyncAllBatchFoldersToFTP = async () => {
+    const approved = await confirmTwice({
+      title1: 'Konfirmasi 1/2 — Sinkronisasi Semua Folder Batch ke FTP',
+      message1: 'Sistem akan menyinkronkan seluruh folder batch aktif (BATCHREF.REF & M_xxxx.PRG) ke kontroler FTP.\n\nLanjutkan ke konfirmasi akhir?',
+      confirmText1: 'Lanjut ke Konfirmasi Akhir (1/2)',
+      title2: '⚠️ KONFIRMASI AKHIR (2/2) — Sinkronisasi FTP',
+      message2: 'PERINGATAN: Operasi ini akan menulis folder batch langsung ke kontroler FTP HMI.\n\nApakah Anda YAKIN ingin melanjutkan?',
+      confirmText2: 'Ya, Sinkronkan Sekarang',
+    });
+    if (!approved) return;
+
     setIsSyncingFTP(true);
     try {
       const res = await axios.post('/api/ftp/sync-all-batch-folders');
@@ -244,15 +263,22 @@ const BatchListView = () => {
     window.open(`${API_BASE}/export-zip/${batchId}`, '_blank');
   };
 
-  // Dispatch Batch Directly to Controller via FTP
+  // Dispatch Batch Directly to Any HMI Controller via FTP (dengan 2x Popup Konfirmasi)
   const handleExecuteDispatch = async () => {
     if (!batchToDispatch) return;
-    if (batchToDispatch.machine_no !== 'DA01') {
-      toast.warning(`Pengiriman FTP dibatasi HANYA untuk Mesin DA01. Mesin ${batchToDispatch.machine_no} dalam mode Read-Only.`, {
-        title: 'Peringatan Keamanan',
-      });
-      return;
-    }
+    const machNo = batchToDispatch.machine_no;
+    const targetIp = dispatchIp.trim();
+
+    const approved = await confirmTwice({
+      title1: `Konfirmasi 1/2 — Kirim Batch ke HMI ${machNo}`,
+      message1: `Batch: ${batchToDispatch.batch_no} (Ref: ${batchToDispatch.reference_no})\nProgram: M_${String(batchToDispatch.program_no || 1).padStart(4, '0')}.PRG (${batchToDispatch.recipe_name})\nTarget HMI: Mesin ${machNo} (${targetIp}:21)\n\nPastikan data batch & mesin tujuan sudah benar.`,
+      confirmText1: 'Lanjut ke Konfirmasi Akhir (1/2)',
+      title2: `⚠️ KONFIRMASI AKHIR (2/2) — Tulis Batch ke HMI ${machNo}`,
+      message2: `PERINGATAN: File BATCHREF.REF dan M_${String(batchToDispatch.program_no || 1).padStart(4, '0')}.PRG akan ditulis langsung ke kontroler HMI Mesin ${machNo} (${targetIp}).\n\nApakah Anda YAKIN 100% ingin mengirim batch ini sekarang?`,
+      confirmText2: `Ya, Kirim ke HMI ${machNo}`,
+    });
+    if (!approved) return;
+
     setIsDispatching(true);
     try {
       let targetDir = '/Network/F/OT/BATCH';
@@ -518,28 +544,24 @@ const BatchListView = () => {
                       {/* Aksi */}
                       <td className="py-2.5 px-3 text-center">
                         <div className="flex items-center justify-center gap-1">
-                          {/* Send via FTP (DA01 only) */}
-                          {b.machine_no === 'DA01' ? (
-                            <button
-                              onClick={() => {
-                                setBatchToDispatch(b);
-                                setDispatchIp('192.168.1.95');
-                                setDispatchModel('network_ot');
-                                setFtpDispatchModalOpen(true);
-                              }}
-                              className="p-1.5 text-gray-500 hover:text-emerald-600 hover:bg-gray-100 dark:text-gray-300 dark:hover:text-emerald-400 dark:hover:bg-meta-4 rounded transition"
-                              title="Kirim ke Controller DA01 via FTP (Port 21)"
-                            >
-                              <Send className="h-4 w-4" />
-                            </button>
-                          ) : (
-                            <span 
-                              className="p-1.5 text-gray-400 dark:text-gray-600 cursor-not-allowed" 
-                              title={`Terkunci: Pengiriman FTP dibatasi hanya untuk Mesin DA01. Mesin ${b.machine_no} dalam mode Read-Only.`}
-                            >
-                              <Lock className="h-4 w-4" />
-                            </span>
-                          )}
+                          {/* Send via FTP (Semua Mesin HMI — dengan 2x Konfirmasi) */}
+                          <button
+                            onClick={() => {
+                              const mObj = machineList.find(m => m.machine_no === b.machine_no);
+                              setBatchToDispatch(b);
+                              setDispatchIp(mObj?.ip_address || (b.machine_no === 'DA01' || b.machine_no === 'M_95' ? '192.168.1.95' : '172.16.110.100'));
+                              setDispatchModel(
+                                b.machine_no === 'DA01' || b.machine_no === 'M_95' || (mObj?.controller_type || '').includes('797')
+                                  ? 'network_ot'
+                                  : 'network_ot'
+                              );
+                              setFtpDispatchModalOpen(true);
+                            }}
+                            className="p-1.5 text-gray-500 hover:text-emerald-600 hover:bg-gray-100 dark:text-gray-300 dark:hover:text-emerald-400 dark:hover:bg-meta-4 rounded transition"
+                            title={`Kirim Batch ke HMI Mesin ${b.machine_no} via FTP (2x Konfirmasi)`}
+                          >
+                            <Send className="h-4 w-4" />
+                          </button>
 
                           {/* Download ZIP */}
                           <button
@@ -805,6 +827,80 @@ const BatchListView = () => {
                   />
                 </div>
               </div>
+
+              {/* PARAMETER KAIN & PROSES (UNTUK FORMULA OTOMATIS) */}
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 bg-indigo-50/40 dark:bg-indigo-950/15 p-3 rounded border border-indigo-200/70 dark:border-indigo-800/40">
+                <div>
+                  <label className="block text-gray-700 dark:text-gray-300 font-medium mb-1">Jenis Kain / Serat:</label>
+                  <select
+                    value={form.fabric_type}
+                    onChange={(e) => setForm({ ...form, fabric_type: e.target.value })}
+                    className="w-full bg-white dark:bg-slate-900 border border-stroke dark:border-gray-700 text-black dark:text-white px-2.5 py-2 rounded font-bold outline-none focus:border-primary"
+                  >
+                    {FABRIC_TYPE_OPTIONS.map((ft) => (
+                      <option key={ft} value={ft}>{ft}</option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-gray-700 dark:text-gray-300 font-medium mb-1">Kedalaman Warna (Shade):</label>
+                  <select
+                    value={form.color_shade}
+                    onChange={(e) => setForm({ ...form, color_shade: e.target.value })}
+                    className="w-full bg-white dark:bg-slate-900 border border-stroke dark:border-gray-700 text-black dark:text-white px-2.5 py-2 rounded font-bold outline-none focus:border-primary"
+                  >
+                    {COLOR_SHADE_OPTIONS.map((sh) => (
+                      <option key={sh} value={sh}>{sh}</option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-gray-700 dark:text-gray-300 font-medium mb-1">Jenis Zat Warna:</label>
+                  <select
+                    value={form.dye_type}
+                    onChange={(e) => setForm({ ...form, dye_type: e.target.value })}
+                    className="w-full bg-white dark:bg-slate-900 border border-stroke dark:border-gray-700 text-black dark:text-white px-2.5 py-2 rounded outline-none focus:border-primary"
+                  >
+                    {DYE_TYPE_OPTIONS.map((dt) => (
+                      <option key={dt} value={dt}>{dt}</option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-gray-700 dark:text-gray-300 font-medium mb-1">Gramasi Kain (GSM):</label>
+                  <input
+                    type="number"
+                    step="1"
+                    value={form.fabric_gsm}
+                    onChange={(e) => setForm({ ...form, fabric_gsm: parseFloat(e.target.value) || 0 })}
+                    className="w-full bg-white dark:bg-slate-900 border border-stroke dark:border-gray-700 text-black dark:text-white px-2.5 py-1.5 rounded font-mono"
+                  />
+                </div>
+                <div>
+                  <label className="block text-gray-700 dark:text-gray-300 font-medium mb-1">Panjang Kain (m):</label>
+                  <input
+                    type="number"
+                    step="1"
+                    value={form.fabric_length}
+                    onChange={(e) => setForm({ ...form, fabric_length: parseFloat(e.target.value) || 0 })}
+                    className="w-full bg-white dark:bg-slate-900 border border-stroke dark:border-gray-700 text-black dark:text-white px-2.5 py-1.5 rounded font-mono"
+                  />
+                </div>
+                <div>
+                  <label className="block text-gray-700 dark:text-gray-300 font-medium mb-1">Status Proses:</label>
+                  <select
+                    value={form.redye}
+                    onChange={(e) => setForm({ ...form, redye: parseInt(e.target.value, 10) || 0 })}
+                    className="w-full bg-white dark:bg-slate-900 border border-stroke dark:border-gray-700 text-black dark:text-white px-2.5 py-1.5 rounded outline-none focus:border-primary"
+                  >
+                    <option value={0}>Normal (0)</option>
+                    <option value={1}>Redye / Celup Ulang (1)</option>
+                  </select>
+                </div>
+              </div>
+
+              {/* LIVE PREVIEW PARAMETER FORMULA */}
+              <BatchFormulaPreview form={form} />
 
               <div>
                 <label className="block text-gray-700 dark:text-gray-300 font-medium mb-1">Tahap Masuk Awal (Status):</label>

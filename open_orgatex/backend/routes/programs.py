@@ -76,6 +76,7 @@ class StepFunctionIn(BaseModel):
     column: Optional[int] = 1
     flags: Optional[int] = 0
     params: Optional[List[float]] = []
+    param_formulas: Optional[Dict[str, Any]] = {}
 
 class StepIn(BaseModel):
     step_no: int
@@ -928,11 +929,19 @@ def get_program(program_no: int, machine_code: Optional[str] = None, db: Session
                         fns = []
                         for fn in sorted(s.functions, key=lambda x: x.resource_number):
                             p_vals = [float(pv.value) for pv in fn.parameters]
+                            p_forms = {}
+                            for p_idx, pv in enumerate(fn.parameters):
+                                if getattr(pv, "formula_id", None):
+                                    p_forms[str(p_idx)] = {
+                                        "formula_id": int(pv.formula_id),
+                                        "output_key": getattr(pv, "formula_output_key", None)
+                                    }
                             fns.append({
                                 "function_id": fn.function_number,
                                 "name": fn.function_name,
                                 "column": fn.resource_number,
-                                "params": p_vals
+                                "params": p_vals,
+                                "param_formulas": p_forms
                             })
                         step_dict = {
                             "step_no": st_counter,
@@ -968,7 +977,15 @@ def get_program(program_no: int, machine_code: Optional[str] = None, db: Session
                                 "function_id": fn.function_number,
                                 "name": fn.function_name,
                                 "column": fn.resource_number,
-                                "params": [float(pv.value) for pv in fn.parameters]
+                                "params": [float(pv.value) for pv in fn.parameters],
+                                "param_formulas": {
+                                    str(p_idx): {
+                                        "formula_id": int(pv.formula_id),
+                                        "output_key": getattr(pv, "formula_output_key", None)
+                                    }
+                                    for p_idx, pv in enumerate(fn.parameters)
+                                    if getattr(pv, "formula_id", None)
+                                }
                             } for fn in s.functions
                         ]
                     } for s in p.steps
@@ -1224,11 +1241,22 @@ def save_program(p: ProcedureIn, db: Session = Depends(get_db)):
                     db.add(new_fn)
                     db.flush()
 
+                    pf_map = fn.param_formulas or {}
                     for idx, val in enumerate(fn.params or []):
+                        binding = pf_map.get(str(idx))
+                        f_id = None
+                        f_out_key = None
+                        if isinstance(binding, dict) and binding.get("formula_id"):
+                            f_id = int(binding["formula_id"])
+                            f_out_key = binding.get("output_key") or None
+                        elif isinstance(binding, int):
+                            f_id = binding
                         new_p = StepFunctionParameter(
                             step_function_id=new_fn.id,
                             function_parameter_number=idx + 1,
-                            value=val
+                            value=val,
+                            formula_id=f_id,
+                            formula_output_key=f_out_key
                         )
                         db.add(new_p)
 
@@ -1348,6 +1376,61 @@ def get_compiled_prg_bytes(program_no: int, db: Optional[Session] = None, machin
     except Exception:
         pass
     return fallback
+
+
+def get_compiled_prg_bytes_for_batch(
+    program_no: int,
+    batch_dict: Dict[str, Any],
+    db: Optional[Session] = None,
+    machine_code: Optional[str] = None
+) -> bytes:
+    """
+    Compiles a batch-specific SETEX .PRG binary by evaluating any StepFunctionParameter
+    formulas (`param_formulas`) against the batch's inputs.
+    Falls back seamlessly to `get_compiled_prg_bytes(...)` if the program has no formulas.
+    """
+    from ..database import SessionLocal
+    from ..services.formula_engine import build_batch_context, resolve_program_steps_for_batch
+    from .formulas import load_formula_map
+
+    owns_session = False
+    sess = db
+    if sess is None and SessionLocal is not None:
+        sess = SessionLocal()
+        owns_session = True
+
+    try:
+        clean_m = _norm_machine(machine_code or batch_dict.get("machine_no") or "") or None
+        prg_data = get_program(int(program_no), machine_code=clean_m, db=sess)
+        steps = prg_data.get("steps") or []
+
+        needed_ids = set()
+        for st in steps:
+            for fn in st.get("functions") or []:
+                for binding in (fn.get("param_formulas") or {}).values():
+                    if isinstance(binding, dict) and binding.get("formula_id"):
+                        needed_ids.add(int(binding["formula_id"]))
+                    elif isinstance(binding, int):
+                        needed_ids.add(binding)
+
+        if needed_ids and sess is not None:
+            mach_cap = None
+            if clean_m:
+                m_obj = sess.query(Machine).filter(Machine.machine_no == clean_m).first()
+                if m_obj and m_obj.capacity_kg is not None:
+                    mach_cap = float(m_obj.capacity_kg)
+            ctx = build_batch_context(batch_dict, machine_capacity_kg=mach_cap)
+            f_map = load_formula_map(sess, list(needed_ids))
+            resolved_steps, _ = resolve_program_steps_for_batch(steps, f_map, ctx)
+            title = prg_data.get("program_name", f"PRG {program_no}")
+            return serialize_prg_binary(int(program_no), title, resolved_steps)
+    except Exception:
+        pass
+    finally:
+        if owns_session and sess is not None:
+            sess.close()
+
+    return get_compiled_prg_bytes(int(program_no), db=db, machine_code=machine_code)
 
 
 @router.post("/compile/{program_no}")

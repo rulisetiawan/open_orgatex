@@ -94,6 +94,41 @@ export function ToastProvider({ children }) {
     });
   }, []);
 
+  /**
+   * Pengaman 2x Popup Konfirmasi berurutan (Popup 1/2 -> jeda singkat -> Popup 2/2).
+   * Digunakan sebelum menulis resep/program atau batch langsung ke kontroler HMI.
+   */
+  const confirmTwice = useCallback(
+    async ({
+      title1 = 'Konfirmasi 1/2 — Kirim ke HMI',
+      message1 = '',
+      confirmText1 = 'Lanjut ke Konfirmasi Akhir (1/2)',
+      title2 = '⚠️ KONFIRMASI AKHIR (2/2) — Tulis ke HMI',
+      message2 = '',
+      confirmText2 = 'Ya, Kirim Sekarang ke HMI',
+    }) => {
+      const ok1 = await confirm(message1, {
+        title: title1,
+        confirmText: confirmText1,
+        cancelText: 'Batal',
+        danger: false,
+      });
+      if (!ok1) return false;
+
+      // Jeda singkat agar dialog pertama benar-benar tertutup lalu popup kedua muncul jelas
+      await new Promise((r) => setTimeout(r, 90));
+
+      const ok2 = await confirm(message2, {
+        title: title2,
+        confirmText: confirmText2,
+        cancelText: 'Batal',
+        danger: true,
+      });
+      return Boolean(ok2);
+    },
+    [confirm]
+  );
+
   useEffect(() => {
     const dlg = dialogRef.current;
     if (!dlg) return;
@@ -119,7 +154,7 @@ export function ToastProvider({ children }) {
   }, []);
 
   return (
-    <ToastContext.Provider value={{ toast, confirm, dismiss }}>
+    <ToastContext.Provider value={{ toast, confirm, confirmTwice, dismiss }}>
       {children}
 
       {/* Global Toast Viewport (Top-right, non-blocking, accessible) */}

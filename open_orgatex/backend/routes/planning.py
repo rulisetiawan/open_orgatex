@@ -39,9 +39,11 @@ except (ImportError, ValueError):
     )
 
 try:
-    from .programs import get_compiled_prg_bytes
+    from .programs import get_compiled_prg_bytes, get_compiled_prg_bytes_for_batch, get_program
 except Exception:
     get_compiled_prg_bytes = None
+    get_compiled_prg_bytes_for_batch = None
+    get_program = None
 
 router = APIRouter(prefix="/api/planning", tags=["Planning"])
 
@@ -60,6 +62,13 @@ class CreateBatchRequest(BaseModel):
     color_name: Optional[str] = "UNGU TUA"
     fabric_weight_kg: float = 350.0
     liquor_ratio: float = 8.0
+    fabric_length: Optional[float] = 200.0
+    fabric_type: Optional[str] = "COTTON"
+    color_shade: Optional[str] = "SEDANG"
+    fabric_gsm: Optional[float] = 180.0
+    dye_type: Optional[str] = "REACTIVE"
+    chamber_count: Optional[int] = 1
+    redye: Optional[int] = 0
     reference_no: Optional[str] = None
     status: str = "PLANNING"
 
@@ -103,6 +112,13 @@ def _batch_to_dict(b: BatchHeader, position: Optional[int] = None) -> Dict[str, 
         except Exception:
             color_hex = None
 
+    resolved_formula_params: List[Dict[str, Any]] = []
+    if getattr(b, "resolved_formula_params_json", None):
+        try:
+            resolved_formula_params = json.loads(b.resolved_formula_params_json)
+        except Exception:
+            resolved_formula_params = []
+
     return {
         "id": f"b-{b.batch_ref_no}",
         "db_id": b.id,
@@ -123,12 +139,18 @@ def _batch_to_dict(b: BatchHeader, position: Optional[int] = None) -> Dict[str, 
         "liquor_ratio": lr,
         "total_water_l": water,
         "fabric_length": float(b.fabric_length) if getattr(b, "fabric_length", None) is not None else 200.0,
+        "fabric_type": getattr(b, "fabric_type", None) or "",
+        "color_shade": getattr(b, "color_shade", None) or "",
+        "fabric_gsm": float(b.fabric_gsm) if getattr(b, "fabric_gsm", None) is not None else None,
+        "dye_type": getattr(b, "dye_type", None) or "",
+        "chamber_count": getattr(b, "chamber_count", None) or 1,
         "import_state": getattr(b, "import_state", 0) or 0,
         "note1": getattr(b, "note1", None),
         "type_of_procedure_no": getattr(b, "type_of_procedure_no", 1) or 1,
         "process_type_1": getattr(b, "process_type_1", 1) or 1,
         "process_type_2": getattr(b, "process_type_2", 1) or 1,
         "parameters": params_dict,
+        "resolved_formula_params": resolved_formula_params,
         "status": b.status or "QUEUED",
         "position": pos,
         "created_at": created_str
@@ -200,7 +222,12 @@ def sync_local_queue_files(batches_list: List[Dict[str, Any]]):
                     pass
 
                 prg_bytes = None
-                if get_compiled_prg_bytes:
+                if get_compiled_prg_bytes_for_batch:
+                    try:
+                        prg_bytes = get_compiled_prg_bytes_for_batch(prog_no, b, machine_code=mach)
+                    except Exception:
+                        pass
+                if not prg_bytes and get_compiled_prg_bytes:
                     try:
                         prg_bytes = get_compiled_prg_bytes(prog_no)
                     except Exception:
@@ -344,6 +371,32 @@ def create_batch(req: CreateBatchRequest, db: Session = Depends(get_db)):
 
     total_water = round(req.fabric_weight_kg * req.liquor_ratio, 1)
 
+    # Evaluasi formula parameter step (jika program menggunakan formula fx)
+    resolved_formula_json = None
+    try:
+        from ..services.formula_engine import build_batch_context, resolve_program_steps_for_batch
+        from .formulas import load_formula_map
+        if get_program:
+            prg_data = get_program(req.program_no, machine_code=mach, db=db)
+            steps = prg_data.get("steps") or []
+            needed_ids = set()
+            for st in steps:
+                for fn in st.get("functions") or []:
+                    for binding in (fn.get("param_formulas") or {}).values():
+                        if isinstance(binding, dict) and binding.get("formula_id"):
+                            needed_ids.add(int(binding["formula_id"]))
+                        elif isinstance(binding, int):
+                            needed_ids.add(binding)
+            if needed_ids:
+                mach_cap = float(machine_obj.capacity_kg) if machine_obj and machine_obj.capacity_kg is not None else 350.0
+                ctx = build_batch_context(req.dict(), machine_capacity_kg=mach_cap)
+                f_map = load_formula_map(db, list(needed_ids))
+                _, resolved_items = resolve_program_steps_for_batch(steps, f_map, ctx)
+                if resolved_items:
+                    resolved_formula_json = json.dumps(resolved_items, ensure_ascii=False)
+    except Exception:
+        pass
+
     new_batch = BatchHeader(
         batch_ref_no=ref_no,
         batch_no=req.batch_no.strip().upper(),
@@ -357,6 +410,14 @@ def create_batch(req: CreateBatchRequest, db: Session = Depends(get_db)):
         fabric_weight_kg=req.fabric_weight_kg,
         liquor_ratio=req.liquor_ratio,
         total_water_l=total_water,
+        fabric_length=req.fabric_length if req.fabric_length is not None else 200.0,
+        fabric_type=(req.fabric_type or "").strip().upper() or None,
+        color_shade=(req.color_shade or "").strip().upper() or None,
+        fabric_gsm=req.fabric_gsm,
+        dye_type=(req.dye_type or "").strip().upper() or None,
+        chamber_count=req.chamber_count or 1,
+        redye=int(req.redye or 0),
+        resolved_formula_params_json=resolved_formula_json,
         status=req.status or "QUEUED",
         position=next_position
     )
@@ -560,7 +621,12 @@ def export_batch_zip(batch_id: str, db: Session = Depends(get_db)):
     batch_dict = _batch_to_dict(target)
     prog_no = int(target.program_no or 1)
     prg_bytes = None
-    if get_compiled_prg_bytes:
+    if get_compiled_prg_bytes_for_batch:
+        try:
+            prg_bytes = get_compiled_prg_bytes_for_batch(prog_no, batch_dict, db=db, machine_code=target.machine_no)
+        except Exception:
+            pass
+    if not prg_bytes and get_compiled_prg_bytes:
         try:
             prg_bytes = get_compiled_prg_bytes(prog_no)
         except Exception:
