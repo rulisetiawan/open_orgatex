@@ -453,7 +453,7 @@ class SetexFolderReader:
         return result
 
     @staticmethod
-    def read_status_act(folder_path: str = "", ip: Optional[str] = None, ftp_port: int = 21, raw_bytes: Optional[bytes] = None) -> Dict[str, Any]:
+    def read_status_act(folder_path: str = "", ip: Optional[str] = None, ftp_port: int = 21, raw_bytes: Optional[bytes] = None, machine_no: Optional[str] = None) -> Dict[str, Any]:
         """Reads and parses STATUS.ACT from raw bytes, FTP (prioritizing Flashdisk/SC797CE for 192.168.1.95), or local folder."""
         data = raw_bytes
         is_ftp = bool(raw_bytes and ip)
@@ -613,6 +613,22 @@ class SetexFolderReader:
                 if 0 <= raw_pcount <= 5:
                     param_count = raw_pcount
 
+                # Resolve function & parameter names/units from TYPECONF catalog
+                if SetexFolderReader._PARAMETERS_CATALOG is None:
+                    SetexFolderReader.get_function_catalog()
+                m_cat = SetexFolderReader.load_machine_catalog(machine_no) if machine_no else None
+                func_cat = (m_cat.get("functions") if m_cat else None) or SetexFolderReader._FUNCTION_CATALOG or {}
+                param_cat = (m_cat.get("parameters") if m_cat else None) or SetexFolderReader._PARAMETERS_CATALOG or {}
+                global_param_cat = SetexFolderReader._PARAMETERS_CATALOG or {}
+
+                f_meta = func_cat.get(str(function_code)) or (SetexFolderReader._FUNCTION_CATALOG or {}).get(str(function_code)) or {}
+                function_name = (
+                    f_meta.get("name")
+                    or SetexFolderReader.FALLBACK_FUNCTION_NAMES.get(function_code)
+                    or (f"Func {function_code}" if function_code else "")
+                )
+                f_param_refs = f_meta.get("parameters") or []
+
                 # Decode 22-byte parameter records starting at block_base + 0x1B
                 for idx in range(param_count):
                     p_off = block_base + 0x1B + (idx * 22)
@@ -626,15 +642,28 @@ class SetexFolderReader:
                         if v != v or abs(v) > 1e9:
                             return 0.0
                         return round(v, 3)
+
+                    # Resolve parameter name & unit by def_id (fallback to function's parameter list)
+                    eff_def_id = def_id
+                    if not eff_def_id and idx < len(f_param_refs):
+                        eff_def_id = int(f_param_refs[idx].get("definition_id") or 0)
+                    p_info = param_cat.get(str(eff_def_id)) or global_param_cat.get(str(eff_def_id)) or {}
+                    p_name = str(p_info.get("name") or f"P{idx + 1}").strip()
+                    p_unit = str(p_info.get("unit") or "").strip()
+
                     active_params.append({
                         "index": idx + 1,
+                        "name": p_name,
+                        "unit": p_unit,
                         "val_a": _clean_f(val_a),
                         "val_b": _clean_f(val_b),
                         "raw_u16": raw_u16,
-                        "def_id": def_id,
+                        "def_id": eff_def_id,
                         "min": _clean_f(val_min),
                         "max": _clean_f(val_max),
                     })
+            else:
+                function_name = ""
 
             if size >= block_base + 0xAD:
                 step_timers["total_min"] = struct.unpack_from("<H", data, block_base + 0x9F)[0]
@@ -688,6 +717,7 @@ class SetexFolderReader:
                 "fault_bits": fault_bits,
                 "block_state": block_state,
                 "function_code": function_code,
+                "function_name": function_name,
                 "param_count": param_count,
                 "active_params": active_params,
                 "step_timers": step_timers,

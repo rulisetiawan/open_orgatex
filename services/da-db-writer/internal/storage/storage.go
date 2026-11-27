@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"log/slog"
+	"math"
 	"sort"
 	"strconv"
 	"strings"
@@ -38,18 +39,35 @@ type TelemetryPayload struct {
 	Tags      map[string]TagMetric `json:"tags"`
 }
 
+type ActInterventionEvent struct {
+	Type          string  `json:"type"`
+	DetectedAt    string  `json:"detected_at"`
+	StepNo        int     `json:"step_no"`
+	Slot          int     `json:"slot"`
+	FuncID        int     `json:"func_id,omitempty"`
+	Func          string  `json:"func,omitempty"`
+	ParamIndex    int     `json:"param_index"`
+	ParameterName string  `json:"parameter_name,omitempty"`
+	Unit          string  `json:"unit,omitempty"`
+	Before        float64 `json:"before"`
+	After         float64 `json:"after"`
+	Delta         float64 `json:"delta"`
+	AlarmCode     int     `json:"alarm_code"`
+	FromStep      int     `json:"from_step,omitempty"`
+	ToStep        int     `json:"to_step,omitempty"`
+}
+
 type StatusPayload struct {
-	Timestamp        time.Time            `json:"timestamp"`
-	AssetID          string               `json:"asset_id"`
-	MachineID        string               `json:"machine_id"`
-	ConnectionStatus string               `json:"connection_status"`
-	BatchNo          string               `json:"batch_no"`
-	StepNo           int                  `json:"step_no"`
-	ProgramNo        string               `json:"program_no"`
-	ProgramCode      string               `json:"program_code,omitempty"`
-	ProgramName      string               `json:"program_name,omitempty"`
-	FunctionCode     int                  `json:"function_code,omitempty"`
-	Tags             map[string]TagMetric `json:"tags,omitempty"`
+	Timestamp          time.Time              `json:"timestamp"`
+	AssetID            string                 `json:"asset_id"`
+	MachineID          string                 `json:"machine_id"`
+	ConnectionStatus   string                 `json:"connection_status"`
+	BatchNo            string                 `json:"batch_no"`
+	StepNo             int                    `json:"step_no"`
+	ProgramNo          string                 `json:"program_no"`
+	ProgramCode        string                 `json:"program_code,omitempty"`
+	ProgramName        string                 `json:"program_name,omitempty"`
+	InterventionEvents []ActInterventionEvent `json:"intervention_events,omitempty"`
 }
 
 type CyclicPoint struct {
@@ -489,80 +507,402 @@ func (s *Storage) IngestStatus(ctx context.Context, p StatusPayload) error {
 		s.ensureScadaBatchAndSnapshot(ctx, p.AssetID, p.BatchNo, p.ProgramNo)
 	}
 
-	// Update SCADA tags from STATUS.ACT / ALARM.ACT (including MACHINE.PROCESS_STEP_CODE & PROCESS.STEP_CODE)
-	if len(p.Tags) > 0 && p.AssetID != "" {
-		s.upsertScadaStatusTags(ctx, p.AssetID, p.Tags, now)
-	} else if p.StepNo > 0 && p.AssetID != "" {
+	// Update lightweight SCADA step tags (SMM.<ASSET>.MACHINE.PROCESS_STEP_CODE & PROCESS.STEP_CODE)
+	if p.StepNo > 0 && p.AssetID != "" {
 		s.upsertScadaStepTag(ctx, p.AssetID, p.StepNo, now)
+	}
+
+	// Update batch_process_run.payload_json with program_code/program_name and embed operator interventions into program[]
+	if p.ConnectionStatus == "ONLINE" && p.AssetID != "" && p.BatchNo != "" {
+		s.syncScadaBatchMetaAndInterventions(ctx, p, now)
 	}
 
 	return nil
 }
 
-// upsertScadaStatusTags batch-upserts all STATUS.ACT / ALARM.ACT tags from da-batch-worker
-// into pt_smm_scada.tag_definition & tag_latest, then refreshes asset_snapshot.
-func (s *Storage) upsertScadaStatusTags(ctx context.Context, assetID string, tags map[string]TagMetric, ts time.Time) {
-	aid := strings.TrimSpace(assetID)
-	if aid == "" || len(tags) == 0 {
-		return
-	}
-	var assetExists bool
-	_ = s.scadaPool.QueryRow(ctx, "SELECT EXISTS(SELECT 1 FROM asset WHERE asset_id = $1);", aid).Scan(&assetExists)
-	if !assetExists {
-		return
-	}
-
-	sortedTagNames := make([]string, 0, len(tags))
-	for tagName := range tags {
-		sortedTagNames = append(sortedTagNames, tagName)
-	}
-	sort.Strings(sortedTagNames)
-
-	batchDef := &pgx.Batch{}
-	queryDef := `
-		INSERT INTO tag_definition (tag_code, asset_id, signal_role, engineering_unit, source_status, active, created_at, stale_after_seconds, freshness_mode, display_name)
-		VALUES ($1, $2, $3, $4, 'LIVE', TRUE, NOW(), 600, 'TAG_TIMESTAMP', $1)
-		ON CONFLICT (tag_code) DO UPDATE SET
-			asset_id = EXCLUDED.asset_id,
-			signal_role = EXCLUDED.signal_role,
-			engineering_unit = COALESCE(NULLIF(EXCLUDED.engineering_unit, ''), tag_definition.engineering_unit);
-	`
-	for _, tagName := range sortedTagNames {
-		metric := tags[tagName]
-		role := metric.Role
-		if role == "" {
-			role = "PV"
-		}
-		batchDef.Queue(queryDef, tagName, aid, role, metric.Unit)
-	}
-	brDef := s.scadaPool.SendBatch(ctx, batchDef)
-	for range sortedTagNames {
-		_, _ = brDef.Exec()
-	}
-	_ = brDef.Close()
-
-	batchLatest := &pgx.Batch{}
-	queryLatest := `
-		INSERT INTO tag_latest (tag_code, asset_id, value_number, quality, source_ts, ingested_at, updated_at, message_id)
-		VALUES ($1, $2, $3, 'GOOD', $4, NOW(), NOW(), gen_random_uuid())
-		ON CONFLICT (tag_code) DO UPDATE SET
-			asset_id = EXCLUDED.asset_id,
-			value_number = EXCLUDED.value_number,
-			quality = 'GOOD',
-			source_ts = EXCLUDED.source_ts,
-			ingested_at = NOW(),
-			updated_at = NOW(),
-			message_id = gen_random_uuid();
-	`
-	for _, tagName := range sortedTagNames {
-		metric := tags[tagName]
-		batchLatest.Queue(queryLatest, tagName, aid, metric.Value, ts)
-	}
-	brLatest := s.scadaPool.SendBatch(ctx, batchLatest)
-	if err := brLatest.Close(); err != nil {
-		s.logger.Warn("Error batch updating STATUS.ACT tags in pt_smm_scada", "asset", aid, "error", err)
+func formatScadaParamValue(val float64, unit string) string {
+	var numStr string
+	if math.Abs(val-math.Round(val)) < 1e-6 {
+		numStr = strconv.FormatInt(int64(math.Round(val)), 10)
 	} else {
-		_, _ = s.scadaPool.Exec(ctx, "SELECT sync_jetflow_asset_snapshot($1);", aid)
+		numStr = strconv.FormatFloat(math.Round(val*100)/100, 'f', -1, 64)
+	}
+	u := strings.TrimSpace(unit)
+	if u != "" {
+		return numStr + " " + u
+	}
+	return numStr
+}
+
+func toIntVal(v interface{}) int {
+	switch x := v.(type) {
+	case float64:
+		return int(math.Round(x))
+	case int:
+		return x
+	case int64:
+		return int(x)
+	case json.Number:
+		if i, err := x.Int64(); err == nil {
+			return int(i)
+		}
+	}
+	return 0
+}
+
+func toFloatVal(v interface{}) float64 {
+	switch x := v.(type) {
+	case float64:
+		return x
+	case int:
+		return float64(x)
+	case int64:
+		return float64(x)
+	}
+	return 0
+}
+
+// mergeInterventionsIntoProgram embeds detected STATUS.ACT operator interventions directly into
+// program[].slots[].params[].interventions (and program[].step_interventions for step jumps).
+// Returns updated JSON, total intervention count across the program, and whether any new event was appended.
+func mergeInterventionsIntoProgram(programRaw json.RawMessage, events []ActInterventionEvent) (json.RawMessage, int, bool) {
+	if len(programRaw) == 0 || len(events) == 0 {
+		return programRaw, 0, false
+	}
+
+	var steps []map[string]interface{}
+	if err := json.Unmarshal(programRaw, &steps); err != nil || len(steps) == 0 {
+		return programRaw, 0, false
+	}
+
+	changedAny := false
+
+	for _, ev := range events {
+		// Find target step by step["no"] == ev.StepNo
+		var targetStep map[string]interface{}
+		for _, st := range steps {
+			if toIntVal(st["no"]) == ev.StepNo {
+				targetStep = st
+				break
+			}
+		}
+		if targetStep == nil {
+			continue
+		}
+
+		// Step-level intervention (jump / skip)
+		if ev.Type == "STEP_JUMP_BACK" || ev.Type == "STEP_SKIP_FORWARD" {
+			existingList, _ := targetStep["step_interventions"].([]interface{})
+			// Deduplicate against last step intervention
+			if len(existingList) > 0 {
+				if last, ok := existingList[len(existingList)-1].(map[string]interface{}); ok {
+					if last["type"] == ev.Type && toIntVal(last["from_step"]) == ev.FromStep && toIntVal(last["to_step"]) == ev.ToStep && last["detected_at"] == ev.DetectedAt {
+						continue
+					}
+				}
+			}
+			entry := map[string]interface{}{
+				"type":        ev.Type,
+				"detected_at": ev.DetectedAt,
+				"from_step":   ev.FromStep,
+				"to_step":     ev.ToStep,
+				"alarm_code":  ev.AlarmCode,
+			}
+			targetStep["step_interventions"] = append(existingList, entry)
+			targetStep["has_intervention"] = true
+			changedAny = true
+			continue
+		}
+
+		// Parameter-level intervention -> match program[].slots[] & params[]
+		slotsRaw, _ := targetStep["slots"].([]interface{})
+		var targetSlot map[string]interface{}
+		targetSlotNo := ev.Slot
+		if targetSlotNo <= 0 {
+			targetSlotNo = 1
+		}
+		for _, sObj := range slotsRaw {
+			sm, ok := sObj.(map[string]interface{})
+			if !ok {
+				continue
+			}
+			if toIntVal(sm["slot"]) == targetSlotNo {
+				targetSlot = sm
+				break
+			}
+		}
+		if targetSlot == nil && len(slotsRaw) > 0 {
+			if sm, ok := slotsRaw[0].(map[string]interface{}); ok {
+				targetSlot = sm
+			}
+		}
+		if targetSlot == nil {
+			continue
+		}
+
+		paramsRaw, _ := targetSlot["params"].([]interface{})
+		var targetParam map[string]interface{}
+
+		// 1. Prefer exact name match (case-insensitive)
+		evNameLow := strings.ToLower(strings.TrimSpace(ev.ParameterName))
+		if evNameLow != "" {
+			for _, pObj := range paramsRaw {
+				pm, ok := pObj.(map[string]interface{})
+				if !ok {
+					continue
+				}
+				pNameLow := strings.ToLower(strings.TrimSpace(fmt.Sprint(pm["name"])))
+				if pNameLow == evNameLow {
+					targetParam = pm
+					break
+				}
+			}
+		}
+		// 2. Fallback to param_index
+		if targetParam == nil && ev.ParamIndex >= 0 && ev.ParamIndex < len(paramsRaw) {
+			if pm, ok := paramsRaw[ev.ParamIndex].(map[string]interface{}); ok {
+				targetParam = pm
+			}
+		}
+		if targetParam == nil {
+			continue
+		}
+
+		existingIv, _ := targetParam["interventions"].([]interface{})
+		// Deduplicate against last recorded intervention on this param
+		if len(existingIv) > 0 {
+			if last, ok := existingIv[len(existingIv)-1].(map[string]interface{}); ok {
+				if math.Abs(toFloatVal(last["after"])-ev.After) < 0.01 &&
+					math.Abs(toFloatVal(last["before"])-ev.Before) < 0.01 &&
+					toIntVal(last["alarm_code"]) == ev.AlarmCode {
+					continue
+				}
+			}
+		}
+
+		entry := map[string]interface{}{
+			"detected_at": ev.DetectedAt,
+			"before":      ev.Before,
+			"after":       ev.After,
+			"delta":       ev.Delta,
+			"unit":        ev.Unit,
+			"alarm_code":  ev.AlarmCode,
+		}
+		targetParam["interventions"] = append(existingIv, entry)
+		targetParam["changed"] = true
+		targetParam["actual_value"] = formatScadaParamValue(ev.After, ev.Unit)
+		targetStep["has_intervention"] = true
+		changedAny = true
+	}
+
+	if !changedAny {
+		return programRaw, countProgramInterventions(steps), false
+	}
+
+	outBytes, err := json.Marshal(steps)
+	if err != nil {
+		return programRaw, 0, false
+	}
+	return json.RawMessage(outBytes), countProgramInterventions(steps), true
+}
+
+func countProgramInterventions(steps []map[string]interface{}) int {
+	total := 0
+	for _, st := range steps {
+		if si, ok := st["step_interventions"].([]interface{}); ok {
+			total += len(si)
+		}
+		if slots, ok := st["slots"].([]interface{}); ok {
+			for _, sObj := range slots {
+				if sm, ok := sObj.(map[string]interface{}); ok {
+					if params, ok := sm["params"].([]interface{}); ok {
+						for _, pObj := range params {
+							if pm, ok := pObj.(map[string]interface{}); ok {
+								if iv, ok := pm["interventions"].([]interface{}); ok {
+									total += len(iv)
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+	return total
+}
+
+// preserveProgramInterventions copies any existing param/step interventions from existingProgramRaw
+// into incomingProgramRaw so periodic IngestBatchProgram refreshes never wipe operator intervention history.
+func preserveProgramInterventions(existingProgramRaw, incomingProgramRaw json.RawMessage) (json.RawMessage, int) {
+	if len(existingProgramRaw) == 0 || len(incomingProgramRaw) == 0 {
+		return incomingProgramRaw, 0
+	}
+	var existingSteps, incomingSteps []map[string]interface{}
+	if err := json.Unmarshal(existingProgramRaw, &existingSteps); err != nil || len(existingSteps) == 0 {
+		return incomingProgramRaw, 0
+	}
+	if err := json.Unmarshal(incomingProgramRaw, &incomingSteps); err != nil || len(incomingSteps) == 0 {
+		return incomingProgramRaw, 0
+	}
+
+	existingByNo := make(map[int]map[string]interface{}, len(existingSteps))
+	for _, st := range existingSteps {
+		if no := toIntVal(st["no"]); no > 0 {
+			existingByNo[no] = st
+		}
+	}
+
+	mergedAny := false
+	for _, incSt := range incomingSteps {
+		no := toIntVal(incSt["no"])
+		exSt, ok := existingByNo[no]
+		if !ok {
+			continue
+		}
+		if si, ok := exSt["step_interventions"].([]interface{}); ok && len(si) > 0 {
+			incSt["step_interventions"] = si
+			incSt["has_intervention"] = true
+			mergedAny = true
+		}
+
+		// Index existing slots by slot number
+		exSlotsRaw, _ := exSt["slots"].([]interface{})
+		exSlotMap := make(map[int]map[string]interface{}, len(exSlotsRaw))
+		for _, sObj := range exSlotsRaw {
+			if sm, ok := sObj.(map[string]interface{}); ok {
+				exSlotMap[toIntVal(sm["slot"])] = sm
+			}
+		}
+
+		incSlotsRaw, _ := incSt["slots"].([]interface{})
+		for _, sObj := range incSlotsRaw {
+			incSlot, ok := sObj.(map[string]interface{})
+			if !ok {
+				continue
+			}
+			exSlot, ok := exSlotMap[toIntVal(incSlot["slot"])]
+			if !ok {
+				continue
+			}
+			exParamsRaw, _ := exSlot["params"].([]interface{})
+			exParamByName := make(map[string]map[string]interface{}, len(exParamsRaw))
+			for _, pObj := range exParamsRaw {
+				if pm, ok := pObj.(map[string]interface{}); ok {
+					exParamByName[strings.ToLower(strings.TrimSpace(fmt.Sprint(pm["name"])))] = pm
+				}
+			}
+
+			incParamsRaw, _ := incSlot["params"].([]interface{})
+			for pIdx, pObj := range incParamsRaw {
+				incP, ok := pObj.(map[string]interface{})
+				if !ok {
+					continue
+				}
+				pKey := strings.ToLower(strings.TrimSpace(fmt.Sprint(incP["name"])))
+				exP := exParamByName[pKey]
+				if exP == nil && pIdx < len(exParamsRaw) {
+					exP, _ = exParamsRaw[pIdx].(map[string]interface{})
+				}
+				if exP == nil {
+					continue
+				}
+				if iv, ok := exP["interventions"].([]interface{}); ok && len(iv) > 0 {
+					incP["interventions"] = iv
+					incP["changed"] = true
+					if av, ok := exP["actual_value"]; ok {
+						incP["actual_value"] = av
+					}
+					incSt["has_intervention"] = true
+					mergedAny = true
+				}
+			}
+		}
+	}
+
+	totalCount := countProgramInterventions(incomingSteps)
+	if !mergedAny {
+		return incomingProgramRaw, totalCount
+	}
+	outBytes, err := json.Marshal(incomingSteps)
+	if err != nil {
+		return incomingProgramRaw, totalCount
+	}
+	return json.RawMessage(outBytes), totalCount
+}
+
+// syncScadaBatchMetaAndInterventions updates batch_process_run.payload_json with program_code/program_name
+// and embeds operator intervention events directly inside program[].slots[].params[] ONLY when changes occur.
+func (s *Storage) syncScadaBatchMetaAndInterventions(ctx context.Context, p StatusPayload, now time.Time) {
+	aid := strings.TrimSpace(p.AssetID)
+	bno := strings.TrimSpace(p.BatchNo)
+	if aid == "" || bno == "" || bno == "000000" {
+		return
+	}
+
+	pCode := strings.TrimSpace(p.ProgramCode)
+	pName := strings.TrimSpace(p.ProgramName)
+	hasIntervents := len(p.InterventionEvents) > 0
+
+	if pCode == "" && pName == "" && !hasIntervents {
+		return
+	}
+
+	var existingCode, existingName string
+	var existingProgRaw []byte
+	err := s.scadaPool.QueryRow(ctx, `
+		SELECT COALESCE(payload_json->>'program_code', ''),
+		       COALESCE(payload_json->>'program_name', ''),
+		       payload_json->'program'
+		FROM batch_process_run
+		WHERE asset_id = $1 AND batch_no = $2
+		LIMIT 1;
+	`, aid, bno).Scan(&existingCode, &existingName, &existingProgRaw)
+	if err != nil {
+		return
+	}
+
+	patch := make(map[string]interface{})
+	if pCode != "" && pCode != existingCode {
+		patch["program_code"] = pCode
+	}
+	if pName != "" && pName != existingName {
+		patch["program_name"] = pName
+	}
+
+	newInterventAdded := false
+	if hasIntervents && len(existingProgRaw) > 0 {
+		updatedProg, totalCount, changed := mergeInterventionsIntoProgram(json.RawMessage(existingProgRaw), p.InterventionEvents)
+		if changed {
+			patch["program"] = updatedProg
+			patch["intervent_active"] = 1
+			patch["intervention_count"] = totalCount
+			newInterventAdded = true
+		}
+	}
+
+	if len(patch) == 0 {
+		return
+	}
+
+	patchBytes, err := json.Marshal(patch)
+	if err != nil {
+		return
+	}
+
+	_, err = s.scadaPool.Exec(ctx, `
+		UPDATE batch_process_run
+		SET payload_json = COALESCE(payload_json, '{}'::jsonb) || $3::jsonb,
+		    source_updated_at = NOW(),
+		    updated_at = NOW()
+		WHERE asset_id = $1 AND batch_no = $2;
+	`, aid, bno, patchBytes)
+	if err != nil {
+		s.logger.Warn("Error updating batch_process_run payload_json from STATUS.ACT", "asset", aid, "batch", bno, "error", err)
+		return
+	}
+
+	if newInterventAdded {
+		s.upsertScadaInterventTag(ctx, aid, 1, now)
 	}
 }
 
@@ -709,8 +1049,23 @@ func (s *Storage) IngestBatchProgram(ctx context.Context, p BatchProgramPayload)
 		recipeCode = "PROGRAM " + strings.TrimSpace(p.ProgramNo)
 	}
 
+	// Preserve any STATUS.ACT operator interventions already embedded in batch_process_run.payload_json->'program'
+	var existingProgRaw []byte
+	_ = s.scadaPool.QueryRow(ctx, `
+		SELECT payload_json->'program'
+		FROM batch_process_run
+		WHERE asset_id = $1 AND batch_no = $2
+		LIMIT 1;
+	`, aid, bno).Scan(&existingProgRaw)
+
+	mergedProgram, preservedIvCount := preserveProgramInterventions(json.RawMessage(existingProgRaw), p.Program)
+	effectiveInterventActive := p.InterventActive
+	if preservedIvCount > 0 {
+		effectiveInterventActive = 1
+	}
+
 	payloadObj := map[string]interface{}{
-		"program":         json.RawMessage(p.Program),
+		"program":         mergedProgram,
 		"program_no":      p.ProgramNo,
 		"program_file":    p.ProgramFile,
 		"program_source":  p.ProgramSource,
@@ -718,6 +1073,15 @@ func (s *Storage) IngestBatchProgram(ctx context.Context, p BatchProgramPayload)
 		"current_step":    p.CurrentStep,
 		"progress_basis":  "step_ratio",
 		"program_read_at": time.Now().UTC().Format(time.RFC3339),
+	}
+	if strings.TrimSpace(p.ProgramName) != "" {
+		payloadObj["program_name"] = strings.TrimSpace(p.ProgramName)
+	}
+	if p.BatchInfo != nil && strings.TrimSpace(p.BatchInfo.ProgramCode) != "" {
+		payloadObj["program_code"] = strings.TrimSpace(p.BatchInfo.ProgramCode)
+	}
+	if preservedIvCount > 0 {
+		payloadObj["intervention_count"] = preservedIvCount
 	}
 	if len(p.OperatorTimeline) > 0 {
 		payloadObj["operator_timeline"] = p.OperatorTimeline
@@ -731,7 +1095,7 @@ func (s *Storage) IngestBatchProgram(ctx context.Context, p BatchProgramPayload)
 	if p.BatchSummary != nil {
 		payloadObj["batch_summary"] = p.BatchSummary
 	}
-	payloadObj["intervent_active"] = p.InterventActive
+	payloadObj["intervent_active"] = effectiveInterventActive
 	payloadBytes, err := json.Marshal(payloadObj)
 	if err != nil {
 		return err

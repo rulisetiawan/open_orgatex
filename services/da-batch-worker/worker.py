@@ -19,7 +19,8 @@ import socket
 import signal
 import struct
 import logging
-from datetime import datetime, timezone
+import threading
+from datetime import datetime, timezone, timedelta
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from typing import Dict, Any, List, Optional
 
@@ -888,101 +889,158 @@ def get_active_machines() -> List[Dict[str, Any]]:
     return machines
 
 
-def build_act_scada_tags(
-    asset_id: str,
+_WIB_TZ = timezone(timedelta(hours=7))
+_LAST_STATUS_ACT_STATE: Dict[str, Dict[str, Any]] = {}
+_LAST_STATUS_ACT_LOCK = threading.Lock()
+
+
+def detect_act_interventions(
+    machine_no: str,
     st: Dict[str, Any],
     act_alarm: Optional[Dict[str, Any]] = None,
-) -> Dict[str, Dict[str, Any]]:
-    """Builds standardized SMM.<ASSET_ID>.* SCADA tag metrics from decoded STATUS.ACT & ALARM.ACT."""
-    tags: Dict[str, Dict[str, Any]] = {}
+    now_wib: Optional[datetime] = None,
+) -> List[Dict[str, Any]]:
+    """
+    Detects operator interventions from STATUS.ACT by checking:
+    1. Live parameter diff (val_b changed vs previous poll on same batch + step + func_id)
+    2. Recipe override within STATUS.ACT (val_a != val_b on first observation of a step)
+    3. Step jump back or skip forward on the same batch
+    Returns a non-empty list ONLY when an operator change actually occurs.
+    """
+    m_key = (machine_no or "").strip().upper()
+    batch_no = str(st.get("current_batch") or "").strip()
+    if not m_key or not batch_no or batch_no == "UNKNOWN":
+        return []
 
-    def _add(suffix: str, val: Any, unit: str = "", role: str = "PV", raw: Any = None) -> None:
-        if val is None:
-            return
-        try:
-            fval = float(val)
-        except Exception:
-            return
-        if fval != fval:
-            return
-        tags[f"SMM.{asset_id}.{suffix}"] = {
-            "value": fval,
-            "raw": raw if raw is not None else val,
-            "unit": unit,
-            "role": role,
-            "quality": 192,
-        }
+    ts_str = (now_wib or datetime.now(_WIB_TZ)).isoformat(timespec="seconds")
+    step_no = int(st.get("current_step") or 0)
+    func_id = int(st.get("function_code") or 0)
+    func_name = str(st.get("function_name") or "").strip()
 
-    # 1. Header & Fault Flags
-    _add("STATUS_ACT.FORMAT_BYTES", st.get("file_size", 0), "byte", "PV")
-    _add("STATUS_ACT.STATUS_RAW", st.get("status_raw", 0), "", "ST")
-    _add("STATUS_ACT.FAULT_WORD", st.get("fault_word", 0), "", "ST")
-    fb = st.get("fault_bits") or {}
-    _add("STATUS_ACT.FAULT_BIT4_PLC_OFFLINE", fb.get("bit4_plc_offline", 0), "", "ALM")
-    _add("STATUS_ACT.FAULT_BIT5_STOP_ALARM", fb.get("bit5_stop_alarm", 0), "", "ALM")
-    _add("STATUS_ACT.FAULT_BIT6_HOLD_ALARM", fb.get("bit6_hold_alarm", 0), "", "ALM")
-    _add("STATUS_ACT.FAULT_BIT7_PLC_OFFLINE", fb.get("bit7_plc_offline", 0), "", "ALM")
-    _add("STATUS_ACT.PLC_OFFLINE_CANDIDATE", fb.get("plc_offline_candidate", 0), "", "ALM")
-
-    # 2. Active Process / Step Block (Block 0)
-    prog_no = st.get("prog_no") or 0
-    step_no = st.get("current_step") or 0
-    _add("STATUS_ACT.PROGRAM_NO", prog_no, "", "PV")
-    _add("STATUS_ACT.STEP_NO", step_no, "step", "PV")
-    if step_no > 0:
-        _add("MACHINE.PROCESS_STEP_CODE", step_no, "step", "PV")
-        _add("PROCESS.STEP_CODE", step_no, "step", "PV")
-    _add("STATUS_ACT.BLOCK_STATE", st.get("block_state", 0), "", "ST")
-    _add("STATUS_ACT.FUNCTION_ID", st.get("function_code", 0), "", "PV")
-    _add("STATUS_ACT.PARAM_COUNT", st.get("param_count", 0), "", "PV")
-
-    # 3. Active Function Parameters (P1..P5, stride 22 bytes)
-    for p in st.get("active_params") or []:
-        idx = int(p.get("index") or 0)
-        if idx <= 0:
-            continue
-        prefix = f"STATUS_ACT.P{idx}"
-        _add(f"{prefix}_VAL_A", p.get("val_a", 0.0), "", "SV")
-        _add(f"{prefix}_VAL_B", p.get("val_b", 0.0), "", "SV")
-        _add(f"{prefix}_RAW", p.get("raw_u16", 0), "", "PV")
-        _add(f"{prefix}_DEF_ID", p.get("def_id", 0), "", "PV")
-        _add(f"{prefix}_MIN", p.get("min", 0.0), "", "SV")
-        _add(f"{prefix}_MAX", p.get("max", 0.0), "", "SV")
-
-    # 4. Step Timer Footer
-    timers = st.get("step_timers") or {}
-    _add("STATUS_ACT.STEP_TIME_TOTAL_MIN", timers.get("total_min", 0), "min", "PV")
-    _add("STATUS_ACT.STEP_TIME_TOTAL_SEC", timers.get("total_sec", 0), "s", "PV")
-    _add("STATUS_ACT.STEP_TIME_PHASE_MIN", timers.get("phase_min", 0), "min", "PV")
-    _add("STATUS_ACT.STEP_TIME_PHASE_SEC", timers.get("phase_sec", 0), "s", "PV")
-
-    # 5. Cumulative Consumption Totalizers (SECOM 777)
-    cons = st.get("consumption") or {}
-    if "water_1_l" in cons:
-        _add("STATUS_ACT.CONSUMPTION_WATER_1_L", cons["water_1_l"], "L", "TOTALIZER")
-    if "water_2_l" in cons:
-        _add("STATUS_ACT.CONSUMPTION_WATER_2_L", cons["water_2_l"], "L", "TOTALIZER")
-    if "water_3_l" in cons:
-        _add("STATUS_ACT.CONSUMPTION_WATER_3_L", cons["water_3_l"], "L", "TOTALIZER")
-    if "water_4_l" in cons:
-        _add("STATUS_ACT.CONSUMPTION_WATER_4_L", cons["water_4_l"], "L", "TOTALIZER")
-    if "electric_kwh" in cons:
-        _add("STATUS_ACT.CONSUMPTION_ELECTRIC_KWH", cons["electric_kwh"], "kWh", "TOTALIZER")
-
-    # 6. ALARM.ACT active alarm state
-    if act_alarm is not None:
-        is_active = 1 if act_alarm.get("is_alarm_active") else 0
-        active_code = 0
+    alarm_code = 0
+    if act_alarm and act_alarm.get("is_alarm_active"):
         alarms = act_alarm.get("active_alarms") or []
         if alarms:
             try:
-                active_code = int(alarms[0].get("alarm_code") or 0)
+                alarm_code = int(alarms[0].get("alarm_code") or 0)
             except Exception:
-                active_code = 0
-        _add("ALARM_ACT.IS_ACTIVE", is_active, "", "ALM")
-        _add("ALARM_ACT.ACTIVE_CODE", active_code, "", "ALM")
+                alarm_code = 0
 
-    return tags
+    curr_params: Dict[int, Dict[str, Any]] = {}
+    for p in st.get("active_params") or []:
+        idx = int(p.get("index") or 0)
+        if idx > 0:
+            curr_params[idx] = {
+                "index": idx,
+                "def_id": int(p.get("def_id") or 0),
+                "name": str(p.get("name") or f"P{idx}").strip(),
+                "unit": str(p.get("unit") or "").strip(),
+                "val_a": float(p.get("val_a") or 0.0),
+                "val_b": float(p.get("val_b") or 0.0),
+            }
+
+    curr_state = {
+        "batch_no": batch_no,
+        "step_no": step_no,
+        "func_id": func_id,
+        "func_name": func_name,
+        "params": curr_params,
+    }
+
+    with _LAST_STATUS_ACT_LOCK:
+        prev = _LAST_STATUS_ACT_STATE.get(m_key)
+        _LAST_STATUS_ACT_STATE[m_key] = curr_state
+
+    events: List[Dict[str, Any]] = []
+    same_batch = bool(prev and prev.get("batch_no") == batch_no)
+    same_step_func = bool(
+        same_batch
+        and prev.get("step_no") == step_no
+        and prev.get("func_id") == func_id
+    )
+
+    # 1. Step jump / skip on same batch
+    if same_batch and step_no > 0:
+        prev_step = int(prev.get("step_no") or 0)
+        if prev_step > 0:
+            if step_no < prev_step:
+                events.append({
+                    "type": "STEP_JUMP_BACK",
+                    "detected_at": ts_str,
+                    "step_no": prev_step,
+                    "slot": 1,
+                    "func_id": func_id,
+                    "func": func_name,
+                    "param_index": -1,
+                    "parameter_name": "Step No",
+                    "unit": "step",
+                    "before": float(prev_step),
+                    "after": float(step_no),
+                    "delta": float(step_no - prev_step),
+                    "alarm_code": alarm_code,
+                    "from_step": prev_step,
+                    "to_step": step_no,
+                })
+            elif step_no > prev_step + 1:
+                events.append({
+                    "type": "STEP_SKIP_FORWARD",
+                    "detected_at": ts_str,
+                    "step_no": prev_step,
+                    "slot": 1,
+                    "func_id": func_id,
+                    "func": func_name,
+                    "param_index": -1,
+                    "parameter_name": "Step No",
+                    "unit": "step",
+                    "before": float(prev_step),
+                    "after": float(step_no),
+                    "delta": float(step_no - prev_step),
+                    "alarm_code": alarm_code,
+                    "from_step": prev_step,
+                    "to_step": step_no,
+                })
+
+    # 2. Parameter changes (live diff or override val_a != val_b)
+    prev_params = (prev.get("params") or {}) if same_step_func else {}
+    for idx, cp in sorted(curr_params.items()):
+        if same_step_func and idx in prev_params:
+            pp = prev_params[idx]
+            if abs(cp["val_b"] - pp["val_b"]) > 0.01:
+                events.append({
+                    "type": "PARAM_CHANGED",
+                    "detected_at": ts_str,
+                    "step_no": step_no,
+                    "slot": 1,
+                    "func_id": func_id,
+                    "func": func_name,
+                    "param_index": idx - 1,
+                    "parameter_name": cp["name"],
+                    "unit": cp["unit"],
+                    "before": round(pp["val_b"], 3),
+                    "after": round(cp["val_b"], 3),
+                    "delta": round(cp["val_b"] - pp["val_b"], 3),
+                    "alarm_code": alarm_code,
+                })
+        else:
+            # First time observing this (batch, step, func): check direct recipe override val_a != val_b
+            if abs(cp["val_b"] - cp["val_a"]) > 0.01:
+                events.append({
+                    "type": "PARAM_OVERRIDE",
+                    "detected_at": ts_str,
+                    "step_no": step_no,
+                    "slot": 1,
+                    "func_id": func_id,
+                    "func": func_name,
+                    "param_index": idx - 1,
+                    "parameter_name": cp["name"],
+                    "unit": cp["unit"],
+                    "before": round(cp["val_a"], 3),
+                    "after": round(cp["val_b"], 3),
+                    "delta": round(cp["val_b"] - cp["val_a"], 3),
+                    "alarm_code": alarm_code,
+                })
+
+    return events
 
 
 def process_single_machine(m: Dict[str, Any]) -> Dict[str, Any]:
@@ -1086,17 +1144,17 @@ def process_single_machine(m: Dict[str, Any]) -> Dict[str, Any]:
         act_alarm_parsed = SetexFolderReader.read_alarm_act(raw_bytes=bundle["alarm_bytes"])
 
     if bundle.get("status_bytes"):
-        st = SetexFolderReader.read_status_act(folder_path="", ip=ip, ftp_port=ftp_port, raw_bytes=bundle["status_bytes"])
+        st = SetexFolderReader.read_status_act(folder_path="", ip=ip, ftp_port=ftp_port, raw_bytes=bundle["status_bytes"], machine_no=m_no)
         batch_no = st.get("current_batch") or ""
         step_no = st.get("current_step") or 1
         prog_no = st.get("prog_no") or "1"
         prog_name = st.get("program_name") or st.get("program_code") or ""
         m_state = st.get("status") or "RUNNING"
-        act_tags = build_act_scada_tags(asset_id, st, act_alarm=act_alarm_parsed)
+        intervention_events = detect_act_interventions(m_no, st, act_alarm=act_alarm_parsed)
 
-        # Publish Status + All .ACT SCADA Tags to EMQX
+        # Publish lean Status to EMQX (only attaches intervention_events when operator changes occur)
         topic_status = f"smm/jetflow/{asset_id}/status"
-        payload_status = {
+        payload_status: Dict[str, Any] = {
             "timestamp": datetime.now(timezone.utc).isoformat(),
             "asset_id": asset_id,
             "machine_id": m_no,
@@ -1106,9 +1164,9 @@ def process_single_machine(m: Dict[str, Any]) -> Dict[str, Any]:
             "program_no": str(prog_no),
             "program_code": st.get("program_code") or "",
             "program_name": prog_name,
-            "function_code": int(st.get("function_code") or 0),
-            "tags": act_tags,
         }
+        if intervention_events:
+            payload_status["intervention_events"] = intervention_events
         _mqtt_client.publish(topic_status, json.dumps(payload_status), qos=1, retain=True)
 
     # 1a. Extract Batch Production Metadata, Per-Step Actuals, Operator Timeline, Alarms, Overrides & Summary from PR<batch>.LOG
