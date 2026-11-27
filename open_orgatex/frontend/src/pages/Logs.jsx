@@ -32,7 +32,8 @@ import {
   ArrowUp,
   ArrowDown,
   ArrowLeft,
-  Search
+  Search,
+  Lock
 } from 'lucide-react';
 
 const API_BASE = '/api';
@@ -129,17 +130,21 @@ const Logs = ({ defaultTab = 'active' }) => {
   const searchParams = new URLSearchParams(location.search);
   const initialMachineFromUrl = searchParams.get('machine');
   const tabFromUrl = searchParams.get('tab') || defaultTab;
-  const isInitial797 = initialMachineFromUrl === 'DA01' || initialMachineFromUrl === 'M_95' || initialMachineFromUrl?.toUpperCase().includes('797');
 
   const [selectedMachine, setSelectedMachine] = useState(initialMachineFromUrl || '1A');
   const [machines, setMachines] = useState(['1A']);
   const [rawMachines, setRawMachines] = useState([]);
-  const [hmiIp, setHmiIp] = useState(isInitial797 ? '192.168.1.95' : '172.16.110.101');
   const [refreshInterval, setRefreshInterval] = useState(3000); // 3 detik default realtime
   const [activeTab, setActiveTab] = useState(tabFromUrl === 'archive' ? 'archive' : 'active');
   const [loading, setLoading] = useState(false);
   const [syncing, setSyncing] = useState(false);
   const [liveData, setLiveData] = useState(null);
+  const hmiIp = useMemo(() => {
+    const matched = rawMachines.find((m) => m.machine_no === selectedMachine);
+    if (matched?.ip_address) return matched.ip_address;
+    if (liveData?.hmi_ip) return liveData.hmi_ip;
+    return '';
+  }, [rawMachines, selectedMachine, liveData?.hmi_ip]);
   const [chartSeries, setChartSeries] = useState([]);
   const [chartCategories, setChartCategories] = useState([]);
   const [alarms, setAlarms] = useState([]);
@@ -222,10 +227,6 @@ const Logs = ({ defaultTab = 'active' }) => {
           const currentUrlParam = new URLSearchParams(window.location.search).get('machine');
           const targetMach = currentUrlParam && list.includes(currentUrlParam) ? currentUrlParam : (list.includes(selectedMachine) ? selectedMachine : list[0]);
           setSelectedMachine(targetMach);
-          const matched = fullList.find((m) => m.machine_no === targetMach);
-          if (matched && matched.ip_address) {
-            setHmiIp(matched.ip_address);
-          }
         }
       })
       .catch((err) => console.error('Gagal mengambil daftar mesin:', err));
@@ -240,14 +241,10 @@ const Logs = ({ defaultTab = 'active' }) => {
       setLoading(true);
     }
     try {
-      const q = hmiIp ? `?ip=${encodeURIComponent(hmiIp)}` : '';
-      const res = await fetch(`${API_BASE}/logs/live/${selectedMachine}${q}`);
+      const res = await fetch(`${API_BASE}/logs/live/${selectedMachine}`);
       if (res.ok) {
         const data = await res.json();
         setLiveData(data);
-        if (data.hmi_ip && data.hmi_ip !== hmiIp && !hmiIp) {
-          setHmiIp(data.hmi_ip);
-        }
         setLastUpdated(new Date().toLocaleTimeString());
 
         // Format chart series: ambil Sensor T1 saja & Setpoint (SP) hanya jika step memiliki target suhu
@@ -295,8 +292,7 @@ const Logs = ({ defaultTab = 'active' }) => {
     if (!selectedMachine) return;
     setIwLoading(true);
     try {
-      const q = hmiIp ? `?ip=${encodeURIComponent(hmiIp)}` : '';
-      const res = await fetch(`${API_BASE}/logs/iw/${selectedMachine}${q}`);
+      const res = await fetch(`${API_BASE}/logs/iw/${selectedMachine}`);
       if (res.ok) {
         const d = await res.json();
         setIwDetail(d);
@@ -406,7 +402,7 @@ const Logs = ({ defaultTab = 'active' }) => {
         return () => clearInterval(interval);
       }
     }
-  }, [selectedMachine, hmiIp, refreshInterval, activeTab]);
+  }, [selectedMachine, refreshInterval, activeTab]);
 
   // Trigger manual sync
   const handleSyncNow = async () => {
@@ -944,18 +940,17 @@ const Logs = ({ defaultTab = 'active' }) => {
 
         {/* CONTROLS */}
         <div className="flex flex-wrap items-center gap-3">
-          {/* IP HMI INPUT */}
-          <div className="flex items-center gap-1.5 bg-white dark:bg-boxdark px-2.5 py-1.5 rounded border border-stroke dark:border-strokedark shadow-sm">
+          {/* IP HMI DISPLAY (READ-ONLY) */}
+          <div
+            className="flex items-center gap-1.5 bg-gray-50 dark:bg-meta-4/40 px-2.5 py-1.5 rounded border border-stroke dark:border-strokedark shadow-sm cursor-default"
+            title={`IP Address Controller ${controllerName} terkunci sesuai Konfigurasi Mesin (ubah melalui menu Konfigurasi Mesin)`}
+          >
             <Wifi className={`h-3.5 w-3.5 ${liveData?.is_live_hmi ? 'text-emerald-500' : 'text-gray-400'}`} />
             <span className="text-[11px] font-semibold text-gray-700 dark:text-gray-300">IP HMI:</span>
-            <input
-              type="text"
-              value={hmiIp}
-              onChange={(e) => setHmiIp(e.target.value)}
-              placeholder={is797 ? '192.168.1.95' : '172.16.110.101'}
-              className="text-xs font-mono font-bold text-black dark:text-white bg-transparent outline-none w-28"
-              title={`IP Address Controller ${controllerName} (Port FTP 21)`}
-            />
+            <span className="text-xs font-mono font-bold text-gray-800 dark:text-gray-200 select-all">
+              {hmiIp || '—'}
+            </span>
+            <Lock className="h-3 w-3 text-gray-400" aria-hidden="true" />
           </div>
 
           {/* REFRESH INTERVAL DROPDOWN */}
@@ -985,12 +980,6 @@ const Logs = ({ defaultTab = 'active' }) => {
                 const val = e.target.value;
                 setSelectedMachine(val);
                 navigate(`/process-analyser?machine=${val}`);
-                const matched = rawMachines.find((m) => m.machine_no === val);
-                if (matched && matched.ip_address) {
-                  setHmiIp(matched.ip_address);
-                } else if (val === 'DA01' || val === 'M_95') {
-                  setHmiIp('192.168.1.95');
-                }
               }}
               className="text-xs font-bold text-black dark:text-white bg-transparent outline-none cursor-pointer max-w-[240px]"
             >

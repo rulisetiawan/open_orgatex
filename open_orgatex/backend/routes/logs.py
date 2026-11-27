@@ -19,8 +19,7 @@ router = APIRouter(prefix="/api/logs", tags=["Logs & Ingestion"])
 
 @router.get("/live/{machine_no}")
 def get_live_machine_telemetry(
-    machine_no: str, 
-    ip: Optional[str] = Query(None, description="Optional override IP HMI (e.g. 172.16.110.101)"),
+    machine_no: str,
     db: Session = Depends(get_db)
 ):
     """
@@ -29,74 +28,31 @@ def get_live_machine_telemetry(
     and returns real-time curve, current temperature, and active alarm states.
     """
     mach_clean = machine_no.upper()
-    is_797 = mach_clean in ("DA01", "M_95") or "797" in mach_clean or ip == "192.168.1.95"
 
     m = db.query(Machine).filter(Machine.machine_no == mach_clean).first()
     if not m:
-        # Auto-create if not yet existing
-        m = Machine(
-            machine_no=mach_clean,
-            display_name=f"SETEX 797CE Mesin {mach_clean}" if is_797 else f"SETEX Controller {mach_clean}",
-            group_name="Dyeing Sample / DA" if is_797 else "Dyeing Section A",
-            controller_type="SETEX 797CE (Windows CE)" if is_797 else "SECOM 777 (Windows CE)",
-            ip_address=ip or ("192.168.1.95" if is_797 else "172.16.110.101"),
-            ftp_port=21,
-            share_folder_path="/Flashdisk/SC797CE" if is_797 else "/Storage/sc777ce",
-            status="ONLINE"
-        )
-        db.add(m)
-        db.commit()
-        db.refresh(m)
-    else:
-        # Update IP and enforce 797CE if IP is 192.168.1.95 or machine is DA01/M_95
-        needs_commit = False
-        if is_797 or m.ip_address == "192.168.1.95":
-            if m.controller_type != "SETEX 797CE (Windows CE)":
-                m.controller_type = "SETEX 797CE (Windows CE)"
-                needs_commit = True
-            if not m.share_folder_path or "/Storage" in m.share_folder_path or "/app/STATUS" in m.share_folder_path:
-                m.share_folder_path = "/Flashdisk/SC797CE"
-                needs_commit = True
-            if not m.display_name or "777" in m.display_name or m.display_name.startswith("SETEX Controller"):
-                m.display_name = f"SETEX 797CE Mesin {mach_clean}"
-                needs_commit = True
-            if ip and m.ip_address != ip:
-                m.ip_address = ip
-                needs_commit = True
-        else:
-            if ip and m.ip_address != ip:
-                m.ip_address = ip
-                needs_commit = True
-            elif m.ip_address in ("192.168.1.102", "127.0.0.1", "", None):
-                m.ip_address = "172.16.110.101"
-                m.ftp_port = 21
-                needs_commit = True
+        raise HTTPException(status_code=404, detail=f"Mesin '{mach_clean}' tidak ditemukan di database.")
 
-        if needs_commit:
-            db.commit()
-            db.refresh(m)
-
-    res = LogIngestionService.ingest_machine_on_the_fly(db, m)
-    return res
+    # Selalu baca dari database (diisi oleh da-batch-worker & da-setex-collector), tanpa koneksi FTP/TCP langsung
+    return LogIngestionService.get_machine_live_from_db(db, m)
 
 @router.post("/sync/{machine_no}")
 def sync_all_logs(machine_no: str, db: Session = Depends(get_db)):
     """
-    Triggers complete scan and permanent synchronization of all historical logs
-    and alarms from shared directory into PostgreSQL.
+    Membaca ulang status terbaru dari database (sinkronisasi FTP dikelola oleh da-batch-worker).
     """
     m = db.query(Machine).filter(Machine.machine_no == machine_no.upper()).first()
     if not m:
         raise HTTPException(status_code=404, detail="Mesin tidak ditemukan")
 
-    res = LogIngestionService.ingest_machine_on_the_fly(db, m)
+    res = LogIngestionService.get_machine_live_from_db(db, m)
     return {
-        "status": "sync_completed",
+        "status": "db_refreshed",
         "machine_no": m.machine_no,
-        "new_points_persisted": res.get("new_points_persisted", 0),
-        "new_alarms_persisted": res.get("new_alarms_persisted", 0),
-        "total_points_in_session": res.get("total_points", 0),
-        "storage": "PostgreSQL (orgatex.datalog_cyclic_records)"
+        "new_points_persisted": 0,
+        "new_alarms_persisted": 0,
+        "total_points_in_session": len(res.get("curve") or []),
+        "storage": "PostgreSQL (da-batch-worker & da-setex-collector)"
     }
 
 @router.get("/history/{machine_no}")
@@ -292,12 +248,14 @@ def get_batch_history_detail(
             if ts > step_times[s_no]["end"]:
                 step_times[s_no]["end"] = ts
 
-    # Ambil langkah resep program
+    # Ambil langkah resep program langsung dari database (tanpa baca FTP)
     recipe_steps = []
     try:
-        recipe_steps = SetexFolderReader.get_recipe_steps(
-            batch_no=ref_clean,
-            prog_no=bh.program_no if bh else None
+        recipe_steps = LogIngestionService.load_recipe_steps_from_db(
+            db,
+            machine_no=mach_clean,
+            prog_no=bh.program_no if bh else None,
+            program_name=bh.recipe_name if bh else None,
         )
     except Exception:
         pass
@@ -635,7 +593,6 @@ def get_recorded_interventions(
 @router.get("/iw/{machine_no}")
 def get_live_machine_iw(
     machine_no: str,
-    ip: Optional[str] = Query(None, description="Optional override IP"),
     count: int = Query(default=200, le=240, description="Jumlah register IW (1..240)"),
     all_objects: bool = Query(default=True, description="Ambil seluruh objek kontroler (1025 IW, 1009 SET, 1010 ACT, 1035 BATCH, Objek 6 FUNCTION)"),
     db: Session = Depends(get_db)
@@ -646,7 +603,9 @@ def get_live_machine_iw(
     """
     mach_clean = machine_no.upper()
     m = db.query(Machine).filter(Machine.machine_no == mach_clean).first()
-    host = ip or (m.ip_address if m else "172.16.110.101")
+    if not m or not m.ip_address:
+        raise HTTPException(status_code=404, detail=f"Konfigurasi IP mesin '{mach_clean}' tidak ditemukan di database.")
+    host = m.ip_address
     port = (m.tcp_port if m and m.tcp_port else 50000)
 
     if all_objects:

@@ -313,17 +313,6 @@ const Machines = () => {
         <div className="flex flex-wrap items-center gap-2.5">
           <button
             onClick={() => {
-              setSnifferModalOpen(true);
-              setDetectedControllers([]);
-            }}
-            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-white bg-meta-5 hover:bg-meta-5/90 rounded shadow-xs transition-colors cursor-pointer"
-          >
-            <Radar className="h-4 w-4" />
-            Pindai Jaringan
-          </button>
-
-          <button
-            onClick={() => {
               setForm(defaultForm);
               setIsEditing(false);
               setActiveTab('general');
@@ -483,25 +472,6 @@ const Machines = () => {
 
                 {/* ACTION BUTTONS */}
                 <div className="pt-3 border-t border-stroke dark:border-strokedark flex items-center justify-between gap-1.5">
-                  <button
-                    onClick={() => handleFetchConfig(m.machine_no)}
-                    disabled={fetchingConfig === m.machine_no}
-                    className="flex-1 flex items-center justify-center gap-1 py-1.5 px-2 bg-emerald-50 dark:bg-emerald-950/30 hover:bg-emerald-100 dark:hover:bg-emerald-900/40 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 rounded font-bold text-[11px] transition-colors"
-                    title="Tarik File Config (.CNF) dari HMI Kontroler via FTP"
-                  >
-                    <RefreshCw className={`h-3 w-3 ${fetchingConfig === m.machine_no ? 'animate-spin' : ''}`} />
-                    {fetchingConfig === m.machine_no ? 'Mengunduh...' : 'Tarik Config'}
-                  </button>
-
-                  <button
-                    onClick={() => handleTestConnection(m)}
-                    disabled={testingMachine === m.machine_no}
-                    className="flex-1 flex items-center justify-center gap-1 py-1.5 px-2 bg-gray-100 dark:bg-meta-4 hover:bg-gray-200 text-black dark:text-white rounded font-medium text-[11px]"
-                  >
-                    <Network className="h-3 w-3 text-primary" />
-                    {testingMachine === m.machine_no ? 'Menguji...' : 'Uji Koneksi'}
-                  </button>
-
                   <button
                     onClick={() => navigate(`/process-analyser?machine=${m.machine_no}`)}
                     className="flex-1 flex items-center justify-center gap-1 py-1.5 px-2 bg-primary/10 hover:bg-primary/20 text-primary rounded font-bold text-[11px]"

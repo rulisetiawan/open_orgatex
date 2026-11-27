@@ -103,43 +103,8 @@ def get_machine_tag_mapping(
             if isinstance(live_row[5], dict):
                 telemetry_map = live_row[5]
 
-        # 2. Jika diminta direct=true atau data collector belum ada/kosong, coba baca langsung via TCP Port 50000
+        # 2. Selalu baca dari database (diisi oleh da-setex-collector), tidak membuka koneksi TCP langsung dari dashboard
         direct_by_index: Dict[int, Dict[str, Any]] = {}
-        if direct or len(telemetry_map) == 0:
-            m = db.query(Machine).filter(Machine.machine_no == mach_clean).first()
-            host = m.ip_address if m and m.ip_address else ("172.16.110.160" if mach_clean == "10B" else None)
-            port = m.tcp_port if m and m.tcp_port else 50000
-            
-            if host:
-                try:
-                    all_direct = SetexTcpClient.read_all_objects_snapshot(host, port, machine_no=mach_clean, timeout=2.5)
-                    if all_direct.get("online"):
-                        live_meta = {
-                            "last_updated": datetime.now().isoformat(),
-                            "connection_status": f"ONLINE (Direct TCP:{port})",
-                            "source": "DIRECT_TCP_CONTROLLER",
-                            "host": host,
-                            "port": port,
-                            "batch_no": live_meta.get("batch_no") if live_meta else None,
-                            "step_no": live_meta.get("step_no") if live_meta else None,
-                            "program_no": live_meta.get("program_no") if live_meta else None
-                        }
-                        # Objek 1025: IW (Info Words)
-                        for d in all_direct.get("decoded_registers", []):
-                            idx = d.get("index")
-                            if idx is not None:
-                                direct_by_index[idx] = d
-                        # Objek 1009: SET (Target Setpoints)
-                        if "SET_1009" in all_direct.get("objects", {}):
-                            for r in all_direct["objects"]["SET_1009"].get("registers", []):
-                                addr = r.get("address")
-                                if addr:
-                                    direct_by_index[10000 + addr] = {
-                                        "conv_val": r.get("calibrated_value"),
-                                        "raw_val": r.get("raw")
-                                    }
-                except Exception as e:
-                    logger.debug(f"Direct controller multi-object read skipped/failed for {mach_clean}: {e}")
 
         # 3. Ambil daftar konfigurasi tag
         map_query = text("""

@@ -14,12 +14,16 @@ import json
 import struct
 import logging
 import posixpath
+import concurrent.futures
 from typing import List, Optional, Dict, Any
-from datetime import datetime
-from fastapi import APIRouter, HTTPException, Response
+from datetime import datetime, timezone
+from fastapi import APIRouter, HTTPException, Response, Depends, Query
 from pydantic import BaseModel, Field
 from sqlalchemy import func
+from sqlalchemy.orm import Session
 
+from ..database import get_db
+from ..models.schema_pg import Machine, MachineFtpStatus
 from ..services.reader import SetexFolderReader
 from ..services.ftp_sync_service import _safe_write_file, sync_userconf_to_ftp
 from ..utils.btd_codec import read_queue_btd, inspect_btd_refs, build_queue_btd_python
@@ -158,7 +162,7 @@ def _safe_ftp_close(ftp: Optional[ftplib.FTP]):
     if not ftp:
         return
     try:
-        _safe_ftp_close(ftp)
+        ftp.quit()
     except Exception:
         try:
             ftp.close()
@@ -1578,5 +1582,178 @@ def bulk_replace_machine_queue(req: FTPBulkReplaceQueueRequest):
         "total_batches": len(q_records),
         "batches": uploaded_folders,
         "destination_file": f"{mach_queue_dir}/QUEUE.BTD"
+    }
+
+
+# ==============================================================================
+# MONITOR STATUS BACA FTP DARI DA-BATCH-WORKER (ZERO EXTRA FTP CONNECTIONS)
+# ==============================================================================
+
+def _load_machines_for_ftp_status(db: Session, include_inactive: bool = False) -> List[Dict[str, Any]]:
+    """Loads factory machines from DB with fallback to static MACHINES_DATA."""
+    query = db.query(Machine)
+    if not include_inactive:
+        query = query.filter(Machine.is_active == True)
+    rows = query.order_by(Machine.machine_no.asc()).all()
+
+    machines_list: List[Dict[str, Any]] = []
+    if rows:
+        for m in rows:
+            machines_list.append({
+                "machine_no": str(m.machine_no or "").strip(),
+                "display_name": str(m.display_name or m.machine_no or "").strip(),
+                "group_name": str(m.group_name or "Dyeing Section").strip(),
+                "ip_address": str(m.ip_address or "").strip(),
+                "ftp_port": int(m.ftp_port or 21),
+                "tcp_port": int(m.tcp_port or 50000),
+                "controller_type": str(m.controller_type or "SECOM 777").strip(),
+                "is_active": bool(m.is_active),
+                "db_status": str(m.status or "").strip().upper(),
+                "last_ping_time": m.last_ping_time,
+            })
+    else:
+        try:
+            from ..data.populate_pg import MACHINES_DATA
+            for m_data in MACHINES_DATA:
+                machines_list.append({
+                    "machine_no": str(m_data.get("no") or "").strip(),
+                    "display_name": str(m_data.get("name") or m_data.get("no") or "").strip(),
+                    "group_name": str(m_data.get("group") or "Dyeing Section").strip(),
+                    "ip_address": str(m_data.get("ip") or "").strip(),
+                    "ftp_port": 21,
+                    "tcp_port": 50000,
+                    "controller_type": str(m_data.get("type") or "SECOM 777").strip(),
+                    "is_active": True,
+                    "db_status": "",
+                    "last_ping_time": None,
+                })
+        except Exception as e:
+            logger.warning(f"Fallback MACHINES_DATA load error: {e}")
+
+    return machines_list
+
+
+@router.get("/worker-status")
+def get_batch_worker_ftp_status(
+    include_inactive: bool = Query(False, description="Sertakan mesin dengan status non-aktif"),
+    db: Session = Depends(get_db),
+):
+    """
+    Membaca status hasil polling FTP per mesin yang dicatat oleh da-batch-worker
+    di tabel `machine_ftp_status`. Tidak membuka koneksi FTP baru ke kontroler.
+    """
+    machines_list = _load_machines_for_ftp_status(db, include_inactive=include_inactive)
+
+    # Baca status terakhir dari tabel machine_ftp_status (aman jika tabel belum terisi)
+    status_map: Dict[str, MachineFtpStatus] = {}
+    try:
+        rows = db.query(MachineFtpStatus).all()
+        for r in rows:
+            status_map[str(r.machine_no or "").strip().upper()] = r
+    except Exception as e:
+        logger.debug(f"machine_ftp_status table not ready yet: {e}")
+        try:
+            db.rollback()
+        except Exception:
+            pass
+
+    now_utc = datetime.now(timezone.utc)
+    results: List[Dict[str, Any]] = []
+    latest_checked_at: Optional[datetime] = None
+    worker_name = "DA-Batch-Worker-24x7"
+
+    for m in machines_list:
+        m_key = m["machine_no"].upper()
+        st = status_map.get(m_key)
+
+        # Cek apakah telemetri kontroler aktif berdasarkan data DB (tanpa buka socket baru)
+        last_ping = m.get("last_ping_time")
+        telemetry_online = False
+        if last_ping is not None:
+            try:
+                lp = last_ping if last_ping.tzinfo is not None else last_ping.replace(tzinfo=timezone.utc)
+                telemetry_online = (now_utc - lp).total_seconds() <= 300
+            except Exception:
+                telemetry_online = m.get("db_status") in ("ONLINE", "RUNNING")
+        else:
+            telemetry_online = m.get("db_status") in ("ONLINE", "RUNNING")
+
+        if st is not None:
+            if st.last_checked_at:
+                st_dt = st.last_checked_at if st.last_checked_at.tzinfo else st.last_checked_at.replace(tzinfo=timezone.utc)
+                if latest_checked_at is None or st_dt > latest_checked_at:
+                    latest_checked_at = st_dt
+            if st.worker_name:
+                worker_name = st.worker_name
+
+            results.append({
+                "machine_no": m["machine_no"],
+                "display_name": m["display_name"],
+                "group_name": m["group_name"],
+                "ip_address": st.ip_address or m["ip_address"],
+                "ftp_port": int(st.ftp_port or m["ftp_port"] or 21),
+                "controller_type": m["controller_type"],
+                "is_active": m["is_active"],
+                "can_read_ftp": bool(st.can_read_ftp),
+                "ftp_status": str(st.ftp_status or ("OK" if st.can_read_ftp else "FAILED")),
+                "failure_category": str(st.failure_category or "UNKNOWN"),
+                "error_detail": str(st.error_detail or ""),
+                "status_act_readable": bool(st.status_act_readable),
+                "telemetry_online": telemetry_online,
+                "active_batch": st.active_batch,
+                "current_step": st.current_step,
+                "curve_points": int(st.curve_points or 0),
+                "latency_ms": float(st.latency_ms or 0.0),
+                "consecutive_failures": int(st.consecutive_failures or 0),
+                "last_checked_at": st.last_checked_at.isoformat() if st.last_checked_at else None,
+                "last_success_at": st.last_success_at.isoformat() if st.last_success_at else None,
+            })
+        else:
+            results.append({
+                "machine_no": m["machine_no"],
+                "display_name": m["display_name"],
+                "group_name": m["group_name"],
+                "ip_address": m["ip_address"],
+                "ftp_port": m["ftp_port"],
+                "controller_type": m["controller_type"],
+                "is_active": m["is_active"],
+                "can_read_ftp": False,
+                "ftp_status": "PENDING",
+                "failure_category": "NO_WORKER_DATA",
+                "error_detail": "Belum ada laporan dari da-batch-worker. Pastikan service da-batch-worker sudah di-restart untuk memproses semua mesin.",
+                "status_act_readable": False,
+                "telemetry_online": telemetry_online,
+                "active_batch": None,
+                "current_step": None,
+                "curve_points": 0,
+                "latency_ms": 0.0,
+                "consecutive_failures": 0,
+                "last_checked_at": None,
+                "last_success_at": None,
+            })
+
+    # Urutkan: FAILED dulu -> PARTIAL -> PENDING -> OK
+    status_order = {"FAILED": 0, "PARTIAL": 1, "PENDING": 2, "OK": 3}
+    results.sort(key=lambda r: (status_order.get(r["ftp_status"], 9), -r["consecutive_failures"], r["machine_no"]))
+
+    ok_count = sum(1 for r in results if r["ftp_status"] == "OK")
+    partial_count = sum(1 for r in results if r["ftp_status"] == "PARTIAL")
+    failed_count = sum(1 for r in results if r["ftp_status"] == "FAILED")
+    pending_count = sum(1 for r in results if r["ftp_status"] == "PENDING")
+    unreadable_count = sum(1 for r in results if r["ftp_status"] in ("FAILED", "PARTIAL"))
+
+    return {
+        "source": "da-batch-worker",
+        "worker_name": worker_name,
+        "last_cycle_at": latest_checked_at.isoformat() if latest_checked_at else None,
+        "summary": {
+            "total_machines": len(results),
+            "ftp_ok_count": ok_count,
+            "ftp_partial_count": partial_count,
+            "ftp_failed_count": failed_count,
+            "ftp_pending_count": pending_count,
+            "ftp_unreadable_count": unreadable_count,
+        },
+        "machines": results,
     }
 

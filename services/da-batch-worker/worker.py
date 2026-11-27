@@ -895,11 +895,25 @@ def process_single_machine(m: Dict[str, Any]) -> Dict[str, Any]:
     ftp_port = m.get("ftp_port", 21)
     asset_id = resolve_asset_id(m_no)
     is_797 = "797" in str(m.get("controller_type", "")).upper() or m_no.upper().startswith("DA")
+    t0 = time.time()
 
     if not is_controller_online(ip, ftp_port):
-        return {"machine_no": m_no, "status": "offline", "points": 0}
+        return {
+            "machine_no": m_no,
+            "ip_address": ip,
+            "ftp_port": ftp_port,
+            "status": "offline",
+            "can_read_ftp": False,
+            "ftp_status": "FAILED",
+            "failure_category": "FTP_OFFLINE_OR_TIMEOUT",
+            "error_detail": f"Port FTP {ftp_port} tidak merespons (offline atau timeout {SOCKET_TIMEOUT}s).",
+            "status_act_readable": False,
+            "batch": "",
+            "step": 0,
+            "points": 0,
+            "latency_ms": round((time.time() - t0) * 1000, 1),
+        }
 
-    t0 = time.time()
     bundle = None
     try:
         bundle = SetexFolderReader.fetch_live_controller_bundle(
@@ -911,16 +925,58 @@ def process_single_machine(m: Dict[str, Any]) -> Dict[str, Any]:
             db_program_loader=lambda p_no, p_name, p_code: load_program_from_db(m_no, p_no, p_name, p_code),
         )
     except Exception as e:
-        return {"machine_no": m_no, "status": "error", "error": str(e)}
+        return {
+            "machine_no": m_no,
+            "ip_address": ip,
+            "ftp_port": ftp_port,
+            "status": "error",
+            "can_read_ftp": False,
+            "ftp_status": "FAILED",
+            "failure_category": "FTP_ERROR",
+            "error_detail": f"Error saat koneksi/baca FTP: {str(e).strip() or type(e).__name__}",
+            "status_act_readable": False,
+            "batch": "",
+            "step": 0,
+            "points": 0,
+            "latency_ms": round((time.time() - t0) * 1000, 1),
+        }
 
     if not bundle:
-        return {"machine_no": m_no, "status": "no_data", "points": 0}
+        return {
+            "machine_no": m_no,
+            "ip_address": ip,
+            "ftp_port": ftp_port,
+            "status": "no_data",
+            "can_read_ftp": False,
+            "ftp_status": "FAILED",
+            "failure_category": "FTP_NO_DATA",
+            "error_detail": "Port FTP terbuka, tetapi gagal login atau tidak ada data yang terbaca dari kontroler.",
+            "status_act_readable": False,
+            "batch": "",
+            "step": 0,
+            "points": 0,
+            "latency_ms": round((time.time() - t0) * 1000, 1),
+        }
 
     global _mqtt_client
     if not _mqtt_client:
         _mqtt_client = init_mqtt()
     if not _mqtt_client:
-        return {"machine_no": m_no, "status": "mqtt_unavailable"}
+        return {
+            "machine_no": m_no,
+            "ip_address": ip,
+            "ftp_port": ftp_port,
+            "status": "mqtt_unavailable",
+            "can_read_ftp": bool(bundle.get("status_bytes")),
+            "ftp_status": "OK" if bundle.get("status_bytes") else "PARTIAL",
+            "failure_category": "OK" if bundle.get("status_bytes") else "STATUS_ACT_NOT_FOUND",
+            "error_detail": "FTP terbaca, namun EMQX broker sedang tidak tersedia.",
+            "status_act_readable": bool(bundle.get("status_bytes")),
+            "batch": "",
+            "step": 0,
+            "points": 0,
+            "latency_ms": round((time.time() - t0) * 1000, 1),
+        }
 
     # 1. Parse STATUS.ACT
     batch_no = ""
@@ -1111,15 +1167,163 @@ def process_single_machine(m: Dict[str, Any]) -> Dict[str, Any]:
         _mqtt_client.publish(topic_alarm, json.dumps(payload_alarms), qos=1)
 
     dur = time.time() - t0
+    has_status_act = bool(bundle.get("status_bytes"))
+    bundle_err = str(bundle.get("error") or "").strip()
+
+    if has_status_act:
+        ftp_status = "OK"
+        fail_cat = "OK"
+        err_detail = f"FTP normal — STATUS.ACT terbaca ({len(bundle['status_bytes'])} bytes), {points_count} titik kurva."
+    elif bundle_err:
+        ftp_status = "FAILED"
+        low_err = bundle_err.lower()
+        if "429" in bundle_err:
+            fail_cat = "FTP_429_TOO_MANY_CONN"
+        elif "421" in bundle_err or "cool-down" in low_err or "too many" in low_err:
+            fail_cat = "FTP_421_TOO_MANY_CONN"
+        elif "530" in bundle_err or "login" in low_err:
+            fail_cat = "FTP_LOGIN_FAILED"
+        elif "refused" in low_err:
+            fail_cat = "FTP_REFUSED"
+        elif "timed out" in low_err or "timeout" in low_err:
+            fail_cat = "FTP_TIMEOUT"
+        else:
+            fail_cat = "FTP_ERROR"
+        err_detail = bundle_err
+    else:
+        ftp_status = "PARTIAL"
+        fail_cat = "STATUS_ACT_NOT_FOUND"
+        err_detail = "FTP terhubung, tetapi file STATUS.ACT tidak ditemukan atau tidak terbaca."
+
     return {
         "machine_no": m_no,
-        "status": "success",
+        "ip_address": ip,
+        "ftp_port": ftp_port,
+        "status": "success" if has_status_act else ("error" if bundle_err else "partial"),
+        "can_read_ftp": has_status_act,
+        "ftp_status": ftp_status,
+        "failure_category": fail_cat,
+        "error_detail": err_detail,
+        "status_act_readable": has_status_act,
         "batch": batch_no,
         "step": step_no,
         "points": points_count,
         "alarms": len(alarms_list),
-        "duration_sec": round(dur, 2)
+        "duration_sec": round(dur, 2),
+        "latency_ms": round(dur * 1000, 1),
     }
+
+
+def save_ftp_cycle_status_to_db(results: List[Dict[str, Any]]) -> None:
+    """
+    Persists per-machine FTP read status from the current da-batch-worker sweep
+    into PostgreSQL table `machine_ftp_status` (single batch upsert, zero extra FTP traffic).
+    """
+    if not DB_URL or not results:
+        return
+
+    worker_name = str(CFG.get("worker", {}).get("name", "DA-Batch-Worker-24x7"))[:100]
+    checked_at = datetime.now(timezone.utc)
+    conn = None
+    try:
+        conn = psycopg2.connect(DB_URL, connect_timeout=4)
+        cur = conn.cursor()
+        cur.execute("""
+            CREATE TABLE IF NOT EXISTS machine_ftp_status (
+                machine_no VARCHAR(50) PRIMARY KEY,
+                ip_address VARCHAR(50),
+                ftp_port INTEGER DEFAULT 21,
+                can_read_ftp BOOLEAN DEFAULT FALSE,
+                ftp_status VARCHAR(20) DEFAULT 'FAILED',
+                failure_category VARCHAR(50) DEFAULT 'UNKNOWN',
+                error_detail TEXT,
+                status_act_readable BOOLEAN DEFAULT FALSE,
+                active_batch VARCHAR(50),
+                current_step INTEGER,
+                curve_points INTEGER DEFAULT 0,
+                latency_ms DOUBLE PRECISION DEFAULT 0,
+                consecutive_failures INTEGER DEFAULT 0,
+                last_checked_at TIMESTAMPTZ,
+                last_success_at TIMESTAMPTZ,
+                worker_name VARCHAR(100)
+            );
+        """)
+
+        for r in results:
+            m_no = str(r.get("machine_no") or "").strip()
+            if not m_no:
+                continue
+            can_read = bool(r.get("can_read_ftp", False))
+            ftp_status = str(r.get("ftp_status") or ("OK" if can_read else "FAILED"))[:20]
+            fail_cat = str(r.get("failure_category") or ("OK" if can_read else "UNKNOWN"))[:50]
+            err_detail = str(r.get("error_detail") or "")
+            status_act_ok = bool(r.get("status_act_readable", False))
+            active_batch = str(r.get("batch") or "")[:50] or None
+            curr_step = int(r.get("step") or 0) or None
+            pts = int(r.get("points") or 0)
+            lat_ms = float(r.get("latency_ms") or 0.0)
+            ip_addr = str(r.get("ip_address") or "")[:50]
+            f_port = int(r.get("ftp_port") or 21)
+
+            cur.execute("""
+                INSERT INTO machine_ftp_status (
+                    machine_no, ip_address, ftp_port, can_read_ftp, ftp_status,
+                    failure_category, error_detail, status_act_readable,
+                    active_batch, current_step, curve_points, latency_ms,
+                    consecutive_failures, last_checked_at, last_success_at, worker_name
+                )
+                VALUES (
+                    %s, %s, %s, %s, %s,
+                    %s, %s, %s,
+                    %s, %s, %s, %s,
+                    %s, %s, %s, %s
+                )
+                ON CONFLICT (machine_no) DO UPDATE SET
+                    ip_address = EXCLUDED.ip_address,
+                    ftp_port = EXCLUDED.ftp_port,
+                    can_read_ftp = EXCLUDED.can_read_ftp,
+                    ftp_status = EXCLUDED.ftp_status,
+                    failure_category = EXCLUDED.failure_category,
+                    error_detail = EXCLUDED.error_detail,
+                    status_act_readable = EXCLUDED.status_act_readable,
+                    active_batch = COALESCE(EXCLUDED.active_batch, machine_ftp_status.active_batch),
+                    current_step = COALESCE(EXCLUDED.current_step, machine_ftp_status.current_step),
+                    curve_points = EXCLUDED.curve_points,
+                    latency_ms = EXCLUDED.latency_ms,
+                    consecutive_failures = CASE
+                        WHEN EXCLUDED.can_read_ftp THEN 0
+                        ELSE COALESCE(machine_ftp_status.consecutive_failures, 0) + 1
+                    END,
+                    last_checked_at = EXCLUDED.last_checked_at,
+                    last_success_at = CASE
+                        WHEN EXCLUDED.can_read_ftp THEN EXCLUDED.last_checked_at
+                        ELSE machine_ftp_status.last_success_at
+                    END,
+                    worker_name = EXCLUDED.worker_name;
+            """, (
+                m_no, ip_addr, f_port, can_read, ftp_status,
+                fail_cat, err_detail, status_act_ok,
+                active_batch, curr_step, pts, lat_ms,
+                0 if can_read else 1,
+                checked_at,
+                checked_at if can_read else None,
+                worker_name,
+            ))
+
+        conn.commit()
+    except Exception as e:
+        if conn:
+            try:
+                conn.rollback()
+            except Exception:
+                pass
+        logger.warning(f"Failed to persist machine_ftp_status to PostgreSQL: {e}")
+    finally:
+        if conn:
+            try:
+                conn.close()
+            except Exception:
+                pass
 
 
 def run_cycle():
@@ -1131,22 +1335,30 @@ def run_cycle():
         return
 
     online_count = 0
+    failed_count = 0
     total_points = 0
     success_machines = []
+    all_results: List[Dict[str, Any]] = []
 
     with ThreadPoolExecutor(max_workers=MAX_WORKERS) as executor:
         futures = {executor.submit(process_single_machine, m): m for m in machines}
         for fut in as_completed(futures):
             res = fut.result()
-            if res.get("status") == "success":
+            all_results.append(res)
+            if res.get("can_read_ftp"):
                 online_count += 1
                 total_points += res.get("points", 0)
                 success_machines.append(res["machine_no"])
+            else:
+                failed_count += 1
+
+    # Simpan status baca FTP seluruh mesin ke DB (untuk menu Monitor FTP di OpenOrgaTEX)
+    save_ftp_cycle_status_to_db(all_results)
 
     total_dur = time.time() - t_start
     logger.info(
         f"Cycle completed in {total_dur:.2f}s | "
-        f"Total: {len(machines)}, Online: {online_count}, Curve Points: {total_points} | "
+        f"Total: {len(machines)}, FTP OK: {online_count}, FTP Gagal: {failed_count}, Curve Points: {total_points} | "
         f"Active: {', '.join(success_machines[:8])}{'...' if len(success_machines) > 8 else ''}"
     )
 

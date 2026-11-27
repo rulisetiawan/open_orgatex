@@ -1570,25 +1570,6 @@ export default function Programs() {
 
             <div className="flex items-center gap-2 pt-2 md:pt-0">
               <button
-                onClick={handleFetchProgramsFromMachine}
-                disabled={isFetchingFromMachine}
-                className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold shadow-xs transition disabled:opacity-50"
-                title={`Unduh seluruh file .PRG dari kontroler Mesin ${activeMachine} (${selectedMachineObj?.ip_address || ''}) via FTP`}
-              >
-                {isFetchingFromMachine ? (
-                  <>
-                    <RefreshCw className="w-3.5 h-3.5 animate-spin" />
-                    <span>Mengunduh...</span>
-                  </>
-                ) : (
-                  <>
-                    <Download className="w-3.5 h-3.5" />
-                    <span>Unduh Program Mesin {activeMachine} (FTP)</span>
-                  </>
-                )}
-              </button>
-
-              <button
                 onClick={() => fileInputRef.current?.click()}
                 className="flex items-center gap-1.5 px-2.5 py-2 rounded-lg bg-white dark:bg-slate-700 hover:bg-gray-100 dark:hover:bg-slate-600 text-gray-700 dark:text-slate-200 text-xs font-medium border border-stroke dark:border-slate-600 transition shadow-xs"
                 title={`Impor file biner .PRG dari Storage untuk Mesin ${activeMachine}`}
@@ -1702,14 +1683,6 @@ export default function Programs() {
                           : `Belum ada program yang terdaftar untuk Mesin ${activeMachine}.`}
                       </p>
                       <div className="flex flex-wrap items-center justify-center gap-2.5 pt-1">
-                        <button
-                          onClick={handleFetchProgramsFromMachine}
-                          disabled={isFetchingFromMachine}
-                          className="flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold shadow-sm transition disabled:opacity-50"
-                        >
-                          <Download className="w-3.5 h-3.5" />
-                          <span>Unduh Program dari Mesin {activeMachine} (FTP)</span>
-                        </button>
                         <button
                           onClick={() => fileInputRef.current?.click()}
                           className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 text-xs font-medium border border-stroke dark:border-strokedark transition"

@@ -1529,69 +1529,12 @@ class FetchFromMachineIn(BaseModel):
 @router.post("/fetch-from-machine/{machine_no}")
 def fetch_programs_from_machine(machine_no: str, req: Optional[FetchFromMachineIn] = None, db: Session = Depends(get_db)):
     """
-    Downloads all .PRG binary files from the machine's SETEX HMI controller via FTP (Port 21).
-    Saves them to WORKSPACE_PROGRAM_MESIN/MESIN_<ID>/03_CONTOH_PRG_DARI_HMI/,
-    parses each program, and registers it so it appears in the program list and can be opened in EDX300/SECOM Studio.
+    Dinonaktifkan: Dashboard hanya membaca program dari database untuk mencegah koneksi FTP ganda ke kontroler.
     """
-    clean_code = machine_no.strip().upper().replace("MESIN_", "")
-    
-    # 1. Determine machine IP and port
-    ip = None
-    port = 21
-    if req and req.ip_address:
-        ip = req.ip_address.strip()
-        port = req.ftp_port or 21
-    
-    if not ip and db:
-        try:
-            m = db.query(Machine).filter(Machine.machine_no == clean_code).first()
-            if m and m.ip_address:
-                ip = m.ip_address
-                port = m.ftp_port or 21
-        except Exception:
-            pass
-
-    if not ip:
-        known_ips = {
-            "DA01": "192.168.1.95",
-            "DA1": "192.168.1.95",
-            "DA-01": "192.168.1.95",
-            "797": "192.168.1.95",
-            "797CE": "192.168.1.95",
-            "SC797": "192.168.1.95",
-            "SC797CE": "192.168.1.95",
-            "MESIN_797": "192.168.1.95",
-            "10B": "172.16.110.160",
-            "TD12": "172.16.110.101",
-            "A002": "172.16.110.102",
-            "A003": "172.16.110.103",
-            "1A": "172.16.110.104"
-        }
-        ip = known_ips.get(clean_code, "172.16.110.160")
-
-    is_797 = (
-        ip in ("192.168.1.95", "172.16.120.102", "172.16.120.103", "172.16.120.105", "172.16.120.108", "172.16.120.109", "172.16.120.154") or 
-        (req and req.controller_type and "797" in req.controller_type.upper()) or
-        "797" in clean_code or
-        clean_code in ["DA01", "DA1", "DA-01"] or
-        (req and req.remote_dir and "SC797" in req.remote_dir.upper())
+    raise HTTPException(
+        status_code=403,
+        detail="Unduh program langsung dari mesin via FTP di dashboard dinonaktifkan. Seluruh program dibaca dari database."
     )
-
-    timeout_val = req.timeout if req and req.timeout else 10.0
-    remote_path = (
-        req.remote_dir 
-        if req and req.remote_dir 
-        else ("/Flashdisk/SC797CE/Programs" if is_797 else "/Storage/sc777ce/Programs")
-    )
-
-    result = fetch_machine_programs_from_hmi(
-        machine_no=clean_code,
-        ip=ip,
-        ftp_port=port,
-        timeout=timeout_val,
-        remote_dir=remote_path
-    )
-    return result
 
 
 # =============================================================================

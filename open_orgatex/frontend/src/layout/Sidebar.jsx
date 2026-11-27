@@ -13,6 +13,7 @@ import {
   ListFilter,
   Clock,
   Tags,
+  ShieldAlert,
   X
 } from 'lucide-react';
 
@@ -43,7 +44,9 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
         { name: 'Process Analyser', path: '/process-analyser', icon: LineChart },
         { name: 'Riwayat Batch', path: '/batch-history', icon: Clock },
         { name: 'Alarm Monitor', path: '/alarms', icon: Bell },
-        { name: 'FTP Explorer', path: '/ftp', icon: Server },
+        // Sementara disembunyikan agar tidak membuka koneksi FTP langsung ke kontroler
+        // { name: 'FTP Explorer', path: '/ftp', icon: Server },
+        { name: 'Status Baca FTP', path: '/ftp-monitor', icon: ShieldAlert },
       ]
     },
     {

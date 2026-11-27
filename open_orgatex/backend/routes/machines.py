@@ -167,37 +167,11 @@ def _probe_single_controller(ip: str, timeout: float = 1.0) -> Optional[Dict[str
 
 @router.post("/scan")
 def scan_network_controllers(scan_req: ScanRequestSchema):
-    """
-    OrgaTEX SecomCESniffer Parity (DlgAddOnlineMachine):
-    Scans IP range on factory network to auto-discover online SETEX controllers.
-    """
-    try:
-        s_parts = [int(p) for p in scan_req.start_ip.split('.')]
-        e_parts = [int(p) for p in scan_req.end_ip.split('.')]
-    except Exception:
-        raise HTTPException(status_code=400, detail="Format IP range tidak valid.")
-
-    base_subnet = f"{s_parts[0]}.{s_parts[1]}.{s_parts[2]}"
-    ips = [f"{base_subnet}.{i}" for i in range(s_parts[3], e_parts[3] + 1)]
-
-    discovered = []
-    with concurrent.futures.ThreadPoolExecutor(max_workers=15) as executor:
-        future_to_ip = {
-            executor.submit(_probe_single_controller, ip, scan_req.timeout_sec): ip 
-            for ip in ips
-        }
-        for future in concurrent.futures.as_completed(future_to_ip):
-            res = future.result()
-            if res:
-                discovered.append(res)
-
-    discovered.sort(key=lambda x: [int(p) for p in x["ip_address"].split('.')])
-    return {
-        "range_scanned": f"{scan_req.start_ip} - {scan_req.end_ip}",
-        "total_scanned": len(ips),
-        "found_count": len(discovered),
-        "controllers": discovered
-    }
+    """Dinonaktifkan: Dashboard hanya membaca data dari database (tanpa scan FTP/TCP langsung)."""
+    raise HTTPException(
+        status_code=403,
+        detail="Scan jaringan langsung ke kontroler dari dashboard dinonaktifkan untuk melindungi socket Windows CE."
+    )
 
 @router.get("", include_in_schema=False)
 @router.get("/")
@@ -516,96 +490,36 @@ def test_connection(machine_no: str, db: Session = Depends(get_db)):
     except Exception:
         pass
 
-    # 2. SETEX TCP Port Test
-    tcp_ok = False
-    try:
-        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-            s.settimeout(1.0)
-            s.connect((ip, m.tcp_port or 50100))
-            tcp_ok = True
-    except Exception:
-        pass
-
-    # 3. FTP Port 21 Test
-    ftp_ok = False
-    try:
-        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-            s.settimeout(1.0)
-            s.connect((ip, m.ftp_port or 21))
-            ftp_ok = True
-    except Exception:
-        pass
-
-    # 4. Read-Only STATUS.ACT Verification via FTP or local
-    status_act_found = False
-    controller_info = {}
-    if ftp_ok:
-        try:
-            ftp = ftplib.FTP(timeout=2.5)
-            ftp.connect(ip, m.ftp_port or 21)
-            ftp.login("", "")
-            bio = io.BytesIO()
-            is_797 = (ip == "192.168.1.95" or "797" in (m.controller_type or "") or m.machine_no == "DA01")
-            act_path = "/Flashdisk/SC797CE/STATUS/STATUS.ACT" if is_797 else "/Storage/sc777ce/STATUS/STATUS.ACT"
-            try:
-                ftp.retrbinary(f"RETR {act_path}", bio.write)
-            except Exception:
-                status_dir = "/Flashdisk/SC797CE/STATUS" if is_797 else "/Storage/sc777ce/STATUS"
-                try:
-                    ftp.cwd(status_dir)
-                    ftp.retrbinary("RETR STATUS.ACT", bio.write)
-                except Exception:
-                    pass
-            data = bio.getvalue()
-            if len(data) >= 16:
-                status_act_found = True
-                controller_info["machine_id"] = data[11:19].split(b'\0')[0].decode('latin1', errors='ignore').strip()
-            if len(data) >= 48:
-                controller_info["batch"] = data[36:48].split(b'\0')[0].decode('latin1', errors='ignore').strip()
-            try:
-                ftp.quit()
-            except Exception:
-                try:
-                    ftp.close()
-                except Exception:
-                    pass
-        except Exception:
-            pass
-
-    overall_status = "ONLINE" if (ping_ok or ftp_ok or tcp_ok) else "OFFLINE"
-    m.status = overall_status
-    db.commit()
+    # Baca status koneksi dari database (diisi oleh da-batch-worker & da-setex-collector), tanpa buka socket baru
+    from ..models.schema_pg import MachineFtpStatus
+    ftp_st = db.query(MachineFtpStatus).filter(MachineFtpStatus.machine_no == m.machine_no).first()
+    ftp_ok = bool(ftp_st and ftp_st.can_read_ftp)
+    status_act_found = bool(ftp_st and ftp_st.status_act_readable)
+    tcp_ok = str(m.status or "").upper() in ("ONLINE", "RUNNING")
+    overall_status = m.status or ("ONLINE" if (ftp_ok or tcp_ok) else "OFFLINE")
 
     return {
         "machine_no": m.machine_no,
         "ip_address": ip,
-        "ping": ping_ok,
+        "ping": tcp_ok or ftp_ok,
         "setex_tcp": tcp_ok,
         "ftp_port_21": ftp_ok,
         "status_act_detected": status_act_found,
-        "controller_info": controller_info,
+        "controller_info": {
+            "batch": (ftp_st.active_batch if ftp_st and ftp_st.active_batch else m.current_batch) or "-",
+            "source": "DATABASE (da-batch-worker & da-setex-collector)",
+        },
         "overall_status": overall_status,
-        "write_mode": "DISABLED (Read-Only Mode Enforced)"
+        "write_mode": "DISABLED (Database-Only Read Mode Active)"
     }
 
 @router.post("/{machine_no}/fetch-config")
 def fetch_config_for_machine(machine_no: str, db: Session = Depends(get_db)):
-    """
-    Triggers FTP auto-download of HMI config files (.CNF) from the machine controller.
-    Downloads files to WORKSPACE_PROGRAM_MESIN/<NAMA_MESIN>/01_CONFIG_DARI_HMI/
-    and triggers automatic decoding to JSON.
-    """
-    m = db.query(Machine).filter(Machine.machine_no == machine_no.upper()).first()
-    if not m:
-        raise HTTPException(status_code=404, detail="Mesin tidak ditemukan.")
-    
-    result = fetch_machine_config_from_hmi(
-        ip=m.ip_address,
-        machine_no=m.machine_no,
-        ftp_port=m.ftp_port or 21,
-        timeout=5.0
+    """Dinonaktifkan: Dashboard tidak melakukan unduh FTP langsung ke kontroler."""
+    raise HTTPException(
+        status_code=403,
+        detail="Unduh konfigurasi langsung via FTP dari dashboard dinonaktifkan. Semua data dibaca dari database."
     )
-    return result
 
 @router.get("/{machine_no}/config-status")
 def get_config_status(machine_no: str):

@@ -12,6 +12,7 @@ const KanbanView = lazy(() => import('./pages/Planning/KanbanView'));
 const CalendarView = lazy(() => import('./pages/Planning/CalendarView'));
 const BatchListView = lazy(() => import('./pages/Planning/BatchListView'));
 const FtpManager = lazy(() => import('./pages/Ftp/FtpManager'));
+const FtpHealthMonitor = lazy(() => import('./pages/Ftp/FtpHealthMonitor'));
 const Logs = lazy(() => import('./pages/Logs'));
 const TagMapping = lazy(() => import('./pages/TagMapping'));
 
@@ -51,6 +52,7 @@ function App() {
               <Route path="/planning/kanban" element={<KanbanView />} />
               <Route path="/planning/calendar" element={<CalendarView />} />
               <Route path="/ftp" element={<FtpManager />} />
+              <Route path="/ftp-monitor" element={<FtpHealthMonitor />} />
               <Route path="/alarms" element={<Logs defaultTab="alarms" />} />
               <Route path="*" element={<NotFound />} />
             </Routes>

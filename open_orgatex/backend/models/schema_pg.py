@@ -93,6 +93,28 @@ class Machine(Base):
     last_ping_time = Column(DateTime(timezone=True))
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
+
+class MachineFtpStatus(Base):
+    """Status hasil pembacaan FTP per mesin yang dicatat oleh da-batch-worker."""
+    __tablename__ = 'machine_ftp_status'
+
+    machine_no = Column(String(50), primary_key=True)
+    ip_address = Column(String(50))
+    ftp_port = Column(Integer, default=21)
+    can_read_ftp = Column(Boolean, default=False)
+    ftp_status = Column(String(20), default='FAILED')  # OK | PARTIAL | FAILED
+    failure_category = Column(String(50), default='UNKNOWN')
+    error_detail = Column(Text)
+    status_act_readable = Column(Boolean, default=False)
+    active_batch = Column(String(50))
+    current_step = Column(Integer)
+    curve_points = Column(Integer, default=0)
+    latency_ms = Column(Numeric(10, 2), default=0.0)
+    consecutive_failures = Column(Integer, default=0)
+    last_checked_at = Column(DateTime(timezone=True))
+    last_success_at = Column(DateTime(timezone=True))
+    worker_name = Column(String(100))
+
 # =============================================================================
 # 3. ORGATEX EDX300 PROGRAM & SUB-PROGRAM (TREATMENT) ARCHITECTURE
 # Exactly matches OrgaTEX ProgramComponent & StepList schema

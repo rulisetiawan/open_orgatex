@@ -920,3 +920,430 @@ class LogIngestionService:
             "iw_reel": iw_reel,
             "iw_level": iw_level
         }
+
+    @staticmethod
+    def load_recipe_steps_from_db(
+        db: Session,
+        machine_no: str,
+        prog_no: Optional[int] = None,
+        program_name: Optional[str] = None,
+    ) -> List[Dict[str, Any]]:
+        """
+        Loads recipe steps strictly from PostgreSQL/SQLite (program_components + steps +
+        step_functions + step_function_parameters) without any FTP or local PRG download.
+        """
+        from ..models.schema_pg import ProgramComponent, Step, StepFunction, StepFunctionParameter
+
+        clean_m = (machine_no or "").strip().upper()
+        p_no_str = str(int(prog_no)) if prog_no and int(prog_no) > 0 else None
+        clean_name = (program_name or "").strip().upper()
+
+        comp = None
+        if p_no_str:
+            comp = (
+                db.query(ProgramComponent)
+                .filter(
+                    ProgramComponent.level == 1,
+                    ProgramComponent.machine_code == clean_m,
+                    ProgramComponent.number == p_no_str,
+                )
+                .order_by(desc(ProgramComponent.modification_time), desc(ProgramComponent.id))
+                .first()
+            )
+        if not comp and clean_name:
+            comp = (
+                db.query(ProgramComponent)
+                .filter(
+                    ProgramComponent.level == 1,
+                    ProgramComponent.machine_code == clean_m,
+                    ProgramComponent.name.ilike(clean_name),
+                )
+                .order_by(desc(ProgramComponent.modification_time), desc(ProgramComponent.id))
+                .first()
+            )
+        if not comp and p_no_str:
+            comp = (
+                db.query(ProgramComponent)
+                .filter(ProgramComponent.level == 1, ProgramComponent.number == p_no_str)
+                .order_by(desc(ProgramComponent.modification_time), desc(ProgramComponent.id))
+                .first()
+            )
+        if not comp:
+            return []
+
+        db_steps = (
+            db.query(Step)
+            .filter(Step.parent_component_id == comp.id)
+            .order_by(Step.position.asc())
+            .all()
+        )
+        if not db_steps:
+            return []
+
+        m_cat = SetexFolderReader.load_machine_catalog(clean_m) or {}
+        func_cat = m_cat.get("functions") or SetexFolderReader.get_function_catalog() or {}
+        res_cat = m_cat.get("resources") or SetexFolderReader._RESOURCES_CATALOG or {}
+
+        out_steps: List[Dict[str, Any]] = []
+        for st in db_steps:
+            s_funcs = (
+                db.query(StepFunction)
+                .filter(StepFunction.step_id == st.id)
+                .order_by(StepFunction.resource_number.asc(), StepFunction.id.asc())
+                .all()
+            )
+            sub_steps = []
+            main_func_id = 0
+            main_name = st.label or f"Langkah #{st.position}"
+            main_params = []
+            has_temp = st.summary_temp is not None
+
+            for sf in s_funcs:
+                fid = int(sf.function_number or 0)
+                slot_no = int(sf.resource_number or 1)
+                f_meta = func_cat.get(str(fid), {})
+                fname = sf.function_name or f_meta.get("name") or SetexFolderReader.FALLBACK_FUNCTION_NAMES.get(fid) or f"Func {fid}"
+                res_name = (res_cat.get(str(slot_no), {}) or {}).get("name") or ("main tank" if slot_no == 1 else f"Resource {slot_no}")
+
+                sf_params = (
+                    db.query(StepFunctionParameter)
+                    .filter(StepFunctionParameter.step_function_id == sf.id)
+                    .order_by(StepFunctionParameter.function_parameter_number.asc())
+                    .all()
+                )
+                p_specs = f_meta.get("params") or f_meta.get("parameters") or []
+                params_list = []
+                for idx_p, sfp in enumerate(sf_params):
+                    val = float(sfp.value) if sfp.value is not None else 0.0
+                    p_spec = p_specs[idx_p] if idx_p < len(p_specs) else {}
+                    p_name = p_spec.get("name") or f"P{sfp.function_parameter_number}"
+                    p_unit = (p_spec.get("unit") or "").strip()
+                    if val == 0.0 and not p_spec:
+                        continue
+                    v_fmt = f"{int(val)}" if val.is_integer() else f"{val:.1f}"
+                    formatted = f"{v_fmt} {p_unit}".strip()
+                    if "°c" in p_unit.lower() or "temp" in p_name.lower():
+                        has_temp = True
+                    params_list.append({
+                        "name": p_name,
+                        "value": val,
+                        "unit": p_unit,
+                        "formatted": formatted,
+                    })
+
+                if slot_no == 1:
+                    main_func_id = fid
+                    main_name = fname
+                    main_params = params_list
+
+                sub_steps.append({
+                    "line": slot_no,
+                    "is_sub": slot_no != 1,
+                    "func_id": fid,
+                    "func_name": fname,
+                    "name": fname,
+                    "resource_name": res_name,
+                    "params": params_list,
+                    "p1": params_list[0]["formatted"] if len(params_list) > 0 else "0",
+                    "p2": params_list[1]["formatted"] if len(params_list) > 1 else "0",
+                    "p3": params_list[2]["formatted"] if len(params_list) > 2 else "0",
+                })
+
+            set_time_min = float(st.summary_time_min) if st.summary_time_min is not None else 0.0
+            out_steps.append({
+                "no": int(st.position),
+                "func_id": main_func_id,
+                "name": main_name,
+                "icon": str(main_func_id or st.position),
+                "type": "HEAT" if main_func_id in (140, 141, 142, 145, 146) else ("HOLD" if main_func_id == 121 else "PROCESS"),
+                "comment": st.label or "",
+                "set_time": set_time_min,
+                "params": main_params,
+                "p1": main_params[0]["formatted"] if len(main_params) > 0 else (f"{float(st.summary_temp):.0f} °C" if st.summary_temp else "0"),
+                "p2": main_params[1]["formatted"] if len(main_params) > 1 else (f"{int(set_time_min)} min" if set_time_min > 0 else "0"),
+                "p3": main_params[2]["formatted"] if len(main_params) > 2 else "0",
+                "sub_steps": sub_steps,
+                "has_temp_target": has_temp or main_func_id in (140, 141, 142, 145, 146, 121, 131, 150),
+            })
+
+        return out_steps
+
+    @staticmethod
+    def get_machine_live_from_db(db: Session, machine: Machine) -> Dict[str, Any]:
+        """
+        100% Database-Only Live Telemetry Reader for Process Analyser & Dashboard.
+        Reads exclusively from PostgreSQL tables populated by `da-batch-worker` and `da-setex-collector`
+        (`machines`, `live_iw_telemetry`, `batch_headers`, `datalog_cyclic_records`, `datalog_alarms`,
+        `operator_interventions`, `program_components`, `machine_ftp_status`).
+        NEVER opens any FTP or TCP socket to the controller.
+        """
+        from sqlalchemy import text as sa_text
+
+        mach_no = (machine.machine_no or "").strip().upper()
+        is_797 = (
+            (machine.ip_address and machine.ip_address.strip() == "192.168.1.95")
+            or (machine.controller_type and "797" in machine.controller_type.upper())
+            or mach_no.startswith("DA")
+        )
+
+        # 1. Read live_iw_telemetry (populated by da-setex-collector & da-batch-worker via da-db-writer)
+        live_row = None
+        try:
+            live_row = db.execute(
+                sa_text("""
+                    SELECT last_updated, connection_status, batch_no, step_no, program_no, telemetry_json
+                    FROM live_iw_telemetry
+                    WHERE UPPER(machine_id) = :m_no
+                    LIMIT 1
+                """),
+                {"m_no": mach_no},
+            ).fetchone()
+        except Exception:
+            try:
+                db.rollback()
+            except Exception:
+                pass
+
+        telemetry_json = {}
+        live_conn_status = None
+        live_batch = None
+        live_step = None
+        live_prog = None
+        live_updated = None
+
+        if live_row:
+            live_updated = live_row[0]
+            live_conn_status = live_row[1]
+            live_batch = live_row[2]
+            live_step = live_row[3]
+            live_prog = live_row[4]
+            if isinstance(live_row[5], dict):
+                telemetry_json = live_row[5]
+
+        # Extract key live metrics from telemetry_json
+        def _extract_tag(suffixes):
+            for k, v in telemetry_json.items():
+                ku = str(k).upper()
+                if any(ku.endswith(suf) for suf in suffixes):
+                    if isinstance(v, dict) and v.get("value") is not None:
+                        try:
+                            return float(v["value"])
+                        except Exception:
+                            pass
+            return None
+
+        iw_t1 = _extract_tag((".TEMPERATURE_PV", ".MAIN_TANK.TEMPERATURE_PV", "TEMP_PV"))
+        iw_sp = _extract_tag((".TEMPERATURE_SV", ".MAIN_TANK.TEMPERATURE_SV", "TEMP_SV"))
+        iw_pump = _extract_tag((".MAIN_MOTOR.SPEED_PV", ".PUMP_SPEED_PV", ".SPEED_PV"))
+        iw_reel = _extract_tag((".REEL_SPEED_PV", ".WINCH_SPEED_PV"))
+        iw_level = _extract_tag((".MAIN_TANK.LEVEL_PV", ".LEVEL_PV"))
+
+        # 2. Resolve active batch_no (priority: live_iw_telemetry -> machine.current_batch -> latest cyclic record)
+        batch_no = (live_batch or machine.current_batch or "").strip()
+        if not batch_no or batch_no.upper() == "UNKNOWN":
+            latest_cyc = (
+                db.query(DatalogCyclicRecord)
+                .filter(DatalogCyclicRecord.machine_no == mach_no)
+                .order_by(desc(DatalogCyclicRecord.log_timestamp))
+                .first()
+            )
+            if latest_cyc and latest_cyc.batch_ref_no:
+                batch_no = latest_cyc.batch_ref_no
+            else:
+                batch_no = "-"
+
+        # 3. Load BatchHeader for program_no / recipe_name
+        bh = None
+        if batch_no and batch_no != "-":
+            bh = (
+                db.query(BatchHeader)
+                .filter(BatchHeader.batch_ref_no == batch_no)
+                .first()
+            )
+            if not bh:
+                bh = (
+                    db.query(BatchHeader)
+                    .filter(BatchHeader.machine_no == mach_no)
+                    .order_by(desc(BatchHeader.created_at))
+                    .first()
+                )
+
+        prog_no = 0
+        if live_prog and str(live_prog).isdigit():
+            prog_no = int(live_prog)
+        elif bh and bh.program_no:
+            prog_no = int(bh.program_no)
+
+        program_name = (bh.recipe_name if bh and bh.recipe_name else f"Program #{prog_no}" if prog_no else "-")
+        program_code = f"M_{prog_no:04d}" if prog_no > 0 else "-"
+
+        # 4. Load cyclic curve points from DB
+        curve_q = db.query(DatalogCyclicRecord).filter(DatalogCyclicRecord.machine_no == mach_no)
+        if batch_no and batch_no != "-":
+            curve_q = curve_q.filter(DatalogCyclicRecord.batch_ref_no == batch_no)
+        curve_rows = curve_q.order_by(desc(DatalogCyclicRecord.log_timestamp)).limit(500).all()
+        curve_rows.reverse()
+
+        curve = [
+            {
+                "timestamp": r.log_timestamp.strftime("%Y-%m-%d %H:%M:%S") if r.log_timestamp else "",
+                "temp_pv": float(r.temp_pv) if r.temp_pv is not None else 0.0,
+                "temp_sp": float(r.temp_sp) if r.temp_sp is not None else None,
+                "temp_pt100_t2": float(r.temp_pt100_t2) if r.temp_pt100_t2 is not None else 0.0,
+                "pump_speed_percent": float(r.pump_speed_percent) if r.pump_speed_percent is not None else 0.0,
+                "reel_speed_mpm": float(r.reel_speed_mpm) if r.reel_speed_mpm is not None else 0.0,
+                "step_no": int(r.step_no) if r.step_no is not None else 1,
+            }
+            for r in curve_rows
+        ]
+
+        # 5. Load alarms & interventions from DB
+        alarm_q = db.query(DatalogAlarm).filter(DatalogAlarm.machine_no == mach_no)
+        if batch_no and batch_no != "-":
+            batch_alarms = alarm_q.filter(DatalogAlarm.batch_ref_no == batch_no).order_by(desc(DatalogAlarm.alarm_timestamp)).limit(50).all()
+        else:
+            batch_alarms = []
+        if not batch_alarms:
+            batch_alarms = alarm_q.order_by(desc(DatalogAlarm.alarm_timestamp)).limit(30).all()
+
+        final_alarms = [
+            {
+                "timestamp": a.alarm_timestamp.strftime("%Y-%m-%d %H:%M:%S") if a.alarm_timestamp else "",
+                "alarm_code": a.alarm_code,
+                "alarm_text": a.alarm_text,
+                "step_no": a.step_no,
+                "severity": a.severity or "WARNING",
+                "cleared_at": a.cleared_at.strftime("%Y-%m-%d %H:%M:%S") if a.cleared_at else None,
+            }
+            for a in batch_alarms
+        ]
+        active_alarms = [a for a in final_alarms if not a.get("cleared_at")]
+
+        interv_q = db.query(OperatorIntervention).filter(OperatorIntervention.machine_no == mach_no)
+        if batch_no and batch_no != "-":
+            interv_q = interv_q.filter(OperatorIntervention.batch_no == batch_no)
+        intervs = interv_q.order_by(desc(OperatorIntervention.timestamp)).limit(50).all()
+        active_interventions = [
+            {
+                "id": iv.id,
+                "timestamp": iv.timestamp.strftime("%Y-%m-%d %H:%M:%S") if iv.timestamp else "",
+                "step_no": iv.step_no,
+                "parameter_name": iv.parameter_name,
+                "old_value": float(iv.old_value) if getattr(iv, "old_value", None) is not None else None,
+                "new_value": float(iv.new_value) if getattr(iv, "new_value", None) is not None else None,
+                "unit": getattr(iv, "unit", "") or "",
+                "trigger_source": iv.trigger_source,
+            }
+            for iv in intervs
+        ]
+
+        # 6. Load recipe steps from DB & enrich with cyclic telemetry timings
+        recipe_steps = LogIngestionService.load_recipe_steps_from_db(db, mach_no, prog_no=prog_no, program_name=program_name)
+
+        step_times: Dict[int, Dict[str, Any]] = {}
+        for r in curve_rows:
+            s_no = int(r.step_no or 1)
+            ts = r.log_timestamp
+            if ts is None:
+                continue
+            if s_no not in step_times:
+                step_times[s_no] = {"start": ts, "end": ts}
+            else:
+                if ts < step_times[s_no]["start"]:
+                    step_times[s_no]["start"] = ts
+                if ts > step_times[s_no]["end"]:
+                    step_times[s_no]["end"] = ts
+
+        if not recipe_steps and step_times:
+            for s_no in sorted(step_times.keys()):
+                recipe_steps.append({
+                    "no": s_no,
+                    "func_id": s_no,
+                    "name": f"Langkah Proses #{s_no}",
+                    "icon": str(s_no),
+                    "type": "PROCESS",
+                    "comment": "",
+                    "params": [],
+                    "p1": "0", "p2": "0", "p3": "0",
+                    "sub_steps": [],
+                    "has_temp_target": True,
+                })
+
+        curr_step = int(live_step or machine.current_step or (curve[-1]["step_no"] if curve else 1))
+        for st in recipe_steps:
+            s_no = int(st.get("no") or 1)
+            st_info = step_times.get(s_no)
+            if st_info:
+                st["start_time"] = st_info["start"].strftime("%Y-%m-%d %H:%M:%S")
+                st["end_time"] = None if s_no == curr_step else st_info["end"].strftime("%Y-%m-%d %H:%M:%S")
+                dur = max(0, int((st_info["end"] - st_info["start"]).total_seconds()))
+                st["duration_seconds"] = dur
+                if dur < 60:
+                    st["duration_text"] = f"{dur} dtk"
+                elif dur < 3600:
+                    st["duration_text"] = f"{dur // 60} mnt"
+                else:
+                    st["duration_text"] = f"{dur // 3600} jam {(dur % 3600) // 60} mnt"
+                st["time_status"] = "RUNNING" if s_no == curr_step else "ON_TRACK"
+                st["delta_text"] = "Sedang Jalan" if s_no == curr_step else "✓ Selesai"
+
+            step_pts = [p for p in curve if p.get("step_no") == s_no]
+            if step_pts:
+                pv_vals = [float(p["temp_pv"]) for p in step_pts if p.get("temp_pv") is not None]
+                sp_vals = [float(p["temp_sp"]) for p in step_pts if p.get("temp_sp") is not None]
+                st["telemetry"] = {
+                    "point_count": len(step_pts),
+                    "pv_start": round(pv_vals[0], 1) if pv_vals else None,
+                    "pv_end": round(pv_vals[-1], 1) if pv_vals else None,
+                    "pv_max": round(max(pv_vals), 1) if pv_vals else None,
+                    "sp": round(sp_vals[-1], 1) if sp_vals else None,
+                }
+
+        current_temp = iw_t1
+        if current_temp is None and curve:
+            current_temp = curve[-1].get("temp_pv")
+        if current_temp is None and machine.current_temp is not None:
+            current_temp = float(machine.current_temp)
+
+        current_sp = iw_sp
+        if current_sp is None and curve:
+            current_sp = curve[-1].get("temp_sp")
+
+        iw_online = bool(live_conn_status and str(live_conn_status).upper() in ("ONLINE", "RUNNING")) or bool(telemetry_json)
+        status_str = machine.status or (live_conn_status or "OFFLINE")
+
+        return {
+            "machine_no": mach_no,
+            "status": status_str,
+            "controller_type": "SETEX 797CE (Windows CE)" if is_797 else (machine.controller_type or "SECOM 777 (Windows CE)"),
+            "controller_name": "SETEX Secom 797CE" if is_797 else "SETEX Secom 777",
+            "share_folder_path": machine.share_folder_path or ("/Flashdisk/SC797CE" if is_797 else "/Storage/sc777ce"),
+            "database_mode": "POSTGRES" if getattr(database, "IS_POSTGRES", False) else "SQLITE_OFFLINE",
+            "is_live_hmi": iw_online,
+            "data_source": "DATABASE (da-batch-worker & da-setex-collector)",
+            "hmi_ip": machine.ip_address,
+            "hmi_port": machine.ftp_port or 21,
+            "batch_no": batch_no,
+            "prog_no": prog_no,
+            "program_code": program_code,
+            "program_name": program_name,
+            "current_step": curr_step,
+            "function_code": 0,
+            "current_temp": current_temp,
+            "current_sp": current_sp,
+            "is_alarm_active": len(active_alarms) > 0,
+            "active_alarms": active_alarms[:10],
+            "points_saved": 0,
+            "alarms_saved": 0,
+            "curve": curve,
+            "alarms": final_alarms,
+            "steps": recipe_steps,
+            "interventions": active_interventions,
+            "iw_telemetry": {"online": iw_online, "last_updated": live_updated.isoformat() if live_updated else None, "tags_count": len(telemetry_json)},
+            "iw_source": iw_online and iw_t1 is not None,
+            "iw_online": iw_online,
+            "iw_t1_pv": iw_t1,
+            "iw_pump": iw_pump,
+            "iw_reel": iw_reel,
+            "iw_level": iw_level,
+        }
