@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import TempCurveChart from '../components/Charts/TempCurveChart';
+import { useToast } from '../context/ToastContext';
+import { LiveElapsedText } from '../components/UI/LiveTimers';
 import {
   LineChart,
   AlertTriangle,
@@ -120,6 +122,8 @@ const getStepTargetTemp = (step) => {
 };
 
 const Logs = ({ defaultTab = 'active' }) => {
+  const { toast } = useToast();
+  const alarmSectionRef = useRef(null);
   const location = useLocation();
   const navigate = useNavigate();
   const searchParams = new URLSearchParams(location.search);
@@ -171,15 +175,29 @@ const Logs = ({ defaultTab = 'active' }) => {
   const [alarmSortOrder, setAlarmSortOrder] = useState('desc'); // 'desc' (terbaru ke terlama) atau 'asc' (terlama ke terbaru)
   const [availableAlarmDates, setAvailableAlarmDates] = useState([]);
   const [alarmsLoading, setAlarmsLoading] = useState(false);
-  const [currentTick, setCurrentTick] = useState(Date.now());
 
-  // 1-second interval to drive live "Sudah Berjalan Berapa Lama" timer
+  // Scroll to Alarm section automatically when opened via /alarms route
   useEffect(() => {
-    const timer = setInterval(() => {
-      setCurrentTick(Date.now());
-    }, 1000);
-    return () => clearInterval(timer);
-  }, []);
+    if (defaultTab === 'alarms' && alarmSectionRef.current) {
+      const t = setTimeout(() => {
+        alarmSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 250);
+      return () => clearTimeout(t);
+    }
+  }, [defaultTab]);
+
+  // Close open modals on Escape key
+  useEffect(() => {
+    if (!selectedStepDetail && !showIwModal) return;
+    const onKeyDown = (e) => {
+      if (e.key === 'Escape') {
+        if (showIwModal) setShowIwModal(false);
+        else if (selectedStepDetail) setSelectedStepDetail(null);
+      }
+    };
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, [selectedStepDetail, showIwModal]);
 
   // Fetch real machines from PostgreSQL
   useEffect(() => {
@@ -354,11 +372,11 @@ const Logs = ({ defaultTab = 'active' }) => {
         const detail = await res.json();
         setSelectedArchiveBatch(detail);
       } else {
-        alert('Gagal memuat detail data riwayat batch.');
+        toast.error('Gagal memuat detail data riwayat batch.');
       }
     } catch (err) {
       console.error('Gagal mengambil detail riwayat batch:', err);
-      alert('Terjadi kesalahan saat memuat detail batch.');
+      toast.error('Terjadi kesalahan saat memuat detail batch.');
     } finally {
       setArchiveDetailLoading(false);
     }
@@ -373,6 +391,8 @@ const Logs = ({ defaultTab = 'active' }) => {
   useEffect(() => {
     if (tabFromUrl === 'archive') {
       setActiveTab('archive');
+    } else if (tabFromUrl === 'active' || tabFromUrl === 'alarms') {
+      setActiveTab('active');
     }
   }, [tabFromUrl]);
 
@@ -380,7 +400,9 @@ const Logs = ({ defaultTab = 'active' }) => {
     if (activeTab === 'active') {
       fetchLiveLog();
       if (refreshInterval > 0) {
-        const interval = setInterval(fetchLiveLog, refreshInterval);
+        const interval = setInterval(() => {
+          if (!document.hidden) fetchLiveLog();
+        }, refreshInterval);
         return () => clearInterval(interval);
       }
     }
@@ -393,14 +415,15 @@ const Logs = ({ defaultTab = 'active' }) => {
       const res = await fetch(`${API_BASE}/logs/sync/${selectedMachine}`, { method: 'POST' });
       if (res.ok) {
         const syncRes = await res.json();
-        alert(
-          `Sinkronisasi Selesai!\n- Titik telemetri baru tersimpan: ${syncRes.new_points_persisted}\n- Alarm baru: ${syncRes.new_alarms_persisted}\n- Database: PostgreSQL TimescaleDB`
+        toast.success(
+          `Titik telemetri baru: ${syncRes.new_points_persisted} · Alarm baru: ${syncRes.new_alarms_persisted} (PostgreSQL TimescaleDB)`,
+          { title: 'Sinkronisasi Selesai!' }
         );
         fetchLiveLog();
         fetchAlarms();
       }
     } catch (err) {
-      alert(`Gagal sinkronisasi: ${err.message}`);
+      toast.error(`Gagal sinkronisasi: ${err.message}`);
     } finally {
       setSyncing(false);
     }
@@ -1447,16 +1470,20 @@ const Logs = ({ defaultTab = 'active' }) => {
             <span className="text-xs font-bold text-primary font-mono bg-primary/10 px-2 py-0.5 rounded border border-primary/20">
               Langkah Aktif: #{currentStepNo} ({stepsList.find(s => s.no === currentStepNo)?.name || 'Proses'})
             </span>
-            {activeStepElapsed && (
+            {!isArchiveMode && activeStep?.start_time && (
               <span className="text-xs font-bold text-blue-700 dark:text-blue-300 font-mono bg-blue-500/10 px-2.5 py-0.5 rounded border border-blue-500/20 flex items-center gap-1.5" title="Durasi langkah aktif yang sedang berjalan saat ini">
                 <span className="w-2 h-2 rounded-full bg-blue-500 animate-ping"></span>
-                Sudah Berjalan: {activeStepElapsed}
+                <LiveElapsedText startTime={activeStep.start_time} prefix="Sudah Berjalan: " fallback="" />
               </span>
             )}
-            {batchTotalElapsed && (
+            {(isArchiveMode ? batchTotalElapsed : firstStepWithStart?.start_time) && (
               <span className="text-xs font-bold text-emerald-700 dark:text-emerald-300 font-mono bg-emerald-500/10 px-2.5 py-0.5 rounded border border-emerald-500/20 flex items-center gap-1" title="Total durasi proses batch sejak awal langkah">
                 <Clock className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
-                Total Batch: {batchTotalElapsed}
+                {isArchiveMode ? (
+                  <>Total Batch: {batchTotalElapsed}</>
+                ) : (
+                  <LiveElapsedText startTime={firstStepWithStart.start_time} prefix="Total Batch: " fallback="" />
+                )}
               </span>
             )}
             <button
@@ -1825,7 +1852,14 @@ const Logs = ({ defaultTab = 'active' }) => {
       </div>
 
       {/* TRACK 3 & 4: ALARMS & OPERATOR INTERVENTIONS (UCDocPanelAlarm) */}
-      <div className="rounded border border-stroke bg-white shadow-sm dark:border-strokedark dark:bg-boxdark">
+      <div
+        ref={alarmSectionRef}
+        className={`rounded-xl border bg-white shadow-sm dark:bg-boxdark ${
+          defaultTab === 'alarms'
+            ? 'border-warning/60 ring-2 ring-warning/20'
+            : 'border-stroke dark:border-strokedark'
+        }`}
+      >
         {/* HEADER & DATE FILTER CONTROLS */}
         <div className="flex flex-col md:flex-row md:items-center md:justify-between py-3.5 px-6 border-b border-stroke dark:border-strokedark gap-3">
           <div>
@@ -2153,8 +2187,17 @@ const Logs = ({ defaultTab = 'active' }) => {
 
       {/* MODAL POPUP: SETEX SECOM PROGRAM LIST & SUB-STEP DETAIL (PARITY WITH HMI POPUP) */}
       {selectedStepDetail && (
-        <div className="fixed inset-0 z-99999 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4 animate-in fade-in duration-200">
-          <div className="bg-white dark:bg-boxdark border border-stroke dark:border-strokedark rounded-xl shadow-2xl w-full max-w-4xl max-h-[92vh] flex flex-col overflow-hidden font-sans">
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-label="Detail Langkah Program"
+          onClick={() => setSelectedStepDetail(null)}
+          className="fixed inset-0 z-[60] flex items-center justify-center bg-black/60 backdrop-blur-xs p-4 animate-in fade-in duration-200"
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="bg-white dark:bg-boxdark border border-stroke dark:border-strokedark rounded-xl shadow-2xl w-full max-w-4xl max-h-[92vh] flex flex-col overflow-hidden font-sans"
+          >
 
             {/* HMI Classic Window Header */}
             <div className="bg-gray-100 dark:bg-meta-4 border-b border-stroke dark:border-strokedark px-4 py-3 flex items-center justify-between shrink-0">
@@ -2573,8 +2616,17 @@ const Logs = ({ defaultTab = 'active' }) => {
       {/* MODAL SETEX MULTI-OBJECT & LIVE REGISTER INSPECTOR VIA TCP PORT 50000 */}
       {/* ========================================================================= */}
       {showIwModal && (
-        <div className="fixed inset-0 z-99999 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4 animate-fadeIn">
-          <div className="bg-white dark:bg-boxdark rounded-xl shadow-2xl max-w-5xl w-full border border-stroke dark:border-strokedark overflow-hidden flex flex-col max-h-[92vh]">
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-label="SETEX Live Multi-Object & Register Inspector"
+          onClick={() => setShowIwModal(false)}
+          className="fixed inset-0 z-[60] flex items-center justify-center bg-black/60 backdrop-blur-xs p-4 animate-fadeIn"
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="bg-white dark:bg-boxdark rounded-xl shadow-2xl max-w-5xl w-full border border-stroke dark:border-strokedark overflow-hidden flex flex-col max-h-[92vh]"
+          >
             {/* Header */}
             <div className="bg-gray-100 dark:bg-meta-4 px-5 py-4 border-b border-stroke dark:border-strokedark flex items-center justify-between shrink-0">
               <div className="flex items-center gap-2.5">

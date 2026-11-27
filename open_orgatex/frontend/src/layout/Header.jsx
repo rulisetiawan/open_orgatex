@@ -1,10 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { Menu, Sun, Moon, Clock, ShieldCheck } from 'lucide-react';
+import { Menu, Sun, Moon, Clock } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext';
 
 const Header = ({ sidebarOpen, setSidebarOpen, darkMode, setDarkMode }) => {
   const { theme, toggleTheme } = useTheme();
   const [clock, setClock] = useState('');
+  const [isOnline, setIsOnline] = useState(() =>
+    typeof navigator !== 'undefined' ? navigator.onLine : true
+  );
 
   useEffect(() => {
     const updateTime = () => {
@@ -14,6 +17,17 @@ const Header = ({ sidebarOpen, setSidebarOpen, darkMode, setDarkMode }) => {
     updateTime();
     const interval = setInterval(updateTime, 1000);
     return () => clearInterval(interval);
+  }, []);
+
+  useEffect(() => {
+    const handleOnline = () => setIsOnline(true);
+    const handleOffline = () => setIsOnline(false);
+    window.addEventListener('online', handleOnline);
+    window.addEventListener('offline', handleOffline);
+    return () => {
+      window.removeEventListener('online', handleOnline);
+      window.removeEventListener('offline', handleOffline);
+    };
   }, []);
 
   const shiftInfo = (() => {
@@ -27,22 +41,36 @@ const Header = ({ sidebarOpen, setSidebarOpen, darkMode, setDarkMode }) => {
   const handleToggle = setDarkMode ? () => setDarkMode(!darkMode) : toggleTheme;
 
   return (
-    <header className="sticky top-0 z-999 flex w-full border-b border-stroke bg-white/95 backdrop-blur shadow-sm dark:border-strokedark dark:bg-boxdark/95 transition-colors duration-200">
+    <header className="sticky top-0 z-40 flex w-full border-b border-stroke bg-white/95 backdrop-blur shadow-sm dark:border-strokedark dark:bg-boxdark/95 transition-colors duration-200">
       <div className="flex flex-grow items-center justify-between px-4 py-3 md:px-6 2xl:px-8">
         <div className="flex items-center gap-3 sm:gap-4">
           {/* Hamburger Toggle for Mobile */}
           <button
+            type="button"
             onClick={() => setSidebarOpen(!sidebarOpen)}
-            className="z-99999 block rounded-lg border border-stroke bg-white p-2 shadow-sm dark:border-strokedark dark:bg-meta-4 lg:hidden hover:border-primary transition-colors"
+            aria-expanded={sidebarOpen}
             aria-label="Toggle Navigation"
+            className="block rounded-lg border border-stroke bg-white p-2 shadow-sm dark:border-strokedark dark:bg-meta-4 lg:hidden hover:border-primary transition-colors"
           >
             <Menu className="h-5 w-5 text-black dark:text-white" />
           </button>
 
-          {/* Real-time Status Badge */}
-          <div className="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400">
-            <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse"></span>
-            <span className="text-xs font-semibold">Online</span>
+          {/* Real-time Network Status Badge */}
+          <div
+            role="status"
+            aria-live="polite"
+            className={`hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-full border ${
+              isOnline
+                ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-600 dark:text-emerald-400'
+                : 'bg-rose-500/10 border-rose-500/30 text-rose-600 dark:text-rose-400'
+            }`}
+          >
+            <span
+              className={`h-2 w-2 rounded-full ${
+                isOnline ? 'bg-emerald-500 animate-pulse' : 'bg-rose-500'
+              }`}
+            />
+            <span className="text-xs font-semibold">{isOnline ? 'Online' : 'Offline'}</span>
           </div>
         </div>
 
@@ -65,8 +93,8 @@ const Header = ({ sidebarOpen, setSidebarOpen, darkMode, setDarkMode }) => {
             onClick={handleToggle}
             type="button"
             className="relative flex h-9 w-9 items-center justify-center rounded-lg border border-stroke bg-gray hover:bg-gray-2 hover:text-primary dark:border-strokedark dark:bg-meta-4 dark:text-white dark:hover:bg-slate-800 transition-all shadow-sm cursor-pointer"
-            aria-label={isDark ? "Switch to Light Mode" : "Switch to Dark Mode"}
-            title={isDark ? "Mode Terang" : "Mode Gelap"}
+            aria-label={isDark ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+            title={isDark ? 'Mode Terang' : 'Mode Gelap'}
           >
             {isDark ? (
               <Sun className="h-4 w-4 text-amber-400 transition-transform hover:rotate-45" />
@@ -82,7 +110,10 @@ const Header = ({ sidebarOpen, setSidebarOpen, darkMode, setDarkMode }) => {
                 Operator
               </span>
             </div>
-            <div className="h-8 w-8 rounded-lg bg-primary/10 border border-primary/20 text-primary dark:bg-primary/20 dark:text-secondary flex items-center justify-center font-bold text-xs shadow-xs">
+            <div
+              aria-hidden="true"
+              className="h-8 w-8 rounded-lg bg-primary/10 border border-primary/20 text-primary dark:bg-primary/20 dark:text-secondary flex items-center justify-center font-bold text-xs shadow-xs"
+            >
               OP
             </div>
           </div>

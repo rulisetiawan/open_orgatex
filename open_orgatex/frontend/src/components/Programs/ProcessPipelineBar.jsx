@@ -211,44 +211,52 @@ export default function ProcessPipelineBar({
                     ) : null}
                   </div>
 
-                  {/* Hover Quick Actions (Move, Duplicate, Delete) */}
+                  {/* Hover / Focus / Touch Quick Actions (Move, Duplicate, Delete) */}
                   <div
                     onClick={(e) => e.stopPropagation()}
-                    className="absolute -top-2.5 right-2 hidden group-hover:flex items-center gap-1 bg-white dark:bg-boxdark border border-stroke dark:border-strokedark rounded-lg shadow-md px-1.5 py-0.5 z-10"
+                    className={`absolute -top-2.5 right-2 flex items-center gap-1 bg-white dark:bg-boxdark border border-stroke dark:border-strokedark rounded-lg shadow-md px-1.5 py-0.5 z-10 transition-opacity ${
+                      isSelected
+                        ? 'opacity-100'
+                        : 'opacity-100 md:opacity-0 md:group-hover:opacity-100 md:group-focus-within:opacity-100'
+                    }`}
                   >
                     <button
                       type="button"
                       disabled={idx === 0}
                       onClick={() => onMoveSub && onMoveSub(idx, 'LEFT')}
+                      aria-label="Geser Fasa ke Kiri"
                       className="p-1 text-gray-400 hover:text-black dark:hover:text-white disabled:opacity-30 transition"
                       title="Geser Fasa ke Kiri"
                     >
-                      <ArrowLeft className="h-3 w-3" />
+                      <ArrowLeft className="h-3.5 w-3.5" />
                     </button>
                     <button
                       type="button"
                       disabled={idx === subPrograms.length - 1}
                       onClick={() => onMoveSub && onMoveSub(idx, 'RIGHT')}
+                      aria-label="Geser Fasa ke Kanan"
                       className="p-1 text-gray-400 hover:text-black dark:hover:text-white disabled:opacity-30 transition"
                       title="Geser Fasa ke Kanan"
                     >
-                      <ArrowRight className="h-3 w-3" />
+                      <ArrowRight className="h-3.5 w-3.5" />
                     </button>
                     <button
                       type="button"
                       onClick={() => onDuplicateSub && onDuplicateSub(idx)}
+                      aria-label="Duplikasi Seluruh Fasa Ini"
                       className="p-1 text-blue-500 hover:text-blue-700 transition"
                       title="Duplikasi Seluruh Fasa Ini"
                     >
-                      <Copy className="h-3 w-3" />
+                      <Copy className="h-3.5 w-3.5" />
                     </button>
                     <button
                       type="button"
                       onClick={() => onDeleteSub && onDeleteSub(idx)}
+                      aria-label="Hapus Fasa Ini"
                       className="p-1 text-rose-500 hover:text-rose-700 transition"
                       title="Hapus Fasa Ini"
                     >
-                      <Trash2 className="h-3 w-3" />
+                      <Trash2 className="h-3.5 w-3.5" />
                     </button>
                   </div>
                 </div>

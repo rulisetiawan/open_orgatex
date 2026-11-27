@@ -1,5 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
+import { useToast } from '../context/ToastContext';
+import { useVisibilityInterval } from '../hooks/useVisibilityInterval';
 import { 
   Tags, 
   Search, 
@@ -18,6 +20,7 @@ import {
 } from 'lucide-react';
 
 const TagMapping = () => {
+  const { toast } = useToast();
   const [machines, setMachines] = useState([]);
   const [selectedMachine, setSelectedMachine] = useState('10B');
   const [mappings, setMappings] = useState([]);
@@ -43,7 +46,7 @@ const TagMapping = () => {
   };
 
   // 2. Fetch mapping and live data for selected machine
-  const fetchMappingData = async (showLoading = false, useDirect = directMode) => {
+  const fetchMappingData = useCallback(async (showLoading = false, useDirect = directMode) => {
     if (showLoading) setLoading(true);
     setRefreshing(true);
     try {
@@ -59,7 +62,7 @@ const TagMapping = () => {
       setLoading(false);
       setRefreshing(false);
     }
-  };
+  }, [selectedMachine, directMode]);
 
   useEffect(() => {
     fetchMachines();
@@ -67,21 +70,34 @@ const TagMapping = () => {
 
   useEffect(() => {
     fetchMappingData(true);
-  }, [selectedMachine]);
+  }, [selectedMachine, fetchMappingData]);
 
-  // Periodic Auto-refresh (every 3 seconds)
-  useEffect(() => {
-    if (!autoRefresh) return;
-    const interval = setInterval(() => {
-      fetchMappingData(false);
-    }, 3000);
-    return () => clearInterval(interval);
-  }, [autoRefresh, selectedMachine]);
+  // Periodic Auto-refresh (every 3s, pauses when tab hidden, respects directMode)
+  useVisibilityInterval(() => {
+    fetchMappingData(false, directMode);
+  }, 3000, autoRefresh);
 
-  const copyToClipboard = (tagName) => {
-    navigator.clipboard.writeText(tagName);
-    setCopiedTag(tagName);
-    setTimeout(() => setCopiedTag(null), 2000);
+  const copyToClipboard = async (tagName) => {
+    try {
+      if (navigator.clipboard && window.isSecureContext) {
+        await navigator.clipboard.writeText(tagName);
+      } else {
+        const textarea = document.createElement('textarea');
+        textarea.value = tagName;
+        textarea.style.position = 'fixed';
+        textarea.style.opacity = '0';
+        document.body.appendChild(textarea);
+        textarea.focus();
+        textarea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textarea);
+      }
+      setCopiedTag(tagName);
+      toast.success(`Tag disalin: ${tagName}`, { duration: 2000 });
+      setTimeout(() => setCopiedTag(null), 2000);
+    } catch {
+      toast.error('Gagal menyalin tag ke clipboard.');
+    }
   };
 
   // Filtered rows

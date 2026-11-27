@@ -50,7 +50,19 @@ export default {
         warning: '#F59E0B',
         teal: '#46B8A2',
       },
+      spacing: {
+        '0.2': '0.125rem',
+        '4.5': '1.125rem',
+      },
+      scale: {
+        102: '1.02',
+      },
+      backdropBlur: {
+        xs: '2px',
+      },
       boxShadow: {
+        '2xs': '0 1px 1px 0 rgba(16, 24, 40, 0.04)',
+        xs: '0 1px 2px 0 rgba(16, 24, 40, 0.05)',
         default: '0 1px 3px 0 rgba(0, 0, 0, 0.08), 0 1px 2px 0 rgba(0, 0, 0, 0.04)',
         card: '0 1px 3px 0 rgba(16, 24, 40, 0.08), 0 1px 2px 0 rgba(16, 24, 40, 0.04)',
         'card-dark': '0 4px 12px 0 rgba(0, 0, 0, 0.35)',

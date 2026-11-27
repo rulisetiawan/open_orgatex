@@ -15,10 +15,14 @@
             document.documentElement.setAttribute('data-theme', 'dark');
             document.documentElement.classList.add('dark');
             document.documentElement.style.colorScheme = 'dark';
+            var metaDark = document.querySelector('meta[name="theme-color"]');
+            if (metaDark) metaDark.setAttribute('content', '#0b1420');
           } else {
             document.documentElement.setAttribute('data-theme', 'light');
             document.documentElement.classList.remove('dark');
             document.documentElement.style.colorScheme = 'light';
+            var metaLight = document.querySelector('meta[name="theme-color"]');
+            if (metaLight) metaLight.setAttribute('content', '#ffffff');
           }
         } catch(e) {}
       })();
@@ -30,8 +34,6 @@
       href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
       rel="stylesheet"
     />
-    <!-- Flatpickr CSS -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css" />
   </head>
   <body class="bg-whiten text-body dark:bg-boxdark-2 dark:text-bodydark antialiased">
     <div id="root"></div>

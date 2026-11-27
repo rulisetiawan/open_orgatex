@@ -42,6 +42,7 @@ import ProcessPipelineBar from '../components/Programs/ProcessPipelineBar';
 import SubProgramDrawer from '../components/Programs/SubProgramDrawer';
 import SmartRecipeWizardModal from '../components/Programs/SmartRecipeWizardModal';
 import typeconfData from '../data/typeconf_functions.json';
+import { useToast } from '../context/ToastContext';
 
 // Helper function definitions from TYPECONF
 const ALL_FUNCTIONS = typeconfData.functions || {};
@@ -176,6 +177,7 @@ export const getStepSummary = (step) => {
 };
 
 export default function Programs() {
+  const { toast } = useToast();
   // Navigation / View State
   const [viewMode, setViewMode] = useState('LIST'); // 'LIST' or 'EDITOR'
 
@@ -406,15 +408,30 @@ export default function Programs() {
     setSyncingDB(true);
     try {
       const res = await axios.post('/api/database/sync');
-      alert(res.data.message || 'Sinkronisasi program PostgreSQL & SQLite selesai!');
+      toast.success(res.data.message || 'Sinkronisasi program PostgreSQL & SQLite selesai!');
       fetchProgramList();
     } catch (err) {
       const msg = err.response?.data?.detail || (typeof err.response?.data === 'string' ? err.response.data : err.message);
-      alert('Gagal sinkronisasi program: ' + msg);
+      toast.error('Gagal sinkronisasi program: ' + msg);
     } finally {
       setSyncingDB(false);
     }
   };
+
+  // Close open modals on Escape key
+  useEffect(() => {
+    if (!showCreateModal && !ftpTransferModal && !showTemplateModal && !showEditorImportModal) return;
+    const onKey = (e) => {
+      if (e.key === 'Escape') {
+        setShowCreateModal(false);
+        setFtpTransferModal(null);
+        setShowTemplateModal(false);
+        setShowEditorImportModal(false);
+      }
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [showCreateModal, ftpTransferModal, showTemplateModal, showEditorImportModal]);
 
   useEffect(() => {
     fetchProgramList();
@@ -805,7 +822,7 @@ export default function Programs() {
   const handleConfirmCreateProgram = async () => {
     const pNo = parseInt(createProgramNo, 10);
     if (isNaN(pNo) || pNo < 1 || pNo > 9999) {
-      alert("Nomor program harus antara 1 sampai 9999 (format SETEX M_xxxx.PRG).");
+      toast.warning("Nomor program harus antara 1 sampai 9999 (format SETEX M_xxxx.PRG).");
       return;
     }
 
@@ -813,7 +830,7 @@ export default function Programs() {
     if (createTemplateType === 'COPY_EXISTING') {
       const srcNo = parseInt(createSourceProgramNo, 10);
       if (isNaN(srcNo)) {
-        alert("Silakan pilih program sumber yang ingin diimpor / disalin.");
+        toast.warning("Silakan pilih program sumber yang ingin diimpor / disalin.");
         return;
       }
       setIsCopyingProgram(true);
@@ -857,7 +874,7 @@ export default function Programs() {
         });
         setTimeout(() => setNotification(null), 5000);
       } catch (err) {
-        alert("Gagal mengimpor langkah dari program asal: " + (err.response?.data?.detail || err.message));
+        toast.error("Gagal mengimpor langkah dari program asal: " + (err.response?.data?.detail || err.message));
       } finally {
         setIsCopyingProgram(false);
       }
@@ -928,7 +945,7 @@ export default function Programs() {
   const handleImportProgramIntoEditor = async () => {
     const srcNo = parseInt(editorImportSourceNo, 10);
     if (isNaN(srcNo)) {
-      alert("Pilih program sumber yang valid.");
+      toast.warning("Pilih program sumber yang valid.");
       return;
     }
     setIsLoadingImport(true);
@@ -943,7 +960,7 @@ export default function Programs() {
         : [];
 
       if (importedSteps.length === 0) {
-        alert("Program yang dipilih tidak memiliki daftar langkah yang valid.");
+        toast.warning("Program yang dipilih tidak memiliki daftar langkah yang valid.");
         return;
       }
 
@@ -1000,7 +1017,7 @@ export default function Programs() {
       setShowEditorImportModal(false);
       setTimeout(() => setNotification(null), 5000);
     } catch (err) {
-      alert("Gagal mengimpor langkah: " + (err.response?.data?.detail || err.message));
+      toast.error("Gagal mengimpor langkah: " + (err.response?.data?.detail || err.message));
     } finally {
       setIsLoadingImport(false);
     }
@@ -1096,7 +1113,7 @@ export default function Programs() {
 
   const handleDeleteSubProgram = (subIdx) => {
     if (subPrograms.length <= 1) {
-      alert("Resep harus memiliki minimal 1 sub-program / fasa proses.");
+      toast.warning("Resep harus memiliki minimal 1 sub-program / fasa proses.");
       return;
     }
     const removedName = subPrograms[subIdx]?.treatment_name || `Fasa #${subIdx + 1}`;
@@ -1301,7 +1318,7 @@ export default function Programs() {
   const handleDeleteStep = () => {
     if (isBoundaryStep) return;
     if (steps.length <= 2) {
-      alert('Program harus memiliki minimal satu langkah antara Start dan End.');
+      toast.warning('Program harus memiliki minimal satu langkah antara Start dan End.');
       return;
     }
     const updated = steps.filter((_, idx) => idx !== selectedStepIdx);
@@ -1355,7 +1372,7 @@ export default function Programs() {
     const step = updated[selectedStepIdx];
     const exists = step.functions.some(f => f.column === col);
     if (exists) {
-      alert(`Resource slot ${col} sudah digunakan pada langkah ini.`);
+      toast.warning(`Resource slot ${col} sudah digunakan pada langkah ini.`);
       return;
     }
     const fDef = (machineFunctions && machineFunctions[String(funcId)]) || ALL_FUNCTIONS[String(funcId)];
@@ -1780,8 +1797,17 @@ export default function Programs() {
 
         {/* MODAL BUAT PROGRAM BARU DENGAN PILIHAN MESIN & IMPOR PROGRAM */}
         {showCreateModal && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-            <div className="bg-white dark:bg-boxdark rounded-lg border border-stroke dark:border-strokedark shadow-2xl max-w-xl w-full p-6 space-y-4 max-h-[90vh] overflow-y-auto animate-in fade-in duration-200">
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-label="Buat Program Resep Baru"
+            onClick={() => setShowCreateModal(false)}
+            className="fixed inset-0 z-[60] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-in fade-in"
+          >
+            <div
+              onClick={(e) => e.stopPropagation()}
+              className="bg-white dark:bg-boxdark rounded-xl border border-stroke dark:border-strokedark shadow-2xl max-w-xl w-full p-6 space-y-4 max-h-[90vh] overflow-y-auto animate-in fade-in duration-200"
+            >
               <div className="flex items-center justify-between border-b border-stroke dark:border-strokedark pb-3">
                 <div className="flex items-center gap-2.5">
                   <div className="p-2 bg-primary/10 rounded text-primary">
@@ -2034,8 +2060,17 @@ export default function Programs() {
 
         {/* MODAL KONFIRMASI TRANSFER KE FTP KONTROLER */}
         {ftpTransferModal && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-            <div className="bg-white dark:bg-boxdark rounded-xl border border-stroke dark:border-strokedark shadow-2xl max-w-md w-full p-6 space-y-4 animate-in fade-in">
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-label="Tulis Program ke FTP Kontroler"
+            onClick={() => setFtpTransferModal(null)}
+            className="fixed inset-0 z-[60] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-in fade-in"
+          >
+            <div
+              onClick={(e) => e.stopPropagation()}
+              className="bg-white dark:bg-boxdark rounded-xl border border-stroke dark:border-strokedark shadow-2xl max-w-md w-full p-6 space-y-4 animate-in fade-in"
+            >
               <div className="flex items-center justify-between border-b border-stroke dark:border-strokedark pb-3">
                 <div className="flex items-center gap-2.5">
                   <div className="p-2 bg-indigo-500/10 text-indigo-600 rounded-lg">
@@ -3025,8 +3060,17 @@ export default function Programs() {
 
       {/* TEMPLATE PICKER MODAL */}
       {showTemplateModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-          <div className="bg-white dark:bg-boxdark rounded-lg border border-stroke dark:border-strokedark shadow-xl max-w-2xl w-full p-5 space-y-4">
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-label="Pilih Template Program Mesin Asli"
+          onClick={() => setShowTemplateModal(false)}
+          className="fixed inset-0 z-[60] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-in fade-in"
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="bg-white dark:bg-boxdark rounded-xl border border-stroke dark:border-strokedark shadow-xl max-w-2xl w-full p-5 space-y-4"
+          >
             <div className="flex items-center justify-between border-b border-stroke dark:border-strokedark pb-3">
               <h3 className="text-sm font-bold uppercase tracking-wider text-black dark:text-white flex items-center gap-2">
                 <Sparkles className="h-4 w-4 text-amber-500" />
@@ -3080,8 +3124,17 @@ export default function Programs() {
 
       {/* MODAL IMPOR PROGRAM LAIN DI DALAM EDITOR */}
       {showEditorImportModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-          <div className="bg-white dark:bg-boxdark rounded-lg border border-stroke dark:border-strokedark shadow-2xl max-w-lg w-full p-6 space-y-4 animate-in fade-in">
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-label="Impor Langkah Dari Program Lain"
+          onClick={() => setShowEditorImportModal(false)}
+          className="fixed inset-0 z-[60] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-in fade-in"
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="bg-white dark:bg-boxdark rounded-xl border border-stroke dark:border-strokedark shadow-2xl max-w-lg w-full p-6 space-y-4 animate-in fade-in"
+          >
             <div className="flex items-center justify-between border-b border-stroke dark:border-strokedark pb-3">
               <div className="flex items-center gap-2.5">
                 <div className="p-2 bg-cyan-500/10 text-cyan-600 rounded-lg">

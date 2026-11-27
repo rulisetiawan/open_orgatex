@@ -22,6 +22,7 @@ import {
   Lock
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { useToast } from '../../context/ToastContext';
 
 const API_BASE = '/api/planning';
 
@@ -36,6 +37,7 @@ const STATUS_CONFIG = {
 
 const BatchListView = () => {
   const navigate = useNavigate();
+  const { toast, confirm } = useToast();
   const [batches, setBatches] = useState([]);
   const [machineList, setMachineList] = useState([]);
   const [programList, setProgramList] = useState([]);
@@ -81,11 +83,11 @@ const BatchListView = () => {
     setIsSyncingFTP(true);
     try {
       const res = await axios.post('/api/ftp/sync-all-batch-folders');
-      alert(res.data.message || 'Sinkronisasi seluruh folder batch ke FTP 192.168.1.95 berhasil!');
+      toast.success(res.data.message || 'Sinkronisasi seluruh folder batch ke FTP berhasil!');
       fetchBatches();
     } catch (err) {
       const msg = err.response?.data?.detail || (typeof err.response?.data === 'string' ? err.response.data : err.message);
-      alert('Gagal sinkronisasi folder batch ke FTP: ' + msg);
+      toast.error('Gagal sinkronisasi folder batch ke FTP: ' + msg);
     } finally {
       setIsSyncingFTP(false);
     }
@@ -135,11 +137,11 @@ const BatchListView = () => {
     setSyncing(true);
     try {
       const res = await axios.post('/api/database/sync');
-      alert(res.data.message || 'Sinkronisasi PostgreSQL & SQLite selesai!');
+      toast.success(res.data.message || 'Sinkronisasi PostgreSQL & SQLite selesai!');
       fetchBatches();
     } catch (err) {
       const msg = err.response?.data?.detail || (typeof err.response?.data === 'string' ? err.response.data : err.message);
-      alert('Gagal sinkronisasi DB: ' + msg);
+      toast.error('Gagal sinkronisasi DB: ' + msg);
     } finally {
       setSyncing(false);
     }
@@ -184,10 +186,10 @@ const BatchListView = () => {
       await axios.post(`${API_BASE}/`, form);
       setIsModalOpen(false);
       fetchBatches();
-      alert(`Batch ${form.batch_no} berhasil ditambahkan ke antrean!`);
+      toast.success(`Batch ${form.batch_no} berhasil ditambahkan ke antrean!`);
     } catch (err) {
       const msg = err.response?.data?.detail || (typeof err.response?.data === 'string' ? err.response.data : err.message);
-      alert('Gagal menambahkan batch: ' + msg);
+      toast.error('Gagal menambahkan batch: ' + msg);
     } finally {
       setIsSubmitting(false);
     }
@@ -199,18 +201,24 @@ const BatchListView = () => {
       await axios.put(`${API_BASE}/${batchId}`, { status: newStatus });
       fetchBatches();
     } catch (err) {
-      alert('Gagal mengubah status: ' + (err.response?.data?.detail || err.message));
+      toast.error('Gagal mengubah status: ' + (err.response?.data?.detail || err.message));
     }
   };
 
   // Handle Delete
   const handleDeleteBatch = async (batchId) => {
-    if (!window.confirm('Apakah Anda yakin ingin menghapus batch ini dari antrean?')) return;
+    const ok = await confirm('Apakah Anda yakin ingin menghapus batch ini dari antrean?', {
+      title: 'Hapus Batch Produksi',
+      confirmText: 'Ya, Hapus',
+      danger: true,
+    });
+    if (!ok) return;
     try {
       await axios.delete(`${API_BASE}/${batchId}`);
+      toast.success('Batch berhasil dihapus dari antrean.');
       fetchBatches();
     } catch (err) {
-      alert('Gagal menghapus batch: ' + (err.response?.data?.detail || err.message));
+      toast.error('Gagal menghapus batch: ' + (err.response?.data?.detail || err.message));
     }
   };
 
@@ -225,9 +233,9 @@ const BatchListView = () => {
       fetchBatches();
       setTransferModalOpen(false);
       setTransferBatch(null);
-      alert(`Batch berhasil dipindahkan ke mesin ${targetMachine} di database!`);
+      toast.success(`Batch berhasil dipindahkan ke mesin ${targetMachine} di database!`);
     } catch (err) {
-      alert('Gagal transfer mesin: ' + (err.response?.data?.detail || err.message));
+      toast.error('Gagal transfer mesin: ' + (err.response?.data?.detail || err.message));
     }
   };
 
@@ -240,7 +248,9 @@ const BatchListView = () => {
   const handleExecuteDispatch = async () => {
     if (!batchToDispatch) return;
     if (batchToDispatch.machine_no !== 'DA01') {
-      alert(`Peringatan Keamanan: Pengiriman FTP dibatasi HANYA untuk Mesin DA01. Mesin ${batchToDispatch.machine_no} dalam mode Read-Only.`);
+      toast.warning(`Pengiriman FTP dibatasi HANYA untuk Mesin DA01. Mesin ${batchToDispatch.machine_no} dalam mode Read-Only.`, {
+        title: 'Peringatan Keamanan',
+      });
       return;
     }
     setIsDispatching(true);
@@ -259,23 +269,37 @@ const BatchListView = () => {
         controller_type: dispatchModel,
         target_dir: targetDir
       });
-      alert(res.data.message || `Batch ${batchToDispatch.batch_no} berhasil dikirim ke Kontroler FTP!`);
+      toast.success(res.data.message || `Batch ${batchToDispatch.batch_no} berhasil dikirim ke Kontroler FTP!`);
       setFtpDispatchModalOpen(false);
       fetchBatches();
     } catch (err) {
       const msg = err.response?.data?.detail || (typeof err.response?.data === 'string' ? err.response.data : err.message);
-      alert('Gagal mengirim batch via FTP: ' + msg);
+      toast.error('Gagal mengirim batch via FTP: ' + msg);
     } finally {
       setIsDispatching(false);
     }
   };
+
+  // Close open modals on Escape key
+  useEffect(() => {
+    if (!isModalOpen && !transferModalOpen && !ftpDispatchModalOpen) return;
+    const onKey = (e) => {
+      if (e.key === 'Escape') {
+        setIsModalOpen(false);
+        setTransferModalOpen(false);
+        setFtpDispatchModalOpen(false);
+      }
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [isModalOpen, transferModalOpen, ftpDispatchModalOpen]);
 
   return (
     <div className="space-y-6">
       {/* HEADER SECTION */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h2 className="text-xl md:text-2xl font-bold tracking-tight text-white flex items-center gap-2">
+          <h2 className="text-xl md:text-2xl font-bold tracking-tight text-black dark:text-white flex items-center gap-2">
             <Layers className="h-6 w-6 text-primary" />
             Batch Pool
           </h2>
@@ -559,8 +583,17 @@ const BatchListView = () => {
 
       {/* MODAL: BUAT BATCH BARU */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm">
-          <div className="bg-white dark:bg-boxdark border border-stroke dark:border-strokedark rounded-lg w-full max-w-2xl max-h-[90vh] overflow-y-auto p-6 shadow-2xl space-y-4">
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-label="Tambah Batch Produksi Baru"
+          onClick={() => setIsModalOpen(false)}
+          className="fixed inset-0 z-[60] flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm animate-in fade-in"
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="bg-white dark:bg-boxdark border border-stroke dark:border-strokedark rounded-lg w-full max-w-2xl max-h-[90vh] overflow-y-auto p-6 shadow-2xl space-y-4"
+          >
             <div className="flex items-center justify-between border-b border-stroke dark:border-strokedark pb-3">
               <h3 className="text-base font-bold text-black dark:text-white flex items-center gap-2">
                 <Plus className="h-5 w-5 text-primary" />
@@ -821,8 +854,17 @@ const BatchListView = () => {
 
       {/* MODAL: TRANSFER MESIN (DlgMachineBatchTransfer) */}
       {transferModalOpen && transferBatch && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm">
-          <div className="bg-white dark:bg-boxdark border border-stroke dark:border-strokedark rounded-lg w-full max-w-md p-6 shadow-2xl space-y-4">
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-label="Pindah Alokasi Mesin"
+          onClick={() => setTransferModalOpen(false)}
+          className="fixed inset-0 z-[60] flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm animate-in fade-in"
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="bg-white dark:bg-boxdark border border-stroke dark:border-strokedark rounded-lg w-full max-w-md p-6 shadow-2xl space-y-4"
+          >
             <div className="flex items-center justify-between border-b border-stroke dark:border-strokedark pb-3">
               <h3 className="text-base font-bold text-black dark:text-white flex items-center gap-2">
                 <Cpu className="h-5 w-5 text-amber-500" />
@@ -882,8 +924,17 @@ const BatchListView = () => {
       )}
       {/* MODAL: FTP DISPATCH BATCH DIRECT TO CONTROLLER */}
       {ftpDispatchModalOpen && batchToDispatch && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm animate-in fade-in">
-          <div className="bg-white dark:bg-boxdark border border-stroke dark:border-strokedark rounded-lg w-full max-w-lg p-6 shadow-2xl space-y-4 text-xs">
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-label="Kirim Batch ke Kontroler FTP"
+          onClick={() => setFtpDispatchModalOpen(false)}
+          className="fixed inset-0 z-[60] flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm animate-in fade-in"
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="bg-white dark:bg-boxdark border border-stroke dark:border-strokedark rounded-lg w-full max-w-lg p-6 shadow-2xl space-y-4 text-xs"
+          >
             <div className="flex items-center justify-between border-b border-stroke dark:border-strokedark pb-3">
               <h3 className="text-base font-bold text-black dark:text-white flex items-center gap-2">
                 <Send className="h-5 w-5 text-emerald-500" />

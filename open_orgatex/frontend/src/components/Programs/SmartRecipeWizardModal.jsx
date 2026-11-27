@@ -15,6 +15,7 @@ import {
   Cpu
 } from 'lucide-react';
 import fallbackTypeconf from '../../data/typeconf_functions.json';
+import { useToast } from '../../context/ToastContext';
 
 // Resolve valid Function ID strictly from target machine's Config/TYPECONF.CNF (never hardcoded or from .AWL)
 function resolveMachineFn(funcsMap, role) {
@@ -331,6 +332,7 @@ export default function SmartRecipeWizardModal({
   availableMachines = [],
   activeMachine = 'TD12'
 }) {
+  const { toast } = useToast();
   const [currentStep, setCurrentStep] = useState(1); // 1: Profil, 2: Fasa Checklist, 3: Parameter
   const [selectedPresetId, setSelectedPresetId] = useState('POLY_130');
   const [targetMachine, setTargetMachine] = useState(activeMachine);
@@ -367,6 +369,15 @@ export default function SmartRecipeWizardModal({
     return () => { cancelled = true; };
   }, [isOpen, targetMachine]);
 
+  useEffect(() => {
+    if (!isOpen) return;
+    const onKey = (e) => {
+      if (e.key === 'Escape') onClose?.();
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [isOpen, onClose]);
+
   if (!isOpen) return null;
 
   const handleSelectPreset = (preset) => {
@@ -382,7 +393,7 @@ export default function SmartRecipeWizardModal({
   const handleTogglePhase = (phaseKey) => {
     if (selectedPhases.includes(phaseKey)) {
       if (selectedPhases.length <= 1) {
-        alert("Resep harus memiliki minimal 1 fasa proses.");
+        toast.warning('Resep harus memiliki minimal 1 fasa proses.');
         return;
       }
       setSelectedPhases(selectedPhases.filter(p => p !== phaseKey));
@@ -468,8 +479,17 @@ export default function SmartRecipeWizardModal({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4 animate-in fade-in">
-      <div className="bg-white dark:bg-boxdark rounded-2xl border border-stroke dark:border-strokedark shadow-2xl max-w-2xl w-full flex flex-col max-h-[90vh] overflow-hidden">
+    <div
+      role="dialog"
+      aria-modal="true"
+      aria-label="Wizard Pembuat Program Cepat"
+      onClick={onClose}
+      className="fixed inset-0 z-[60] flex items-center justify-center bg-black/60 backdrop-blur-xs p-4 animate-in fade-in"
+    >
+      <div
+        onClick={(e) => e.stopPropagation()}
+        className="bg-white dark:bg-boxdark rounded-2xl border border-stroke dark:border-strokedark shadow-2xl max-w-2xl w-full flex flex-col max-h-[90vh] overflow-hidden"
+      >
         
         {/* Wizard Header */}
         <div className="flex items-center justify-between p-5 border-b border-stroke dark:border-strokedark bg-gradient-to-r from-purple-900 via-indigo-900 to-slate-900 text-white">

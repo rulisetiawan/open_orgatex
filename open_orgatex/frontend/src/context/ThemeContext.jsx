@@ -26,6 +26,10 @@ export function ThemeProvider({ children }) {
     const root = document.documentElement;
     root.setAttribute("data-theme", t);
     root.style.colorScheme = t;
+    const themeMeta = document.querySelector('meta[name="theme-color"]');
+    if (themeMeta) {
+      themeMeta.setAttribute("content", t === "dark" ? "#0b1420" : "#ffffff");
+    }
     if (t === "dark") {
       root.classList.add("dark");
       if (typeof document !== "undefined" && document.body) {

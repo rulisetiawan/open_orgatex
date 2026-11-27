@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import {
   Server,
@@ -123,13 +123,36 @@ const FtpManager = () => {
     { name: '📁 Root Disk (/)', path: '/' },
   ];
 
-  // Toast Helper
+  // Toast Helper (with clean timer ref to avoid race conditions)
+  const toastTimerRef = useRef(null);
   const showToast = (text, type = 'info') => {
+    if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
     setToastMessage({ text, type });
-    setTimeout(() => {
+    toastTimerRef.current = setTimeout(() => {
       setToastMessage(null);
     }, 4500);
   };
+
+  useEffect(() => {
+    return () => {
+      if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
+    };
+  }, []);
+
+  // Close open modals on Escape
+  useEffect(() => {
+    if (!previewModalOpen && !dispatchModalOpen && !mkdirModalOpen && !deleteModalOpen) return;
+    const onKey = (e) => {
+      if (e.key === 'Escape') {
+        setPreviewModalOpen(false);
+        setDispatchModalOpen(false);
+        setMkdirModalOpen(false);
+        setDeleteModalOpen(false);
+      }
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [previewModalOpen, dispatchModalOpen, mkdirModalOpen, deleteModalOpen]);
 
   // Initial Data Fetch
   useEffect(() => {
@@ -1329,8 +1352,17 @@ const FtpManager = () => {
 
       {/* MODAL 1: FILE PREVIEW & DECODED TELEMETRY */}
       {previewModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 p-4 backdrop-blur-sm">
-          <div className="bg-white dark:bg-boxdark border border-stroke dark:border-strokedark rounded-lg w-full max-w-4xl max-h-[85vh] flex flex-col shadow-2xl">
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-label="Pratinjau Berkas"
+          onClick={() => setPreviewModalOpen(false)}
+          className="fixed inset-0 z-[60] flex items-center justify-center bg-black/75 p-4 backdrop-blur-sm animate-in fade-in"
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="bg-white dark:bg-boxdark border border-stroke dark:border-strokedark rounded-xl w-full max-w-4xl max-h-[85vh] flex flex-col shadow-2xl"
+          >
             <div className="flex items-center justify-between px-6 py-4 border-b border-gray-700">
               <div className="flex items-center gap-2">
                 <FileText className="h-5 w-5 text-primary" />
@@ -1394,8 +1426,17 @@ const FtpManager = () => {
 
       {/* MODAL 2: DISPATCH BATCH */}
       {dispatchModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 p-4 backdrop-blur-sm">
-          <div className="bg-white dark:bg-boxdark border border-stroke dark:border-strokedark rounded-lg w-full max-w-lg p-6 shadow-2xl space-y-4 text-xs">
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-label="Kirim Batch Produksi ke Controller via FTP"
+          onClick={() => setDispatchModalOpen(false)}
+          className="fixed inset-0 z-[60] flex items-center justify-center bg-black/75 p-4 backdrop-blur-sm animate-in fade-in"
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="bg-white dark:bg-boxdark border border-stroke dark:border-strokedark rounded-xl w-full max-w-lg p-6 shadow-2xl space-y-4 text-xs"
+          >
             <div className="flex items-center justify-between border-b border-gray-700 pb-3">
               <h3 className="text-base font-bold text-black dark:text-white flex items-center gap-2">
                 <Send className="h-5 w-5 text-emerald-500" />
@@ -1480,8 +1521,17 @@ const FtpManager = () => {
 
       {/* MODAL 3: CREATE NEW FOLDER */}
       {mkdirModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 p-4 backdrop-blur-sm">
-          <div className="bg-white dark:bg-boxdark border border-stroke dark:border-strokedark rounded-lg w-full max-w-sm p-5 shadow-2xl space-y-4 text-xs">
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-label="Buat Folder Baru"
+          onClick={() => setMkdirModalOpen(false)}
+          className="fixed inset-0 z-[60] flex items-center justify-center bg-black/75 p-4 backdrop-blur-sm animate-in fade-in"
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="bg-white dark:bg-boxdark border border-stroke dark:border-strokedark rounded-xl w-full max-w-sm p-5 shadow-2xl space-y-4 text-xs"
+          >
             <h3 className="text-sm font-bold text-black dark:text-white flex items-center gap-2">
               <FolderPlus className="h-4 w-4 text-amber-400" />
               Buat Folder Baru di {mkdirTargetPane === 'local' ? 'Host Lokal' : 'Remote FTP'}
@@ -1521,8 +1571,17 @@ const FtpManager = () => {
 
       {/* MODAL 4: DELETE CONFIRMATION */}
       {deleteModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 p-4 backdrop-blur-sm">
-          <div className="bg-white dark:bg-boxdark border border-rose-300 dark:border-rose-500/50 rounded-lg w-full max-w-sm p-5 shadow-2xl space-y-4 text-xs">
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-label="Konfirmasi Penghapusan"
+          onClick={() => setDeleteModalOpen(false)}
+          className="fixed inset-0 z-[60] flex items-center justify-center bg-black/75 p-4 backdrop-blur-sm animate-in fade-in"
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="bg-white dark:bg-boxdark border border-rose-300 dark:border-rose-500/50 rounded-xl w-full max-w-sm p-5 shadow-2xl space-y-4 text-xs"
+          >
             <div className="flex items-center gap-2 text-rose-400">
               <AlertTriangle className="h-5 w-5" />
               <h3 className="text-sm font-bold text-black dark:text-white">Konfirmasi Penghapusan ({itemToDelete?.pane.toUpperCase()})</h3>

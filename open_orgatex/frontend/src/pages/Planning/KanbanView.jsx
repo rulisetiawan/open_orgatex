@@ -15,6 +15,7 @@ import {
   MoveRight
 } from 'lucide-react';
 import axios from 'axios';
+import { useToast } from '../../context/ToastContext';
 
 const API_BASE = '/api/planning';
 
@@ -27,6 +28,8 @@ const STATUS_CONFIG = {
 };
 
 const KanbanView = () => {
+  const { toast, confirm } = useToast();
+  const [compactDensity, setCompactDensity] = useState(false);
   const [batches, setBatches] = useState([]);
   const [machineList, setMachineList] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -73,7 +76,9 @@ const KanbanView = () => {
   // Bulk Send Antrean to HMI Controller (Khusus Mesin DA01 / M_95)
   const handleBulkSendToHmi = async (machNo = 'DA01') => {
     if (machNo !== 'DA01' && machNo !== 'M_95') {
-      alert(`Peringatan Keamanan: Pengiriman massal (bulk) ke HMI hanya diizinkan untuk Mesin DA01/M_95 (192.168.1.95). Mesin ${machNo} dalam mode read-only.`);
+      toast.warning(`Pengiriman massal (bulk) ke HMI hanya diizinkan untuk Mesin DA01/M_95. Mesin ${machNo} dalam mode read-only.`, {
+        title: 'Peringatan Keamanan',
+      });
       return;
     }
 
@@ -82,15 +87,17 @@ const KanbanView = () => {
     );
 
     if (queuedBatches.length === 0) {
-      alert(`Tidak ada batch antrean aktif untuk mesin ${machNo}.`);
+      toast.info(`Tidak ada batch antrean aktif untuk mesin ${machNo}.`);
       return;
     }
 
-    const confirmMsg = `Konfirmasi Kirim Bulk ke HMI ${machNo} (192.168.1.95):\n\n` +
-      `Sistem akan mengompilasi ${queuedBatches.length} batch antrean ke berkas QUEUE.BTD dan mengunggahnya ke kontroler HMI mesin ${machNo}.\n\n` +
-      `Apakah Anda yakin ingin mereplace antrean di HMI ${machNo} sekarang?`;
+    const confirmMsg = `Sistem akan mengompilasi ${queuedBatches.length} batch antrean ke berkas QUEUE.BTD dan mengunggahnya ke kontroler HMI mesin ${machNo}.\n\nApakah Anda yakin ingin mereplace antrean di HMI ${machNo} sekarang?`;
 
-    if (!window.confirm(confirmMsg)) return;
+    const ok = await confirm(confirmMsg, {
+      title: `Kirim Bulk ke HMI ${machNo}`,
+      confirmText: 'Ya, Kirim Antrean',
+    });
+    if (!ok) return;
 
     setIsBulkSending(true);
     try {
@@ -99,11 +106,11 @@ const KanbanView = () => {
         ip: '192.168.1.95',
         port: 21
       });
-      alert(res.data.message || `Berhasil mengirim ${queuedBatches.length} batch antrean ke HMI ${machNo}!`);
+      toast.success(res.data.message || `Berhasil mengirim ${queuedBatches.length} batch antrean ke HMI ${machNo}!`);
       fetchBatches();
     } catch (err) {
       const msg = err.response?.data?.detail || (typeof err.response?.data === 'string' ? err.response.data : err.message);
-      alert(`Gagal mengirim antrean ke HMI ${machNo}: ` + msg);
+      toast.error(`Gagal mengirim antrean ke HMI ${machNo}: ` + msg);
     } finally {
       setIsBulkSending(false);
     }
@@ -172,11 +179,11 @@ const KanbanView = () => {
     setSyncing(true);
     try {
       const res = await axios.post('/api/database/sync');
-      alert(res.data.message || 'Sinkronisasi PostgreSQL & SQLite selesai!');
+      toast.success(res.data.message || 'Sinkronisasi PostgreSQL & SQLite selesai!');
       fetchBatches();
     } catch (err) {
       const msg = err.response?.data?.detail || (typeof err.response?.data === 'string' ? err.response.data : err.message);
-      alert('Gagal sinkronisasi DB: ' + msg);
+      toast.error('Gagal sinkronisasi DB: ' + msg);
     } finally {
       setSyncing(false);
     }
@@ -330,9 +337,10 @@ const KanbanView = () => {
         machine_no: targetMachine,
         position: 1 // Assigned as next or queue
       });
+      toast.success(`Batch dipindahkan ke antrean ${targetMachine}.`);
       fetchBatches();
     } catch (err) {
-      alert('Gagal memindahkan batch ke mesin: ' + (err.response?.data?.detail || err.message));
+      toast.error('Gagal memindahkan batch ke mesin: ' + (err.response?.data?.detail || err.message));
     }
   };
 
@@ -341,20 +349,21 @@ const KanbanView = () => {
       await axios.put(`${API_BASE}/${batchId}`, { status: newStatus });
       fetchBatches();
     } catch (err) {
-      alert('Gagal mengubah status batch: ' + (err.response?.data?.detail || err.message));
+      toast.error('Gagal mengubah status batch: ' + (err.response?.data?.detail || err.message));
     }
   };
 
   const handleCreateBatch = async (e) => {
     e.preventDefault();
     if (!form.batch_no.trim()) {
-      alert('Mohon isi Nomor Batch!');
+      toast.warning('Mohon isi Nomor Batch terlebih dahulu.');
       return;
     }
 
     try {
       await axios.post(`${API_BASE}/`, form);
       setIsModalOpen(false);
+      toast.success(`Batch #${form.batch_no} berhasil dibuat.`);
       setForm({
         batch_no: '',
         reference_no: '',
@@ -371,17 +380,23 @@ const KanbanView = () => {
       });
       fetchBatches();
     } catch (err) {
-      alert(err.response?.data?.detail || 'Gagal membuat batch baru.');
+      toast.error(err.response?.data?.detail || 'Gagal membuat batch baru.');
     }
   };
 
   const handleDeleteBatch = async (batchId, batchNo) => {
-    if (!window.confirm(`Yakin ingin menghapus Batch #${batchNo}?`)) return;
+    const ok = await confirm(`Yakin ingin menghapus Batch #${batchNo}?`, {
+      title: 'Hapus Batch',
+      confirmText: 'Ya, Hapus',
+      danger: true,
+    });
+    if (!ok) return;
     try {
       await axios.delete(`${API_BASE}/${batchId}`);
       setBatches(batches.filter(b => b.id !== batchId));
+      toast.success(`Batch #${batchNo} berhasil dihapus.`);
     } catch (err) {
-      alert('Gagal menghapus batch.');
+      toast.error('Gagal menghapus batch.');
     }
   };
 
@@ -396,7 +411,7 @@ const KanbanView = () => {
   const handleExecuteDispatch = async () => {
     if (!batchToDispatch) return;
     if (batchToDispatch.machine_no !== 'DA01' && batchToDispatch.machine_no !== 'M_95') {
-      alert(`Peringatan Keamanan: Pengiriman FTP dibatasi HANYA untuk Mesin DA01/M_95.`);
+      toast.warning('Pengiriman FTP dibatasi HANYA untuk Mesin DA01/M_95.', { title: 'Peringatan Keamanan' });
       return;
     }
     setIsDispatching(true);
@@ -414,70 +429,94 @@ const KanbanView = () => {
         controller_type: dispatchModel,
         target_dir: targetDir
       });
-      alert(res.data.message || `Batch ${batchToDispatch.batch_no} berhasil dikirim ke Kontroler FTP!`);
+      toast.success(res.data.message || `Batch ${batchToDispatch.batch_no} berhasil dikirim ke Kontroler FTP!`);
       setFtpDispatchModalOpen(false);
       fetchBatches();
     } catch (err) {
       const msg = err.response?.data?.detail || (typeof err.response?.data === 'string' ? err.response.data : err.message);
-      alert('Gagal mengirim batch via FTP: ' + msg);
+      toast.error('Gagal mengirim batch via FTP: ' + msg);
     } finally {
       setIsDispatching(false);
     }
   };
 
+  useEffect(() => {
+    if (!isModalOpen && !ftpDispatchModalOpen) return;
+    const onKey = (e) => {
+      if (e.key === 'Escape') {
+        setIsModalOpen(false);
+        setFtpDispatchModalOpen(false);
+      }
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [isModalOpen, ftpDispatchModalOpen]);
+
   const totalWater = (form.fabric_weight_kg * form.liquor_ratio).toFixed(1);
 
   return (
-    <div className="space-y-1.5 text-[10px]">
-      {/* ULTRA-COMPACT SLIM HEADER */}
-      <div className="flex flex-wrap items-center justify-between gap-1 bg-white dark:bg-boxdark px-2.5 py-1 rounded-md border border-stroke dark:border-strokedark shadow-xs">
-        <div className="flex items-center gap-1.5">
-          <span className="font-black text-xs tracking-tight text-black dark:text-white">
+    <div className={compactDensity ? 'space-y-2 text-[11px]' : 'space-y-3 text-xs'}>
+      {/* MODERN READABLE HEADER WITH DENSITY TOGGLE */}
+      <div className="flex flex-wrap items-center justify-between gap-2 bg-white dark:bg-boxdark px-3.5 py-2 rounded-xl border border-stroke dark:border-strokedark shadow-xs">
+        <div className="flex items-center gap-2">
+          <span className="font-bold text-sm tracking-tight text-black dark:text-white">
             Kanban Board
           </span>
-          <span className="text-[9px] text-gray-400 font-mono hidden md:inline">
+          <span className="text-[11px] text-body dark:text-bodydark font-mono hidden md:inline">
             · {batches.length} Batch ({totalQueuedBatches} Antrean)
           </span>
         </div>
 
-        <div className="flex items-center gap-1 shrink-0">
+        <div className="flex flex-wrap items-center gap-1.5 shrink-0">
           <button
+            type="button"
+            onClick={() => setCompactDensity((v) => !v)}
+            className="px-2.5 py-1 rounded-lg border border-stroke dark:border-strokedark bg-gray dark:bg-meta-4 text-[11px] font-semibold text-black dark:text-white hover:bg-gray-200 dark:hover:bg-meta-4/80 transition"
+            title="Ubah kerapatan kartu Kanban"
+          >
+            {compactDensity ? 'Mode Nyaman' : 'Mode Padat'}
+          </button>
+
+          <button
+            type="button"
             onClick={handleSyncDB}
             disabled={syncing}
-            className="flex items-center gap-0.5 px-1.5 py-0.5 rounded border border-blue-500/40 bg-blue-50/20 dark:bg-blue-950/30 text-blue-400 text-[9px] font-semibold hover:bg-blue-100 transition"
+            className="flex items-center gap-1 px-2.5 py-1 rounded-lg border border-blue-500/40 bg-blue-50/40 dark:bg-blue-950/30 text-blue-600 dark:text-blue-400 text-[11px] font-semibold hover:bg-blue-100 dark:hover:bg-blue-900/40 transition"
             title="Sinkronkan DB"
           >
-            <RefreshCw className={`h-2.5 w-2.5 ${syncing ? 'animate-spin' : ''}`} />
+            <RefreshCw className={`h-3.5 w-3.5 ${syncing ? 'animate-spin' : ''}`} />
             <span>Sync</span>
           </button>
 
           <button
+            type="button"
             onClick={fetchBatches}
-            className="flex items-center gap-0.5 px-1.5 py-0.5 rounded border border-stroke bg-white dark:border-strokedark dark:bg-boxdark text-[9px] font-semibold hover:bg-gray-100 transition"
+            className="flex items-center gap-1 px-2.5 py-1 rounded-lg border border-stroke bg-white dark:border-strokedark dark:bg-boxdark text-[11px] font-semibold text-black dark:text-white hover:bg-gray dark:hover:bg-meta-4 transition"
             title="Muat Ulang"
           >
-            <RefreshCw className={`h-2.5 w-2.5 ${loading ? 'animate-spin' : ''}`} />
+            <RefreshCw className={`h-3.5 w-3.5 ${loading ? 'animate-spin' : ''}`} />
             <span>Refresh</span>
           </button>
 
           <button
+            type="button"
             onClick={() => setIsModalOpen(true)}
-            className="flex items-center gap-0.5 px-2 py-0.5 rounded bg-primary hover:bg-opacity-90 text-white text-[9px] font-bold shadow-xs transition"
+            className="flex items-center gap-1 px-3 py-1 rounded-lg bg-primary hover:bg-primary/90 text-white text-[11px] font-bold shadow-xs transition"
           >
-            <Plus className="h-2.5 w-2.5" />
+            <Plus className="h-3.5 w-3.5" />
             <span>+ Batch</span>
           </button>
         </div>
       </div>
 
-      {/* DRAG AND DROP CONTEXT (2-COLUMN DENSE LAYOUT) */}
+      {/* DRAG AND DROP CONTEXT (RESPONSIVE 2-COLUMN LAYOUT) */}
       <DragDropContext onDragEnd={onDragEnd}>
-        <div className="flex items-start gap-1.5">
+        <div className="flex flex-col lg:flex-row items-stretch lg:items-start gap-3">
           
           {/* ========================================================================= */}
-          {/* KOLOM 1 (KIRI): PERENCANAAN (PLANNING) - SANGAT RAMPING & PADAT           */}
+          {/* KOLOM 1 (KIRI): PERENCANAAN (PLANNING)                                    */}
           {/* ========================================================================= */}
-          <div className="w-40 sm:w-44 lg:w-48 shrink-0 flex flex-col rounded-md border border-stroke dark:border-strokedark bg-gray-50/90 dark:bg-[#182234] p-1 shadow-xs">
+          <div className={`${compactDensity ? 'w-full lg:w-52' : 'w-full lg:w-64'} shrink-0 flex flex-col rounded-xl border border-stroke dark:border-strokedark bg-gray-50/90 dark:bg-[#182234] p-2.5 shadow-xs`}>
             {/* Header Perencanaan */}
             <div className="flex items-center justify-between pb-1 mb-1 border-b border-stroke dark:border-strokedark">
               <div className="flex items-center gap-1">
@@ -904,8 +943,17 @@ const KanbanView = () => {
 
       {/* MODAL: BUAT BATCH BARU */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-9999 flex items-center justify-center bg-black/60 p-4 overflow-y-auto">
-          <div className="bg-white dark:bg-boxdark rounded-lg shadow-2xl max-w-md w-full border border-stroke dark:border-strokedark overflow-hidden text-xs">
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-label="Buat Planning Batch Baru"
+          onClick={() => setIsModalOpen(false)}
+          className="fixed inset-0 z-[60] flex items-center justify-center bg-black/60 backdrop-blur-xs p-4 overflow-y-auto animate-in fade-in"
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="bg-white dark:bg-boxdark rounded-xl shadow-2xl max-w-md w-full border border-stroke dark:border-strokedark overflow-hidden text-xs"
+          >
             <div className="flex items-center justify-between px-3 py-2 border-b border-stroke dark:border-strokedark bg-gray-50 dark:bg-meta-4/20">
               <div className="flex items-center gap-1">
                 <Cpu className="h-3.5 w-3.5 text-primary" />
@@ -1075,8 +1123,17 @@ const KanbanView = () => {
 
       {/* MODAL: FTP DISPATCH BATCH DIRECT TO CONTROLLER */}
       {ftpDispatchModalOpen && batchToDispatch && (
-        <div className="fixed inset-0 z-9999 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm animate-in fade-in">
-          <div className="bg-white dark:bg-boxdark border border-stroke dark:border-strokedark rounded-lg w-full max-w-sm p-3.5 shadow-2xl space-y-2 text-xs">
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-label="Kirim Batch ke Mesin"
+          onClick={() => setFtpDispatchModalOpen(false)}
+          className="fixed inset-0 z-[60] flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm animate-in fade-in"
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="bg-white dark:bg-boxdark border border-stroke dark:border-strokedark rounded-xl w-full max-w-sm p-4 shadow-2xl space-y-2.5 text-xs"
+          >
             <div className="flex items-center justify-between border-b border-stroke dark:border-strokedark pb-1.5">
               <h3 className="text-xs font-bold text-black dark:text-white flex items-center gap-1">
                 <Send className="h-3 w-3 text-emerald-500" />

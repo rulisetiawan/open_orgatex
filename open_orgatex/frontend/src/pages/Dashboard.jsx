@@ -1,5 +1,6 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useVisibilityInterval } from '../hooks/useVisibilityInterval';
 import { 
   Server, 
   Activity, 
@@ -30,7 +31,7 @@ const Dashboard = () => {
     return (a.machine_no || '').localeCompare(b.machine_no || '', undefined, { numeric: true, sensitivity: 'base' });
   };
 
-  const fetchMachines = async () => {
+  const fetchMachines = useCallback(async () => {
     setLoading(true);
     try {
       const res = await fetch(`${API_BASE}/machines/`);
@@ -97,13 +98,14 @@ const Dashboard = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
     fetchMachines();
-    const interval = setInterval(fetchMachines, 15000); // 15s refresh
-    return () => clearInterval(interval);
-  }, []);
+  }, [fetchMachines]);
+
+  // Pause polling automatically when browser tab is hidden
+  useVisibilityInterval(fetchMachines, 15000, true);
 
   const runningCount = useMemo(() => machines.filter((m) => m.liveStatus === 'RUNNING').length, [machines]);
   const onlineCount = useMemo(() => machines.filter((m) => m.liveStatus === 'ONLINE' || m.liveStatus === 'RUNNING').length, [machines]);
@@ -157,11 +159,13 @@ const Dashboard = () => {
         </div>
       </div>
 
-      {/* STATS OVERVIEW CARDS (INTERACTIVE FILTERS) */}
+      {/* STATS OVERVIEW CARDS (INTERACTIVE ACCESSIBLE BUTTON FILTERS) */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <div 
+        <button
+          type="button"
           onClick={() => setStatusFilter('ALL')}
-          className={`rounded-xl border p-4.5 shadow-sm transition-all cursor-pointer ${
+          aria-pressed={statusFilter === 'ALL'}
+          className={`text-left rounded-xl border p-4.5 shadow-sm transition-all cursor-pointer ${
             statusFilter === 'ALL'
               ? 'border-primary ring-2 ring-primary/20 bg-primary/5 dark:bg-primary/10'
               : 'border-stroke bg-white hover:border-primary/50 dark:border-strokedark dark:bg-boxdark'
@@ -179,11 +183,13 @@ const Dashboard = () => {
           <h4 className="mt-2 text-2xl font-extrabold tracking-tight text-black dark:text-bodydark1 font-mono tabular-nums">
             {machines.length} <span className="text-xs font-semibold text-body">Unit</span>
           </h4>
-        </div>
+        </button>
 
-        <div 
+        <button
+          type="button"
           onClick={() => setStatusFilter(statusFilter === 'RUNNING' ? 'ALL' : 'RUNNING')}
-          className={`rounded-xl border p-4.5 shadow-sm transition-all cursor-pointer ${
+          aria-pressed={statusFilter === 'RUNNING'}
+          className={`text-left rounded-xl border p-4.5 shadow-sm transition-all cursor-pointer ${
             statusFilter === 'RUNNING'
               ? 'border-emerald-500 ring-2 ring-emerald-500/20 bg-emerald-500/10'
               : 'border-stroke bg-white hover:border-emerald-500/50 dark:border-strokedark dark:bg-boxdark'
@@ -201,11 +207,13 @@ const Dashboard = () => {
           <h4 className="mt-2 text-2xl font-extrabold tracking-tight text-emerald-600 dark:text-emerald-400 font-mono tabular-nums">
             {runningCount} <span className="text-xs font-semibold text-body">Unit</span>
           </h4>
-        </div>
+        </button>
 
-        <div 
+        <button
+          type="button"
           onClick={() => setStatusFilter(statusFilter === 'ONLINE' ? 'ALL' : 'ONLINE')}
-          className={`rounded-xl border p-4.5 shadow-sm transition-all cursor-pointer ${
+          aria-pressed={statusFilter === 'ONLINE'}
+          className={`text-left rounded-xl border p-4.5 shadow-sm transition-all cursor-pointer ${
             statusFilter === 'ONLINE'
               ? 'border-sky-500 ring-2 ring-sky-500/20 bg-sky-500/10'
               : 'border-stroke bg-white hover:border-sky-500/50 dark:border-strokedark dark:bg-boxdark'
@@ -223,11 +231,13 @@ const Dashboard = () => {
           <h4 className="mt-2 text-2xl font-extrabold tracking-tight text-black dark:text-white font-mono tabular-nums">
             {onlineCount} <span className="text-xs font-semibold text-body">Unit</span>
           </h4>
-        </div>
+        </button>
 
-        <div 
+        <button
+          type="button"
           onClick={() => setStatusFilter(statusFilter === 'ALARM' ? 'ALL' : 'ALARM')}
-          className={`rounded-xl border p-4.5 shadow-sm transition-all cursor-pointer ${
+          aria-pressed={statusFilter === 'ALARM'}
+          className={`text-left rounded-xl border p-4.5 shadow-sm transition-all cursor-pointer ${
             statusFilter === 'ALARM'
               ? 'border-rose-500 ring-2 ring-rose-500/20 bg-rose-500/10'
               : 'border-stroke bg-white hover:border-rose-500/50 dark:border-strokedark dark:bg-boxdark'
@@ -245,7 +255,7 @@ const Dashboard = () => {
           <h4 className="mt-2 text-2xl font-extrabold tracking-tight text-rose-600 dark:text-rose-400 font-mono tabular-nums">
             {alarmCount} <span className="text-xs font-semibold text-body">Mesin</span>
           </h4>
-        </div>
+        </button>
       </div>
 
       {/* MAIN CONTAINER: DAFTAR MESIN */}
@@ -343,6 +353,15 @@ const Dashboard = () => {
             </div>
           </div>
         </div>
+
+        {/* SKELETON LOADING STATE (INITIAL LOAD) */}
+        {loading && machines.length === 0 && (
+          <div className="p-6 space-y-3 animate-pulse" role="status" aria-label="Memuat daftar mesin">
+            {[1, 2, 3, 4, 5].map((row) => (
+              <div key={row} className="h-12 rounded-lg bg-gray-100 dark:bg-meta-4/40" />
+            ))}
+          </div>
+        )}
 
         {/* EMPTY STATE */}
         {filteredMachines.length === 0 && !loading && (

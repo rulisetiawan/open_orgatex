@@ -76,11 +76,29 @@ export default function SubProgramDrawer({
     });
   }, [treatments, selectedCategory, searchTerm]);
 
+  useEffect(() => {
+    if (!isOpen) return;
+    const onKey = (e) => {
+      if (e.key === 'Escape') onClose?.();
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [isOpen, onClose]);
+
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex justify-end bg-black/60 backdrop-blur-xs animate-in fade-in duration-200">
-      <div className="w-full max-w-2xl bg-white dark:bg-boxdark h-full shadow-2xl flex flex-col border-l border-stroke dark:border-strokedark animate-in slide-in-from-right duration-300">
+    <div
+      role="dialog"
+      aria-modal="true"
+      aria-label="Katalog Sub-Program & Modul Fasa"
+      onClick={onClose}
+      className="fixed inset-0 z-[60] flex justify-end bg-black/60 backdrop-blur-xs animate-in fade-in duration-200"
+    >
+      <div
+        onClick={(e) => e.stopPropagation()}
+        className="w-full max-w-2xl bg-white dark:bg-boxdark h-full shadow-2xl flex flex-col border-l border-stroke dark:border-strokedark animate-in slide-in-from-right duration-300"
+      >
         
         {/* Drawer Header */}
         <div className="flex items-center justify-between p-5 border-b border-stroke dark:border-strokedark bg-gray-50/50 dark:bg-meta-4/20">

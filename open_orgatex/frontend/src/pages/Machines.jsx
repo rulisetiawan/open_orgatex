@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useToast } from '../context/ToastContext';
 import {
   Server,
   Plus,
@@ -27,8 +28,11 @@ const API_BASE = '/api';
 
 const Machines = () => {
   const navigate = useNavigate();
+  const { toast, confirm } = useToast();
   const [machines, setMachines] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [groupFilter, setGroupFilter] = useState('ALL');
 
   // Modals
   const [editModalOpen, setEditModalOpen] = useState(false);
@@ -112,7 +116,7 @@ const Machines = () => {
         setDetectedControllers(data.controllers || []);
       }
     } catch (err) {
-      alert(`Gagal memindai jaringan: ${err.message}`);
+      toast.error(`Gagal memindai jaringan: ${err.message}`);
     } finally {
       setScanning(false);
     }
@@ -181,7 +185,7 @@ const Machines = () => {
         fetchMachines();
       }
     } catch (err) {
-      alert(`Gagal koneksi ke server: ${err.message}`);
+      toast.error(`Gagal koneksi ke server: ${err.message}`);
     } finally {
       setTestingMachine(null);
     }
@@ -197,13 +201,15 @@ const Machines = () => {
         const fileNames = data.downloaded && data.downloaded.length > 0
           ? data.downloaded.map(d => `• ${d.filename} (${(d.size_bytes / 1024).toFixed(1)} KB)`).join('\n')
           : 'File .CNF';
-        alert(`[SUKSES] ${data.message}\n\nFile tersimpan & disinkronkan ke workspace:\n${fileNames}`);
+        toast.success(`${data.message}\n${fileNames}`, { title: 'Config HMI Tersinkronkan' });
         fetchMachines();
       } else {
-        alert(`[PERINGATAN] ${data.message || 'Gagal mengunduh file config dari HMI via FTP.'}\nStatus: ${data.status}`);
+        toast.warning(`${data.message || 'Gagal mengunduh file config dari HMI via FTP.'} (Status: ${data.status})`, {
+          title: 'Peringatan Tarik Config',
+        });
       }
     } catch (err) {
-      alert(`Gagal koneksi ke kontroler: ${err.message}`);
+      toast.error(`Gagal koneksi ke kontroler: ${err.message}`);
     } finally {
       setFetchingConfig(null);
     }
@@ -222,34 +228,76 @@ const Machines = () => {
         const data = await res.json();
         if (data.config_fetch && data.config_fetch.success) {
           const files = data.config_fetch.downloaded.map(d => d.filename).join(', ');
-          alert(`[SUKSES] ${data.message}\nFile HMI berhasil diunduh: ${files}`);
+          toast.success(`${data.message}\nFile HMI diunduh: ${files}`, { title: 'Konfigurasi Tersimpan' });
         } else if (data.config_fetch && !data.config_fetch.success) {
-          alert(`[INFORMASI] ${data.message}`);
+          toast.info(data.message);
+        } else {
+          toast.success(`Konfigurasi mesin ${form.machine_no} berhasil disimpan.`);
         }
         setEditModalOpen(false);
         setForm(defaultForm);
         fetchMachines();
       } else {
         const err = await res.json();
-        alert(`Error: ${err.detail || 'Gagal menyimpan konfigurasi mesin'}`);
+        toast.error(err.detail || 'Gagal menyimpan konfigurasi mesin');
       }
     } catch (err) {
-      alert(`Koneksi error: ${err.message}`);
+      toast.error(`Koneksi error: ${err.message}`);
     }
   };
 
   // Delete Machine
   const handleDeleteMachine = async (machineNo) => {
-    if (!window.confirm(`Hapus konfigurasi mesin ${machineNo} dari database?`)) return;
+    const ok = await confirm(`Hapus konfigurasi mesin ${machineNo} dari database?`, {
+      title: 'Hapus Konfigurasi Mesin',
+      confirmText: 'Ya, Hapus',
+      danger: true,
+    });
+    if (!ok) return;
     try {
       const res = await fetch(`${API_BASE}/machines/${machineNo}`, { method: 'DELETE' });
       if (res.ok) {
+        toast.success(`Mesin ${machineNo} berhasil dihapus.`);
         fetchMachines();
       }
     } catch (err) {
-      alert(`Gagal menghapus mesin: ${err.message}`);
+      toast.error(`Gagal menghapus mesin: ${err.message}`);
     }
   };
+
+  useEffect(() => {
+    if (!snifferModalOpen && !editModalOpen) return;
+    const onKey = (e) => {
+      if (e.key === 'Escape') {
+        setSnifferModalOpen(false);
+        setEditModalOpen(false);
+      }
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [snifferModalOpen, editModalOpen]);
+
+  const machineGroups = useMemo(() => {
+    const groups = new Set();
+    machines.forEach((m) => {
+      if (m.group_name) groups.add(m.group_name);
+    });
+    return ['ALL', ...Array.from(groups)];
+  }, [machines]);
+
+  const filteredMachines = useMemo(() => {
+    return machines.filter((m) => {
+      if (groupFilter !== 'ALL' && m.group_name !== groupFilter) return false;
+      if (!searchTerm.trim()) return true;
+      const q = searchTerm.toLowerCase();
+      return (
+        (m.machine_no || '').toLowerCase().includes(q) ||
+        (m.display_name || '').toLowerCase().includes(q) ||
+        (m.ip_address || '').toLowerCase().includes(q) ||
+        (m.controller_type || '').toLowerCase().includes(q)
+      );
+    });
+  }, [machines, groupFilter, searchTerm]);
 
   return (
     <div className="space-y-6">
@@ -337,9 +385,39 @@ const Machines = () => {
         </div>
       )}
 
+      {/* SEARCH & GROUP FILTER BAR */}
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 bg-white dark:bg-boxdark p-3 rounded-xl border border-stroke dark:border-strokedark shadow-xs">
+        <div className="relative flex-1">
+          <Search className="h-4 w-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+          <input
+            type="text"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            placeholder="Cari nomor mesin, nama tampilan, IP HMI, atau tipe kontroler..."
+            className="w-full pl-9 pr-3 py-1.5 text-xs bg-gray dark:bg-meta-4/50 border border-stroke dark:border-strokedark rounded-lg text-black dark:text-white outline-none focus:border-primary"
+          />
+        </div>
+        <div className="flex items-center gap-1.5 overflow-x-auto">
+          {machineGroups.map((g) => (
+            <button
+              key={g}
+              type="button"
+              onClick={() => setGroupFilter(g)}
+              className={`px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition ${
+                groupFilter === g
+                  ? 'bg-primary text-white shadow-xs'
+                  : 'bg-gray dark:bg-meta-4 text-body dark:text-bodydark hover:text-black dark:hover:text-white'
+              }`}
+            >
+              {g === 'ALL' ? `Semua (${machines.length})` : g}
+            </button>
+          ))}
+        </div>
+      </div>
+
       {/* MACHINE TILES LIST (UCMachineList) */}
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
-        {machines.map((m) => {
+        {filteredMachines.map((m) => {
           const isOnline = m.status === 'ONLINE' || m.status === 'RUNNING';
           return (
             <div
@@ -456,8 +534,17 @@ const Machines = () => {
 
       {/* MODAL 1: ORGATEX SECOM CE SNIFFER (DlgAddOnlineMachine) */}
       {snifferModalOpen && (
-        <div className="fixed inset-0 z-99999 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
-          <div className="w-full max-w-3xl rounded-lg bg-white dark:bg-boxdark p-6 shadow-2xl space-y-4">
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-label="Pindai Mesin Online"
+          onClick={() => setSnifferModalOpen(false)}
+          className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4 animate-in fade-in"
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="w-full max-w-3xl rounded-xl bg-white dark:bg-boxdark p-6 shadow-2xl space-y-4"
+          >
             <div className="flex items-center justify-between border-b border-stroke dark:border-strokedark pb-3">
               <div className="flex items-center gap-2">
                 <Radar className="h-5 w-5 text-meta-5" />
@@ -579,8 +666,17 @@ const Machines = () => {
 
       {/* MODAL 2: ORGATEX MACHINE CONFIGURATION FORM (DlgAddMachine / UCMachineEdit) */}
       {editModalOpen && (
-        <div className="fixed inset-0 z-99999 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
-          <div className="w-full max-w-4xl rounded-lg bg-white dark:bg-boxdark p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto">
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-label="Konfigurasi Mesin"
+          onClick={() => setEditModalOpen(false)}
+          className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4 animate-in fade-in"
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="w-full max-w-4xl rounded-xl bg-white dark:bg-boxdark p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto"
+          >
             {/* MODAL HEADER */}
             <div className="flex items-center justify-between border-b border-stroke dark:border-strokedark pb-3">
               <div className="flex items-center gap-2">
