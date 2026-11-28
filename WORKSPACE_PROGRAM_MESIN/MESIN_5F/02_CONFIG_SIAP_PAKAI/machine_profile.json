@@ -2,7 +2,7 @@
   "machine_no": "5F",
   "folder_name": "MESIN_5F",
   "controller_type": "SETEX SECOM 777 (Windows CE)",
-  "max_temp_c": 140.0,
+  "max_temp_c": 140,
   "has_custom_hmi_config": true,
   "status": "ready",
   "ip_address": "172.16.120.155",
@@ -55,5 +55,61 @@
       "Config/CP16.AWL",
       "Config/SC20D.AWL"
     ]
+  },
+  "timezone": "SE Asia Standard Time",
+  "min_load_kg": 0,
+  "capacity_kg": 350,
+  "min_fill_l": 0,
+  "max_fill_l": 2100,
+  "min_liquor_ratio": 0,
+  "max_liquor_ratio": 8,
+  "max_diff_pressure_bar": 3,
+  "depressure_temp_c": 85,
+  "ht_enable_temp_c": 86,
+  "pressurize_temp_c": 140,
+  "seam_quantity": 1,
+  "addition_tanks_count": 2,
+  "has_stock_tank": true,
+  "tanks_count": 3,
+  "tanks": {
+    "main_tank": {
+      "min_fill_l": 0,
+      "max_fill_l": 2100,
+      "batch_fill_level_l": null,
+      "filling_valves": 1,
+      "draining_types": 2,
+      "level_min_pct": 100,
+      "level_mid_pct": 800,
+      "level_rinse_pct": 1000,
+      "level_max_pct": 1800,
+      "power_drain_level_pct": null
+    },
+    "dt1": {
+      "max_fill_l": null,
+      "max_temp_c": null,
+      "filling_valves": null,
+      "stirrer_level_pct": null,
+      "level_min_pct": null,
+      "level_mid_pct": null,
+      "level_max_pct": null
+    },
+    "dt2": {
+      "max_fill_l": null,
+      "max_temp_c": null,
+      "filling_valves": null,
+      "stirrer_level_pct": null,
+      "level_min_pct": null,
+      "level_mid_pct": null,
+      "level_max_pct": null
+    },
+    "stock_tank": {
+      "enabled": true,
+      "max_fill_l": 1000,
+      "max_temp_c": 60,
+      "filling_valves": 1,
+      "level_min_pct": 3,
+      "level_mid_pct": 50,
+      "level_max_pct": 100
+    }
   }
 }

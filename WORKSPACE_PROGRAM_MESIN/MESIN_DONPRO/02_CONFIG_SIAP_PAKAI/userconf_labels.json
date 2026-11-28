@@ -1,0 +1,29 @@
+{
+  "source": "USERCONF.CNF",
+  "sha256": "d1a5d83a0657dc5b6b5ef66532b666a312dc3433eaa1d07c2633a96683693792",
+  "main_labels": {
+    "1": {
+      "id": 1,
+      "name_local": "CCCCCC",
+      "name": "TEST"
+    },
+    "2": {
+      "id": 2,
+      "name_local": "11",
+      "name": "11"
+    }
+  },
+  "nachsatz_labels": {
+    "1": {
+      "id": 1,
+      "name_local": "HHHH",
+      "name": "Nachsatz dunkel"
+    },
+    "2": {
+      "id": 2,
+      "name_local": "Nachsatz hell",
+      "name": "Nachsatz hell"
+    }
+  },
+  "generated_at": "2026-11-28T11:25:34.228473"
+}

@@ -1,0 +1,111 @@
+{
+  "machine_no": "DONPRO",
+  "folder_name": "MESIN_DONPRO",
+  "ip_address": "",
+  "has_custom_hmi_config": true,
+  "has_typeconf": true,
+  "has_conftext": true,
+  "has_fnlegend": true,
+  "has_userconf": true,
+  "has_machconf": true,
+  "has_awl_plc_program": true,
+  "awl_files": [
+    "SC26.AWL"
+  ],
+  "config_sources": {
+    "program_recipes": "PROGRAMS/*.PRG",
+    "function_definitions": "Config/TYPECONF.CNF",
+    "function_texts_alarms": [
+      "Config/CONFTEXT.CNF",
+      "Config/FNLEGEND.CNF"
+    ],
+    "custom_process_labels": "Config/USERCONF.CNF",
+    "machine_parameters": "Config/MACHCONF.CNF",
+    "plc_execution_logic_only": [
+      "Config/SC26.AWL"
+    ]
+  },
+  "status": "ready",
+  "last_synced_at": "2026-11-28T11:25:34.287799",
+  "files_in_hmi_dir": [
+    "CONFTEXT.CNF",
+    "FNLEGEND.CNF",
+    "MACHCONF.CNF",
+    "SC26.AWL",
+    "TYPECONF.CNF",
+    "TYPECONT.CNF",
+    "TYPEFORM.CNF",
+    "USERCONF.CNF"
+  ],
+  "asset_id": "JF-LB-DONPRO",
+  "controller_type": "SETEX SECOM 757 (Windows CE)",
+  "awl_cpu_types": [
+    "UNKNOWN"
+  ],
+  "awl_project_names": [
+    "jDBFB20260928_08.pro"
+  ],
+  "awl_sha256": "d00e0ab6c041b86d79ef3fcdeb99646cb04eaa55b1d80cd69811e04f00c1eeee",
+  "registers_count": 72,
+  "controller_machine_id": "MA01",
+  "controller_label": "SECOM737",
+  "timezone": "China Standard Time",
+  "min_load_kg": 150,
+  "capacity_kg": 600,
+  "min_fill_l": 500,
+  "max_fill_l": 6600,
+  "min_liquor_ratio": 0,
+  "max_liquor_ratio": 9,
+  "winch_min_speed": 0,
+  "winch_max_speed": 350,
+  "max_diff_pressure_bar": 3,
+  "max_temp_c": 135,
+  "depressure_temp_c": 85,
+  "ht_enable_temp_c": 90,
+  "pressurize_temp_c": 90,
+  "seam_quantity": 2,
+  "addition_tanks_count": 2,
+  "has_stock_tank": true,
+  "tanks_count": 3,
+  "tanks": {
+    "main_tank": {
+      "min_fill_l": 500,
+      "max_fill_l": 6600,
+      "batch_fill_level_l": 6600,
+      "filling_valves": 4,
+      "draining_types": 4,
+      "level_min_pct": 10,
+      "level_mid_pct": 45,
+      "level_rinse_pct": 60,
+      "level_max_pct": 100,
+      "power_drain_level_pct": 20
+    },
+    "dt1": {
+      "max_fill_l": 450,
+      "max_temp_c": 70,
+      "filling_valves": 2,
+      "stirrer_level_pct": 30,
+      "level_min_pct": 2,
+      "level_mid_pct": 40,
+      "level_max_pct": 100
+    },
+    "dt2": {
+      "max_fill_l": 450,
+      "max_temp_c": 70,
+      "filling_valves": 2,
+      "stirrer_level_pct": 30,
+      "level_min_pct": 3,
+      "level_mid_pct": 40,
+      "level_max_pct": 100
+    },
+    "stock_tank": {
+      "enabled": true,
+      "max_fill_l": 3000,
+      "max_temp_c": 60,
+      "filling_valves": 5,
+      "level_min_pct": 3,
+      "level_mid_pct": 40,
+      "level_max_pct": 100
+    }
+  }
+}

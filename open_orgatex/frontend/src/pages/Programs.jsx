@@ -1448,20 +1448,109 @@ export default function Programs() {
 
     let applied = 0;
     fObj.outputs.forEach((outSpec, idx) => {
+      // If output specifies a target_function_id, try matching a function on this step first
+      let targetFn = fn;
+      if (outSpec.target_function_id && Number(outSpec.target_function_id) !== Number(fn.function_id)) {
+        const matchedStepFn = (step.functions || []).find(
+          (sf) => Number(sf.function_id) === Number(outSpec.target_function_id)
+        );
+        if (!matchedStepFn) return;
+        targetFn = matchedStepFn;
+      }
+      if (!targetFn.param_formulas) targetFn.param_formulas = {};
+      if (!targetFn.params) targetFn.params = [0, 0, 0, 0, 0, 0];
+
       const slotIdx = outSpec.default_param_slot ? Number(outSpec.default_param_slot) - 1 : idx;
       if (slotIdx >= 0 && slotIdx < maxParams) {
-        fn.param_formulas[String(slotIdx)] = {
+        targetFn.param_formulas[String(slotIdx)] = {
           formula_id: Number(fObj.id),
           output_key: outSpec.key,
         };
         if (outSpec.default_fallback !== null && outSpec.default_fallback !== undefined) {
-          fn.params[slotIdx] = Number(outSpec.default_fallback) || 0;
+          targetFn.params[slotIdx] = Number(outSpec.default_fallback) || 0;
         }
         applied++;
       }
     });
     setSteps(updated);
     toast.success(`Paket formula "${fObj.name}" dipasang ke ${applied} parameter sekaligus!`);
+  };
+
+  // Apply any Formula (SINGLE or MULTI, including mixed target_function_id) directly to the current Program Step
+  const handleApplyFormulaToStep = (formulaId) => {
+    if (!formulaId) return;
+    const fObj = availableFormulas.find((f) => Number(f.id) === Number(formulaId));
+    if (!fObj) return;
+    const updated = [...steps];
+    const step = updated[selectedStepIdx];
+    if (!step || !Array.isArray(step.functions) || step.functions.length === 0) return;
+
+    const mainFn = step.functions[0];
+    let applied = 0;
+
+    if (fObj.output_mode === 'MULTI' && Array.isArray(fObj.outputs) && fObj.outputs.length > 0) {
+      fObj.outputs.forEach((outSpec, idx) => {
+        let targetFn = mainFn;
+        if (outSpec.target_function_id) {
+          const matched = step.functions.find(
+            (sf) => Number(sf.function_id) === Number(outSpec.target_function_id)
+          );
+          if (matched) targetFn = matched;
+          else if (fObj.outputs.some((o) => o.target_function_id && step.functions.some((sf) => Number(sf.function_id) === Number(o.target_function_id)))) {
+            return;
+          }
+        }
+        if (!targetFn.param_formulas) targetFn.param_formulas = {};
+        if (!targetFn.params) targetFn.params = [0, 0, 0, 0, 0, 0];
+        const slotIdx = outSpec.default_param_slot ? Number(outSpec.default_param_slot) - 1 : idx;
+        if (slotIdx >= 0 && slotIdx < 6) {
+          targetFn.param_formulas[String(slotIdx)] = {
+            formula_id: Number(fObj.id),
+            output_key: outSpec.key,
+          };
+          if (outSpec.default_fallback !== null && outSpec.default_fallback !== undefined) {
+            targetFn.params[slotIdx] = Number(outSpec.default_fallback) || 0;
+          }
+          applied++;
+        }
+      });
+    } else {
+      let targetFn = mainFn;
+      if (fObj.target_function_id) {
+        const matched = step.functions.find(
+          (sf) => Number(sf.function_id) === Number(fObj.target_function_id)
+        );
+        if (matched) targetFn = matched;
+      }
+      if (!targetFn.param_formulas) targetFn.param_formulas = {};
+      if (!targetFn.params) targetFn.params = [0, 0, 0, 0, 0, 0];
+      const slotIdx = fObj.outputs?.[0]?.default_param_slot
+        ? Number(fObj.outputs[0].default_param_slot) - 1
+        : 0;
+      const safeSlot = Math.max(0, Math.min(5, slotIdx));
+      targetFn.param_formulas[String(safeSlot)] = {
+        formula_id: Number(fObj.id),
+        output_key: null,
+      };
+      if (fObj.default_fallback !== null && fObj.default_fallback !== undefined) {
+        targetFn.params[safeSlot] = Number(fObj.default_fallback) || 0;
+      }
+      applied = 1;
+    }
+
+    setSteps(updated);
+    toast.success(`Formula "${fObj.name}" diterapkan ke ${applied} parameter pada langkah ini.`);
+  };
+
+  const handleClearStepFormulas = () => {
+    const updated = [...steps];
+    const step = updated[selectedStepIdx];
+    if (!step?.functions) return;
+    step.functions.forEach((fn) => {
+      if (fn.param_formulas) fn.param_formulas = {};
+    });
+    setSteps(updated);
+    toast.info('Semua formula (fx) pada langkah ini dilepas kembali ke nilai manual.');
   };
 
   // Add Parallel Function (Column 2..13)
@@ -2890,6 +2979,70 @@ export default function Programs() {
                 </span>
               </div>
 
+              {/* STEP-LEVEL FORMULA SELECTOR (fx) */}
+              {!isBoundaryStep && (() => {
+                const activeStepFormulaCount = (currentStep.functions || []).reduce(
+                  (acc, fn) => acc + Object.keys(fn.param_formulas || {}).length,
+                  0
+                );
+                return (
+                  <div className="p-3 rounded-lg border border-indigo-200 dark:border-indigo-800/70 bg-indigo-50/50 dark:bg-indigo-950/20 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
+                    <div className="flex items-center gap-2 min-w-0">
+                      <Calculator className="h-4 w-4 text-indigo-600 dark:text-indigo-400 shrink-0" />
+                      <div className="min-w-0">
+                        <div className="text-xs font-bold text-indigo-900 dark:text-indigo-200">
+                          Pilih Formula untuk Langkah Ini (fx)
+                        </div>
+                        <div className="text-[10px] text-indigo-700/80 dark:text-indigo-300/80">
+                          {activeStepFormulaCount > 0
+                            ? `${activeStepFormulaCount} parameter di langkah ini sudah memakai formula otomatis.`
+                            : 'Terapkan Formula Global / Function Formula langsung ke parameter langkah ini (Slot 1 & Paralel).'}
+                        </div>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2 shrink-0">
+                      <select
+                        value=""
+                        onChange={(e) => {
+                          if (e.target.value) handleApplyFormulaToStep(Number(e.target.value));
+                        }}
+                        disabled={availableFormulas.length === 0}
+                        className="min-w-[230px] max-w-[320px] text-xs font-bold rounded-lg border border-indigo-300 dark:border-indigo-700 bg-white dark:bg-slate-900 text-indigo-900 dark:text-indigo-100 px-2.5 py-1.5 outline-none focus:border-primary cursor-pointer disabled:opacity-60"
+                      >
+                        <option value="">
+                          {availableFormulas.length > 0
+                            ? '-- Pilih Formula untuk Diterapkan --'
+                            : '-- Belum ada formula untuk mesin/grup ini --'}
+                        </option>
+                        {availableFormulas.map((f) => {
+                          const tag =
+                            f.output_mode === 'MULTI'
+                              ? `${f.outputs?.length || 0} param`
+                              : f.target_function_id
+                                ? `F${f.target_function_id}`
+                                : 'Tunggal';
+                          return (
+                            <option key={f.id} value={f.id}>
+                              {f.code} · {f.name} ({tag})
+                            </option>
+                          );
+                        })}
+                      </select>
+                      {activeStepFormulaCount > 0 && (
+                        <button
+                          type="button"
+                          onClick={handleClearStepFormulas}
+                          className="px-2.5 py-1.5 text-[11px] font-bold rounded-lg border border-rose-300 dark:border-rose-800 bg-white dark:bg-slate-900 text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition"
+                          title="Lepas semua formula di langkah ini"
+                        >
+                          Lepas fx
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                );
+              })()}
+
               {/* FUNGSI UTAMA (SLOT 1) */}
               <div className="bg-gray-50/80 dark:bg-meta-4/30 p-4 rounded-lg border border-stroke dark:border-strokedark space-y-3">
                 <div className="flex flex-wrap items-center justify-between gap-2">
@@ -2981,7 +3134,7 @@ export default function Programs() {
                                     handleBindParamFormula(0, pIdx, availableFormulas[0].id);
                                   } else {
                                     toast.info(
-                                      `Belum ada formula yang dikirim ke grup mesin "${activeMachineGroupName || effectiveConfigMachine}". Buat & kirim di menu Formula Parameter.`
+                                      `Belum ada formula yang dikirim ke grup mesin "${activeMachineGroupName || effectiveConfigMachine}". Buat & kirim di menu Formula Global.`
                                     );
                                   }
                                 }}

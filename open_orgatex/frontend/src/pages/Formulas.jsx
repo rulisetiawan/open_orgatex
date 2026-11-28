@@ -163,11 +163,8 @@ export default function Formulas() {
         <div>
           <h1 className="text-xl font-bold text-black dark:text-white flex items-center gap-2">
             <Calculator className="h-6 w-6 text-primary" />
-            Formula Parameter Step
+            Formula Global
           </h1>
-          <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
-            Buat rumus perhitungan otomatis (Matematika, IF–ELSE, Tabel Rentang, Tabel Pemetaan), kirim ke Grup Mesin, lalu panggil di Program Studio.
-          </p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
           <button
@@ -204,7 +201,7 @@ export default function Formulas() {
           <div className="flex items-center justify-between">
             <span className="text-xs font-bold text-amber-900 dark:text-amber-200 flex items-center gap-1.5">
               <Sparkles className="h-4 w-4" />
-              Pilih Template Formula Celup (1-Klik langsung bisa diedit & dikirim ke Grup Mesin)
+              Template Formula
             </span>
             <button
               type="button"
@@ -262,7 +259,7 @@ export default function Formulas() {
             <option value="ALL">Semua Grup Mesin ({machineGroups.length})</option>
             {machineGroups.map((g) => (
               <option key={g.group_name} value={g.group_name}>
-                {g.group_name} ({g.machine_count} mesin · {g.formula_count} fx)
+                {g.group_id ? `${g.group_id} · ` : ''}{g.group_name} ({g.machine_count} mesin)
               </option>
             ))}
           </select>
@@ -321,11 +318,8 @@ export default function Formulas() {
         <div className="p-10 rounded-xl border border-dashed border-stroke dark:border-strokedark bg-white dark:bg-boxdark text-center space-y-3">
           <Calculator className="h-10 w-10 text-gray-300 dark:text-gray-600 mx-auto" />
           <div className="text-sm font-bold text-black dark:text-white">
-            {formulas.length === 0 ? 'Belum Ada Formula Parameter' : 'Tidak ada formula yang cocok dengan filter'}
+            {formulas.length === 0 ? 'Belum Ada Formula Global' : 'Tidak ada formula yang cocok'}
           </div>
-          <p className="text-xs text-gray-500 max-w-md mx-auto">
-            Buat formula pertama Anda secara visual (atau pilih dari Template Siap Pakai), lalu kirim ke Grup Mesin agar bisa dipanggil langsung di Program Studio.
-          </p>
           <div className="flex items-center justify-center gap-2 pt-1">
             <button
               type="button"
@@ -390,11 +384,39 @@ export default function Formulas() {
                   {/* Title & target */}
                   <div>
                     <h3 className="text-sm font-bold text-black dark:text-white leading-snug">{f.name}</h3>
-                    {f.target_function_id && (
-                      <span className="text-[10px] font-semibold text-indigo-600 dark:text-indigo-400">
-                        Target: F{f.target_function_id} · {f.target_function_name}
-                      </span>
-                    )}
+                    {(() => {
+                      const fnBadges = Array.isArray(f.outputs)
+                        ? Array.from(
+                            new Map(
+                              f.outputs
+                                .filter((o) => o?.target_function_id)
+                                .map((o) => [String(o.target_function_id), `F${o.target_function_id}${o.target_function_name ? ` · ${o.target_function_name}` : ''}`])
+                            ).values()
+                          )
+                        : [];
+                      if (fnBadges.length > 1) {
+                        return (
+                          <span className="text-[10px] font-semibold text-indigo-600 dark:text-indigo-400">
+                            Target Campuran: {fnBadges.join(', ')}
+                          </span>
+                        );
+                      }
+                      if (f.target_function_id) {
+                        return (
+                          <span className="text-[10px] font-semibold text-indigo-600 dark:text-indigo-400">
+                            Target: F{f.target_function_id} · {f.target_function_name}
+                          </span>
+                        );
+                      }
+                      if (fnBadges.length === 1) {
+                        return (
+                          <span className="text-[10px] font-semibold text-indigo-600 dark:text-indigo-400">
+                            Target: {fnBadges[0]}
+                          </span>
+                        );
+                      }
+                      return null;
+                    })()}
                     {f.description && (
                       <p className="text-[11px] text-gray-500 dark:text-gray-400 mt-0.5 line-clamp-2">
                         {f.description}

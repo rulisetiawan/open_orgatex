@@ -389,7 +389,7 @@ def create_batch(req: CreateBatchRequest, db: Session = Depends(get_db)):
                             needed_ids.add(binding)
             if needed_ids:
                 mach_cap = float(machine_obj.capacity_kg) if machine_obj and machine_obj.capacity_kg is not None else 350.0
-                ctx = build_batch_context(req.dict(), machine_capacity_kg=mach_cap)
+                ctx = build_batch_context(req.dict(), machine_capacity_kg=mach_cap, machine_no=mach)
                 f_map = load_formula_map(db, list(needed_ids))
                 _, resolved_items = resolve_program_steps_for_batch(steps, f_map, ctx)
                 if resolved_items:

@@ -22,8 +22,20 @@ export const DEFAULT_BATCH_VARIABLES = [
   { key: 'fabric_length', label: 'Panjang Kain', type: 'number', unit: 'm', group: 'Fisik & Kapasitas', sample: 200 },
   { key: 'fabric_gsm', label: 'Gramasi Kain (GSM)', type: 'number', unit: 'g/m²', group: 'Fisik & Kapasitas', sample: 180 },
   { key: 'chamber_count', label: 'Jumlah Rope / Chamber', type: 'number', unit: 'pcs', group: 'Fisik & Kapasitas', sample: 2 },
-  { key: 'machine_capacity_kg', label: 'Kapasitas Mesin', type: 'number', unit: 'kg', group: 'Fisik & Kapasitas', sample: 350 },
+  { key: 'machine_capacity_kg', label: 'Kapasitas Mesin', type: 'number', unit: 'kg', group: 'Config Mesin (MACHCONF)', sample: 350 },
   { key: 'load_percent', label: 'Persen Beban Mesin', type: 'number', unit: '%', group: 'Fisik & Kapasitas', sample: 100 },
+  { key: 'machine_min_load_kg', label: 'Beban Min Mesin', type: 'number', unit: 'kg', group: 'Config Mesin (MACHCONF)', sample: 150 },
+  { key: 'machine_min_fill_l', label: 'Air Min Mesin', type: 'number', unit: 'L', group: 'Config Mesin (MACHCONF)', sample: 500 },
+  { key: 'machine_max_fill_l', label: 'Air Maks Mesin', type: 'number', unit: 'L', group: 'Config Mesin (MACHCONF)', sample: 6000 },
+  { key: 'machine_max_liquor_ratio', label: 'LR Maks Mesin', type: 'number', unit: '1:x', group: 'Config Mesin (MACHCONF)', sample: 9 },
+  { key: 'machine_max_temp_c', label: 'Suhu Maks Mesin', type: 'number', unit: '°C', group: 'Config Mesin (MACHCONF)', sample: 135 },
+  { key: 'machine_winch_max_speed', label: 'Winch Maks Mesin', type: 'number', unit: 'm/min', group: 'Config Mesin (MACHCONF)', sample: 350 },
+  { key: 'machine_max_pressure_bar', label: 'Tekanan Maks Mesin', type: 'number', unit: 'bar', group: 'Config Mesin (MACHCONF)', sample: 3 },
+  { key: 'machine_seam_count', label: 'Jumlah Tube / Seam', type: 'number', unit: 'pcs', group: 'Config Mesin (MACHCONF)', sample: 2 },
+  { key: 'machine_dt1_max_l', label: 'Kapasitas DT1', type: 'number', unit: 'L', group: 'Config Mesin (MACHCONF)', sample: 450 },
+  { key: 'machine_dt2_max_l', label: 'Kapasitas DT2', type: 'number', unit: 'L', group: 'Config Mesin (MACHCONF)', sample: 450 },
+  { key: 'machine_st1_max_l', label: 'Kapasitas Stock Tank', type: 'number', unit: 'L', group: 'Config Mesin (MACHCONF)', sample: 3000 },
+  { key: 'machine_tanks_count', label: 'Jumlah Tangki Mesin', type: 'number', unit: 'pcs', group: 'Config Mesin (MACHCONF)', sample: 3 },
   { key: 'fabric_type', label: 'Jenis Kain / Serat', type: 'select', unit: '', group: 'Kain, Warna & Proses', sample: 'COTTON', options: FABRIC_TYPE_OPTIONS },
   { key: 'color_shade', label: 'Kedalaman Warna (Shade)', type: 'select', unit: '', group: 'Kain, Warna & Proses', sample: 'TUA', options: COLOR_SHADE_OPTIONS },
   { key: 'dye_type', label: 'Jenis Zat Warna', type: 'select', unit: '', group: 'Kain, Warna & Proses', sample: 'REACTIVE', options: DYE_TYPE_OPTIONS },
@@ -85,7 +97,7 @@ export function buildBatchContextClient(raw = {}) {
   const redyeRaw = String(raw.redye ?? '0').trim().toLowerCase();
   const redye = ['1', 'true', 'ya', 'yes'].includes(redyeRaw) ? '1' : '0';
 
-  return {
+  const ctx = {
     fabric_weight_kg: weight,
     liquor_ratio: lr,
     total_water_l: totalWater > 0 ? totalWater : +(weight * lr).toFixed(2),
@@ -94,6 +106,18 @@ export function buildBatchContextClient(raw = {}) {
     chamber_count: toNum(raw.chamber_count, 1),
     machine_capacity_kg: cap,
     load_percent: loadPct,
+    machine_min_load_kg: toNum(raw.machine_min_load_kg, 150),
+    machine_min_fill_l: toNum(raw.machine_min_fill_l, 500),
+    machine_max_fill_l: toNum(raw.machine_max_fill_l, 6000),
+    machine_max_liquor_ratio: toNum(raw.machine_max_liquor_ratio, 9),
+    machine_max_temp_c: toNum(raw.machine_max_temp_c, 135),
+    machine_winch_max_speed: toNum(raw.machine_winch_max_speed, 350),
+    machine_max_pressure_bar: toNum(raw.machine_max_pressure_bar, 3),
+    machine_seam_count: toNum(raw.machine_seam_count, 2),
+    machine_dt1_max_l: toNum(raw.machine_dt1_max_l, 450),
+    machine_dt2_max_l: toNum(raw.machine_dt2_max_l, 450),
+    machine_st1_max_l: toNum(raw.machine_st1_max_l, 3000),
+    machine_tanks_count: toNum(raw.machine_tanks_count, 3),
     fabric_type: fabricType,
     color_shade: String(raw.color_shade || '').trim().toUpperCase(),
     dye_type: String(raw.dye_type || '').trim().toUpperCase(),
@@ -103,6 +127,12 @@ export function buildBatchContextClient(raw = {}) {
     color_code: String(raw.color_code || '').trim(),
     customer: String(raw.customer || '').trim(),
   };
+  for (const [k, v] of Object.entries(raw || {})) {
+    if (/^mc_[pts]\d+$/.test(k) && v !== '' && v !== null && v !== undefined) {
+      ctx[k] = toNum(v, 0);
+    }
+  }
+  return ctx;
 }
 
 // =============================================================================
@@ -255,6 +285,7 @@ export function safeEvalMathClient(expr, context = {}) {
         return fn(...args);
       }
       if (t.value in numVars) return numVars[t.value];
+      if (/^mc_[pts]\d+$/.test(t.value)) return 0;
       throw new Error(`Variabel '${t.value}' tidak dikenal.`);
     }
     throw new Error(`Token tidak terduga: '${t.value}'`);
@@ -281,8 +312,18 @@ function evalConditionClient(cond, ctx) {
   const isNum = NUMERIC_VAR_KEYS.has(varKey) || ['>', '>=', '<', '<=', 'between'].includes(op);
 
   if (isNum) {
+    const resolveTarget = (rawT, defVal = 0) => {
+      if (rawT === null || rawT === undefined || rawT === '') return defVal;
+      const n = Number(rawT);
+      if (Number.isFinite(n)) return n;
+      try {
+        return safeEvalMathClient(String(rawT), ctx);
+      } catch {
+        return defVal;
+      }
+    };
     const a = toNum(actual, 0);
-    const t = toNum(cond.value, 0);
+    const t = resolveTarget(cond.value, 0);
     if (op === '>') return a > t;
     if (op === '>=') return a >= t;
     if (op === '<') return a < t;
@@ -290,7 +331,7 @@ function evalConditionClient(cond, ctx) {
     if (op === '==' || op === '=' || op === 'equals') return Math.abs(a - t) < 1e-9;
     if (op === '!=' || op === '<>' || op === 'not_equals') return Math.abs(a - t) >= 1e-9;
     if (op === 'between') {
-      const t2 = toNum(cond.value2, t);
+      const t2 = resolveTarget(cond.value2, t);
       const lo = Math.min(t, t2);
       const hi = Math.max(t, t2);
       return a >= lo && a <= hi;

@@ -17,6 +17,7 @@ import {
   Tags,
   ShieldAlert,
   Calculator,
+  Sliders,
   X
 } from 'lucide-react';
 
@@ -92,7 +93,8 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
       groupTitle: 'PROGRAM',
       items: [
         { name: 'Program Studio', path: '/programs', icon: FileCode },
-        { name: 'Formula Parameter', path: '/formulas', icon: Calculator },
+        { name: 'Formula Global', path: '/formulas', icon: Calculator },
+        { name: 'Function Formula', path: '/function-formulas', icon: Sliders },
       ]
     },
     {

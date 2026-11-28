@@ -65,11 +65,18 @@ type StatusPayload struct {
 	AssetID            string                 `json:"asset_id"`
 	MachineID          string                 `json:"machine_id"`
 	ConnectionStatus   string                 `json:"connection_status"`
+	MachineState       string                 `json:"machine_state,omitempty"`
 	BatchNo            string                 `json:"batch_no"`
 	StepNo             int                    `json:"step_no"`
 	ProgramNo          string                 `json:"program_no"`
 	ProgramCode        string                 `json:"program_code,omitempty"`
 	ProgramName        string                 `json:"program_name,omitempty"`
+	IsRunning          int                    `json:"is_running"`
+	IsPaused           int                    `json:"is_paused"`
+	IsProgramEnd       int                    `json:"is_program_end"`
+	RunModeCode        int                    `json:"run_mode_code"`
+	BlockState         int                    `json:"block_state"`
+	FunctionCode       int                    `json:"function_code"`
 	InterventionEvents []ActInterventionEvent `json:"intervention_events,omitempty"`
 }
 
@@ -729,9 +736,9 @@ func (s *Storage) IngestStatus(ctx context.Context, p StatusPayload) error {
 		s.ensureScadaBatchAndSnapshot(ctx, p.AssetID, p.BatchNo, p.ProgramNo)
 	}
 
-	// Update lightweight SCADA step tags (SMM.<ASSET>.MACHINE.PROCESS_STEP_CODE & PROCESS.STEP_CODE)
-	if p.StepNo > 0 && p.AssetID != "" {
-		s.upsertScadaStepTag(ctx, p.AssetID, p.StepNo, now)
+	// Update lightweight SCADA step & machine run-state tags from STATUS.ACT
+	if p.AssetID != "" {
+		s.upsertScadaRunStateTags(ctx, p, now)
 	}
 
 	// Update batch_process_run.payload_json with program_code/program_name and embed operator interventions into program[]
@@ -740,6 +747,104 @@ func (s *Storage) IngestStatus(ctx context.Context, p StatusPayload) error {
 	}
 
 	return nil
+}
+
+// upsertScadaRunStateTags writes step_no + STATUS.ACT run-state indicators (RUN_ST, PAUSE_ST,
+// PROGRAM_END_ST, RUN_MODE_CODE, BLOCK_STATE, ACTIVE_FUNCTION_CODE) into pt_smm_scada.tag_definition
+// & tag_latest without clobbering live_iw_telemetry.telemetry_json from da-setex-collector.
+func (s *Storage) upsertScadaRunStateTags(ctx context.Context, p StatusPayload, ts time.Time) {
+	aid := strings.TrimSpace(p.AssetID)
+	if aid == "" {
+		return
+	}
+	var assetExists bool
+	_ = s.scadaPool.QueryRow(ctx, "SELECT EXISTS(SELECT 1 FROM asset WHERE asset_id = $1);", aid).Scan(&assetExists)
+	if !assetExists {
+		return
+	}
+
+	type runTagSpec struct {
+		code string
+		role string
+		unit string
+		disp string
+		val  float64
+	}
+	specs := make([]runTagSpec, 0, 8)
+	if p.StepNo > 0 {
+		specs = append(specs,
+			runTagSpec{fmt.Sprintf("SMM.%s.MACHINE.PROCESS_STEP_CODE", aid), "PV", "step", "Process Step Code", float64(p.StepNo)},
+			runTagSpec{fmt.Sprintf("SMM.%s.PROCESS.STEP_CODE", aid), "PV", "step", "Process Step Code", float64(p.StepNo)},
+		)
+	}
+	// Only write run-state tags when STATUS.ACT provided run_mode_code or block_state
+	if p.RunModeCode > 0 || p.BlockState > 0 || p.MachineState != "" {
+		specs = append(specs,
+			runTagSpec{fmt.Sprintf("SMM.%s.MACHINE.RUN_ST", aid), "ST", "", "Machine Running Status (STATUS.ACT)", float64(p.IsRunning)},
+			runTagSpec{fmt.Sprintf("SMM.%s.MACHINE.PAUSE_ST", aid), "ST", "", "Machine Pause/Break Status (STATUS.ACT)", float64(p.IsPaused)},
+			runTagSpec{fmt.Sprintf("SMM.%s.MACHINE.PROGRAM_END_ST", aid), "ST", "", "Machine Program End/Idle Status (STATUS.ACT)", float64(p.IsProgramEnd)},
+			runTagSpec{fmt.Sprintf("SMM.%s.MACHINE.RUN_MODE_CODE", aid), "ST", "", "Controller Run Mode Code (0x0018: 3=RUN,4=BREAK,6=END)", float64(p.RunModeCode)},
+			runTagSpec{fmt.Sprintf("SMM.%s.MACHINE.BLOCK_STATE", aid), "ST", "", "Active Process Block State (35=ACTIVE,5=IDLE)", float64(p.BlockState)},
+			runTagSpec{fmt.Sprintf("SMM.%s.MACHINE.ACTIVE_FUNCTION_CODE", aid), "PV", "", "Active Step Function ID (STATUS.ACT)", float64(p.FunctionCode)},
+		)
+	}
+	if len(specs) == 0 {
+		return
+	}
+
+	batchDef := &pgx.Batch{}
+	qDef := `
+		INSERT INTO tag_definition (tag_code, asset_id, signal_role, engineering_unit, source_status, active, created_at, stale_after_seconds, freshness_mode, display_name)
+		VALUES ($1, $2, $3, $4, 'LIVE', TRUE, NOW(), 600, 'TAG_TIMESTAMP', $5)
+		ON CONFLICT (tag_code) DO UPDATE SET
+			asset_id = EXCLUDED.asset_id,
+			signal_role = EXCLUDED.signal_role;
+	`
+	for _, sp := range specs {
+		batchDef.Queue(qDef, sp.code, aid, sp.role, sp.unit, sp.disp)
+	}
+	brDef := s.scadaPool.SendBatch(ctx, batchDef)
+	for range specs {
+		_, _ = brDef.Exec()
+	}
+	_ = brDef.Close()
+
+	batchLatest := &pgx.Batch{}
+	qLatest := `
+		INSERT INTO tag_latest (tag_code, asset_id, value_number, quality, source_ts, ingested_at, updated_at, message_id)
+		VALUES ($1, $2, $3, 'GOOD', $4, NOW(), NOW(), gen_random_uuid())
+		ON CONFLICT (tag_code) DO UPDATE SET
+			asset_id = EXCLUDED.asset_id,
+			value_number = EXCLUDED.value_number,
+			quality = 'GOOD',
+			source_ts = EXCLUDED.source_ts,
+			ingested_at = NOW(),
+			updated_at = NOW(),
+			message_id = gen_random_uuid();
+	`
+	for _, sp := range specs {
+		batchLatest.Queue(qLatest, sp.code, aid, sp.val, ts)
+	}
+	brLatest := s.scadaPool.SendBatch(ctx, batchLatest)
+	_ = brLatest.Close()
+
+	// Sync asset_snapshot.machine_state accurately from STATUS.ACT run state
+	if p.RunModeCode > 0 || p.BlockState > 0 {
+		mState := "running"
+		if p.IsProgramEnd > 0 {
+			mState = "idle"
+		} else if p.IsPaused > 0 {
+			mState = "paused"
+		}
+		_, _ = s.scadaPool.Exec(ctx, `
+			UPDATE asset_snapshot
+			SET machine_state = $2,
+			    connected = TRUE,
+			    updated_at = NOW()
+			WHERE asset_id = $1;
+		`, aid, mState)
+	}
+	_, _ = s.scadaPool.Exec(ctx, "SELECT sync_jetflow_asset_snapshot($1);", aid)
 }
 
 func formatScadaParamValue(val float64, unit string) string {

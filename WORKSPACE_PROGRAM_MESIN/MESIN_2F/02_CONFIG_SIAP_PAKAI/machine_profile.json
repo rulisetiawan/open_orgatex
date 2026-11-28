@@ -2,7 +2,7 @@
   "machine_no": "2F",
   "folder_name": "MESIN_2F",
   "controller_type": "SETEX SECOM 797CE",
-  "max_temp_c": 140.0,
+  "max_temp_c": 135,
   "has_custom_hmi_config": true,
   "status": "ready",
   "ip_address": "172.16.120.152",
@@ -46,5 +46,54 @@
   "awl_project_names": [
     "iTSH14003_797_V2.pro"
   ],
-  "awl_sha256": "3663b737d2d6d1d0bd0f18d75b07e8e19e3d245433416957da3238ee575f7104"
+  "awl_sha256": "3663b737d2d6d1d0bd0f18d75b07e8e19e3d245433416957da3238ee575f7104",
+  "timezone": "SE Asia Standard Time",
+  "min_load_kg": 65,
+  "capacity_kg": 550,
+  "min_fill_l": 500,
+  "max_fill_l": 5000,
+  "min_liquor_ratio": 0,
+  "max_liquor_ratio": 0,
+  "has_stock_tank": false,
+  "tanks": {
+    "main_tank": {
+      "min_fill_l": 500,
+      "max_fill_l": 5000,
+      "batch_fill_level_l": null,
+      "filling_valves": null,
+      "draining_types": null,
+      "level_min_pct": null,
+      "level_mid_pct": null,
+      "level_rinse_pct": null,
+      "level_max_pct": null,
+      "power_drain_level_pct": null
+    },
+    "dt1": {
+      "max_fill_l": null,
+      "max_temp_c": null,
+      "filling_valves": null,
+      "stirrer_level_pct": null,
+      "level_min_pct": null,
+      "level_mid_pct": null,
+      "level_max_pct": null
+    },
+    "dt2": {
+      "max_fill_l": null,
+      "max_temp_c": null,
+      "filling_valves": null,
+      "stirrer_level_pct": null,
+      "level_min_pct": null,
+      "level_mid_pct": null,
+      "level_max_pct": null
+    },
+    "stock_tank": {
+      "enabled": false,
+      "max_fill_l": null,
+      "max_temp_c": null,
+      "filling_valves": 2,
+      "level_min_pct": null,
+      "level_mid_pct": null,
+      "level_max_pct": null
+    }
+  }
 }

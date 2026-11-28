@@ -1,0 +1,8649 @@
+{
+  "functions": {
+    "1": {
+      "id": 1,
+      "name_local": "│╠╩¢┐¬╩╝",
+      "name": "Program Start",
+      "ack": 0,
+      "type": 6,
+      "parameter_count": 0,
+      "parameters": [],
+      "lines": [
+        1
+      ],
+      "groups": [
+        "System"
+      ]
+    },
+    "2": {
+      "id": 2,
+      "name_local": "│╠╩¢¢ß╩°",
+      "name": "Program End",
+      "ack": 0,
+      "type": 7,
+      "parameter_count": 0,
+      "parameters": [],
+      "lines": [
+        1
+      ],
+      "groups": [
+        "System"
+      ]
+    },
+    "119": {
+      "id": 119,
+      "name_local": "Èñ▒©©ÎÁ¢Í¸©Î",
+      "name": "ST1 --> MC",
+      "ack": 0,
+      "type": 0,
+      "parameter_count": 2,
+      "parameters": [
+        {
+          "definition_id": 60,
+          "display_position": 1,
+          "minimum": 0.0,
+          "maximum": 99.0,
+          "default": 0.0,
+          "index_min": 0,
+          "index_max": 0,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 301,
+          "display_position": 2,
+          "minimum": 0.0,
+          "maximum": 5.0,
+          "default": 1.0,
+          "index_min": 0,
+          "index_max": 0,
+          "attribute": 0,
+          "reserved": 0
+        }
+      ],
+      "lines": [
+        1
+      ],
+      "groups": [
+        "Inject ST"
+      ]
+    },
+    "3": {
+      "id": 3,
+      "name_local": "ã¢ºº╣Ğ─▄",
+      "name": "No Operation",
+      "ack": 0,
+      "type": 0,
+      "parameter_count": 0,
+      "parameters": [],
+      "lines": [
+        1
+      ],
+      "groups": [
+        "System"
+      ]
+    },
+    "4": {
+      "id": 4,
+      "name_local": "ÎÀ╝Ë┐¬╩╝",
+      "name": "Addition Start",
+      "ack": 0,
+      "type": 8,
+      "parameter_count": 0,
+      "parameters": [],
+      "lines": [
+        1
+      ],
+      "groups": [
+        "System"
+      ]
+    },
+    "5": {
+      "id": 5,
+      "name_local": "ÎÀ╝Ë¢ß╩°",
+      "name": "Addition End",
+      "ack": 0,
+      "type": 9,
+      "parameter_count": 0,
+      "parameters": [],
+      "lines": [
+        1
+      ],
+      "groups": [
+        "System"
+      ]
+    },
+    "121": {
+      "id": 121,
+      "name_local": "║¶¢º╚Ù▓╝",
+      "name": "Load",
+      "ack": 0,
+      "type": 5,
+      "parameter_count": 1,
+      "parameters": [
+        {
+          "definition_id": 36,
+          "display_position": 1,
+          "minimum": 0.0,
+          "maximum": 180.0,
+          "default": 0.0,
+          "index_min": 0,
+          "index_max": 0,
+          "attribute": 0,
+          "reserved": 0
+        }
+      ],
+      "lines": [],
+      "groups": []
+    },
+    "122": {
+      "id": 122,
+      "name_local": "║¶¢º│÷▓╝",
+      "name": "Unload",
+      "ack": 0,
+      "type": 5,
+      "parameter_count": 1,
+      "parameters": [
+        {
+          "definition_id": 36,
+          "display_position": 1,
+          "minimum": 0.0,
+          "maximum": 180.0,
+          "default": 15.0,
+          "index_min": 0,
+          "index_max": 0,
+          "attribute": 0,
+          "reserved": 0
+        }
+      ],
+      "lines": [
+        1
+      ],
+      "groups": [
+        "Operator Call"
+      ]
+    },
+    "135": {
+      "id": 135,
+      "name_local": "║¶¢ºÍ·╝┴",
+      "name": "Chemicals",
+      "ack": 0,
+      "type": 5,
+      "parameter_count": 1,
+      "parameters": [
+        {
+          "definition_id": 36,
+          "display_position": 5,
+          "minimum": 0.0,
+          "maximum": 180.0,
+          "default": 15.0,
+          "index_min": 0,
+          "index_max": 0,
+          "attribute": 0,
+          "reserved": 0
+        }
+      ],
+      "lines": [
+        1
+      ],
+      "groups": [
+        "Operator Call"
+      ]
+    },
+    "134": {
+      "id": 134,
+      "name_local": "║¶¢º╚¥┴¤",
+      "name": "Colour",
+      "ack": 0,
+      "type": 5,
+      "parameter_count": 1,
+      "parameters": [
+        {
+          "definition_id": 36,
+          "display_position": 5,
+          "minimum": 0.0,
+          "maximum": 180.0,
+          "default": 15.0,
+          "index_min": 0,
+          "index_max": 0,
+          "attribute": 0,
+          "reserved": 0
+        }
+      ],
+      "lines": [
+        1
+      ],
+      "groups": [
+        "Operator Call"
+      ]
+    },
+    "733": {
+      "id": 733,
+      "name_local": "┴¤©Î1▒╚└²╝Ë┴¤",
+      "name": "Dosing DT1",
+      "ack": 0,
+      "type": 0,
+      "parameter_count": 6,
+      "parameters": [
+        {
+          "definition_id": 60,
+          "display_position": 1,
+          "minimum": 0.0,
+          "maximum": 99.0,
+          "default": 0.0,
+          "index_min": 0,
+          "index_max": 0,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 3,
+          "display_position": 2,
+          "minimum": 0.0,
+          "maximum": 150.0,
+          "default": 0.0,
+          "index_min": 0,
+          "index_max": 0,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 4,
+          "display_position": 3,
+          "minimum": 0.0,
+          "maximum": 0.0,
+          "default": 0.0,
+          "index_min": 0,
+          "index_max": 140,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 20,
+          "display_position": 5,
+          "minimum": -100.0,
+          "maximum": 100.0,
+          "default": 0.0,
+          "index_min": 0,
+          "index_max": 0,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 272,
+          "display_position": 4,
+          "minimum": 0.0,
+          "maximum": 0.0,
+          "default": 1.0,
+          "index_min": 0,
+          "index_max": 39,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 22,
+          "display_position": 6,
+          "minimum": 0.0,
+          "maximum": 180.0,
+          "default": 0.0,
+          "index_min": 0,
+          "index_max": 0,
+          "attribute": 0,
+          "reserved": 0
+        }
+      ],
+      "lines": [
+        1
+      ],
+      "groups": [
+        "Inject"
+      ]
+    },
+    "138": {
+      "id": 138,
+      "name_local": "║¶¢º╚íª¨",
+      "name": "Sample",
+      "ack": 0,
+      "type": 2,
+      "parameter_count": 1,
+      "parameters": [
+        {
+          "definition_id": 36,
+          "display_position": 2,
+          "minimum": 0.0,
+          "maximum": 180.0,
+          "default": 15.0,
+          "index_min": 0,
+          "index_max": 0,
+          "attribute": 0,
+          "reserved": 0
+        }
+      ],
+      "lines": [
+        1
+      ],
+      "groups": [
+        "Operator Call"
+      ]
+    },
+    "702": {
+      "id": 702,
+      "name_local": "╝ã┴┐╚Ù╦«",
+      "name": "Fill Quantity",
+      "ack": 0,
+      "type": 0,
+      "parameter_count": 2,
+      "parameters": [
+        {
+          "definition_id": 7,
+          "display_position": 1,
+          "minimum": 1.0,
+          "maximum": 100.0,
+          "default": 1.0,
+          "index_min": 0,
+          "index_max": 18,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 8,
+          "display_position": 6,
+          "minimum": 0.0,
+          "maximum": 65535.0,
+          "default": 0.0,
+          "index_min": 3,
+          "index_max": 4,
+          "attribute": 0,
+          "reserved": 0
+        }
+      ],
+      "lines": [
+        1
+      ],
+      "groups": [
+        "Fill"
+      ]
+    },
+    "703": {
+      "id": 703,
+      "name_local": "─ú─Ô╚Ù╦«",
+      "name": "Fill Analog Level",
+      "ack": 0,
+      "type": 0,
+      "parameter_count": 2,
+      "parameters": [
+        {
+          "definition_id": 7,
+          "display_position": 1,
+          "minimum": 1.0,
+          "maximum": 100.0,
+          "default": 1.0,
+          "index_min": 0,
+          "index_max": 18,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 8,
+          "display_position": 6,
+          "minimum": 0.0,
+          "maximum": 0.0,
+          "default": 2000.0,
+          "index_min": 0,
+          "index_max": 4,
+          "attribute": 0,
+          "reserved": 0
+        }
+      ],
+      "lines": [],
+      "groups": []
+    },
+    "704": {
+      "id": 704,
+      "name_local": "╚Ù╦«ú¿ST->MT)",
+      "name": "Fill (ST -> MT)",
+      "ack": 0,
+      "type": 0,
+      "parameter_count": 1,
+      "parameters": [
+        {
+          "definition_id": 8,
+          "display_position": 5,
+          "minimum": 0.0,
+          "maximum": 0.0,
+          "default": 0.0,
+          "index_min": 3,
+          "index_max": 4,
+          "attribute": 0,
+          "reserved": 0
+        }
+      ],
+      "lines": [],
+      "groups": []
+    },
+    "705": {
+      "id": 705,
+      "name_local": "╝ÃÊõ╦«╬╗",
+      "name": "Save Level",
+      "ack": 0,
+      "type": 0,
+      "parameter_count": 0,
+      "parameters": [],
+      "lines": [
+        1
+      ],
+      "groups": [
+        "Fill"
+      ]
+    },
+    "706": {
+      "id": 706,
+      "name_local": "╝ÃÊõ╦«╬╗╚Ù╦«",
+      "name": "Memo Level Fill",
+      "ack": 0,
+      "type": 0,
+      "parameter_count": 1,
+      "parameters": [
+        {
+          "definition_id": 7,
+          "display_position": 1,
+          "minimum": 1.0,
+          "maximum": 100.0,
+          "default": 1.0,
+          "index_min": 0,
+          "index_max": 18,
+          "attribute": 0,
+          "reserved": 0
+        }
+      ],
+      "lines": [
+        1
+      ],
+      "groups": [
+        "Fill"
+      ]
+    },
+    "710": {
+      "id": 710,
+      "name_local": "╦«╬╗┼┼╦«",
+      "name": "Level Drain",
+      "ack": 0,
+      "type": 0,
+      "parameter_count": 3,
+      "parameters": [
+        {
+          "definition_id": 18,
+          "display_position": 1,
+          "minimum": 0.0,
+          "maximum": 99.0,
+          "default": 1.0,
+          "index_min": 0,
+          "index_max": 0,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 8,
+          "display_position": 3,
+          "minimum": 0.0,
+          "maximum": 3.0,
+          "default": 0.0,
+          "index_min": 0,
+          "index_max": 0,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 19,
+          "display_position": 4,
+          "minimum": 1.0,
+          "maximum": 3.0,
+          "default": 1.0,
+          "index_min": 0,
+          "index_max": 0,
+          "attribute": 0,
+          "reserved": 0
+        }
+      ],
+      "lines": [
+        1
+      ],
+      "groups": [
+        "Drain"
+      ]
+    },
+    "720": {
+      "id": 720,
+      "name_local": "│¼╝Â╦«¤┤",
+      "name": "Overflow Rinse",
+      "ack": 0,
+      "type": 0,
+      "parameter_count": 3,
+      "parameters": [
+        {
+          "definition_id": 7,
+          "display_position": 1,
+          "minimum": 1.0,
+          "maximum": 0.0,
+          "default": 1.0,
+          "index_min": 0,
+          "index_max": 18,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 176,
+          "display_position": 2,
+          "minimum": 0.0,
+          "maximum": 0.0,
+          "default": 0.0,
+          "index_min": 0,
+          "index_max": 58,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 13,
+          "display_position": 3,
+          "minimum": 0.0,
+          "maximum": 180.0,
+          "default": 5.0,
+          "index_min": 0,
+          "index_max": 0,
+          "attribute": 0,
+          "reserved": 0
+        }
+      ],
+      "lines": [],
+      "groups": []
+    },
+    "722": {
+      "id": 722,
+      "name_local": "┤╬╩²╦«¤┤",
+      "name": "Rinse Interval",
+      "ack": 0,
+      "type": 0,
+      "parameter_count": 6,
+      "parameters": [
+        {
+          "definition_id": 7,
+          "display_position": 1,
+          "minimum": 1.0,
+          "maximum": 100.0,
+          "default": 1.0,
+          "index_min": 0,
+          "index_max": 18,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 9,
+          "display_position": 4,
+          "minimum": 0.0,
+          "maximum": 0.0,
+          "default": 2000.0,
+          "index_min": 0,
+          "index_max": 4,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 13,
+          "display_position": 3,
+          "minimum": 0.0,
+          "maximum": 99.9000015258789,
+          "default": 2.0,
+          "index_min": 0,
+          "index_max": 0,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 273,
+          "display_position": 2,
+          "minimum": 1.0,
+          "maximum": 5.0,
+          "default": 3.0,
+          "index_min": 0,
+          "index_max": 0,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 50,
+          "display_position": 5,
+          "minimum": 1.0,
+          "maximum": 99.0,
+          "default": 3.0,
+          "index_min": 0,
+          "index_max": 0,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 19,
+          "display_position": 6,
+          "minimum": 1.0,
+          "maximum": 180.0,
+          "default": 1.0,
+          "index_min": 0,
+          "index_max": 20,
+          "attribute": 0,
+          "reserved": 0
+        }
+      ],
+      "lines": [
+        1
+      ],
+      "groups": [
+        "Rinse"
+      ]
+    },
+    "723": {
+      "id": 723,
+      "name_local": "ÍÃ─▄╦«¤┤",
+      "name": "Rinse intelligent",
+      "ack": 0,
+      "type": 0,
+      "parameter_count": 4,
+      "parameters": [
+        {
+          "definition_id": 7,
+          "display_position": 1,
+          "minimum": 1.0,
+          "maximum": 0.0,
+          "default": 1.0,
+          "index_min": 0,
+          "index_max": 18,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 5,
+          "display_position": 2,
+          "minimum": 0.0,
+          "maximum": 60.0,
+          "default": 2.0,
+          "index_min": 0,
+          "index_max": 0,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 17,
+          "display_position": 4,
+          "minimum": 0.0,
+          "maximum": 10.0,
+          "default": 1.0,
+          "index_min": 0,
+          "index_max": 0,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 19,
+          "display_position": 6,
+          "minimum": 1.0,
+          "maximum": 180.0,
+          "default": 1.0,
+          "index_min": 0,
+          "index_max": 20,
+          "attribute": 0,
+          "reserved": 0
+        }
+      ],
+      "lines": [],
+      "groups": []
+    },
+    "725": {
+      "id": 725,
+      "name_local": "╝ã┴┐╦«¤┤",
+      "name": "Rinse Quantity",
+      "ack": 0,
+      "type": 0,
+      "parameter_count": 4,
+      "parameters": [
+        {
+          "definition_id": 7,
+          "display_position": 1,
+          "minimum": 1.0,
+          "maximum": 100.0,
+          "default": 1.0,
+          "index_min": 0,
+          "index_max": 18,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 3,
+          "display_position": 2,
+          "minimum": 0.0,
+          "maximum": 0.0,
+          "default": 0.0,
+          "index_min": 0,
+          "index_max": 15,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 8,
+          "display_position": 4,
+          "minimum": 0.0,
+          "maximum": 65535.0,
+          "default": 0.0,
+          "index_min": 0,
+          "index_max": 0,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 19,
+          "display_position": 6,
+          "minimum": 1.0,
+          "maximum": 0.0,
+          "default": 1.0,
+          "index_min": 0,
+          "index_max": 20,
+          "attribute": 0,
+          "reserved": 0
+        }
+      ],
+      "lines": [
+        1
+      ],
+      "groups": [
+        "Rinse"
+      ]
+    },
+    "726": {
+      "id": 726,
+      "name_local": "╝ã╩▒/╚Ğ╩²╦«¤┤",
+      "name": "Rinse Cycles/Time",
+      "ack": 0,
+      "type": 0,
+      "parameter_count": 6,
+      "parameters": [
+        {
+          "definition_id": 7,
+          "display_position": 1,
+          "minimum": 1.0,
+          "maximum": 100.0,
+          "default": 1.0,
+          "index_min": 0,
+          "index_max": 18,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 3,
+          "display_position": 2,
+          "minimum": 0.0,
+          "maximum": 0.0,
+          "default": 0.0,
+          "index_min": 0,
+          "index_max": 15,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 13,
+          "display_position": 3,
+          "minimum": 0.0,
+          "maximum": 180.0,
+          "default": 5.0,
+          "index_min": 0,
+          "index_max": 0,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 17,
+          "display_position": 4,
+          "minimum": 0.0,
+          "maximum": 180.0,
+          "default": 0.0,
+          "index_min": 0,
+          "index_max": 0,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 14,
+          "display_position": 5,
+          "minimum": 0.0,
+          "maximum": 1.0,
+          "default": 0.0,
+          "index_min": 0,
+          "index_max": 0,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 19,
+          "display_position": 6,
+          "minimum": 1.0,
+          "maximum": 0.0,
+          "default": 1.0,
+          "index_min": 0,
+          "index_max": 20,
+          "attribute": 0,
+          "reserved": 0
+        }
+      ],
+      "lines": [
+        1
+      ],
+      "groups": [
+        "Rinse"
+      ]
+    },
+    "730": {
+      "id": 730,
+      "name_local": "╚Ù╦«╗�╗Ï┴¸-┴¤©Î1",
+      "name": "Fill OR Return AT1",
+      "ack": 3,
+      "type": 0,
+      "parameter_count": 5,
+      "parameters": [
+        {
+          "definition_id": 134,
+          "display_position": 1,
+          "minimum": 1.0,
+          "maximum": 100.0,
+          "default": 2.0,
+          "index_min": 0,
+          "index_max": 42,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 138,
+          "display_position": 2,
+          "minimum": 0.0,
+          "maximum": 1.0,
+          "default": 0.0,
+          "index_min": 0,
+          "index_max": 0,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 136,
+          "display_position": 3,
+          "minimum": 0.0,
+          "maximum": 0.0,
+          "default": 50.0,
+          "index_min": 0,
+          "index_max": 38,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 135,
+          "display_position": 4,
+          "minimum": 0.0,
+          "maximum": 0.0,
+          "default": 0.0,
+          "index_min": 0,
+          "index_max": 34,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 139,
+          "display_position": 5,
+          "minimum": 0.0,
+          "maximum": 100.0,
+          "default": 1.0,
+          "index_min": 0,
+          "index_max": 0,
+          "attribute": 0,
+          "reserved": 0
+        }
+      ],
+      "lines": [
+        4
+      ],
+      "groups": [
+        "Addition Tank 1"
+      ]
+    },
+    "734": {
+      "id": 734,
+      "name_local": "╗ì┴¤¢┴░×-┴¤©Î1",
+      "name": "Mixing AT1",
+      "ack": 3,
+      "type": 0,
+      "parameter_count": 1,
+      "parameters": [
+        {
+          "definition_id": 139,
+          "display_position": 3,
+          "minimum": 0.0,
+          "maximum": 100.0,
+          "default": 0.0,
+          "index_min": 0,
+          "index_max": 0,
+          "attribute": 0,
+          "reserved": 0
+        }
+      ],
+      "lines": [
+        4
+      ],
+      "groups": [
+        "Addition Tank 1"
+      ]
+    },
+    "735": {
+      "id": 735,
+      "name_local": "¢┴░×╗·¢┴░×-┴¤©Î1",
+      "name": "Stirrer AT1",
+      "ack": 3,
+      "type": 0,
+      "parameter_count": 1,
+      "parameters": [
+        {
+          "definition_id": 139,
+          "display_position": 3,
+          "minimum": 0.0,
+          "maximum": 100.0,
+          "default": 0.0,
+          "index_min": 0,
+          "index_max": 0,
+          "attribute": 0,
+          "reserved": 0
+        }
+      ],
+      "lines": [
+        4
+      ],
+      "groups": [
+        "Addition Tank 1"
+      ]
+    },
+    "736": {
+      "id": 736,
+      "name_local": "┼┼╦«-┴¤©Î1",
+      "name": "Drain AT1",
+      "ack": 3,
+      "type": 0,
+      "parameter_count": 0,
+      "parameters": [],
+      "lines": [
+        4
+      ],
+      "groups": [
+        "Addition Tank 1"
+      ]
+    },
+    "740": {
+      "id": 740,
+      "name_local": "╚Ù╦«╗�╗Ï┴¸-┴¤©Î2",
+      "name": "Fill OR Return AT2",
+      "ack": 3,
+      "type": 0,
+      "parameter_count": 5,
+      "parameters": [
+        {
+          "definition_id": 154,
+          "display_position": 1,
+          "minimum": 0.0,
+          "maximum": 0.0,
+          "default": 2.0,
+          "index_min": 0,
+          "index_max": 42,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 158,
+          "display_position": 2,
+          "minimum": 0.0,
+          "maximum": 1.0,
+          "default": 0.0,
+          "index_min": 0,
+          "index_max": 0,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 156,
+          "display_position": 3,
+          "minimum": 0.0,
+          "maximum": 0.0,
+          "default": 0.0,
+          "index_min": 0,
+          "index_max": 48,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 155,
+          "display_position": 4,
+          "minimum": 0.0,
+          "maximum": 100.0,
+          "default": 50.0,
+          "index_min": 0,
+          "index_max": 0,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 157,
+          "display_position": 5,
+          "minimum": 0.0,
+          "maximum": 99.0,
+          "default": 1.0,
+          "index_min": 0,
+          "index_max": 0,
+          "attribute": 0,
+          "reserved": 0
+        }
+      ],
+      "lines": [
+        5
+      ],
+      "groups": [
+        "Addition Tank 2"
+      ]
+    },
+    "741": {
+      "id": 741,
+      "name_local": "┴¤©Î2Í▒¢Ë╝Ë┴¤",
+      "name": "Inject DT2",
+      "ack": 0,
+      "type": 0,
+      "parameter_count": 4,
+      "parameters": [
+        {
+          "definition_id": 60,
+          "display_position": 1,
+          "minimum": 0.0,
+          "maximum": 99.0,
+          "default": 0.0,
+          "index_min": 0,
+          "index_max": 0,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 272,
+          "display_position": 2,
+          "minimum": 0.0,
+          "maximum": 1.0,
+          "default": 1.0,
+          "index_min": 0,
+          "index_max": 0,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 3,
+          "display_position": 3,
+          "minimum": 0.0,
+          "maximum": 150.0,
+          "default": 0.0,
+          "index_min": 0,
+          "index_max": 0,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 4,
+          "display_position": 4,
+          "minimum": 0.0,
+          "maximum": 9.899999618530273,
+          "default": 0.0,
+          "index_min": 0,
+          "index_max": 0,
+          "attribute": 0,
+          "reserved": 0
+        }
+      ],
+      "lines": [
+        1
+      ],
+      "groups": [
+        "Inject"
+      ]
+    },
+    "743": {
+      "id": 743,
+      "name_local": "┴¤©Î2Â¿┴┐╝Ë┴¤",
+      "name": "Dosing DT2",
+      "ack": 0,
+      "type": 0,
+      "parameter_count": 6,
+      "parameters": [
+        {
+          "definition_id": 60,
+          "display_position": 1,
+          "minimum": 0.0,
+          "maximum": 99.0,
+          "default": 0.0,
+          "index_min": 0,
+          "index_max": 0,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 3,
+          "display_position": 2,
+          "minimum": 0.0,
+          "maximum": 150.0,
+          "default": 0.0,
+          "index_min": 0,
+          "index_max": 0,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 4,
+          "display_position": 3,
+          "minimum": 0.0,
+          "maximum": 9.899999618530273,
+          "default": 0.0,
+          "index_min": 0,
+          "index_max": 0,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 272,
+          "display_position": 4,
+          "minimum": 0.0,
+          "maximum": 0.0,
+          "default": 1.0,
+          "index_min": 0,
+          "index_max": 49,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 20,
+          "display_position": 5,
+          "minimum": -100.0,
+          "maximum": 100.0,
+          "default": 0.0,
+          "index_min": 0,
+          "index_max": 0,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 22,
+          "display_position": 6,
+          "minimum": 0.0,
+          "maximum": 180.0,
+          "default": 0.0,
+          "index_min": 0,
+          "index_max": 0,
+          "attribute": 0,
+          "reserved": 0
+        }
+      ],
+      "lines": [
+        1
+      ],
+      "groups": [
+        "Inject"
+      ]
+    },
+    "742": {
+      "id": 742,
+      "name_local": "┴¤©Î2ª¡╗À╝Ëª╬",
+      "name": "Inject Salt DT2",
+      "ack": 0,
+      "type": 0,
+      "parameter_count": 5,
+      "parameters": [
+        {
+          "definition_id": 3,
+          "display_position": 4,
+          "minimum": 0.0,
+          "maximum": 0.0,
+          "default": 0.0,
+          "index_min": 0,
+          "index_max": 15,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 60,
+          "display_position": 1,
+          "minimum": 0.0,
+          "maximum": 99.0,
+          "default": 0.0,
+          "index_min": 0,
+          "index_max": 0,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 4,
+          "display_position": 5,
+          "minimum": 0.0,
+          "maximum": 9.899999618530273,
+          "default": 0.0,
+          "index_min": 0,
+          "index_max": 0,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 272,
+          "display_position": 3,
+          "minimum": 0.0,
+          "maximum": 9.0,
+          "default": 1.0,
+          "index_min": 0,
+          "index_max": 0,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 5,
+          "display_position": 6,
+          "minimum": 1.0,
+          "maximum": 999.0,
+          "default": 10.0,
+          "index_min": 0,
+          "index_max": 0,
+          "attribute": 0,
+          "reserved": 0
+        }
+      ],
+      "lines": [
+        1
+      ],
+      "groups": [
+        "Inject"
+      ]
+    },
+    "744": {
+      "id": 744,
+      "name_local": "╗ì┴¤¢┴░×-┴¤©Î2",
+      "name": "Mixing DT2",
+      "ack": 3,
+      "type": 0,
+      "parameter_count": 1,
+      "parameters": [
+        {
+          "definition_id": 157,
+          "display_position": 6,
+          "minimum": 0.0,
+          "maximum": 99.0,
+          "default": 9.0,
+          "index_min": 0,
+          "index_max": 0,
+          "attribute": 0,
+          "reserved": 0
+        }
+      ],
+      "lines": [
+        5
+      ],
+      "groups": [
+        "Addition Tank 2"
+      ]
+    },
+    "745": {
+      "id": 745,
+      "name_local": "¢┴░×╗·¢┴░×-┴¤©Î2",
+      "name": "Stirrer DT2",
+      "ack": 3,
+      "type": 0,
+      "parameter_count": 1,
+      "parameters": [
+        {
+          "definition_id": 157,
+          "display_position": 4,
+          "minimum": 0.0,
+          "maximum": 99.0,
+          "default": 1.0,
+          "index_min": 0,
+          "index_max": 0,
+          "attribute": 0,
+          "reserved": 0
+        }
+      ],
+      "lines": [
+        5
+      ],
+      "groups": [
+        "Addition Tank 2"
+      ]
+    },
+    "746": {
+      "id": 746,
+      "name_local": "┼┼╦«-┴¤©Î2",
+      "name": "Drain DT2",
+      "ack": 3,
+      "type": 0,
+      "parameter_count": 0,
+      "parameters": [],
+      "lines": [
+        5
+      ],
+      "groups": [
+        "Addition Tank 2"
+      ]
+    },
+    "750": {
+      "id": 750,
+      "name_local": "ST╚Ù╦«-╔²╬┬",
+      "name": "ST Fill-Heat",
+      "ack": 3,
+      "type": 0,
+      "parameter_count": 2,
+      "parameters": [
+        {
+          "definition_id": 174,
+          "display_position": 1,
+          "minimum": 0.0,
+          "maximum": 100.0,
+          "default": 1.0,
+          "index_min": 0,
+          "index_max": 52,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 176,
+          "display_position": 3,
+          "minimum": 0.0,
+          "maximum": 180.0,
+          "default": 60.0,
+          "index_min": 0,
+          "index_max": 58,
+          "attribute": 0,
+          "reserved": 0
+        }
+      ],
+      "lines": [],
+      "groups": []
+    },
+    "752": {
+      "id": 752,
+      "name_local": "Èñ╚╚╝ã╩▒╦«¤┤",
+      "name": "Heat Over Flow time",
+      "ack": 0,
+      "type": 0,
+      "parameter_count": 3,
+      "parameters": [
+        {
+          "definition_id": 176,
+          "display_position": 1,
+          "minimum": 0.0,
+          "maximum": 0.0,
+          "default": 60.0,
+          "index_min": 0,
+          "index_max": 58,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 13,
+          "display_position": 4,
+          "minimum": 0.0,
+          "maximum": 180.0,
+          "default": 5.0,
+          "index_min": 0,
+          "index_max": 0,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 19,
+          "display_position": 6,
+          "minimum": 1.0,
+          "maximum": 0.0,
+          "default": 1.0,
+          "index_min": 0,
+          "index_max": 20,
+          "attribute": 0,
+          "reserved": 0
+        }
+      ],
+      "lines": [],
+      "groups": []
+    },
+    "753": {
+      "id": 753,
+      "name_local": "Èñ╚╚┤╬╩²╦«¤┤",
+      "name": "Heat Rinse Inverval",
+      "ack": 0,
+      "type": 0,
+      "parameter_count": 4,
+      "parameters": [
+        {
+          "definition_id": 176,
+          "display_position": 1,
+          "minimum": 0.0,
+          "maximum": 0.0,
+          "default": 60.0,
+          "index_min": 0,
+          "index_max": 58,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 13,
+          "display_position": 3,
+          "minimum": 0.0,
+          "maximum": 180.0,
+          "default": 5.0,
+          "index_min": 0,
+          "index_max": 0,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 17,
+          "display_position": 5,
+          "minimum": 1.0,
+          "maximum": 10.0,
+          "default": 3.0,
+          "index_min": 0,
+          "index_max": 0,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 19,
+          "display_position": 6,
+          "minimum": 1.0,
+          "maximum": 0.0,
+          "default": 1.0,
+          "index_min": 0,
+          "index_max": 20,
+          "attribute": 0,
+          "reserved": 0
+        }
+      ],
+      "lines": [],
+      "groups": []
+    },
+    "754": {
+      "id": 754,
+      "name_local": "Èñ╚╚╝ã▓╝Í▄ã┌╩²╦«¤┤",
+      "name": "HeatRineFabricCycles",
+      "ack": 0,
+      "type": 0,
+      "parameter_count": 3,
+      "parameters": [
+        {
+          "definition_id": 176,
+          "display_position": 1,
+          "minimum": 0.0,
+          "maximum": 0.0,
+          "default": 60.0,
+          "index_min": 0,
+          "index_max": 58,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 17,
+          "display_position": 4,
+          "minimum": 1.0,
+          "maximum": 180.0,
+          "default": 1.0,
+          "index_min": 0,
+          "index_max": 0,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 19,
+          "display_position": 6,
+          "minimum": 1.0,
+          "maximum": 0.0,
+          "default": 1.0,
+          "index_min": 0,
+          "index_max": 20,
+          "attribute": 0,
+          "reserved": 0
+        }
+      ],
+      "lines": [],
+      "groups": []
+    },
+    "761": {
+      "id": 761,
+      "name_local": "╠ß▓╝┬Í1-4",
+      "name": "Winch speed5-8",
+      "ack": 1,
+      "type": 0,
+      "parameter_count": 5,
+      "parameters": [
+        {
+          "definition_id": 83,
+          "display_position": 1,
+          "minimum": 0.0,
+          "maximum": 0.0,
+          "default": 200.0,
+          "index_min": 0,
+          "index_max": 8,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 84,
+          "display_position": 2,
+          "minimum": 0.0,
+          "maximum": 0.0,
+          "default": 200.0,
+          "index_min": 0,
+          "index_max": 8,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 85,
+          "display_position": 3,
+          "minimum": 0.0,
+          "maximum": 0.0,
+          "default": 200.0,
+          "index_min": 0,
+          "index_max": 8,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 86,
+          "display_position": 4,
+          "minimum": 0.0,
+          "maximum": 0.0,
+          "default": 200.0,
+          "index_min": 0,
+          "index_max": 8,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 312,
+          "display_position": 6,
+          "minimum": 0.0,
+          "maximum": 0.0,
+          "default": 200.0,
+          "index_min": 0,
+          "index_max": 8,
+          "attribute": 0,
+          "reserved": 0
+        }
+      ],
+      "lines": [
+        3
+      ],
+      "groups": [
+        "Winch"
+      ]
+    },
+    "727": {
+      "id": 727,
+      "name_local": "ÎÃÂ╚╦«¤┤",
+      "name": "Turbidi Rinse",
+      "ack": 0,
+      "type": 0,
+      "parameter_count": 5,
+      "parameters": [
+        {
+          "definition_id": 7,
+          "display_position": 1,
+          "minimum": 1.0,
+          "maximum": 100.0,
+          "default": 1.0,
+          "index_min": 0,
+          "index_max": 18,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 3,
+          "display_position": 2,
+          "minimum": 0.0,
+          "maximum": 0.0,
+          "default": 0.0,
+          "index_min": 0,
+          "index_max": 15,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 13,
+          "display_position": 3,
+          "minimum": 0.0,
+          "maximum": 99.0,
+          "default": 0.0,
+          "index_min": 0,
+          "index_max": 0,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 273,
+          "display_position": 4,
+          "minimum": 1.0,
+          "maximum": 5.0,
+          "default": 3.0,
+          "index_min": 0,
+          "index_max": 0,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 19,
+          "display_position": 6,
+          "minimum": 1.0,
+          "maximum": 0.0,
+          "default": 1.0,
+          "index_min": 0,
+          "index_max": 20,
+          "attribute": 0,
+          "reserved": 0
+        }
+      ],
+      "lines": [
+        1
+      ],
+      "groups": [
+        "Rinse"
+      ]
+    },
+    "780": {
+      "id": 780,
+      "name_local": "║¶¢º╩ÍÂ»╝Ëª╬",
+      "name": "Call Manual Salt",
+      "ack": 0,
+      "type": 5,
+      "parameter_count": 1,
+      "parameters": [
+        {
+          "definition_id": 36,
+          "display_position": 3,
+          "minimum": 0.0,
+          "maximum": 180.0,
+          "default": 15.0,
+          "index_min": 0,
+          "index_max": 0,
+          "attribute": 0,
+          "reserved": 0
+        }
+      ],
+      "lines": [
+        1
+      ],
+      "groups": [
+        "Operator Call"
+      ]
+    },
+    "782": {
+      "id": 782,
+      "name_local": "║¶¢º╝ì▓ÚPHÍÁ!",
+      "name": "Check pH",
+      "ack": 0,
+      "type": 2,
+      "parameter_count": 1,
+      "parameters": [
+        {
+          "definition_id": 36,
+          "display_position": 2,
+          "minimum": 0.0,
+          "maximum": 180.0,
+          "default": 10.0,
+          "index_min": 0,
+          "index_max": 0,
+          "attribute": 0,
+          "reserved": 0
+        }
+      ],
+      "lines": [
+        1
+      ],
+      "groups": [
+        "Operator Call"
+      ]
+    },
+    "783": {
+      "id": 783,
+      "name_local": "║¶¢ºÃÕ¤┤╣²┬╦ã¸",
+      "name": "Check Filter",
+      "ack": 0,
+      "type": 5,
+      "parameter_count": 1,
+      "parameters": [
+        {
+          "definition_id": 36,
+          "display_position": 1,
+          "minimum": 0.0,
+          "maximum": 99.0,
+          "default": 30.0,
+          "index_min": 0,
+          "index_max": 0,
+          "attribute": 0,
+          "reserved": 0
+        }
+      ],
+      "lines": [],
+      "groups": []
+    },
+    "800": {
+      "id": 800,
+      "name_local": "ÃÕ¤┤Í¸©Î",
+      "name": "Spray VSP3/Bypass",
+      "ack": 3,
+      "type": 0,
+      "parameter_count": 1,
+      "parameters": [
+        {
+          "definition_id": 283,
+          "display_position": 1,
+          "minimum": 0.0,
+          "maximum": 999.0,
+          "default": 2.0,
+          "index_min": 0,
+          "index_max": 0,
+          "attribute": 0,
+          "reserved": 0
+        }
+      ],
+      "lines": [],
+      "groups": []
+    },
+    "810": {
+      "id": 810,
+      "name_local": "ºº╗·╩▒╝õ",
+      "name": "Run time",
+      "ack": 0,
+      "type": 0,
+      "parameter_count": 2,
+      "parameters": [
+        {
+          "definition_id": 5,
+          "display_position": 4,
+          "minimum": 0.0,
+          "maximum": 180.0,
+          "default": 0.0,
+          "index_min": 0,
+          "index_max": 0,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 17,
+          "display_position": 5,
+          "minimum": 0.0,
+          "maximum": 999.0,
+          "default": 0.0,
+          "index_min": 0,
+          "index_max": 0,
+          "attribute": 0,
+          "reserved": 0
+        }
+      ],
+      "lines": [
+        1
+      ],
+      "groups": [
+        "Dyeing"
+      ]
+    },
+    "711": {
+      "id": 711,
+      "name_local": "©▀╬┬┼┼╦«",
+      "name": "Hot Drain",
+      "ack": 0,
+      "type": 0,
+      "parameter_count": 1,
+      "parameters": [
+        {
+          "definition_id": 19,
+          "display_position": 6,
+          "minimum": 1.0,
+          "maximum": 100.0,
+          "default": 1.0,
+          "index_min": 0,
+          "index_max": 20,
+          "attribute": 0,
+          "reserved": 0
+        }
+      ],
+      "lines": [
+        1
+      ],
+      "groups": [
+        "Drain"
+      ]
+    },
+    "811": {
+      "id": 811,
+      "name_local": "╬┬Â╚┐ÏÍã",
+      "name": "Temperature Control",
+      "ack": 0,
+      "type": 0,
+      "parameter_count": 4,
+      "parameters": [
+        {
+          "definition_id": 3,
+          "display_position": 1,
+          "minimum": 0.0,
+          "maximum": 150.0,
+          "default": 0.0,
+          "index_min": 0,
+          "index_max": 0,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 4,
+          "display_position": 2,
+          "minimum": 0.0,
+          "maximum": 9.899999618530273,
+          "default": 0.0,
+          "index_min": 0,
+          "index_max": 140,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 5,
+          "display_position": 4,
+          "minimum": 0.0,
+          "maximum": 180.0,
+          "default": 0.0,
+          "index_min": 0,
+          "index_max": 0,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 17,
+          "display_position": 5,
+          "minimum": 0.0,
+          "maximum": 999.0,
+          "default": 0.0,
+          "index_min": 0,
+          "index_max": 0,
+          "attribute": 0,
+          "reserved": 0
+        }
+      ],
+      "lines": [
+        1
+      ],
+      "groups": [
+        "Dyeing"
+      ]
+    },
+    "732": {
+      "id": 732,
+      "name_local": "┴¤©Î1ª¡╗À╝Ëª╬",
+      "name": "Inject Salt DT1",
+      "ack": 0,
+      "type": 0,
+      "parameter_count": 5,
+      "parameters": [
+        {
+          "definition_id": 3,
+          "display_position": 4,
+          "minimum": 0.0,
+          "maximum": 0.0,
+          "default": 0.0,
+          "index_min": 0,
+          "index_max": 15,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 60,
+          "display_position": 1,
+          "minimum": 0.0,
+          "maximum": 99.0,
+          "default": 0.0,
+          "index_min": 0,
+          "index_max": 0,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 4,
+          "display_position": 5,
+          "minimum": 0.0,
+          "maximum": 0.0,
+          "default": 0.0,
+          "index_min": 0,
+          "index_max": 140,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 272,
+          "display_position": 3,
+          "minimum": 0.0,
+          "maximum": 9.0,
+          "default": 1.0,
+          "index_min": 0,
+          "index_max": 0,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 5,
+          "display_position": 6,
+          "minimum": 1.0,
+          "maximum": 999.0,
+          "default": 10.0,
+          "index_min": 0,
+          "index_max": 0,
+          "attribute": 0,
+          "reserved": 0
+        }
+      ],
+      "lines": [
+        1
+      ],
+      "groups": [
+        "Inject"
+      ]
+    },
+    "760": {
+      "id": 760,
+      "name_local": "Í¸▒├",
+      "name": "Pump",
+      "ack": 1,
+      "type": 0,
+      "parameter_count": 4,
+      "parameters": [
+        {
+          "definition_id": 279,
+          "display_position": 1,
+          "minimum": 0.0,
+          "maximum": 1.0,
+          "default": 0.0,
+          "index_min": 0,
+          "index_max": 0,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 15,
+          "display_position": 2,
+          "minimum": 0.0,
+          "maximum": 999.0,
+          "default": 180.0,
+          "index_min": 0,
+          "index_max": 0,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 284,
+          "display_position": 3,
+          "minimum": 0.0,
+          "maximum": 100.0,
+          "default": 50.0,
+          "index_min": 0,
+          "index_max": 0,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 73,
+          "display_position": 4,
+          "minimum": 5.0,
+          "maximum": 100.0,
+          "default": 90.0,
+          "index_min": 0,
+          "index_max": 0,
+          "attribute": 0,
+          "reserved": 0
+        }
+      ],
+      "lines": [
+        2
+      ],
+      "groups": [
+        "Pump"
+      ]
+    },
+    "653": {
+      "id": 653,
+      "name_local": "┴¤©Î1 Á╚┤²",
+      "name": "Wait  DT1",
+      "ack": 6,
+      "type": 0,
+      "parameter_count": 0,
+      "parameters": [],
+      "lines": [
+        4
+      ],
+      "groups": [
+        "Addition Tank 1"
+      ]
+    },
+    "654": {
+      "id": 654,
+      "name_local": "┴¤©Î1 Ã░¢°",
+      "name": "Go  DT1",
+      "ack": 7,
+      "type": 0,
+      "parameter_count": 0,
+      "parameters": [],
+      "lines": [
+        4
+      ],
+      "groups": [
+        "Addition Tank 1"
+      ]
+    },
+    "663": {
+      "id": 663,
+      "name_local": "┴¤©Î2 Á╚┤²",
+      "name": "Wait AT1",
+      "ack": 6,
+      "type": 0,
+      "parameter_count": 0,
+      "parameters": [],
+      "lines": [
+        5
+      ],
+      "groups": [
+        "Addition Tank 2"
+      ]
+    },
+    "728": {
+      "id": 728,
+      "name_local": "¢Á╬┬╦«¤┤",
+      "name": "Cool_Rinse",
+      "ack": 0,
+      "type": 0,
+      "parameter_count": 3,
+      "parameters": [
+        {
+          "definition_id": 3,
+          "display_position": 2,
+          "minimum": 0.0,
+          "maximum": 0.0,
+          "default": 0.0,
+          "index_min": 0,
+          "index_max": 15,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 4,
+          "display_position": 3,
+          "minimum": 0.0,
+          "maximum": 9.899999618530273,
+          "default": 2.0,
+          "index_min": 0,
+          "index_max": 0,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 19,
+          "display_position": 6,
+          "minimum": 1.0,
+          "maximum": 0.0,
+          "default": 1.0,
+          "index_min": 0,
+          "index_max": 20,
+          "attribute": 0,
+          "reserved": 0
+        }
+      ],
+      "lines": [
+        1
+      ],
+      "groups": [
+        "Rinse"
+      ]
+    },
+    "664": {
+      "id": 664,
+      "name_local": "┴¤©Î2 Ã░¢°",
+      "name": "Go DT2",
+      "ack": 7,
+      "type": 0,
+      "parameter_count": 0,
+      "parameters": [],
+      "lines": [
+        5
+      ],
+      "groups": [
+        "Addition Tank 2"
+      ]
+    },
+    "516": {
+      "id": 516,
+      "name_local": "┴¤©Î1 Î╝▒©OK",
+      "name": "Prep. DT1 ->MT ok",
+      "ack": 3,
+      "type": 0,
+      "parameter_count": 1,
+      "parameters": [
+        {
+          "definition_id": 141,
+          "display_position": 2,
+          "minimum": 0.0,
+          "maximum": 99.0,
+          "default": 0.0,
+          "index_min": 0,
+          "index_max": 0,
+          "attribute": 0,
+          "reserved": 0
+        }
+      ],
+      "lines": [
+        4
+      ],
+      "groups": [
+        "Addition Tank 1"
+      ]
+    },
+    "666": {
+      "id": 666,
+      "name_local": "┴¤©Î2 ║¶¢º┬õ╗»┴¤",
+      "name": "Call Prep.DT2",
+      "ack": 3,
+      "type": 14,
+      "parameter_count": 6,
+      "parameters": [
+        {
+          "definition_id": 161,
+          "display_position": 1,
+          "minimum": 0.0,
+          "maximum": 99.0,
+          "default": 0.0,
+          "index_min": 0,
+          "index_max": 0,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 163,
+          "display_position": 2,
+          "minimum": 2.0,
+          "maximum": 2.0,
+          "default": 2.0,
+          "index_min": 0,
+          "index_max": 0,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 160,
+          "display_position": 3,
+          "minimum": 0.0,
+          "maximum": 9999.0,
+          "default": 0.0,
+          "index_min": 0,
+          "index_max": 0,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 165,
+          "display_position": 4,
+          "minimum": 0.0,
+          "maximum": 9.0,
+          "default": 0.0,
+          "index_min": 0,
+          "index_max": 0,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 164,
+          "display_position": 5,
+          "minimum": 0.0,
+          "maximum": 300.0,
+          "default": 0.0,
+          "index_min": 0,
+          "index_max": 0,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 169,
+          "display_position": 6,
+          "minimum": -90.0,
+          "maximum": 0.0,
+          "default": 0.0,
+          "index_min": 0,
+          "index_max": 0,
+          "attribute": 0,
+          "reserved": 0
+        }
+      ],
+      "lines": [
+        5
+      ],
+      "groups": [
+        "Addition Tank 2"
+      ]
+    },
+    "756": {
+      "id": 756,
+      "name_local": "ª╬═░╝Ëª╬",
+      "name": "SD Salt",
+      "ack": 0,
+      "type": 0,
+      "parameter_count": 3,
+      "parameters": [
+        {
+          "definition_id": 306,
+          "display_position": 3,
+          "minimum": 1.0,
+          "maximum": 5.0,
+          "default": 2.0,
+          "index_min": 0,
+          "index_max": 0,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 3,
+          "display_position": 4,
+          "minimum": 0.0,
+          "maximum": 100.0,
+          "default": 40.0,
+          "index_min": 0,
+          "index_max": 0,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 4,
+          "display_position": 5,
+          "minimum": 0.0,
+          "maximum": 9.899999618530273,
+          "default": 0.0,
+          "index_min": 0,
+          "index_max": 0,
+          "attribute": 0,
+          "reserved": 0
+        }
+      ],
+      "lines": [
+        1
+      ],
+      "groups": [
+        "Inject"
+      ]
+    },
+    "536": {
+      "id": 536,
+      "name_local": "┴¤©Î2 Î╝▒©OK",
+      "name": "Prep. DT2 ->MT ok",
+      "ack": 3,
+      "type": 0,
+      "parameter_count": 1,
+      "parameters": [
+        {
+          "definition_id": 161,
+          "display_position": 2,
+          "minimum": 0.0,
+          "maximum": 99.0,
+          "default": 0.0,
+          "index_min": 0,
+          "index_max": 0,
+          "attribute": 0,
+          "reserved": 0
+        }
+      ],
+      "lines": [
+        5
+      ],
+      "groups": [
+        "Addition Tank 2"
+      ]
+    },
+    "737": {
+      "id": 737,
+      "name_local": "┴¤©Î1┐ì╝Ë┴¤",
+      "name": "Inj  DT1",
+      "ack": 0,
+      "type": 0,
+      "parameter_count": 4,
+      "parameters": [
+        {
+          "definition_id": 60,
+          "display_position": 1,
+          "minimum": 0.0,
+          "maximum": 99.0,
+          "default": 0.0,
+          "index_min": 0,
+          "index_max": 0,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 272,
+          "display_position": 2,
+          "minimum": 0.0,
+          "maximum": 9.0,
+          "default": 1.0,
+          "index_min": 0,
+          "index_max": 0,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 3,
+          "display_position": 3,
+          "minimum": 0.0,
+          "maximum": 150.0,
+          "default": 0.0,
+          "index_min": 0,
+          "index_max": 0,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 4,
+          "display_position": 4,
+          "minimum": 0.0,
+          "maximum": 9.899999618530273,
+          "default": 0.0,
+          "index_min": 0,
+          "index_max": 0,
+          "attribute": 0,
+          "reserved": 0
+        }
+      ],
+      "lines": [
+        1
+      ],
+      "groups": [
+        "Inject"
+      ]
+    },
+    "784": {
+      "id": 784,
+      "name_local": "║¶¢º╚Ù▓╝-╬┬┐Ï",
+      "name": "Load-Temp.Control",
+      "ack": 0,
+      "type": 5,
+      "parameter_count": 3,
+      "parameters": [
+        {
+          "definition_id": 3,
+          "display_position": 1,
+          "minimum": 0.0,
+          "maximum": 0.0,
+          "default": 0.0,
+          "index_min": 0,
+          "index_max": 15,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 4,
+          "display_position": 2,
+          "minimum": 0.0,
+          "maximum": 0.0,
+          "default": 0.0,
+          "index_min": 0,
+          "index_max": 140,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 36,
+          "display_position": 3,
+          "minimum": 0.0,
+          "maximum": 180.0,
+          "default": 30.0,
+          "index_min": 0,
+          "index_max": 0,
+          "attribute": 0,
+          "reserved": 0
+        }
+      ],
+      "lines": [
+        1
+      ],
+      "groups": [
+        "Operator Call"
+      ]
+    },
+    "707": {
+      "id": 707,
+      "name_local": "─ú─Ô╚Ù╦«",
+      "name": "Fill Analog Level",
+      "ack": 0,
+      "type": 0,
+      "parameter_count": 3,
+      "parameters": [
+        {
+          "definition_id": 7,
+          "display_position": 1,
+          "minimum": 1.0,
+          "maximum": 100.0,
+          "default": 1.0,
+          "index_min": 0,
+          "index_max": 18,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 278,
+          "display_position": 4,
+          "minimum": 0.0,
+          "maximum": 1.0,
+          "default": 0.0,
+          "index_min": 0,
+          "index_max": 0,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 8,
+          "display_position": 6,
+          "minimum": 0.0,
+          "maximum": 100.0,
+          "default": 0.0,
+          "index_min": 0,
+          "index_max": 17,
+          "attribute": 0,
+          "reserved": 0
+        }
+      ],
+      "lines": [
+        1
+      ],
+      "groups": [
+        "Fill"
+      ]
+    },
+    "656": {
+      "id": 656,
+      "name_local": "┴¤©Î1 ║¶¢º┬õ╗»┴¤",
+      "name": "Preparationcall ADD1",
+      "ack": 3,
+      "type": 14,
+      "parameter_count": 6,
+      "parameters": [
+        {
+          "definition_id": 141,
+          "display_position": 1,
+          "minimum": 1.0,
+          "maximum": 99.0,
+          "default": 1.0,
+          "index_min": 0,
+          "index_max": 0,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 143,
+          "display_position": 2,
+          "minimum": 1.0,
+          "maximum": 10.0,
+          "default": 1.0,
+          "index_min": 0,
+          "index_max": 0,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 140,
+          "display_position": 3,
+          "minimum": 0.0,
+          "maximum": 60.0,
+          "default": 0.0,
+          "index_min": 0,
+          "index_max": 0,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 145,
+          "display_position": 4,
+          "minimum": 0.0,
+          "maximum": 99.0,
+          "default": 0.0,
+          "index_min": 0,
+          "index_max": 0,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 144,
+          "display_position": 5,
+          "minimum": 0.0,
+          "maximum": 300.0,
+          "default": 0.0,
+          "index_min": 0,
+          "index_max": 0,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 149,
+          "display_position": 6,
+          "minimum": 0.0,
+          "maximum": 180.0,
+          "default": 0.0,
+          "index_min": 0,
+          "index_max": 0,
+          "attribute": 0,
+          "reserved": 0
+        }
+      ],
+      "lines": [
+        4
+      ],
+      "groups": [
+        "Addition Tank 1"
+      ]
+    },
+    "678": {
+      "id": 678,
+      "name_local": "Èñ▒©©Î╦«┴┐¢°╦«",
+      "name": "Fill ST1 Quantity",
+      "ack": 3,
+      "type": 0,
+      "parameter_count": 5,
+      "parameters": [
+        {
+          "definition_id": 174,
+          "display_position": 1,
+          "minimum": 1.0,
+          "maximum": 2.0,
+          "default": 1.0,
+          "index_min": 0,
+          "index_max": 0,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 178,
+          "display_position": 2,
+          "minimum": 0.0,
+          "maximum": 1.0,
+          "default": 1.0,
+          "index_min": 0,
+          "index_max": 0,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 176,
+          "display_position": 3,
+          "minimum": 0.0,
+          "maximum": 0.0,
+          "default": 0.0,
+          "index_min": 0,
+          "index_max": 58,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 173,
+          "display_position": 4,
+          "minimum": 0.0,
+          "maximum": 9999.0,
+          "default": 0.0,
+          "index_min": 0,
+          "index_max": 51,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 177,
+          "display_position": 5,
+          "minimum": 0.0,
+          "maximum": 180.0,
+          "default": 0.0,
+          "index_min": 0,
+          "index_max": 0,
+          "attribute": 0,
+          "reserved": 0
+        }
+      ],
+      "lines": [
+        6
+      ],
+      "groups": [
+        "Stock Tank 1"
+      ]
+    },
+    "551": {
+      "id": 551,
+      "name_local": "Èñ▒©©Î┼┼╦«",
+      "name": "Drain ST1",
+      "ack": 3,
+      "type": 0,
+      "parameter_count": 0,
+      "parameters": [],
+      "lines": [
+        6
+      ],
+      "groups": [
+        "Stock Tank 1"
+      ]
+    },
+    "679": {
+      "id": 679,
+      "name_local": "Èñ▒©©Î¢°╦«",
+      "name": "Fill ST1 Level",
+      "ack": 3,
+      "type": 0,
+      "parameter_count": 5,
+      "parameters": [
+        {
+          "definition_id": 174,
+          "display_position": 1,
+          "minimum": 1.0,
+          "maximum": 2.0,
+          "default": 1.0,
+          "index_min": 0,
+          "index_max": 0,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 178,
+          "display_position": 2,
+          "minimum": 0.0,
+          "maximum": 1.0,
+          "default": 1.0,
+          "index_min": 0,
+          "index_max": 0,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 176,
+          "display_position": 3,
+          "minimum": 0.0,
+          "maximum": 0.0,
+          "default": 0.0,
+          "index_min": 0,
+          "index_max": 58,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 175,
+          "display_position": 4,
+          "minimum": 0.0,
+          "maximum": 0.0,
+          "default": 3000.0,
+          "index_min": 0,
+          "index_max": 4,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 177,
+          "display_position": 5,
+          "minimum": 0.0,
+          "maximum": 180.0,
+          "default": 0.0,
+          "index_min": 0,
+          "index_max": 0,
+          "attribute": 0,
+          "reserved": 0
+        }
+      ],
+      "lines": [
+        6
+      ],
+      "groups": [
+        "Stock Tank 1"
+      ]
+    },
+    "676": {
+      "id": 676,
+      "name_local": "Èñ▒©©Î║¶¢º┬õ┴¤",
+      "name": "Call Prep. ST1",
+      "ack": 3,
+      "type": 14,
+      "parameter_count": 6,
+      "parameters": [
+        {
+          "definition_id": 181,
+          "display_position": 1,
+          "minimum": 0.0,
+          "maximum": 99.0,
+          "default": 0.0,
+          "index_min": 0,
+          "index_max": 0,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 183,
+          "display_position": 2,
+          "minimum": 3.0,
+          "maximum": 3.0,
+          "default": 3.0,
+          "index_min": 0,
+          "index_max": 0,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 180,
+          "display_position": 3,
+          "minimum": 0.0,
+          "maximum": 9999.0,
+          "default": 0.0,
+          "index_min": 0,
+          "index_max": 0,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 185,
+          "display_position": 4,
+          "minimum": 0.0,
+          "maximum": 9.0,
+          "default": 0.0,
+          "index_min": 0,
+          "index_max": 0,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 184,
+          "display_position": 5,
+          "minimum": 0.0,
+          "maximum": 300.0,
+          "default": 0.0,
+          "index_min": 0,
+          "index_max": 0,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 189,
+          "display_position": 6,
+          "minimum": -90.0,
+          "maximum": 0.0,
+          "default": 0.0,
+          "index_min": 0,
+          "index_max": 0,
+          "attribute": 0,
+          "reserved": 0
+        }
+      ],
+      "lines": [
+        6
+      ],
+      "groups": [
+        "Stock Tank 1"
+      ]
+    },
+    "762": {
+      "id": 762,
+      "name_local": "╠ß▓╝┬Í5-8",
+      "name": "Winch speed5-8",
+      "ack": 1,
+      "type": 0,
+      "parameter_count": 4,
+      "parameters": [
+        {
+          "definition_id": 87,
+          "display_position": 1,
+          "minimum": 0.0,
+          "maximum": 0.0,
+          "default": 200.0,
+          "index_min": 0,
+          "index_max": 8,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 88,
+          "display_position": 2,
+          "minimum": 0.0,
+          "maximum": 0.0,
+          "default": 200.0,
+          "index_min": 0,
+          "index_max": 8,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 310,
+          "display_position": 3,
+          "minimum": 0.0,
+          "maximum": 0.0,
+          "default": 200.0,
+          "index_min": 0,
+          "index_max": 8,
+          "attribute": 0,
+          "reserved": 0
+        },
+        {
+          "definition_id": 311,
+          "display_position": 4,
+          "minimum": 0.0,
+          "maximum": 0.0,
+          "default": 200.0,
+          "index_min": 0,
+          "index_max": 8,
+          "attribute": 0,
+          "reserved": 0
+        }
+      ],
+      "lines": [],
+      "groups": []
+    },
+    "888": {
+      "id": 888,
+      "name_local": "╠ß▓╝┬Í",
+      "name": "Winch speed",
+      "ack": 1,
+      "type": 0,
+      "parameter_count": 1,
+      "parameters": [
+        {
+          "definition_id": 312,
+          "display_position": 6,
+          "minimum": 0.0,
+          "maximum": 0.0,
+          "default": 200.0,
+          "index_min": 0,
+          "index_max": 8,
+          "attribute": 0,
+          "reserved": 0
+        }
+      ],
+      "lines": [],
+      "groups": []
+    }
+  },
+  "parameters": {
+    "1": {
+      "id": 1,
+      "name_local": "Í¸©Î╔×Â¿╩▒╝õ",
+      "name": "Set Time Main",
+      "unit_local": "min",
+      "unit": "min",
+      "scale": {
+        "digits_before": 3,
+        "digits_after": 0,
+        "factor": 60.0,
+        "offset": 0.0,
+        "x1": 0.0,
+        "x2": 100.0,
+        "y1": 0.0,
+        "y2": 6000.0,
+        "mode": 1
+      },
+      "attribute": 0,
+      "scale2": {
+        "text_group": 0,
+        "basetype": 0,
+        "index_factor": 0,
+        "index_offset": 0,
+        "reserved1": 0,
+        "reserved2": 0
+      }
+    },
+    "2": {
+      "id": 2,
+      "name_local": "Í¸©Î▒ú╗ñ╩▒╝õ",
+      "name": "Protect Time Main",
+      "unit_local": "min",
+      "unit": "min",
+      "scale": {
+        "digits_before": 3,
+        "digits_after": 0,
+        "factor": 60.0,
+        "offset": 0.0,
+        "x1": 0.0,
+        "x2": 100.0,
+        "y1": 0.0,
+        "y2": 6000.0,
+        "mode": 0
+      },
+      "attribute": 0,
+      "scale2": {
+        "text_group": 0,
+        "basetype": 0,
+        "index_factor": 0,
+        "index_offset": 0,
+        "reserved1": 0,
+        "reserved2": 0
+      }
+    },
+    "3": {
+      "id": 3,
+      "name_local": "╔×Â¿╬┬Â╚",
+      "name": "Set Temperature",
+      "unit_local": "íµ",
+      "unit": "°C",
+      "scale": {
+        "digits_before": 3,
+        "digits_after": 0,
+        "factor": 66.66670227050781,
+        "offset": 0.0,
+        "x1": 0.0,
+        "x2": 150.0,
+        "y1": 0.0,
+        "y2": 10000.0,
+        "mode": 0
+      },
+      "attribute": 0,
+      "scale2": {
+        "text_group": 0,
+        "basetype": 0,
+        "index_factor": 0,
+        "index_offset": 0,
+        "reserved1": 0,
+        "reserved2": 0
+      }
+    },
+    "4": {
+      "id": 4,
+      "name_local": "╔²╬┬Ã·┬╩",
+      "name": "Gradient machine",
+      "unit_local": "íµ/min",
+      "unit": "°C/min",
+      "scale": {
+        "digits_before": 2,
+        "digits_after": 1,
+        "factor": 66.66670227050781,
+        "offset": 0.0,
+        "x1": 0.0,
+        "x2": 150.0,
+        "y1": 0.0,
+        "y2": 10000.0,
+        "mode": 0
+      },
+      "attribute": 0,
+      "scale2": {
+        "text_group": 0,
+        "basetype": 0,
+        "index_factor": 0,
+        "index_offset": 0,
+        "reserved1": 0,
+        "reserved2": 0
+      }
+    },
+    "5": {
+      "id": 5,
+      "name_local": "È╦ºº╩▒╝õ",
+      "name": "Hold Time",
+      "unit_local": "min",
+      "unit": "min",
+      "scale": {
+        "digits_before": 3,
+        "digits_after": 0,
+        "factor": 60.0,
+        "offset": 0.0,
+        "x1": 0.0,
+        "x2": 100.0,
+        "y1": 0.0,
+        "y2": 6000.0,
+        "mode": 0
+      },
+      "attribute": 0,
+      "scale2": {
+        "text_group": 0,
+        "basetype": 0,
+        "index_factor": 0,
+        "index_offset": 0,
+        "reserved1": 0,
+        "reserved2": 0
+      }
+    },
+    "7": {
+      "id": 7,
+      "name_local": "╚Ù╦«└Ó▒­",
+      "name": "Water Type",
+      "unit_local": "",
+      "unit": "",
+      "scale": {
+        "digits_before": 1,
+        "digits_after": 0,
+        "factor": 1.0,
+        "offset": 0.0,
+        "x1": 0.0,
+        "x2": 100.0,
+        "y1": 0.0,
+        "y2": 100.0,
+        "mode": 16
+      },
+      "attribute": 0,
+      "scale2": {
+        "text_group": 1,
+        "basetype": 0,
+        "index_factor": 0,
+        "index_offset": 0,
+        "reserved1": 0,
+        "reserved2": 0
+      }
+    },
+    "8": {
+      "id": 8,
+      "name_local": "╦«╬╗╦«┴┐",
+      "name": "Level/Quan.",
+      "unit_local": "L",
+      "unit": "L",
+      "scale": {
+        "digits_before": 5,
+        "digits_after": 0,
+        "factor": 1.0,
+        "offset": 0.0,
+        "x1": 0.0,
+        "x2": 100.0,
+        "y1": 0.0,
+        "y2": 100.0,
+        "mode": 0
+      },
+      "attribute": 0,
+      "scale2": {
+        "text_group": 0,
+        "basetype": 0,
+        "index_factor": 0,
+        "index_offset": 0,
+        "reserved1": 0,
+        "reserved2": 0
+      }
+    },
+    "9": {
+      "id": 9,
+      "name_local": "╚Ù╦«┴┐",
+      "name": "Quantity",
+      "unit_local": "L",
+      "unit": "L",
+      "scale": {
+        "digits_before": 4,
+        "digits_after": 0,
+        "factor": 1.0,
+        "offset": 0.0,
+        "x1": 0.0,
+        "x2": 100.0,
+        "y1": 0.0,
+        "y2": 100.0,
+        "mode": 0
+      },
+      "attribute": 0,
+      "scale2": {
+        "text_group": 0,
+        "basetype": 0,
+        "index_factor": 0,
+        "index_offset": 0,
+        "reserved1": 0,
+        "reserved2": 0
+      }
+    },
+    "10": {
+      "id": 10,
+      "name_local": "╗ì║¤╦«╬┬Â╚",
+      "name": "Blend water temp.",
+      "unit_local": "íµ",
+      "unit": "°C",
+      "scale": {
+        "digits_before": 3,
+        "digits_after": 0,
+        "factor": 66.66000366210938,
+        "offset": 0.0,
+        "x1": 0.0,
+        "x2": 100.0,
+        "y1": 0.0,
+        "y2": 6666.0,
+        "mode": 0
+      },
+      "attribute": 0,
+      "scale2": {
+        "text_group": 0,
+        "basetype": 0,
+        "index_factor": 0,
+        "index_offset": 0,
+        "reserved1": 0,
+        "reserved2": 0
+      }
+    },
+    "13": {
+      "id": 13,
+      "name_local": "¤┤╦«╩▒╝õ",
+      "name": "Rinse Time",
+      "unit_local": "min",
+      "unit": "min",
+      "scale": {
+        "digits_before": 3,
+        "digits_after": 0,
+        "factor": 60.0,
+        "offset": 0.0,
+        "x1": 0.0,
+        "x2": 100.0,
+        "y1": 0.0,
+        "y2": 6000.0,
+        "mode": 0
+      },
+      "attribute": 0,
+      "scale2": {
+        "text_group": 0,
+        "basetype": 0,
+        "index_factor": 0,
+        "index_offset": 0,
+        "reserved1": 0,
+        "reserved2": 0
+      }
+    },
+    "14": {
+      "id": 14,
+      "name_local": "ªíÈ±╩▒╝õ/╚Ğ╩²",
+      "name": "Rinse Quantity",
+      "unit_local": "",
+      "unit": "",
+      "scale": {
+        "digits_before": 1,
+        "digits_after": 0,
+        "factor": 1.0,
+        "offset": 0.0,
+        "x1": 0.0,
+        "x2": 100.0,
+        "y1": 0.0,
+        "y2": 100.0,
+        "mode": 16
+      },
+      "attribute": 0,
+      "scale2": {
+        "text_group": 8,
+        "basetype": 0,
+        "index_factor": 0,
+        "index_offset": 0,
+        "reserved1": 0,
+        "reserved2": 0
+      }
+    },
+    "15": {
+      "id": 15,
+      "name_local": "▓╝ª¡╗ÀÍ▄ã┌",
+      "name": "Fabric Cycle Time",
+      "unit_local": "s",
+      "unit": "s",
+      "scale": {
+        "digits_before": 3,
+        "digits_after": 0,
+        "factor": 1.0,
+        "offset": 0.0,
+        "x1": 0.0,
+        "x2": 100.0,
+        "y1": 0.0,
+        "y2": 100.0,
+        "mode": 0
+      },
+      "attribute": 0,
+      "scale2": {
+        "text_group": 0,
+        "basetype": 0,
+        "index_factor": 0,
+        "index_offset": 0,
+        "reserved1": 0,
+        "reserved2": 0
+      }
+    },
+    "17": {
+      "id": 17,
+      "name_local": "┤╬╩²/Í▄ã┌",
+      "name": "Interval/cycles",
+      "unit_local": "",
+      "unit": "",
+      "scale": {
+        "digits_before": 3,
+        "digits_after": 0,
+        "factor": 1.0,
+        "offset": 0.0,
+        "x1": 0.0,
+        "x2": 100.0,
+        "y1": 0.0,
+        "y2": 100.0,
+        "mode": 0
+      },
+      "attribute": 0,
+      "scale2": {
+        "text_group": 0,
+        "basetype": 0,
+        "index_factor": 0,
+        "index_offset": 0,
+        "reserved1": 0,
+        "reserved2": 0
+      }
+    },
+    "18": {
+      "id": 18,
+      "name_local": "Á╚┤²╩▒╝õ",
+      "name": "Waiting Time",
+      "unit_local": "min",
+      "unit": "min",
+      "scale": {
+        "digits_before": 3,
+        "digits_after": 0,
+        "factor": 60.0,
+        "offset": 0.0,
+        "x1": 0.0,
+        "x2": 100.0,
+        "y1": 0.0,
+        "y2": 6000.0,
+        "mode": 0
+      },
+      "attribute": 0,
+      "scale2": {
+        "text_group": 0,
+        "basetype": 0,
+        "index_factor": 0,
+        "index_offset": 0,
+        "reserved1": 0,
+        "reserved2": 0
+      }
+    },
+    "74": {
+      "id": 74,
+      "name_local": "┼�Îìª╣┴Ğ",
+      "name": "Nozzle Pressure",
+      "unit_local": "bar",
+      "unit": "bar",
+      "scale": {
+        "digits_before": 1,
+        "digits_after": 2,
+        "factor": 2500.0,
+        "offset": 0.0,
+        "x1": 0.0,
+        "x2": 4.0,
+        "y1": 0.0,
+        "y2": 10000.0,
+        "mode": 0
+      },
+      "attribute": 0,
+      "scale2": {
+        "text_group": 0,
+        "basetype": 0,
+        "index_factor": 0,
+        "index_offset": 0,
+        "reserved1": 0,
+        "reserved2": 0
+      }
+    },
+    "19": {
+      "id": 19,
+      "name_local": "┼┼╦«└Ó▒­",
+      "name": "DrainType",
+      "unit_local": "",
+      "unit": "",
+      "scale": {
+        "digits_before": 1,
+        "digits_after": 0,
+        "factor": 1.0,
+        "offset": 0.0,
+        "x1": 0.0,
+        "x2": 100.0,
+        "y1": 0.0,
+        "y2": 100.0,
+        "mode": 16
+      },
+      "attribute": 0,
+      "scale2": {
+        "text_group": 2,
+        "basetype": 0,
+        "index_factor": 0,
+        "index_offset": 0,
+        "reserved1": 0,
+        "reserved2": 0
+      }
+    },
+    "20": {
+      "id": 20,
+      "name_local": "Dosing Ã·¤▀║┼┬Ù",
+      "name": "Dosing Curve ADD",
+      "unit_local": "",
+      "unit": "",
+      "scale": {
+        "digits_before": 4,
+        "digits_after": 0,
+        "factor": 1.0,
+        "offset": 0.0,
+        "x1": 0.0,
+        "x2": 100.0,
+        "y1": 0.0,
+        "y2": 100.0,
+        "mode": 2
+      },
+      "attribute": 0,
+      "scale2": {
+        "text_group": 0,
+        "basetype": 0,
+        "index_factor": 0,
+        "index_offset": 0,
+        "reserved1": 0,
+        "reserved2": 0
+      }
+    },
+    "22": {
+      "id": 22,
+      "name_local": "Dosing ╝Ë┴¤╩▒╝õ",
+      "name": "Dosing Time ADD",
+      "unit_local": "min",
+      "unit": "min",
+      "scale": {
+        "digits_before": 3,
+        "digits_after": 0,
+        "factor": 60.0,
+        "offset": 0.0,
+        "x1": 0.0,
+        "x2": 100.0,
+        "y1": 0.0,
+        "y2": 6000.0,
+        "mode": 0
+      },
+      "attribute": 0,
+      "scale2": {
+        "text_group": 0,
+        "basetype": 0,
+        "index_factor": 0,
+        "index_offset": 0,
+        "reserved1": 0,
+        "reserved2": 0
+      }
+    },
+    "36": {
+      "id": 36,
+      "name_local": "║¶¢º▓┘Î¸È▒╩▒╝õ",
+      "name": "Alert time",
+      "unit_local": "min",
+      "unit": "min",
+      "scale": {
+        "digits_before": 3,
+        "digits_after": 0,
+        "factor": 60.0,
+        "offset": 0.0,
+        "x1": 0.0,
+        "x2": 100.0,
+        "y1": 0.0,
+        "y2": 6000.0,
+        "mode": 0
+      },
+      "attribute": 0,
+      "scale2": {
+        "text_group": 0,
+        "basetype": 0,
+        "index_factor": 0,
+        "index_offset": 0,
+        "reserved1": 0,
+        "reserved2": 0
+      }
+    },
+    "75": {
+      "id": 75,
+      "name_local": "┼�Îì╬╗Í├",
+      "name": "Vario Nozzle",
+      "unit_local": "",
+      "unit": "",
+      "scale": {
+        "digits_before": 1,
+        "digits_after": 0,
+        "factor": 1.0,
+        "offset": 0.0,
+        "x1": 0.0,
+        "x2": 100.0,
+        "y1": 0.0,
+        "y2": 100.0,
+        "mode": 0
+      },
+      "attribute": 0,
+      "scale2": {
+        "text_group": 0,
+        "basetype": 0,
+        "index_factor": 0,
+        "index_offset": 0,
+        "reserved1": 0,
+        "reserved2": 0
+      }
+    },
+    "81": {
+      "id": 81,
+      "name_local": "Set Time Speed",
+      "name": "Set Time Speed",
+      "unit_local": "min",
+      "unit": "min",
+      "scale": {
+        "digits_before": 3,
+        "digits_after": 0,
+        "factor": 60.0,
+        "offset": 0.0,
+        "x1": 0.0,
+        "x2": 100.0,
+        "y1": 0.0,
+        "y2": 6000.0,
+        "mode": 0
+      },
+      "attribute": 0,
+      "scale2": {
+        "text_group": 0,
+        "basetype": 0,
+        "index_factor": 0,
+        "index_offset": 0,
+        "reserved1": 0,
+        "reserved2": 0
+      }
+    },
+    "82": {
+      "id": 82,
+      "name_local": "Protect Time Speed",
+      "name": "Protect Time Speed",
+      "unit_local": "min",
+      "unit": "min",
+      "scale": {
+        "digits_before": 3,
+        "digits_after": 0,
+        "factor": 60.0,
+        "offset": 0.0,
+        "x1": 0.0,
+        "x2": 100.0,
+        "y1": 0.0,
+        "y2": 6000.0,
+        "mode": 0
+      },
+      "attribute": 0,
+      "scale2": {
+        "text_group": 0,
+        "basetype": 0,
+        "index_factor": 0,
+        "index_offset": 0,
+        "reserved1": 0,
+        "reserved2": 0
+      }
+    },
+    "83": {
+      "id": 83,
+      "name_local": "╦┘Â╚1",
+      "name": "Speed1",
+      "unit_local": "M/min",
+      "unit": "M/min",
+      "scale": {
+        "digits_before": 3,
+        "digits_after": 0,
+        "factor": 1.0,
+        "offset": 0.0,
+        "x1": 0.0,
+        "x2": 100.0,
+        "y1": 0.0,
+        "y2": 100.0,
+        "mode": 0
+      },
+      "attribute": 0,
+      "scale2": {
+        "text_group": 0,
+        "basetype": 0,
+        "index_factor": 0,
+        "index_offset": 0,
+        "reserved1": 0,
+        "reserved2": 0
+      }
+    },
+    "84": {
+      "id": 84,
+      "name_local": "╦┘Â╚2",
+      "name": "Speed2",
+      "unit_local": "M/min",
+      "unit": "M/min",
+      "scale": {
+        "digits_before": 3,
+        "digits_after": 0,
+        "factor": 1.0,
+        "offset": 0.0,
+        "x1": 0.0,
+        "x2": 100.0,
+        "y1": 0.0,
+        "y2": 100.0,
+        "mode": 0
+      },
+      "attribute": 0,
+      "scale2": {
+        "text_group": 0,
+        "basetype": 0,
+        "index_factor": 0,
+        "index_offset": 0,
+        "reserved1": 0,
+        "reserved2": 0
+      }
+    },
+    "85": {
+      "id": 85,
+      "name_local": "╦┘Â╚3",
+      "name": "Speed3",
+      "unit_local": "M/min",
+      "unit": "M/min",
+      "scale": {
+        "digits_before": 3,
+        "digits_after": 0,
+        "factor": 1.0,
+        "offset": 0.0,
+        "x1": 0.0,
+        "x2": 100.0,
+        "y1": 0.0,
+        "y2": 100.0,
+        "mode": 0
+      },
+      "attribute": 0,
+      "scale2": {
+        "text_group": 0,
+        "basetype": 0,
+        "index_factor": 0,
+        "index_offset": 0,
+        "reserved1": 0,
+        "reserved2": 0
+      }
+    },
+    "86": {
+      "id": 86,
+      "name_local": "╦┘Â╚4",
+      "name": "Speed4",
+      "unit_local": "M/min",
+      "unit": "M/min",
+      "scale": {
+        "digits_before": 3,
+        "digits_after": 0,
+        "factor": 1.0,
+        "offset": 0.0,
+        "x1": 0.0,
+        "x2": 100.0,
+        "y1": 0.0,
+        "y2": 100.0,
+        "mode": 0
+      },
+      "attribute": 0,
+      "scale2": {
+        "text_group": 0,
+        "basetype": 0,
+        "index_factor": 0,
+        "index_offset": 0,
+        "reserved1": 0,
+        "reserved2": 0
+      }
+    },
+    "87": {
+      "id": 87,
+      "name_local": "╦┘Â╚5",
+      "name": "Speed5",
+      "unit_local": "M/min",
+      "unit": "M/min",
+      "scale": {
+        "digits_before": 3,
+        "digits_after": 0,
+        "factor": 1.0,
+        "offset": 0.0,
+        "x1": 0.0,
+        "x2": 100.0,
+        "y1": 0.0,
+        "y2": 100.0,
+        "mode": 0
+      },
+      "attribute": 0,
+      "scale2": {
+        "text_group": 0,
+        "basetype": 0,
+        "index_factor": 0,
+        "index_offset": 0,
+        "reserved1": 0,
+        "reserved2": 0
+      }
+    },
+    "88": {
+      "id": 88,
+      "name_local": "╦┘Â╚6",
+      "name": "Speed6",
+      "unit_local": "M/min",
+      "unit": "M/min",
+      "scale": {
+        "digits_before": 3,
+        "digits_after": 0,
+        "factor": 1.0,
+        "offset": 0.0,
+        "x1": 0.0,
+        "x2": 100.0,
+        "y1": 0.0,
+        "y2": 100.0,
+        "mode": 0
+      },
+      "attribute": 0,
+      "scale2": {
+        "text_group": 0,
+        "basetype": 0,
+        "index_factor": 0,
+        "index_offset": 0,
+        "reserved1": 0,
+        "reserved2": 0
+      }
+    },
+    "91": {
+      "id": 91,
+      "name_local": "Sollzeit Turbine",
+      "name": "Set Time Flow Rev.",
+      "unit_local": "min",
+      "unit": "min",
+      "scale": {
+        "digits_before": 3,
+        "digits_after": 0,
+        "factor": 60.0,
+        "offset": 0.0,
+        "x1": 0.0,
+        "x2": 100.0,
+        "y1": 0.0,
+        "y2": 6000.0,
+        "mode": 0
+      },
+      "attribute": 0,
+      "scale2": {
+        "text_group": 0,
+        "basetype": 0,
+        "index_factor": 0,
+        "index_offset": 0,
+        "reserved1": 0,
+        "reserved2": 0
+      }
+    },
+    "92": {
+      "id": 92,
+      "name_local": "Schutzzeit Turbine",
+      "name": "Protect Time Flow Re",
+      "unit_local": "min",
+      "unit": "min",
+      "scale": {
+        "digits_before": 3,
+        "digits_after": 0,
+        "factor": 60.0,
+        "offset": 0.0,
+        "x1": 0.0,
+        "x2": 100.0,
+        "y1": 0.0,
+        "y2": 6000.0,
+        "mode": 0
+      },
+      "attribute": 0,
+      "scale2": {
+        "text_group": 0,
+        "basetype": 0,
+        "index_factor": 0,
+        "index_offset": 0,
+        "reserved1": 0,
+        "reserved2": 0
+      }
+    },
+    "93": {
+      "id": 93,
+      "name_local": "I-A Zeit",
+      "name": "I-O time",
+      "unit_local": "min",
+      "unit": "min",
+      "scale": {
+        "digits_before": 3,
+        "digits_after": 0,
+        "factor": 60.0,
+        "offset": 0.0,
+        "x1": 0.0,
+        "x2": 100.0,
+        "y1": 0.0,
+        "y2": 6000.0,
+        "mode": 0
+      },
+      "attribute": 0,
+      "scale2": {
+        "text_group": 0,
+        "basetype": 0,
+        "index_factor": 0,
+        "index_offset": 0,
+        "reserved1": 0,
+        "reserved2": 0
+      }
+    },
+    "94": {
+      "id": 94,
+      "name_local": "A-I Zeit",
+      "name": "O-I time",
+      "unit_local": "min",
+      "unit": "min",
+      "scale": {
+        "digits_before": 3,
+        "digits_after": 0,
+        "factor": 60.0,
+        "offset": 0.0,
+        "x1": 0.0,
+        "x2": 100.0,
+        "y1": 0.0,
+        "y2": 6000.0,
+        "mode": 0
+      },
+      "attribute": 0,
+      "scale2": {
+        "text_group": 0,
+        "basetype": 0,
+        "index_factor": 0,
+        "index_offset": 0,
+        "reserved1": 0,
+        "reserved2": 0
+      }
+    },
+    "95": {
+      "id": 95,
+      "name_local": "I-A Sollwert %",
+      "name": "I-O Set Value %",
+      "unit_local": "%",
+      "unit": "%",
+      "scale": {
+        "digits_before": 3,
+        "digits_after": 0,
+        "factor": 100.0,
+        "offset": 0.0,
+        "x1": 0.0,
+        "x2": 100.0,
+        "y1": 0.0,
+        "y2": 10000.0,
+        "mode": 0
+      },
+      "attribute": 0,
+      "scale2": {
+        "text_group": 0,
+        "basetype": 0,
+        "index_factor": 0,
+        "index_offset": 0,
+        "reserved1": 0,
+        "reserved2": 0
+      }
+    },
+    "96": {
+      "id": 96,
+      "name_local": "A-I Sollwert %",
+      "name": "O-I Set Value %",
+      "unit_local": "%",
+      "unit": "%",
+      "scale": {
+        "digits_before": 3,
+        "digits_after": 0,
+        "factor": 100.0,
+        "offset": 0.0,
+        "x1": 0.0,
+        "x2": 100.0,
+        "y1": 0.0,
+        "y2": 10000.0,
+        "mode": 0
+      },
+      "attribute": 0,
+      "scale2": {
+        "text_group": 0,
+        "basetype": 0,
+        "index_factor": 0,
+        "index_offset": 0,
+        "reserved1": 0,
+        "reserved2": 0
+      }
+    },
+    "111": {
+      "id": 111,
+      "name_local": "Sollzeit Dosieren",
+      "name": "Set Time Dosing",
+      "unit_local": "min",
+      "unit": "min",
+      "scale": {
+        "digits_before": 3,
+        "digits_after": 0,
+        "factor": 60.0,
+        "offset": 0.0,
+        "x1": 0.0,
+        "x2": 100.0,
+        "y1": 0.0,
+        "y2": 6000.0,
+        "mode": 0
+      },
+      "attribute": 0,
+      "scale2": {
+        "text_group": 0,
+        "basetype": 0,
+        "index_factor": 0,
+        "index_offset": 0,
+        "reserved1": 0,
+        "reserved2": 0
+      }
+    },
+    "112": {
+      "id": 112,
+      "name_local": "Schutzzeit Dosieren",
+      "name": "Protect Time Dosing",
+      "unit_local": "min",
+      "unit": "min",
+      "scale": {
+        "digits_before": 3,
+        "digits_after": 0,
+        "factor": 60.0,
+        "offset": 0.0,
+        "x1": 0.0,
+        "x2": 100.0,
+        "y1": 0.0,
+        "y2": 6000.0,
+        "mode": 0
+      },
+      "attribute": 0,
+      "scale2": {
+        "text_group": 0,
+        "basetype": 0,
+        "index_factor": 0,
+        "index_offset": 0,
+        "reserved1": 0,
+        "reserved2": 0
+      }
+    },
+    "113": {
+      "id": 113,
+      "name_local": "┴¤©Î1╝Ë┴¤Ã·¤▀",
+      "name": "Dosing Curve DT1",
+      "unit_local": "",
+      "unit": "",
+      "scale": {
+        "digits_before": 1,
+        "digits_after": 0,
+        "factor": 1.0,
+        "offset": 0.0,
+        "x1": 0.0,
+        "x2": 100.0,
+        "y1": 0.0,
+        "y2": 100.0,
+        "mode": 0
+      },
+      "attribute": 0,
+      "scale2": {
+        "text_group": 0,
+        "basetype": 0,
+        "index_factor": 0,
+        "index_offset": 0,
+        "reserved1": 0,
+        "reserved2": 0
+      }
+    },
+    "114": {
+      "id": 114,
+      "name_local": "┴¤©Î1Dos╝Ë┴¤┴┐",
+      "name": "Dosing Quantity DT1",
+      "unit_local": "L",
+      "unit": "L",
+      "scale": {
+        "digits_before": 4,
+        "digits_after": 0,
+        "factor": 1.0,
+        "offset": 0.0,
+        "x1": 0.0,
+        "x2": 100.0,
+        "y1": 0.0,
+        "y2": 100.0,
+        "mode": 0
+      },
+      "attribute": 0,
+      "scale2": {
+        "text_group": 0,
+        "basetype": 0,
+        "index_factor": 0,
+        "index_offset": 0,
+        "reserved1": 0,
+        "reserved2": 0
+      }
+    },
+    "115": {
+      "id": 115,
+      "name_local": "┴¤©ÎÃ·¤▀╝Ë┴¤╩▒╝õ",
+      "name": "Dosing Time DT1",
+      "unit_local": "min",
+      "unit": "min",
+      "scale": {
+        "digits_before": 3,
+        "digits_after": 0,
+        "factor": 60.0,
+        "offset": 0.0,
+        "x1": 0.0,
+        "x2": 100.0,
+        "y1": 0.0,
+        "y2": 6000.0,
+        "mode": 0
+      },
+      "attribute": 0,
+      "scale2": {
+        "text_group": 0,
+        "basetype": 0,
+        "index_factor": 0,
+        "index_offset": 0,
+        "reserved1": 0,
+        "reserved2": 0
+      }
+    },
+    "131": {
+      "id": 131,
+      "name_local": "Set time ADD",
+      "name": "Set time ADD",
+      "unit_local": "min",
+      "unit": "min",
+      "scale": {
+        "digits_before": 3,
+        "digits_after": 0,
+        "factor": 60.0,
+        "offset": 0.0,
+        "x1": 0.0,
+        "x2": 100.0,
+        "y1": 0.0,
+        "y2": 6000.0,
+        "mode": 0
+      },
+      "attribute": 0,
+      "scale2": {
+        "text_group": 0,
+        "basetype": 0,
+        "index_factor": 0,
+        "index_offset": 0,
+        "reserved1": 0,
+        "reserved2": 0
+      }
+    },
+    "132": {
+      "id": 132,
+      "name_local": "Protect time ADD",
+      "name": "Protect time ADD",
+      "unit_local": "min",
+      "unit": "min",
+      "scale": {
+        "digits_before": 3,
+        "digits_after": 0,
+        "factor": 60.0,
+        "offset": 0.0,
+        "x1": 0.0,
+        "x2": 100.0,
+        "y1": 0.0,
+        "y2": 6000.0,
+        "mode": 0
+      },
+      "attribute": 0,
+      "scale2": {
+        "text_group": 0,
+        "basetype": 0,
+        "index_factor": 0,
+        "index_offset": 0,
+        "reserved1": 0,
+        "reserved2": 0
+      }
+    },
+    "134": {
+      "id": 134,
+      "name_local": "┴¤©Î1╚Ù╦«ÍÍ└Ó",
+      "name": "Valve DT1",
+      "unit_local": "",
+      "unit": "",
+      "scale": {
+        "digits_before": 1,
+        "digits_after": 0,
+        "factor": 1.0,
+        "offset": 0.0,
+        "x1": 0.0,
+        "x2": 100.0,
+        "y1": 0.0,
+        "y2": 100.0,
+        "mode": 16
+      },
+      "attribute": 0,
+      "scale2": {
+        "text_group": 3,
+        "basetype": 0,
+        "index_factor": 0,
+        "index_offset": 0,
+        "reserved1": 0,
+        "reserved2": 0
+      }
+    },
+    "135": {
+      "id": 135,
+      "name_local": "┴¤©Î1╦«╬╗",
+      "name": "Level DT1",
+      "unit_local": "%",
+      "unit": "%",
+      "scale": {
+        "digits_before": 3,
+        "digits_after": 0,
+        "factor": 1.0,
+        "offset": 0.0,
+        "x1": 0.0,
+        "x2": 10.0,
+        "y1": 0.0,
+        "y2": 10.0,
+        "mode": 0
+      },
+      "attribute": 0,
+      "scale2": {
+        "text_group": 0,
+        "basetype": 0,
+        "index_factor": 0,
+        "index_offset": 0,
+        "reserved1": 0,
+        "reserved2": 0
+      }
+    },
+    "136": {
+      "id": 136,
+      "name_local": "┴¤©Î1╬┬Â╚",
+      "name": "Temperature DT1",
+      "unit_local": "íµ",
+      "unit": "°C",
+      "scale": {
+        "digits_before": 3,
+        "digits_after": 0,
+        "factor": 66.66000366210938,
+        "offset": 0.0,
+        "x1": 0.0,
+        "x2": 100.0,
+        "y1": 0.0,
+        "y2": 6666.0,
+        "mode": 0
+      },
+      "attribute": 0,
+      "scale2": {
+        "text_group": 0,
+        "basetype": 0,
+        "index_factor": 0,
+        "index_offset": 0,
+        "reserved1": 0,
+        "reserved2": 0
+      }
+    },
+    "139": {
+      "id": 139,
+      "name_local": "┴¤©Î1¢┴░×╩▒╝õ",
+      "name": "Mixing Time DT1",
+      "unit_local": "min",
+      "unit": "min",
+      "scale": {
+        "digits_before": 3,
+        "digits_after": 1,
+        "factor": 60.0,
+        "offset": 0.0,
+        "x1": 0.0,
+        "x2": 1.0,
+        "y1": 0.0,
+        "y2": 60.0,
+        "mode": 0
+      },
+      "attribute": 0,
+      "scale2": {
+        "text_group": 0,
+        "basetype": 0,
+        "index_factor": 0,
+        "index_offset": 0,
+        "reserved1": 0,
+        "reserved2": 0
+      }
+    },
+    "140": {
+      "id": 140,
+      "name_local": "┴¤©Î1┼õÀ¢║┼",
+      "name": "Recipe number AT1",
+      "unit_local": "",
+      "unit": "",
+      "scale": {
+        "digits_before": 3,
+        "digits_after": 0,
+        "factor": 1.0,
+        "offset": 0.0,
+        "x1": 0.0,
+        "x2": 100.0,
+        "y1": 0.0,
+        "y2": 100.0,
+        "mode": 0
+      },
+      "attribute": 0,
+      "scale2": {
+        "text_group": 0,
+        "basetype": 0,
+        "index_factor": 0,
+        "index_offset": 0,
+        "reserved1": 0,
+        "reserved2": 0
+      }
+    },
+    "145": {
+      "id": 145,
+      "name_local": "┴¤©Î1�¥╠¿║┼",
+      "name": "Station No. DT1",
+      "unit_local": "",
+      "unit": "",
+      "scale": {
+        "digits_before": 1,
+        "digits_after": 0,
+        "factor": 1.0,
+        "offset": 0.0,
+        "x1": 0.0,
+        "x2": 100.0,
+        "y1": 0.0,
+        "y2": 100.0,
+        "mode": 1
+      },
+      "attribute": 0,
+      "scale2": {
+        "text_group": 0,
+        "basetype": 0,
+        "index_factor": 0,
+        "index_offset": 0,
+        "reserved1": 0,
+        "reserved2": 0
+      }
+    },
+    "174": {
+      "id": 174,
+      "name_local": "Èñ▒©©Î╚Ù╦«Àğ├┼",
+      "name": "Filling Valve ST",
+      "unit_local": "",
+      "unit": "",
+      "scale": {
+        "digits_before": 1,
+        "digits_after": 0,
+        "factor": 1.0,
+        "offset": 0.0,
+        "x1": 0.0,
+        "x2": 100.0,
+        "y1": 0.0,
+        "y2": 100.0,
+        "mode": 16
+      },
+      "attribute": 0,
+      "scale2": {
+        "text_group": 17,
+        "basetype": 0,
+        "index_factor": 0,
+        "index_offset": 0,
+        "reserved1": 0,
+        "reserved2": 0
+      }
+    },
+    "175": {
+      "id": 175,
+      "name_local": "Èñ▒©©Î╦«╬╗",
+      "name": "Level ST",
+      "unit_local": "",
+      "unit": "",
+      "scale": {
+        "digits_before": 3,
+        "digits_after": 0,
+        "factor": 1.0,
+        "offset": 0.0,
+        "x1": 0.0,
+        "x2": 100.0,
+        "y1": 0.0,
+        "y2": 100.0,
+        "mode": 0
+      },
+      "attribute": 0,
+      "scale2": {
+        "text_group": 0,
+        "basetype": 0,
+        "index_factor": 0,
+        "index_offset": 0,
+        "reserved1": 0,
+        "reserved2": 0
+      }
+    },
+    "176": {
+      "id": 176,
+      "name_local": "Èñ▒©©Î╬┬Â╚",
+      "name": "Temperature ST",
+      "unit_local": "íµ",
+      "unit": "°C",
+      "scale": {
+        "digits_before": 3,
+        "digits_after": 0,
+        "factor": 66.66000366210938,
+        "offset": 0.0,
+        "x1": 0.0,
+        "x2": 100.0,
+        "y1": 0.0,
+        "y2": 6666.0,
+        "mode": 0
+      },
+      "attribute": 0,
+      "scale2": {
+        "text_group": 0,
+        "basetype": 0,
+        "index_factor": 0,
+        "index_offset": 0,
+        "reserved1": 0,
+        "reserved2": 0
+      }
+    },
+    "177": {
+      "id": 177,
+      "name_local": "Èñ▒©©Î╗»┴¤╩▒╝õ",
+      "name": "Dissolving Time ST",
+      "unit_local": "min",
+      "unit": "min",
+      "scale": {
+        "digits_before": 3,
+        "digits_after": 0,
+        "factor": 60.0,
+        "offset": 0.0,
+        "x1": 0.0,
+        "x2": 100.0,
+        "y1": 0.0,
+        "y2": 6000.0,
+        "mode": 0
+      },
+      "attribute": 0,
+      "scale2": {
+        "text_group": 0,
+        "basetype": 0,
+        "index_factor": 0,
+        "index_offset": 0,
+        "reserved1": 0,
+        "reserved2": 0
+      }
+    },
+    "183": {
+      "id": 183,
+      "name_local": "Èñ▒©©Î═░║┼",
+      "name": "tank No. ST1",
+      "unit_local": "",
+      "unit": "",
+      "scale": {
+        "digits_before": 1,
+        "digits_after": 0,
+        "factor": 1.0,
+        "offset": 0.0,
+        "x1": 0.0,
+        "x2": 100.0,
+        "y1": 0.0,
+        "y2": 100.0,
+        "mode": 1
+      },
+      "attribute": 0,
+      "scale2": {
+        "text_group": 0,
+        "basetype": 0,
+        "index_factor": 0,
+        "index_offset": 0,
+        "reserved1": 0,
+        "reserved2": 0
+      }
+    },
+    "181": {
+      "id": 181,
+      "name_local": "Èñ▒©©ÎÎ╝▒©║┼",
+      "name": "Preparation no ST1",
+      "unit_local": "",
+      "unit": "",
+      "scale": {
+        "digits_before": 2,
+        "digits_after": 0,
+        "factor": 1.0,
+        "offset": 0.0,
+        "x1": 0.0,
+        "x2": 100.0,
+        "y1": 0.0,
+        "y2": 100.0,
+        "mode": 0
+      },
+      "attribute": 0,
+      "scale2": {
+        "text_group": 0,
+        "basetype": 0,
+        "index_factor": 0,
+        "index_offset": 0,
+        "reserved1": 0,
+        "reserved2": 0
+      }
+    },
+    "172": {
+      "id": 172,
+      "name_local": "©▒©Î ▒ú╗ñ╩▒╝õ",
+      "name": "Protect time ST1",
+      "unit_local": "min",
+      "unit": "min",
+      "scale": {
+        "digits_before": 3,
+        "digits_after": 0,
+        "factor": 60.0,
+        "offset": 0.0,
+        "x1": 0.0,
+        "x2": 100.0,
+        "y1": 0.0,
+        "y2": 6000.0,
+        "mode": 0
+      },
+      "attribute": 0,
+      "scale2": {
+        "text_group": 0,
+        "basetype": 0,
+        "index_factor": 0,
+        "index_offset": 0,
+        "reserved1": 0,
+        "reserved2": 0
+      }
+    },
+    "257": {
+      "id": 257,
+      "name_local": "╗ì║¤╦«╬┬Â╚",
+      "name": "Temperature mixing W",
+      "unit_local": "íµ",
+      "unit": "°C",
+      "scale": {
+        "digits_before": 3,
+        "digits_after": 0,
+        "factor": 66.66000366210938,
+        "offset": 0.0,
+        "x1": 0.0,
+        "x2": 100.0,
+        "y1": 0.0,
+        "y2": 6666.0,
+        "mode": 0
+      },
+      "attribute": 0,
+      "scale2": {
+        "text_group": 0,
+        "basetype": 0,
+        "index_factor": 0,
+        "index_offset": 0,
+        "reserved1": 0,
+        "reserved2": 0
+      }
+    },
+    "270": {
+      "id": 270,
+      "name_local": "╝Ë┴¤ÀğªíÈ±",
+      "name": "Choose feed val.",
+      "unit_local": "1,2",
+      "unit": "1,2",
+      "scale": {
+        "digits_before": 1,
+        "digits_after": 0,
+        "factor": 1.0,
+        "offset": 0.0,
+        "x1": 0.0,
+        "x2": 1.0,
+        "y1": 0.0,
+        "y2": 1.0,
+        "mode": 16
+      },
+      "attribute": 0,
+      "scale2": {
+        "text_group": 4,
+        "basetype": 0,
+        "index_factor": 0,
+        "index_offset": 0,
+        "reserved1": 0,
+        "reserved2": 0
+      }
+    },
+    "271": {
+      "id": 271,
+      "name_local": "▒úª╣╩▒╝õ",
+      "name": "Keep pressure Time",
+      "unit_local": "S",
+      "unit": "S",
+      "scale": {
+        "digits_before": 3,
+        "digits_after": 0,
+        "factor": 1.0,
+        "offset": 0.0,
+        "x1": 0.0,
+        "x2": 600.0,
+        "y1": 0.0,
+        "y2": 600.0,
+        "mode": 0
+      },
+      "attribute": 0,
+      "scale2": {
+        "text_group": 0,
+        "basetype": 0,
+        "index_factor": 0,
+        "index_offset": 0,
+        "reserved1": 0,
+        "reserved2": 0
+      }
+    },
+    "272": {
+      "id": 272,
+      "name_local": "AT│Õ¤┤┤╬╩²",
+      "name": "AT Washing",
+      "unit_local": "",
+      "unit": "",
+      "scale": {
+        "digits_before": 1,
+        "digits_after": 0,
+        "factor": 1.0,
+        "offset": 0.0,
+        "x1": 0.0,
+        "x2": 1.0,
+        "y1": 0.0,
+        "y2": 1.0,
+        "mode": 0
+      },
+      "attribute": 0,
+      "scale2": {
+        "text_group": 0,
+        "basetype": 0,
+        "index_factor": 0,
+        "index_offset": 0,
+        "reserved1": 0,
+        "reserved2": 0
+      }
+    },
+    "180": {
+      "id": 180,
+      "name_local": "Èñ▒©©Î┼õÀ¢║┼",
+      "name": "Recipe number ST1",
+      "unit_local": "",
+      "unit": "",
+      "scale": {
+        "digits_before": 4,
+        "digits_after": 0,
+        "factor": 1.0,
+        "offset": 0.0,
+        "x1": 0.0,
+        "x2": 100.0,
+        "y1": 0.0,
+        "y2": 100.0,
+        "mode": 0
+      },
+      "attribute": 0,
+      "scale2": {
+        "text_group": 0,
+        "basetype": 0,
+        "index_factor": 0,
+        "index_offset": 0,
+        "reserved1": 0,
+        "reserved2": 0
+      }
+    },
+    "155": {
+      "id": 155,
+      "name_local": "┴¤©Î2╦«╬╗",
+      "name": "Level AT2",
+      "unit_local": "%",
+      "unit": "%",
+      "scale": {
+        "digits_before": 1,
+        "digits_after": 0,
+        "factor": 1.0,
+        "offset": 0.0,
+        "x1": 0.0,
+        "x2": 100.0,
+        "y1": 0.0,
+        "y2": 100.0,
+        "mode": 0
+      },
+      "attribute": 0,
+      "scale2": {
+        "text_group": 0,
+        "basetype": 0,
+        "index_factor": 0,
+        "index_offset": 0,
+        "reserved1": 0,
+        "reserved2": 0
+      }
+    },
+    "280": {
+      "id": 280,
+      "name_local": "▒ú│Í╩▒╝õ",
+      "name": "Hold Time",
+      "unit_local": "min",
+      "unit": "min",
+      "scale": {
+        "digits_before": 3,
+        "digits_after": 0,
+        "factor": 60.0,
+        "offset": 0.0,
+        "x1": 0.0,
+        "x2": 100.0,
+        "y1": 0.0,
+        "y2": 6000.0,
+        "mode": 0
+      },
+      "attribute": 0,
+      "scale2": {
+        "text_group": 0,
+        "basetype": 0,
+        "index_factor": 0,
+        "index_offset": 0,
+        "reserved1": 0,
+        "reserved2": 0
+      }
+    },
+    "282": {
+      "id": 282,
+      "name_local": "No. Prep. Sal. Man.",
+      "name": "Call no. salt",
+      "unit_local": "",
+      "unit": "",
+      "scale": {
+        "digits_before": 2,
+        "digits_after": 0,
+        "factor": 1.0,
+        "offset": 0.0,
+        "x1": 0.0,
+        "x2": 1.0,
+        "y1": 0.0,
+        "y2": 1.0,
+        "mode": 0
+      },
+      "attribute": 0,
+      "scale2": {
+        "text_group": 0,
+        "basetype": 0,
+        "index_factor": 0,
+        "index_offset": 0,
+        "reserved1": 0,
+        "reserved2": 0
+      }
+    },
+    "158": {
+      "id": 158,
+      "name_local": "┴¤©Î2¢┴░×",
+      "name": "stirrer AT2",
+      "unit_local": "",
+      "unit": "",
+      "scale": {
+        "digits_before": 1,
+        "digits_after": 0,
+        "factor": 1.0,
+        "offset": 0.0,
+        "x1": 0.0,
+        "x2": 100.0,
+        "y1": 0.0,
+        "y2": 100.0,
+        "mode": 0
+      },
+      "attribute": 0,
+      "scale2": {
+        "text_group": 0,
+        "basetype": 0,
+        "index_factor": 0,
+        "index_offset": 0,
+        "reserved1": 0,
+        "reserved2": 0
+      }
+    },
+    "283": {
+      "id": 283,
+      "name_local": "¤┤©Î╩▒╝õ",
+      "name": "Washing Time",
+      "unit_local": "Min",
+      "unit": "Min",
+      "scale": {
+        "digits_before": 3,
+        "digits_after": 0,
+        "factor": 60.0,
+        "offset": 0.0,
+        "x1": 0.0,
+        "x2": 1.0,
+        "y1": 0.0,
+        "y2": 60.0,
+        "mode": 0
+      },
+      "attribute": 0,
+      "scale2": {
+        "text_group": 0,
+        "basetype": 0,
+        "index_factor": 0,
+        "index_offset": 0,
+        "reserved1": 0,
+        "reserved2": 0
+      }
+    },
+    "290": {
+      "id": 290,
+      "name_local": "Valv. Spray",
+      "name": "VSP3 Valve On/Off",
+      "unit_local": "",
+      "unit": "",
+      "scale": {
+        "digits_before": 1,
+        "digits_after": 0,
+        "factor": 1.0,
+        "offset": 0.0,
+        "x1": 0.0,
+        "x2": 100.0,
+        "y1": 0.0,
+        "y2": 100.0,
+        "mode": 0
+      },
+      "attribute": 0,
+      "scale2": {
+        "text_group": 0,
+        "basetype": 0,
+        "index_factor": 0,
+        "index_offset": 0,
+        "reserved1": 0,
+        "reserved2": 0
+      }
+    },
+    "291": {
+      "id": 291,
+      "name_local": "┼�ÎìªíÈ±",
+      "name": "NOZZLE",
+      "unit_local": "0,1,2,3",
+      "unit": "0,1,2,3",
+      "scale": {
+        "digits_before": 1,
+        "digits_after": 0,
+        "factor": 1.0,
+        "offset": 0.0,
+        "x1": 0.0,
+        "x2": 100.0,
+        "y1": 0.0,
+        "y2": 100.0,
+        "mode": 16
+      },
+      "attribute": 0,
+      "scale2": {
+        "text_group": 5,
+        "basetype": 0,
+        "index_factor": 0,
+        "index_offset": 0,
+        "reserved1": 0,
+        "reserved2": 0
+      }
+    },
+    "157": {
+      "id": 157,
+      "name_local": "┴¤©Î2╗»┴¤╩▒╝õ",
+      "name": "Dissolving time AT2",
+      "unit_local": "min",
+      "unit": "min",
+      "scale": {
+        "digits_before": 2,
+        "digits_after": 1,
+        "factor": 60.0,
+        "offset": 0.0,
+        "x1": 0.0,
+        "x2": 100.0,
+        "y1": 0.0,
+        "y2": 6000.0,
+        "mode": 0
+      },
+      "attribute": 0,
+      "scale2": {
+        "text_group": 0,
+        "basetype": 0,
+        "index_factor": 0,
+        "index_offset": 0,
+        "reserved1": 0,
+        "reserved2": 0
+      }
+    },
+    "301": {
+      "id": 301,
+      "name_local": "©▒©ÎÃÕ¤┤┤╬╩²",
+      "name": "clean cycles ST1",
+      "unit_local": "",
+      "unit": "",
+      "scale": {
+        "digits_before": 1,
+        "digits_after": 0,
+        "factor": 1.0,
+        "offset": 0.0,
+        "x1": 0.0,
+        "x2": 100.0,
+        "y1": 0.0,
+        "y2": 100.0,
+        "mode": 1
+      },
+      "attribute": 0,
+      "scale2": {
+        "text_group": 0,
+        "basetype": 0,
+        "index_factor": 0,
+        "index_offset": 0,
+        "reserved1": 0,
+        "reserved2": 0
+      }
+    },
+    "277": {
+      "id": 277,
+      "name_local": "Cycle times count.",
+      "name": "Cycle times count.",
+      "unit_local": "Times",
+      "unit": "Times",
+      "scale": {
+        "digits_before": 3,
+        "digits_after": 0,
+        "factor": 1.0,
+        "offset": 0.0,
+        "x1": 0.0,
+        "x2": 100.0,
+        "y1": 0.0,
+        "y2": 100.0,
+        "mode": 0
+      },
+      "attribute": 0,
+      "scale2": {
+        "text_group": 0,
+        "basetype": 0,
+        "index_factor": 0,
+        "index_offset": 0,
+        "reserved1": 0,
+        "reserved2": 0
+      }
+    },
+    "23": {
+      "id": 23,
+      "name_local": "Valve ADD1",
+      "name": "Valve DT1",
+      "unit_local": "",
+      "unit": "",
+      "scale": {
+        "digits_before": 1,
+        "digits_after": 0,
+        "factor": 1.0,
+        "offset": 0.0,
+        "x1": 0.0,
+        "x2": 100.0,
+        "y1": 0.0,
+        "y2": 100.0,
+        "mode": 16
+      },
+      "attribute": 0,
+      "scale2": {
+        "text_group": 21,
+        "basetype": 0,
+        "index_factor": 0,
+        "index_offset": 0,
+        "reserved1": 0,
+        "reserved2": 0
+      }
+    },
+    "284": {
+      "id": 284,
+      "name_local": "▓╝▓█╔×Â¿",
+      "name": "slot",
+      "unit_local": "%",
+      "unit": "%",
+      "scale": {
+        "digits_before": 3,
+        "digits_after": 0,
+        "factor": 10.0,
+        "offset": 0.0,
+        "x1": 0.0,
+        "x2": 100.0,
+        "y1": 0.0,
+        "y2": 1000.0,
+        "mode": 1
+      },
+      "attribute": 0,
+      "scale2": {
+        "text_group": 0,
+        "basetype": 0,
+        "index_factor": 0,
+        "index_offset": 0,
+        "reserved1": 0,
+        "reserved2": 0
+      }
+    },
+    "279": {
+      "id": 279,
+      "name_local": "╗¿╚¸",
+      "name": "Shower",
+      "unit_local": "",
+      "unit": "",
+      "scale": {
+        "digits_before": 1,
+        "digits_after": 0,
+        "factor": 1.0,
+        "offset": 0.0,
+        "x1": 0.0,
+        "x2": 100.0,
+        "y1": 0.0,
+        "y2": 100.0,
+        "mode": 17
+      },
+      "attribute": 0,
+      "scale2": {
+        "text_group": 11,
+        "basetype": 0,
+        "index_factor": 0,
+        "index_offset": 0,
+        "reserved1": 0,
+        "reserved2": 0
+      }
+    },
+    "292": {
+      "id": 292,
+      "name_local": "░┌▓╝╦┘Â╚╔×Â¿",
+      "name": "Plat Speed",
+      "unit_local": "%",
+      "unit": "%",
+      "scale": {
+        "digits_before": 3,
+        "digits_after": 0,
+        "factor": 100.0,
+        "offset": 0.0,
+        "x1": 0.0,
+        "x2": 100.0,
+        "y1": 0.0,
+        "y2": 10000.0,
+        "mode": 0
+      },
+      "attribute": 0,
+      "scale2": {
+        "text_group": 0,
+        "basetype": 0,
+        "index_factor": 0,
+        "index_offset": 0,
+        "reserved1": 0,
+        "reserved2": 0
+      }
+    },
+    "185": {
+      "id": 185,
+      "name_local": "Èñ▒©©Î�¥╠¿║┼",
+      "name": "Station No ST1",
+      "unit_local": "",
+      "unit": "",
+      "scale": {
+        "digits_before": 1,
+        "digits_after": 0,
+        "factor": 1.0,
+        "offset": 0.0,
+        "x1": 0.0,
+        "x2": 100.0,
+        "y1": 0.0,
+        "y2": 100.0,
+        "mode": 1
+      },
+      "attribute": 0,
+      "scale2": {
+        "text_group": 0,
+        "basetype": 0,
+        "index_factor": 0,
+        "index_offset": 0,
+        "reserved1": 0,
+        "reserved2": 0
+      }
+    },
+    "184": {
+      "id": 184,
+      "name_local": "Èñ▒©©ÎºúªÚ║┼",
+      "name": "Prep. release ST1",
+      "unit_local": "",
+      "unit": "",
+      "scale": {
+        "digits_before": 3,
+        "digits_after": 0,
+        "factor": 1.0,
+        "offset": 0.0,
+        "x1": 0.0,
+        "x2": 100.0,
+        "y1": 0.0,
+        "y2": 100.0,
+        "mode": 1
+      },
+      "attribute": 0,
+      "scale2": {
+        "text_group": 0,
+        "basetype": 0,
+        "index_factor": 0,
+        "index_offset": 0,
+        "reserved1": 0,
+        "reserved2": 0
+      }
+    },
+    "188": {
+      "id": 188,
+      "name_local": "Èñ▒©©ÎÎ╝▒©¤┬Ê╗┼·┤╬",
+      "name": "batch release ST1",
+      "unit_local": "",
+      "unit": "",
+      "scale": {
+        "digits_before": 3,
+        "digits_after": 0,
+        "factor": 1.0,
+        "offset": 0.0,
+        "x1": 0.0,
+        "x2": 100.0,
+        "y1": 0.0,
+        "y2": 100.0,
+        "mode": 1
+      },
+      "attribute": 0,
+      "scale2": {
+        "text_group": 0,
+        "basetype": 0,
+        "index_factor": 0,
+        "index_offset": 0,
+        "reserved1": 0,
+        "reserved2": 0
+      }
+    },
+    "187": {
+      "id": 187,
+      "name_local": "Èñ▒©©ÎÎ╝▒©╩▒╝õ",
+      "name": "Alert Time op. ST1",
+      "unit_local": "min",
+      "unit": "min",
+      "scale": {
+        "digits_before": 3,
+        "digits_after": 0,
+        "factor": 60.0,
+        "offset": 0.0,
+        "x1": 0.0,
+        "x2": 100.0,
+        "y1": 0.0,
+        "y2": 6000.0,
+        "mode": 0
+      },
+      "attribute": 0,
+      "scale2": {
+        "text_group": 0,
+        "basetype": 0,
+        "index_factor": 0,
+        "index_offset": 0,
+        "reserved1": 0,
+        "reserved2": 0
+      }
+    },
+    "276": {
+      "id": 276,
+      "name_local": "┴¤═░ªíÈ±",
+      "name": "AT Choice",
+      "unit_local": "1,2",
+      "unit": "1,2",
+      "scale": {
+        "digits_before": 1,
+        "digits_after": 0,
+        "factor": 1.0,
+        "offset": 0.0,
+        "x1": 0.0,
+        "x2": 1.0,
+        "y1": 0.0,
+        "y2": 1.0,
+        "mode": 0
+      },
+      "attribute": 0,
+      "scale2": {
+        "text_group": 0,
+        "basetype": 0,
+        "index_factor": 0,
+        "index_offset": 0,
+        "reserved1": 0,
+        "reserved2": 0
+      }
+    },
+    "137": {
+      "id": 137,
+      "name_local": "┴¤©Î1╗»┴¤╩▒╝õ",
+      "name": "Dissolving time AT1",
+      "unit_local": "min",
+      "unit": "min",
+      "scale": {
+        "digits_before": 2,
+        "digits_after": 1,
+        "factor": 60.0,
+        "offset": 0.0,
+        "x1": 0.0,
+        "x2": 100.0,
+        "y1": 0.0,
+        "y2": 6000.0,
+        "mode": 0
+      },
+      "attribute": 0,
+      "scale2": {
+        "text_group": 0,
+        "basetype": 0,
+        "index_factor": 0,
+        "index_offset": 0,
+        "reserved1": 0,
+        "reserved2": 0
+      }
+    },
+    "60": {
+      "id": 60,
+      "name_local": "╝ì▓Ú║¶¢º║┼┬Ù",
+      "name": "Check prep. number",
+      "unit_local": "",
+      "unit": "",
+      "scale": {
+        "digits_before": 2,
+        "digits_after": 0,
+        "factor": 1.0,
+        "offset": 0.0,
+        "x1": 0.0,
+        "x2": 100.0,
+        "y1": 0.0,
+        "y2": 100.0,
+        "mode": 0
+      },
+      "attribute": 0,
+      "scale2": {
+        "text_group": 0,
+        "basetype": 0,
+        "index_factor": 0,
+        "index_offset": 0,
+        "reserved1": 0,
+        "reserved2": 0
+      }
+    },
+    "50": {
+      "id": 50,
+      "name_local": "╦«¤┤┤╬╩²",
+      "name": "batch",
+      "unit_local": "",
+      "unit": "",
+      "scale": {
+        "digits_before": 2,
+        "digits_after": 0,
+        "factor": 1.0,
+        "offset": 0.0,
+        "x1": 0.0,
+        "x2": 0.0,
+        "y1": 0.0,
+        "y2": 0.0,
+        "mode": 1
+      },
+      "attribute": 0,
+      "scale2": {
+        "text_group": 0,
+        "basetype": 0,
+        "index_factor": 0,
+        "index_offset": 0,
+        "reserved1": 0,
+        "reserved2": 0
+      }
+    },
+    "311": {
+      "id": 311,
+      "name_local": "╦┘Â╚8",
+      "name": "Speed8",
+      "unit_local": "M/min",
+      "unit": "M/min",
+      "scale": {
+        "digits_before": 3,
+        "digits_after": 0,
+        "factor": 1.0,
+        "offset": 0.0,
+        "x1": 0.0,
+        "x2": 100.0,
+        "y1": 0.0,
+        "y2": 100.0,
+        "mode": 0
+      },
+      "attribute": 0,
+      "scale2": {
+        "text_group": 0,
+        "basetype": 0,
+        "index_factor": 0,
+        "index_offset": 0,
+        "reserved1": 0,
+        "reserved2": 0
+      }
+    },
+    "310": {
+      "id": 310,
+      "name_local": "╦┘Â╚7",
+      "name": "Speed7",
+      "unit_local": "M/min",
+      "unit": "M/min",
+      "scale": {
+        "digits_before": 3,
+        "digits_after": 0,
+        "factor": 1.0,
+        "offset": 0.0,
+        "x1": 0.0,
+        "x2": 100.0,
+        "y1": 0.0,
+        "y2": 100.0,
+        "mode": 0
+      },
+      "attribute": 0,
+      "scale2": {
+        "text_group": 0,
+        "basetype": 0,
+        "index_factor": 0,
+        "index_offset": 0,
+        "reserved1": 0,
+        "reserved2": 0
+      }
+    },
+    "141": {
+      "id": 141,
+      "name_local": "┴¤©Î1║¶¢º║┼┬Ù",
+      "name": "Preparation no DT1",
+      "unit_local": "",
+      "unit": "",
+      "scale": {
+        "digits_before": 2,
+        "digits_after": 0,
+        "factor": 1.0,
+        "offset": 0.0,
+        "x1": 0.0,
+        "x2": 100.0,
+        "y1": 0.0,
+        "y2": 100.0,
+        "mode": 0
+      },
+      "attribute": 0,
+      "scale2": {
+        "text_group": 0,
+        "basetype": 0,
+        "index_factor": 0,
+        "index_offset": 0,
+        "reserved1": 0,
+        "reserved2": 0
+      }
+    },
+    "281": {
+      "id": 281,
+      "name_local": "Ê�┴¸┼�Îì",
+      "name": "Overfall Nozzle",
+      "unit_local": "",
+      "unit": "",
+      "scale": {
+        "digits_before": 1,
+        "digits_after": 0,
+        "factor": 1.0,
+        "offset": 0.0,
+        "x1": 0.0,
+        "x2": 1.0,
+        "y1": 0.0,
+        "y2": 1.0,
+        "mode": 16
+      },
+      "attribute": 0,
+      "scale2": {
+        "text_group": 6,
+        "basetype": 0,
+        "index_factor": 0,
+        "index_offset": 0,
+        "reserved1": 0,
+        "reserved2": 0
+      }
+    },
+    "73": {
+      "id": 73,
+      "name_local": "Í¸▒├╦┘Â╚",
+      "name": "Main Pump",
+      "unit_local": "%",
+      "unit": "%",
+      "scale": {
+        "digits_before": 3,
+        "digits_after": 0,
+        "factor": 100.0,
+        "offset": 0.0,
+        "x1": 0.0,
+        "x2": 100.0,
+        "y1": 0.0,
+        "y2": 10000.0,
+        "mode": 0
+      },
+      "attribute": 0,
+      "scale2": {
+        "text_group": 0,
+        "basetype": 0,
+        "index_factor": 0,
+        "index_offset": 0,
+        "reserved1": 0,
+        "reserved2": 0
+      }
+    },
+    "76": {
+      "id": 76,
+      "name_local": "À�╗·╦┘Â╚",
+      "name": "Blower",
+      "unit_local": "%",
+      "unit": "%",
+      "scale": {
+        "digits_before": 3,
+        "digits_after": 0,
+        "factor": 100.0,
+        "offset": 0.0,
+        "x1": 0.0,
+        "x2": 100.0,
+        "y1": 0.0,
+        "y2": 10000.0,
+        "mode": 0
+      },
+      "attribute": 0,
+      "scale2": {
+        "text_group": 0,
+        "basetype": 0,
+        "index_factor": 0,
+        "index_offset": 0,
+        "reserved1": 0,
+        "reserved2": 0
+      }
+    },
+    "171": {
+      "id": 171,
+      "name_local": "©▒©Î ╔×Â¿╩▒╝õ",
+      "name": "Set time ST1",
+      "unit_local": "min",
+      "unit": "min",
+      "scale": {
+        "digits_before": 3,
+        "digits_after": 0,
+        "factor": 60.0,
+        "offset": 0.0,
+        "x1": 0.0,
+        "x2": 100.0,
+        "y1": 0.0,
+        "y2": 6000.0,
+        "mode": 0
+      },
+      "attribute": 0,
+      "scale2": {
+        "text_group": 0,
+        "basetype": 0,
+        "index_factor": 0,
+        "index_offset": 0,
+        "reserved1": 0,
+        "reserved2": 0
+      }
+    },
+    "12": {
+      "id": 12,
+      "name_local": "¤┤╦«╩▒┼┼╦«╩ÃÀ±┐ÏÍã",
+      "name": "¤┤╦«╩▒┼┼╦«╩ÃÀ±┐ÏÍã",
+      "unit_local": "",
+      "unit": "",
+      "scale": {
+        "digits_before": 1,
+        "digits_after": 0,
+        "factor": 1.0,
+        "offset": 0.0,
+        "x1": 0.0,
+        "x2": 100.0,
+        "y1": 0.0,
+        "y2": 100.0,
+        "mode": 16
+      },
+      "attribute": 0,
+      "scale2": {
+        "text_group": 10,
+        "basetype": 0,
+        "index_factor": 0,
+        "index_offset": 0,
+        "reserved1": 0,
+        "reserved2": 0
+      }
+    },
+    "143": {
+      "id": 143,
+      "name_local": "┴¤©Î1═░║┼",
+      "name": "tank No. DT1",
+      "unit_local": "",
+      "unit": "",
+      "scale": {
+        "digits_before": 1,
+        "digits_after": 0,
+        "factor": 1.0,
+        "offset": 0.0,
+        "x1": 0.0,
+        "x2": 100.0,
+        "y1": 0.0,
+        "y2": 100.0,
+        "mode": 1
+      },
+      "attribute": 0,
+      "scale2": {
+        "text_group": 0,
+        "basetype": 0,
+        "index_factor": 0,
+        "index_offset": 0,
+        "reserved1": 0,
+        "reserved2": 0
+      }
+    },
+    "144": {
+      "id": 144,
+      "name_local": "┴¤©Î1ºúªÚ║┼",
+      "name": "Prep. release DT1",
+      "unit_local": "",
+      "unit": "",
+      "scale": {
+        "digits_before": 3,
+        "digits_after": 0,
+        "factor": 1.0,
+        "offset": 0.0,
+        "x1": 0.0,
+        "x2": 100.0,
+        "y1": 0.0,
+        "y2": 100.0,
+        "mode": 1
+      },
+      "attribute": 0,
+      "scale2": {
+        "text_group": 0,
+        "basetype": 0,
+        "index_factor": 0,
+        "index_offset": 0,
+        "reserved1": 0,
+        "reserved2": 0
+      }
+    },
+    "191": {
+      "id": 191,
+      "name_local": "╝Ë┴¤Àğ┴¸┴┐",
+      "name": "Dos flow Quantity",
+      "unit_local": "L/Min",
+      "unit": "L/Min",
+      "scale": {
+        "digits_before": 3,
+        "digits_after": 1,
+        "factor": 10.0,
+        "offset": 0.0,
+        "x1": 0.0,
+        "x2": 1.0,
+        "y1": 0.0,
+        "y2": 10.0,
+        "mode": 0
+      },
+      "attribute": 0,
+      "scale2": {
+        "text_group": 0,
+        "basetype": 0,
+        "index_factor": 0,
+        "index_offset": 0,
+        "reserved1": 0,
+        "reserved2": 0
+      }
+    },
+    "192": {
+      "id": 192,
+      "name_local": "╝Ë┴¤▒╚└²Àğ",
+      "name": "Dos Size",
+      "unit_local": "%",
+      "unit": "%",
+      "scale": {
+        "digits_before": 3,
+        "digits_after": 0,
+        "factor": 100.0,
+        "offset": 0.0,
+        "x1": 0.0,
+        "x2": 1.0,
+        "y1": 0.0,
+        "y2": 100.0,
+        "mode": 0
+      },
+      "attribute": 0,
+      "scale2": {
+        "text_group": 0,
+        "basetype": 0,
+        "index_factor": 0,
+        "index_offset": 0,
+        "reserved1": 0,
+        "reserved2": 0
+      }
+    },
+    "149": {
+      "id": 149,
+      "name_local": "┴¤©Î1º×Ê¬È┌",
+      "name": "needed for DT1 in",
+      "unit_local": "min",
+      "unit": "min",
+      "scale": {
+        "digits_before": 3,
+        "digits_after": 0,
+        "factor": 1.0,
+        "offset": 0.0,
+        "x1": 0.0,
+        "x2": 100.0,
+        "y1": 0.0,
+        "y2": 100.0,
+        "mode": 3
+      },
+      "attribute": 0,
+      "scale2": {
+        "text_group": 0,
+        "basetype": 0,
+        "index_factor": 0,
+        "index_offset": 0,
+        "reserved1": 0,
+        "reserved2": 0
+      }
+    },
+    "150": {
+      "id": 150,
+      "name_local": "┴¤©Î1┼õÀ¢║┼",
+      "name": "Recipe number DT1",
+      "unit_local": "",
+      "unit": "",
+      "scale": {
+        "digits_before": 4,
+        "digits_after": 0,
+        "factor": 1.0,
+        "offset": 0.0,
+        "x1": 0.0,
+        "x2": 100.0,
+        "y1": 0.0,
+        "y2": 100.0,
+        "mode": 0
+      },
+      "attribute": 0,
+      "scale2": {
+        "text_group": 0,
+        "basetype": 0,
+        "index_factor": 0,
+        "index_offset": 0,
+        "reserved1": 0,
+        "reserved2": 0
+      }
+    },
+    "160": {
+      "id": 160,
+      "name_local": "┴¤©Î2┼õÀ¢║┼",
+      "name": "Recipe number DT2",
+      "unit_local": "",
+      "unit": "",
+      "scale": {
+        "digits_before": 4,
+        "digits_after": 0,
+        "factor": 1.0,
+        "offset": 0.0,
+        "x1": 0.0,
+        "x2": 100.0,
+        "y1": 0.0,
+        "y2": 100.0,
+        "mode": 0
+      },
+      "attribute": 0,
+      "scale2": {
+        "text_group": 0,
+        "basetype": 0,
+        "index_factor": 0,
+        "index_offset": 0,
+        "reserved1": 0,
+        "reserved2": 0
+      }
+    },
+    "161": {
+      "id": 161,
+      "name_local": "┴¤©Î2║¶¢º║┼┬Ù",
+      "name": "Preparation no DT2",
+      "unit_local": "",
+      "unit": "",
+      "scale": {
+        "digits_before": 2,
+        "digits_after": 0,
+        "factor": 1.0,
+        "offset": 0.0,
+        "x1": 0.0,
+        "x2": 100.0,
+        "y1": 0.0,
+        "y2": 100.0,
+        "mode": 0
+      },
+      "attribute": 0,
+      "scale2": {
+        "text_group": 0,
+        "basetype": 0,
+        "index_factor": 0,
+        "index_offset": 0,
+        "reserved1": 0,
+        "reserved2": 0
+      }
+    },
+    "164": {
+      "id": 164,
+      "name_local": "┴¤©Î2ºúªÚ║┼",
+      "name": "Prep. release DT2",
+      "unit_local": "",
+      "unit": "",
+      "scale": {
+        "digits_before": 3,
+        "digits_after": 0,
+        "factor": 1.0,
+        "offset": 0.0,
+        "x1": 0.0,
+        "x2": 100.0,
+        "y1": 0.0,
+        "y2": 100.0,
+        "mode": 1
+      },
+      "attribute": 0,
+      "scale2": {
+        "text_group": 0,
+        "basetype": 0,
+        "index_factor": 0,
+        "index_offset": 0,
+        "reserved1": 0,
+        "reserved2": 0
+      }
+    },
+    "163": {
+      "id": 163,
+      "name_local": "┴¤©Î2═░║┼",
+      "name": "tank no. DT2",
+      "unit_local": "",
+      "unit": "",
+      "scale": {
+        "digits_before": 1,
+        "digits_after": 0,
+        "factor": 1.0,
+        "offset": 0.0,
+        "x1": 0.0,
+        "x2": 100.0,
+        "y1": 0.0,
+        "y2": 100.0,
+        "mode": 1
+      },
+      "attribute": 0,
+      "scale2": {
+        "text_group": 0,
+        "basetype": 0,
+        "index_factor": 0,
+        "index_offset": 0,
+        "reserved1": 0,
+        "reserved2": 0
+      }
+    },
+    "169": {
+      "id": 169,
+      "name_local": "┴¤©Î2º×Ê¬È┌",
+      "name": "needed for DT2 in",
+      "unit_local": "min",
+      "unit": "min",
+      "scale": {
+        "digits_before": 3,
+        "digits_after": 0,
+        "factor": 1.0,
+        "offset": 0.0,
+        "x1": 0.0,
+        "x2": 100.0,
+        "y1": 0.0,
+        "y2": 100.0,
+        "mode": 3
+      },
+      "attribute": 0,
+      "scale2": {
+        "text_group": 0,
+        "basetype": 0,
+        "index_factor": 0,
+        "index_offset": 0,
+        "reserved1": 0,
+        "reserved2": 0
+      }
+    },
+    "165": {
+      "id": 165,
+      "name_local": "┴¤©Î2�¥╠¿║┼",
+      "name": "Station No DT2",
+      "unit_local": "",
+      "unit": "",
+      "scale": {
+        "digits_before": 1,
+        "digits_after": 0,
+        "factor": 1.0,
+        "offset": 0.0,
+        "x1": 0.0,
+        "x2": 100.0,
+        "y1": 0.0,
+        "y2": 100.0,
+        "mode": 1
+      },
+      "attribute": 0,
+      "scale2": {
+        "text_group": 0,
+        "basetype": 0,
+        "index_factor": 0,
+        "index_offset": 0,
+        "reserved1": 0,
+        "reserved2": 0
+      }
+    },
+    "151": {
+      "id": 151,
+      "name_local": "┴¤©Î2╔×Â¿╩▒╝õ",
+      "name": "Set time DT2",
+      "unit_local": "min",
+      "unit": "min",
+      "scale": {
+        "digits_before": 3,
+        "digits_after": 0,
+        "factor": 60.0,
+        "offset": 0.0,
+        "x1": 0.0,
+        "x2": 100.0,
+        "y1": 0.0,
+        "y2": 6000.0,
+        "mode": 0
+      },
+      "attribute": 0,
+      "scale2": {
+        "text_group": 0,
+        "basetype": 0,
+        "index_factor": 0,
+        "index_offset": 0,
+        "reserved1": 0,
+        "reserved2": 0
+      }
+    },
+    "152": {
+      "id": 152,
+      "name_local": "┴¤©Î2▒ú╗ñ╩▒╝õ",
+      "name": "Protect time DT2",
+      "unit_local": "min",
+      "unit": "min",
+      "scale": {
+        "digits_before": 3,
+        "digits_after": 0,
+        "factor": 60.0,
+        "offset": 0.0,
+        "x1": 0.0,
+        "x2": 100.0,
+        "y1": 0.0,
+        "y2": 6000.0,
+        "mode": 0
+      },
+      "attribute": 0,
+      "scale2": {
+        "text_group": 0,
+        "basetype": 0,
+        "index_factor": 0,
+        "index_offset": 0,
+        "reserved1": 0,
+        "reserved2": 0
+      }
+    },
+    "278": {
+      "id": 278,
+      "name_local": "ªíÈ±╦«┴┐/░┘ÀÍ▒╚",
+      "name": "quantity/percent",
+      "unit_local": "",
+      "unit": "",
+      "scale": {
+        "digits_before": 1,
+        "digits_after": 0,
+        "factor": 1.0,
+        "offset": 0.0,
+        "x1": 0.0,
+        "x2": 100.0,
+        "y1": 0.0,
+        "y2": 100.0,
+        "mode": 17
+      },
+      "attribute": 0,
+      "scale2": {
+        "text_group": 13,
+        "basetype": 0,
+        "index_factor": 0,
+        "index_offset": 0,
+        "reserved1": 0,
+        "reserved2": 0
+      }
+    },
+    "67": {
+      "id": 67,
+      "name_local": "Parameter 1",
+      "name": "Parameter 1",
+      "unit_local": "",
+      "unit": "",
+      "scale": {
+        "digits_before": 3,
+        "digits_after": 1,
+        "factor": 1.0,
+        "offset": 0.0,
+        "x1": 0.0,
+        "x2": 100.0,
+        "y1": 0.0,
+        "y2": 100.0,
+        "mode": 0
+      },
+      "attribute": 0,
+      "scale2": {
+        "text_group": 0,
+        "basetype": 0,
+        "index_factor": 0,
+        "index_offset": 0,
+        "reserved1": 0,
+        "reserved2": 0
+      }
+    },
+    "68": {
+      "id": 68,
+      "name_local": "Parameter 2",
+      "name": "Parameter 2",
+      "unit_local": "",
+      "unit": "",
+      "scale": {
+        "digits_before": 3,
+        "digits_after": 1,
+        "factor": 1.0,
+        "offset": 0.0,
+        "x1": 0.0,
+        "x2": 100.0,
+        "y1": 0.0,
+        "y2": 100.0,
+        "mode": 0
+      },
+      "attribute": 0,
+      "scale2": {
+        "text_group": 0,
+        "basetype": 0,
+        "index_factor": 0,
+        "index_offset": 0,
+        "reserved1": 0,
+        "reserved2": 0
+      }
+    },
+    "69": {
+      "id": 69,
+      "name_local": "Parameter 3",
+      "name": "Parameter 3",
+      "unit_local": "",
+      "unit": "",
+      "scale": {
+        "digits_before": 3,
+        "digits_after": 1,
+        "factor": 1.0,
+        "offset": 0.0,
+        "x1": 0.0,
+        "x2": 100.0,
+        "y1": 0.0,
+        "y2": 100.0,
+        "mode": 0
+      },
+      "attribute": 0,
+      "scale2": {
+        "text_group": 0,
+        "basetype": 0,
+        "index_factor": 0,
+        "index_offset": 0,
+        "reserved1": 0,
+        "reserved2": 0
+      }
+    },
+    "70": {
+      "id": 70,
+      "name_local": "Parameter 4",
+      "name": "Parameter 4",
+      "unit_local": "",
+      "unit": "",
+      "scale": {
+        "digits_before": 3,
+        "digits_after": 1,
+        "factor": 1.0,
+        "offset": 0.0,
+        "x1": 0.0,
+        "x2": 100.0,
+        "y1": 0.0,
+        "y2": 100.0,
+        "mode": 0
+      },
+      "attribute": 0,
+      "scale2": {
+        "text_group": 0,
+        "basetype": 0,
+        "index_factor": 0,
+        "index_offset": 0,
+        "reserved1": 0,
+        "reserved2": 0
+      }
+    },
+    "306": {
+      "id": 306,
+      "name_local": "ª╬═░ │Õ¤┤┤╬╩²",
+      "name": "SaltTank Wash Times",
+      "unit_local": "",
+      "unit": "",
+      "scale": {
+        "digits_before": 1,
+        "digits_after": 0,
+        "factor": 1.0,
+        "offset": 0.0,
+        "x1": 0.0,
+        "x2": 1.0,
+        "y1": 0.0,
+        "y2": 1.0,
+        "mode": 0
+      },
+      "attribute": 0,
+      "scale2": {
+        "text_group": 0,
+        "basetype": 0,
+        "index_factor": 0,
+        "index_offset": 0,
+        "reserved1": 0,
+        "reserved2": 0
+      }
+    },
+    "178": {
+      "id": 178,
+      "name_local": "Èñ▒©©Î¢┴░×",
+      "name": "Mixer ST1",
+      "unit_local": "",
+      "unit": "",
+      "scale": {
+        "digits_before": 1,
+        "digits_after": 0,
+        "factor": 1.0,
+        "offset": 0.0,
+        "x1": 0.0,
+        "x2": 100.0,
+        "y1": 0.0,
+        "y2": 100.0,
+        "mode": 16
+      },
+      "attribute": 0,
+      "scale2": {
+        "text_group": 303,
+        "basetype": 0,
+        "index_factor": 0,
+        "index_offset": 0,
+        "reserved1": 0,
+        "reserved2": 0
+      }
+    },
+    "173": {
+      "id": 173,
+      "name_local": "Èñ▒©©Î╦«┴┐",
+      "name": "Fill Quantity ST1",
+      "unit_local": "L",
+      "unit": "L",
+      "scale": {
+        "digits_before": 4,
+        "digits_after": 0,
+        "factor": 1.0,
+        "offset": 0.0,
+        "x1": 0.0,
+        "x2": 100.0,
+        "y1": 0.0,
+        "y2": 100.0,
+        "mode": 0
+      },
+      "attribute": 0,
+      "scale2": {
+        "text_group": 0,
+        "basetype": 0,
+        "index_factor": 0,
+        "index_offset": 0,
+        "reserved1": 0,
+        "reserved2": 0
+      }
+    },
+    "189": {
+      "id": 189,
+      "name_local": "Èñ▒©©Î┬õ┴¤╩▒╝õ",
+      "name": "needed for ST1 in",
+      "unit_local": "min",
+      "unit": "min",
+      "scale": {
+        "digits_before": 3,
+        "digits_after": 0,
+        "factor": 1.0,
+        "offset": 0.0,
+        "x1": 0.0,
+        "x2": 100.0,
+        "y1": 0.0,
+        "y2": 100.0,
+        "mode": 3
+      },
+      "attribute": 0,
+      "scale2": {
+        "text_group": 0,
+        "basetype": 0,
+        "index_factor": 0,
+        "index_offset": 0,
+        "reserved1": 0,
+        "reserved2": 0
+      }
+    },
+    "154": {
+      "id": 154,
+      "name_local": "┴¤©Î2╚Ù╦«ÍÍ└Ó",
+      "name": "valve AT2",
+      "unit_local": "",
+      "unit": "",
+      "scale": {
+        "digits_before": 1,
+        "digits_after": 0,
+        "factor": 1.0,
+        "offset": 0.0,
+        "x1": 0.0,
+        "x2": 100.0,
+        "y1": 0.0,
+        "y2": 100.0,
+        "mode": 16
+      },
+      "attribute": 0,
+      "scale2": {
+        "text_group": 3,
+        "basetype": 0,
+        "index_factor": 0,
+        "index_offset": 0,
+        "reserved1": 0,
+        "reserved2": 0
+      }
+    },
+    "156": {
+      "id": 156,
+      "name_local": "┴¤©Î2╬┬Â╚",
+      "name": "Temperature AT2",
+      "unit_local": "íµ",
+      "unit": "°C",
+      "scale": {
+        "digits_before": 3,
+        "digits_after": 0,
+        "factor": 66.66000366210938,
+        "offset": 0.0,
+        "x1": 0.0,
+        "x2": 100.0,
+        "y1": 0.0,
+        "y2": 6666.0,
+        "mode": 0
+      },
+      "attribute": 0,
+      "scale2": {
+        "text_group": 0,
+        "basetype": 0,
+        "index_factor": 0,
+        "index_offset": 0,
+        "reserved1": 0,
+        "reserved2": 0
+      }
+    },
+    "138": {
+      "id": 138,
+      "name_local": "┴¤©Î1¢┴░×",
+      "name": "stirrer AT1",
+      "unit_local": "",
+      "unit": "",
+      "scale": {
+        "digits_before": 1,
+        "digits_after": 0,
+        "factor": 1.0,
+        "offset": 0.0,
+        "x1": 0.0,
+        "x2": 100.0,
+        "y1": 0.0,
+        "y2": 100.0,
+        "mode": 0
+      },
+      "attribute": 0,
+      "scale2": {
+        "text_group": 0,
+        "basetype": 0,
+        "index_factor": 0,
+        "index_offset": 0,
+        "reserved1": 0,
+        "reserved2": 0
+      }
+    },
+    "312": {
+      "id": 312,
+      "name_local": "╠ß▓╝┬Í╦┘Â╚",
+      "name": "WinchSpeed",
+      "unit_local": "M/min",
+      "unit": "M/min",
+      "scale": {
+        "digits_before": 3,
+        "digits_after": 0,
+        "factor": 1.0,
+        "offset": 0.0,
+        "x1": 0.0,
+        "x2": 100.0,
+        "y1": 0.0,
+        "y2": 100.0,
+        "mode": 0
+      },
+      "attribute": 0,
+      "scale2": {
+        "text_group": 0,
+        "basetype": 0,
+        "index_factor": 0,
+        "index_offset": 0,
+        "reserved1": 0,
+        "reserved2": 0
+      }
+    },
+    "273": {
+      "id": 273,
+      "name_local": "ÎÃÂ╚",
+      "name": "Turbidi",
+      "unit_local": "",
+      "unit": "",
+      "scale": {
+        "digits_before": 1,
+        "digits_after": 0,
+        "factor": 1.0,
+        "offset": 0.0,
+        "x1": 0.0,
+        "x2": 100.0,
+        "y1": 0.0,
+        "y2": 100.0,
+        "mode": 17
+      },
+      "attribute": 0,
+      "scale2": {
+        "text_group": 18,
+        "basetype": 0,
+        "index_factor": 0,
+        "index_offset": 0,
+        "reserved1": 0,
+        "reserved2": 0
+      }
+    }
+  },
+  "resources": {
+    "5": {
+      "id": 5,
+      "name": "Addition Tank 2",
+      "type": 3,
+      "disabled": false
+    },
+    "3": {
+      "id": 3,
+      "name": "Winch",
+      "type": 2,
+      "disabled": false
+    },
+    "2": {
+      "id": 2,
+      "name": "Pump",
+      "type": 2,
+      "disabled": false
+    },
+    "1": {
+      "id": 1,
+      "name": "main tank",
+      "type": 1,
+      "disabled": false
+    },
+    "6": {
+      "id": 6,
+      "name": "Stock Tank",
+      "type": 3,
+      "disabled": false
+    },
+    "4": {
+      "id": 4,
+      "name": "Addition Tank 1",
+      "type": 3,
+      "disabled": false
+    }
+  },
+  "groups": [
+    {
+      "name": "Dyeing",
+      "line": 1,
+      "disabled": false,
+      "ids": [
+        810,
+        811
+      ]
+    },
+    {
+      "name": "Fill",
+      "line": 1,
+      "disabled": false,
+      "ids": [
+        702,
+        707,
+        705,
+        706
+      ]
+    },
+    {
+      "name": "Rinse",
+      "line": 1,
+      "disabled": false,
+      "ids": [
+        726,
+        725,
+        727,
+        728,
+        722
+      ]
+    },
+    {
+      "name": "Drain",
+      "line": 1,
+      "disabled": false,
+      "ids": [
+        710,
+        711
+      ]
+    },
+    {
+      "name": "System",
+      "line": 1,
+      "disabled": false,
+      "ids": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ]
+    },
+    {
+      "name": "Inject",
+      "line": 1,
+      "disabled": false,
+      "ids": [
+        737,
+        733,
+        732,
+        741,
+        743,
+        742,
+        756
+      ]
+    },
+    {
+      "name": "Operator Call",
+      "line": 1,
+      "disabled": false,
+      "ids": [
+        784,
+        122,
+        134,
+        135,
+        138,
+        780,
+        782
+      ]
+    },
+    {
+      "name": "Winch",
+      "line": 3,
+      "disabled": false,
+      "ids": [
+        761
+      ]
+    },
+    {
+      "name": "Pump",
+      "line": 2,
+      "disabled": false,
+      "ids": [
+        760
+      ]
+    },
+    {
+      "name": "Addition Tank 2",
+      "line": 5,
+      "disabled": false,
+      "ids": [
+        740,
+        744,
+        745,
+        746,
+        536,
+        666,
+        663,
+        664
+      ]
+    },
+    {
+      "name": "Stock Tank 1",
+      "line": 6,
+      "disabled": false,
+      "ids": [
+        679,
+        678,
+        551,
+        676
+      ]
+    },
+    {
+      "name": "Inject ST",
+      "line": 1,
+      "disabled": false,
+      "ids": [
+        119
+      ]
+    },
+    {
+      "name": "Addition Tank 1",
+      "line": 4,
+      "disabled": false,
+      "ids": [
+        730,
+        734,
+        735,
+        736,
+        516,
+        656,
+        653,
+        654
+      ]
+    }
+  ],
+  "text_choices": {
+    "6": [
+      {
+        "text": "nozzle2",
+        "value": 2.0,
+        "key": [
+          51,
+          6,
+          2
+        ]
+      },
+      {
+        "text": "nozzle1+3",
+        "value": 4.0,
+        "key": [
+          51,
+          6,
+          4
+        ]
+      },
+      {
+        "text": "nozzle3",
+        "value": 3.0,
+        "key": [
+          51,
+          6,
+          3
+        ]
+      },
+      {
+        "text": "nozzle2+3",
+        "value": 5.0,
+        "key": [
+          51,
+          6,
+          5
+        ]
+      },
+      {
+        "text": "nozzle1+2+3",
+        "value": 7.0,
+        "key": [
+          51,
+          6,
+          7
+        ]
+      },
+      {
+        "text": "nozzle1+2",
+        "value": 6.0,
+        "key": [
+          51,
+          6,
+          6
+        ]
+      },
+      {
+        "text": "nozzle1",
+        "value": 1.0,
+        "key": [
+          51,
+          6,
+          1
+        ]
+      }
+    ],
+    "12": [
+      {
+        "text": "no",
+        "value": 0.0,
+        "key": [
+          51,
+          12,
+          0
+        ]
+      },
+      {
+        "text": "yes",
+        "value": 1.0,
+        "key": [
+          51,
+          12,
+          1
+        ]
+      }
+    ],
+    "11": [
+      {
+        "text": "Shower off",
+        "value": 0.0,
+        "key": [
+          51,
+          11,
+          0
+        ]
+      },
+      {
+        "text": "Shower on",
+        "value": 1.0,
+        "key": [
+          51,
+          11,
+          1
+        ]
+      }
+    ],
+    "9": [
+      {
+        "text": "without pump",
+        "value": 0.0,
+        "key": [
+          51,
+          9,
+          0
+        ]
+      },
+      {
+        "text": "pump",
+        "value": 1.0,
+        "key": [
+          51,
+          9,
+          1
+        ]
+      }
+    ],
+    "1": [
+      {
+        "text": "ST",
+        "value": 4.0,
+        "key": [
+          51,
+          1,
+          4
+        ]
+      },
+      {
+        "text": "Fill 1",
+        "value": 1.0,
+        "key": [
+          51,
+          1,
+          1
+        ]
+      },
+      {
+        "text": "Fill 2",
+        "value": 2.0,
+        "key": [
+          51,
+          1,
+          2
+        ]
+      },
+      {
+        "text": "Fill 3",
+        "value": 3.0,
+        "key": [
+          51,
+          1,
+          3
+        ]
+      }
+    ],
+    "18": [
+      {
+        "text": "light color",
+        "value": 4.0,
+        "key": [
+          51,
+          18,
+          4
+        ]
+      },
+      {
+        "text": "Ultra_Deep",
+        "value": 1.0,
+        "key": [
+          51,
+          18,
+          1
+        ]
+      },
+      {
+        "text": "Ultra light",
+        "value": 5.0,
+        "key": [
+          51,
+          18,
+          5
+        ]
+      },
+      {
+        "text": "medium color",
+        "value": 3.0,
+        "key": [
+          51,
+          18,
+          3
+        ]
+      },
+      {
+        "text": "Dark color",
+        "value": 2.0,
+        "key": [
+          51,
+          18,
+          2
+        ]
+      }
+    ],
+    "17": [
+      {
+        "text": "ST Fill 1",
+        "value": 1.0,
+        "key": [
+          51,
+          17,
+          1
+        ]
+      },
+      {
+        "text": "ST Fill 2",
+        "value": 2.0,
+        "key": [
+          51,
+          17,
+          2
+        ]
+      }
+    ],
+    "15": [
+      {
+        "text": "slot3",
+        "value": 3.0,
+        "key": [
+          51,
+          15,
+          3
+        ]
+      },
+      {
+        "text": "slot4",
+        "value": 4.0,
+        "key": [
+          51,
+          15,
+          4
+        ]
+      },
+      {
+        "text": "slot1",
+        "value": 1.0,
+        "key": [
+          51,
+          15,
+          1
+        ]
+      },
+      {
+        "text": "slot2",
+        "value": 2.0,
+        "key": [
+          51,
+          15,
+          2
+        ]
+      }
+    ],
+    "5": [
+      {
+        "text": "NOZZLE 1+2+3",
+        "value": 3.0,
+        "key": [
+          51,
+          5,
+          4
+        ]
+      },
+      {
+        "text": "NOZZLE 2",
+        "value": 1.0,
+        "key": [
+          51,
+          5,
+          2
+        ]
+      },
+      {
+        "text": "NOZZLE 1",
+        "value": 0.0,
+        "key": [
+          51,
+          5,
+          1
+        ]
+      },
+      {
+        "text": "NOZZLE 1+2",
+        "value": 2.0,
+        "key": [
+          51,
+          5,
+          3
+        ]
+      }
+    ],
+    "16": [
+      {
+        "text": "Power Drain",
+        "value": 1.0,
+        "key": [
+          51,
+          16,
+          1
+        ]
+      },
+      {
+        "text": "without pump",
+        "value": 0.0,
+        "key": [
+          51,
+          16,
+          0
+        ]
+      }
+    ],
+    "2": [
+      {
+        "text": "rinse value",
+        "value": 4.0,
+        "key": [
+          51,
+          2,
+          4
+        ]
+      },
+      {
+        "text": "Drain 1",
+        "value": 1.0,
+        "key": [
+          51,
+          2,
+          1
+        ]
+      },
+      {
+        "text": "Drain 2",
+        "value": 2.0,
+        "key": [
+          51,
+          2,
+          2
+        ]
+      },
+      {
+        "text": "drain3",
+        "value": 3.0,
+        "key": [
+          51,
+          2,
+          3
+        ]
+      }
+    ],
+    "3": [
+      {
+        "text": "AT Fill",
+        "value": 1.0,
+        "key": [
+          51,
+          3,
+          1
+        ]
+      },
+      {
+        "text": "LiquorReturn",
+        "value": 2.0,
+        "key": [
+          51,
+          3,
+          2
+        ]
+      }
+    ],
+    "4": [
+      {
+        "text": "Inject Front",
+        "value": 1.0,
+        "key": [
+          51,
+          4,
+          1
+        ]
+      },
+      {
+        "text": "Inject Back",
+        "value": 2.0,
+        "key": [
+          51,
+          4,
+          2
+        ]
+      }
+    ],
+    "302": [
+      {
+        "text": "yes",
+        "value": 1.0,
+        "key": [
+          51,
+          302,
+          1
+        ]
+      },
+      {
+        "text": "no",
+        "value": 0.0,
+        "key": [
+          51,
+          302,
+          0
+        ]
+      }
+    ],
+    "303": [
+      {
+        "text": "off",
+        "value": 0.0,
+        "key": [
+          51,
+          303,
+          0
+        ]
+      },
+      {
+        "text": "on",
+        "value": 1.0,
+        "key": [
+          51,
+          303,
+          1
+        ]
+      }
+    ],
+    "10": [
+      {
+        "text": "ON",
+        "value": 0.0,
+        "key": [
+          51,
+          10,
+          1
+        ]
+      },
+      {
+        "text": "YES",
+        "value": 1.0,
+        "key": [
+          51,
+          10,
+          2
+        ]
+      }
+    ],
+    "390": [
+      {
+        "text": "PT100 not selected",
+        "value": 0.0,
+        "key": [
+          51,
+          390,
+          0
+        ]
+      },
+      {
+        "text": "PT100 DIN",
+        "value": 1.0,
+        "key": [
+          51,
+          390,
+          1
+        ]
+      },
+      {
+        "text": "PT100 JIS",
+        "value": 2.0,
+        "key": [
+          51,
+          390,
+          2
+        ]
+      }
+    ],
+    "391": [
+      {
+        "text": "0..20mA",
+        "value": 0.0,
+        "key": [
+          51,
+          391,
+          0
+        ]
+      },
+      {
+        "text": "4..20mA",
+        "value": 1.0,
+        "key": [
+          51,
+          391,
+          1
+        ]
+      },
+      {
+        "text": "0..20mA with alarm",
+        "value": 2.0,
+        "key": [
+          51,
+          391,
+          2
+        ]
+      },
+      {
+        "text": "4..20mA with alarm",
+        "value": 3.0,
+        "key": [
+          51,
+          391,
+          3
+        ]
+      }
+    ],
+    "392": [
+      {
+        "text": "0..20mA",
+        "value": 0.0,
+        "key": [
+          51,
+          392,
+          0
+        ]
+      },
+      {
+        "text": "4..20mA",
+        "value": 1.0,
+        "key": [
+          51,
+          392,
+          1
+        ]
+      }
+    ],
+    "393": [
+      {
+        "text": "1250ms (Default)",
+        "value": 0.0,
+        "key": [
+          51,
+          393,
+          0
+        ]
+      },
+      {
+        "text": "reserved",
+        "value": 1.0,
+        "key": [
+          51,
+          393,
+          1
+        ]
+      },
+      {
+        "text": "5000ms",
+        "value": 2.0,
+        "key": [
+          51,
+          393,
+          2
+        ]
+      },
+      {
+        "text": "2500ms",
+        "value": 3.0,
+        "key": [
+          51,
+          393,
+          3
+        ]
+      },
+      {
+        "text": "1250ms",
+        "value": 4.0,
+        "key": [
+          51,
+          393,
+          4
+        ]
+      },
+      {
+        "text": "625ms",
+        "value": 5.0,
+        "key": [
+          51,
+          393,
+          5
+        ]
+      },
+      {
+        "text": "312,5ms",
+        "value": 6.0,
+        "key": [
+          51,
+          393,
+          6
+        ]
+      },
+      {
+        "text": "156,25ms",
+        "value": 7.0,
+        "key": [
+          51,
+          393,
+          7
+        ]
+      },
+      {
+        "text": "78,125ms",
+        "value": 8.0,
+        "key": [
+          51,
+          393,
+          8
+        ]
+      }
+    ],
+    "395": [
+      {
+        "text": "Master",
+        "value": 0.0,
+        "key": [
+          51,
+          395,
+          0
+        ]
+      },
+      {
+        "text": "Slave",
+        "value": 1.0,
+        "key": [
+          51,
+          395,
+          1
+        ]
+      }
+    ],
+    "396": [
+      {
+        "text": "1200",
+        "value": 1.0,
+        "key": [
+          51,
+          396,
+          1
+        ]
+      },
+      {
+        "text": "2400",
+        "value": 2.0,
+        "key": [
+          51,
+          396,
+          2
+        ]
+      },
+      {
+        "text": "4800",
+        "value": 3.0,
+        "key": [
+          51,
+          396,
+          3
+        ]
+      },
+      {
+        "text": "9600",
+        "value": 4.0,
+        "key": [
+          51,
+          396,
+          4
+        ]
+      },
+      {
+        "text": "19200",
+        "value": 5.0,
+        "key": [
+          51,
+          396,
+          5
+        ]
+      },
+      {
+        "text": "38400",
+        "value": 6.0,
+        "key": [
+          51,
+          396,
+          6
+        ]
+      },
+      {
+        "text": "57600",
+        "value": 7.0,
+        "key": [
+          51,
+          396,
+          7
+        ]
+      },
+      {
+        "text": "115200",
+        "value": 8.0,
+        "key": [
+          51,
+          396,
+          8
+        ]
+      }
+    ],
+    "397": [
+      {
+        "text": "None",
+        "value": 0.0,
+        "key": [
+          51,
+          397,
+          0
+        ]
+      },
+      {
+        "text": "Even",
+        "value": 1.0,
+        "key": [
+          51,
+          397,
+          1
+        ]
+      },
+      {
+        "text": "Odd",
+        "value": 2.0,
+        "key": [
+          51,
+          397,
+          2
+        ]
+      }
+    ],
+    "398": [
+      {
+        "text": "activated",
+        "value": 0.0,
+        "key": [
+          51,
+          398,
+          0
+        ]
+      },
+      {
+        "text": "deactivated",
+        "value": 1.0,
+        "key": [
+          51,
+          398,
+          1
+        ]
+      },
+      {
+        "text": "Heartbeat activated",
+        "value": 2.0,
+        "key": [
+          51,
+          398,
+          2
+        ]
+      }
+    ],
+    "399": [
+      {
+        "text": "125 kbit/sec-Default",
+        "value": 0.0,
+        "key": [
+          51,
+          399,
+          0
+        ]
+      },
+      {
+        "text": "10 kbit/sec",
+        "value": 1.0,
+        "key": [
+          51,
+          399,
+          1
+        ]
+      },
+      {
+        "text": "20 kbit/sec",
+        "value": 2.0,
+        "key": [
+          51,
+          399,
+          2
+        ]
+      },
+      {
+        "text": "50 kbit/sec",
+        "value": 3.0,
+        "key": [
+          51,
+          399,
+          3
+        ]
+      },
+      {
+        "text": "100 kbit/sec",
+        "value": 4.0,
+        "key": [
+          51,
+          399,
+          4
+        ]
+      },
+      {
+        "text": "125 kbit/sec",
+        "value": 5.0,
+        "key": [
+          51,
+          399,
+          5
+        ]
+      },
+      {
+        "text": "250 kbit/sec",
+        "value": 6.0,
+        "key": [
+          51,
+          399,
+          6
+        ]
+      },
+      {
+        "text": "500 kbit/sec",
+        "value": 7.0,
+        "key": [
+          51,
+          399,
+          7
+        ]
+      },
+      {
+        "text": "1000 kbit/sec",
+        "value": 8.0,
+        "key": [
+          51,
+          399,
+          8
+        ]
+      }
+    ],
+    "404": [
+      {
+        "text": "1st language",
+        "value": 0.0,
+        "key": [
+          51,
+          404,
+          0
+        ]
+      },
+      {
+        "text": "2nd language",
+        "value": 1.0,
+        "key": [
+          51,
+          404,
+          1
+        ]
+      }
+    ],
+    "406": [
+      {
+        "text": "local (SECOM)",
+        "value": 0.0,
+        "key": [
+          51,
+          406,
+          0
+        ]
+      },
+      {
+        "text": "network",
+        "value": 1.0,
+        "key": [
+          51,
+          406,
+          1
+        ]
+      },
+      {
+        "text": "batch queue",
+        "value": 2.0,
+        "key": [
+          51,
+          406,
+          2
+        ]
+      },
+      {
+        "text": "reserved",
+        "value": 3.0,
+        "key": [
+          51,
+          406,
+          3
+        ]
+      },
+      {
+        "text": "several batch queues",
+        "value": 4.0,
+        "key": [
+          51,
+          406,
+          4
+        ]
+      }
+    ],
+    "407": [
+      {
+        "text": "delete automatically",
+        "value": 0.0,
+        "key": [
+          51,
+          407,
+          0
+        ]
+      },
+      {
+        "text": "no auto delete(Host)",
+        "value": 1.0,
+        "key": [
+          51,
+          407,
+          1
+        ]
+      }
+    ],
+    "408": [
+      {
+        "text": "not active",
+        "value": 0.0,
+        "key": [
+          51,
+          408,
+          0
+        ]
+      },
+      {
+        "text": "active",
+        "value": 1.0,
+        "key": [
+          51,
+          408,
+          1
+        ]
+      },
+      {
+        "text": "active + functions",
+        "value": 2.0,
+        "key": [
+          51,
+          408,
+          2
+        ]
+      },
+      {
+        "text": "active + extended",
+        "value": 3.0,
+        "key": [
+          51,
+          408,
+          3
+        ]
+      },
+      {
+        "text": "functions + extended",
+        "value": 4.0,
+        "key": [
+          51,
+          408,
+          4
+        ]
+      }
+    ],
+    "409": [
+      {
+        "text": "not active",
+        "value": 0.0,
+        "key": [
+          51,
+          409,
+          0
+        ]
+      },
+      {
+        "text": "active",
+        "value": 1.0,
+        "key": [
+          51,
+          409,
+          1
+        ]
+      },
+      {
+        "text": "active + delete",
+        "value": 2.0,
+        "key": [
+          51,
+          409,
+          2
+        ]
+      }
+    ],
+    "413": [
+      {
+        "text": "RS485 (default)",
+        "value": 0.0,
+        "key": [
+          51,
+          413,
+          0
+        ]
+      },
+      {
+        "text": "KOAX",
+        "value": 1.0,
+        "key": [
+          51,
+          413,
+          1
+        ]
+      }
+    ],
+    "414": [
+      {
+        "text": "standard",
+        "value": 0.0,
+        "key": [
+          51,
+          414,
+          0
+        ]
+      },
+      {
+        "text": "clear step",
+        "value": 1.0,
+        "key": [
+          51,
+          414,
+          1
+        ]
+      },
+      {
+        "text": "main function step",
+        "value": 2.0,
+        "key": [
+          51,
+          414,
+          2
+        ]
+      },
+      {
+        "text": "look ahead",
+        "value": 3.0,
+        "key": [
+          51,
+          414,
+          3
+        ]
+      }
+    ],
+    "415": [
+      {
+        "text": "not active",
+        "value": 0.0,
+        "key": [
+          51,
+          415,
+          0
+        ]
+      },
+      {
+        "text": "manual selection",
+        "value": 1.0,
+        "key": [
+          51,
+          415,
+          1
+        ]
+      },
+      {
+        "text": "manual+automatic",
+        "value": 2.0,
+        "key": [
+          51,
+          415,
+          2
+        ]
+      }
+    ],
+    "418": [
+      {
+        "text": "not active",
+        "value": 0.0,
+        "key": [
+          51,
+          418,
+          0
+        ]
+      },
+      {
+        "text": "from Memocard",
+        "value": 1.0,
+        "key": [
+          51,
+          418,
+          1
+        ]
+      },
+      {
+        "text": "from network drive",
+        "value": 2.0,
+        "key": [
+          51,
+          418,
+          2
+        ]
+      }
+    ],
+    "419": [
+      {
+        "text": "keep file",
+        "value": 0.0,
+        "key": [
+          51,
+          419,
+          0
+        ]
+      },
+      {
+        "text": "delete file",
+        "value": 1.0,
+        "key": [
+          51,
+          419,
+          1
+        ]
+      }
+    ],
+    "420": [
+      {
+        "text": "not active",
+        "value": 0.0,
+        "key": [
+          51,
+          420,
+          0
+        ]
+      },
+      {
+        "text": "COM 1",
+        "value": 1.0,
+        "key": [
+          51,
+          420,
+          1
+        ]
+      },
+      {
+        "text": "COM 2",
+        "value": 2.0,
+        "key": [
+          51,
+          420,
+          2
+        ]
+      }
+    ],
+    "425": [
+      {
+        "text": "not active",
+        "value": 0.0,
+        "key": [
+          51,
+          425,
+          0
+        ]
+      },
+      {
+        "text": "jump synchron fcts",
+        "value": 1.0,
+        "key": [
+          51,
+          425,
+          1
+        ]
+      },
+      {
+        "text": "jump all fcts",
+        "value": 2.0,
+        "key": [
+          51,
+          425,
+          2
+        ]
+      }
+    ],
+    "429": [
+      {
+        "text": "change parameter",
+        "value": 0.0,
+        "key": [
+          51,
+          429,
+          0
+        ]
+      },
+      {
+        "text": "don't change param.",
+        "value": 1.0,
+        "key": [
+          51,
+          429,
+          1
+        ]
+      }
+    ],
+    "430": [
+      {
+        "text": "not activated",
+        "value": 0.0,
+        "key": [
+          51,
+          430,
+          0
+        ]
+      },
+      {
+        "text": "active with MLG file",
+        "value": 1.0,
+        "key": [
+          51,
+          430,
+          1
+        ]
+      },
+      {
+        "text": "active with .T files",
+        "value": 2.0,
+        "key": [
+          51,
+          430,
+          2
+        ]
+      },
+      {
+        "text": "without status files",
+        "value": 3.0,
+        "key": [
+          51,
+          430,
+          3
+        ]
+      }
+    ],
+    "431": [
+      {
+        "text": "online diagram",
+        "value": 0.0,
+        "key": [
+          51,
+          431,
+          0
+        ]
+      },
+      {
+        "text": "batch info",
+        "value": 1.0,
+        "key": [
+          51,
+          431,
+          1
+        ]
+      },
+      {
+        "text": "diagram+batch info",
+        "value": 2.0,
+        "key": [
+          51,
+          431,
+          2
+        ]
+      }
+    ],
+    "434": [
+      {
+        "text": "local program(SECOM)",
+        "value": 0.0,
+        "key": [
+          51,
+          434,
+          0
+        ]
+      },
+      {
+        "text": "network program",
+        "value": 1.0,
+        "key": [
+          51,
+          434,
+          1
+        ]
+      },
+      {
+        "text": "callOff file network",
+        "value": 2.0,
+        "key": [
+          51,
+          434,
+          2
+        ]
+      },
+      {
+        "text": "reserved",
+        "value": 3.0,
+        "key": [
+          51,
+          434,
+          3
+        ]
+      },
+      {
+        "text": "reserved",
+        "value": 4.0,
+        "key": [
+          51,
+          434,
+          4
+        ]
+      },
+      {
+        "text": "set mode by PLC",
+        "value": 5.0,
+        "key": [
+          51,
+          434,
+          5
+        ]
+      }
+    ],
+    "438": [
+      {
+        "text": "Select addition",
+        "value": 0.0,
+        "key": [
+          51,
+          438,
+          0
+        ]
+      },
+      {
+        "text": "Program list",
+        "value": 1.0,
+        "key": [
+          51,
+          438,
+          1
+        ]
+      },
+      {
+        "text": "Intervention Potis",
+        "value": 2.0,
+        "key": [
+          51,
+          438,
+          2
+        ]
+      }
+    ],
+    "440": [
+      {
+        "text": "don't display",
+        "value": 0.0,
+        "key": [
+          51,
+          440,
+          0
+        ]
+      },
+      {
+        "text": "DDMMYY",
+        "value": 1.0,
+        "key": [
+          51,
+          440,
+          1
+        ]
+      },
+      {
+        "text": "MMDDYY",
+        "value": 2.0,
+        "key": [
+          51,
+          440,
+          2
+        ]
+      },
+      {
+        "text": "DDMSTRYY",
+        "value": 3.0,
+        "key": [
+          51,
+          440,
+          3
+        ]
+      },
+      {
+        "text": "MSTRDDYY",
+        "value": 4.0,
+        "key": [
+          51,
+          440,
+          4
+        ]
+      }
+    ],
+    "441": [
+      {
+        "text": "don't display",
+        "value": 0.0,
+        "key": [
+          51,
+          441,
+          0
+        ]
+      },
+      {
+        "text": "AM/PM",
+        "value": 1.0,
+        "key": [
+          51,
+          441,
+          1
+        ]
+      },
+      {
+        "text": "24 hours",
+        "value": 2.0,
+        "key": [
+          51,
+          441,
+          2
+        ]
+      }
+    ],
+    "443": [
+      {
+        "text": "run time",
+        "value": 0.0,
+        "key": [
+          51,
+          443,
+          0
+        ]
+      },
+      {
+        "text": "run & set time",
+        "value": 1.0,
+        "key": [
+          51,
+          443,
+          1
+        ]
+      }
+    ],
+    "446": [
+      {
+        "text": "not from PLC",
+        "value": 0.0,
+        "key": [
+          51,
+          446,
+          0
+        ]
+      },
+      {
+        "text": "only in process pict",
+        "value": 1.0,
+        "key": [
+          51,
+          446,
+          1
+        ]
+      },
+      {
+        "text": "also in Standardmenu",
+        "value": 2.0,
+        "key": [
+          51,
+          446,
+          2
+        ]
+      }
+    ],
+    "447": [
+      {
+        "text": "Proc.pict./time info",
+        "value": 0.0,
+        "key": [
+          51,
+          447,
+          0
+        ]
+      },
+      {
+        "text": "next step",
+        "value": 1.0,
+        "key": [
+          51,
+          447,
+          1
+        ]
+      }
+    ],
+    "451": [
+      {
+        "text": "not active",
+        "value": 0.0,
+        "key": [
+          51,
+          451,
+          0
+        ]
+      },
+      {
+        "text": "active - User",
+        "value": 1.0,
+        "key": [
+          51,
+          451,
+          1
+        ]
+      },
+      {
+        "text": "active - Alarms",
+        "value": 2.0,
+        "key": [
+          51,
+          451,
+          2
+        ]
+      }
+    ],
+    "460": [
+      {
+        "text": "default (1 user)",
+        "value": 0.0,
+        "key": [
+          51,
+          460,
+          0
+        ]
+      },
+      {
+        "text": "several user",
+        "value": 1.0,
+        "key": [
+          51,
+          460,
+          1
+        ]
+      },
+      {
+        "text": "OrgaTEX user",
+        "value": 2.0,
+        "key": [
+          51,
+          460,
+          2
+        ]
+      }
+    ],
+    "462": [
+      {
+        "text": "not active",
+        "value": 0.0,
+        "key": [
+          51,
+          462,
+          0
+        ]
+      },
+      {
+        "text": "with RFID reader",
+        "value": 1.0,
+        "key": [
+          51,
+          462,
+          1
+        ]
+      },
+      {
+        "text": "with barcode reader",
+        "value": 2.0,
+        "key": [
+          51,
+          462,
+          2
+        ]
+      }
+    ],
+    "466": [
+      {
+        "text": "DDMMYY",
+        "value": 0.0,
+        "key": [
+          51,
+          466,
+          0
+        ]
+      },
+      {
+        "text": "MMDDYY",
+        "value": 1.0,
+        "key": [
+          51,
+          466,
+          1
+        ]
+      }
+    ],
+    "467": [
+      {
+        "text": "send changed values",
+        "value": 0.0,
+        "key": [
+          51,
+          467,
+          0
+        ]
+      },
+      {
+        "text": "keep changed values",
+        "value": 1.0,
+        "key": [
+          51,
+          467,
+          1
+        ]
+      }
+    ],
+    "470": [
+      {
+        "text": "reserved",
+        "value": 11.0,
+        "key": [
+          51,
+          470,
+          11
+        ]
+      },
+      {
+        "text": "reserved",
+        "value": 12.0,
+        "key": [
+          51,
+          470,
+          12
+        ]
+      },
+      {
+        "text": "reserved",
+        "value": 13.0,
+        "key": [
+          51,
+          470,
+          13
+        ]
+      },
+      {
+        "text": "reserved",
+        "value": 14.0,
+        "key": [
+          51,
+          470,
+          14
+        ]
+      },
+      {
+        "text": "Slot plc SC18D",
+        "value": 15.0,
+        "key": [
+          51,
+          470,
+          15
+        ]
+      },
+      {
+        "text": "Slot plc SC18C",
+        "value": 16.0,
+        "key": [
+          51,
+          470,
+          16
+        ]
+      },
+      {
+        "text": "Slot plc SC20D",
+        "value": 17.0,
+        "key": [
+          51,
+          470,
+          17
+        ]
+      },
+      {
+        "text": "Slot plc SC20C",
+        "value": 18.0,
+        "key": [
+          51,
+          470,
+          18
+        ]
+      },
+      {
+        "text": "reserved",
+        "value": 25.0,
+        "key": [
+          51,
+          470,
+          25
+        ]
+      },
+      {
+        "text": "Logimat P32",
+        "value": 2.0,
+        "key": [
+          51,
+          470,
+          2
+        ]
+      },
+      {
+        "text": "Slot plc SC515",
+        "value": 3.0,
+        "key": [
+          51,
+          470,
+          3
+        ]
+      },
+      {
+        "text": "Slot plc SC505",
+        "value": 4.0,
+        "key": [
+          51,
+          470,
+          4
+        ]
+      },
+      {
+        "text": "Compact CP8",
+        "value": 5.0,
+        "key": [
+          51,
+          470,
+          5
+        ]
+      },
+      {
+        "text": "Compact CP16",
+        "value": 6.0,
+        "key": [
+          51,
+          470,
+          6
+        ]
+      },
+      {
+        "text": "Slot plc SC16",
+        "value": 7.0,
+        "key": [
+          51,
+          470,
+          7
+        ]
+      },
+      {
+        "text": "Compact CP14",
+        "value": 8.0,
+        "key": [
+          51,
+          470,
+          8
+        ]
+      },
+      {
+        "text": "Plc SC535",
+        "value": 9.0,
+        "key": [
+          51,
+          470,
+          9
+        ]
+      },
+      {
+        "text": "Plc with Logimat prt",
+        "value": 10.0,
+        "key": [
+          51,
+          470,
+          10
+        ]
+      },
+      {
+        "text": "Logimat P160",
+        "value": 1.0,
+        "key": [
+          51,
+          470,
+          1
+        ]
+      },
+      {
+        "text": "not selected",
+        "value": 0.0,
+        "key": [
+          51,
+          470,
+          0
+        ]
+      },
+      {
+        "text": "reserved",
+        "value": 19.0,
+        "key": [
+          51,
+          470,
+          19
+        ]
+      },
+      {
+        "text": "Slot plc SC575 C",
+        "value": 20.0,
+        "key": [
+          51,
+          470,
+          20
+        ]
+      },
+      {
+        "text": "Slot plc SC575 P",
+        "value": 21.0,
+        "key": [
+          51,
+          470,
+          21
+        ]
+      },
+      {
+        "text": "reserved",
+        "value": 22.0,
+        "key": [
+          51,
+          470,
+          22
+        ]
+      },
+      {
+        "text": "reserved",
+        "value": 23.0,
+        "key": [
+          51,
+          470,
+          23
+        ]
+      },
+      {
+        "text": "reserved",
+        "value": 24.0,
+        "key": [
+          51,
+          470,
+          24
+        ]
+      },
+      {
+        "text": "Slot plc SC26",
+        "value": 26.0,
+        "key": [
+          51,
+          470,
+          26
+        ]
+      }
+    ],
+    "472": [
+      {
+        "text": "compatible mode",
+        "value": 0.0,
+        "key": [
+          51,
+          472,
+          0
+        ]
+      },
+      {
+        "text": "new request filename",
+        "value": 1.0,
+        "key": [
+          51,
+          472,
+          1
+        ]
+      }
+    ],
+    "474": [
+      {
+        "text": "enabled",
+        "value": 0.0,
+        "key": [
+          51,
+          474,
+          0
+        ]
+      },
+      {
+        "text": "disabled",
+        "value": 1.0,
+        "key": [
+          51,
+          474,
+          1
+        ]
+      },
+      {
+        "text": "enabled & logging",
+        "value": 2.0,
+        "key": [
+          51,
+          474,
+          2
+        ]
+      }
+    ],
+    "475": [
+      {
+        "text": "V1 - one slave state",
+        "value": 0.0,
+        "key": [
+          51,
+          475,
+          0
+        ]
+      },
+      {
+        "text": "V2 - more states",
+        "value": 1.0,
+        "key": [
+          51,
+          475,
+          1
+        ]
+      }
+    ],
+    "480": [
+      {
+        "text": "not active",
+        "value": 0.0,
+        "key": [
+          51,
+          480,
+          0
+        ]
+      },
+      {
+        "text": "active, max.1 reason",
+        "value": 1.0,
+        "key": [
+          51,
+          480,
+          1
+        ]
+      },
+      {
+        "text": "active, several",
+        "value": 2.0,
+        "key": [
+          51,
+          480,
+          2
+        ]
+      }
+    ],
+    "492": [
+      {
+        "text": "all machines",
+        "value": 0.0,
+        "key": [
+          51,
+          492,
+          0
+        ]
+      },
+      {
+        "text": "selected machine",
+        "value": 1.0,
+        "key": [
+          51,
+          492,
+          1
+        ]
+      }
+    ],
+    "510": [
+      {
+        "text": "every time",
+        "value": 0.0,
+        "key": [
+          51,
+          510,
+          0
+        ]
+      },
+      {
+        "text": "never",
+        "value": 1.0,
+        "key": [
+          51,
+          510,
+          1
+        ]
+      },
+      {
+        "text": "on request",
+        "value": 2.0,
+        "key": [
+          51,
+          510,
+          2
+        ]
+      }
+    ],
+    "520": [
+      {
+        "text": "grey",
+        "value": 0.0,
+        "key": [
+          51,
+          520,
+          0
+        ]
+      },
+      {
+        "text": "blue",
+        "value": 1.0,
+        "key": [
+          51,
+          520,
+          1
+        ]
+      }
+    ],
+    "530": [
+      {
+        "text": "show",
+        "value": 0.0,
+        "key": [
+          51,
+          530,
+          0
+        ]
+      },
+      {
+        "text": "don't show",
+        "value": 1.0,
+        "key": [
+          51,
+          530,
+          1
+        ]
+      }
+    ],
+    "540": [
+      {
+        "text": "allowed",
+        "value": 0.0,
+        "key": [
+          51,
+          540,
+          0
+        ]
+      },
+      {
+        "text": "locked",
+        "value": 1.0,
+        "key": [
+          51,
+          540,
+          1
+        ]
+      }
+    ],
+    "301": [
+      {
+        "text": "not active",
+        "value": 0.0,
+        "key": [
+          51,
+          301,
+          0
+        ]
+      },
+      {
+        "text": "active",
+        "value": 1.0,
+        "key": [
+          51,
+          301,
+          1
+        ]
+      }
+    ],
+    "7": [
+      {
+        "text": "digital",
+        "value": 0.0,
+        "key": [
+          51,
+          7,
+          0
+        ]
+      },
+      {
+        "text": "ana",
+        "value": 1.0,
+        "key": [
+          51,
+          7,
+          1
+        ]
+      }
+    ],
+    "8": [
+      {
+        "text": "timer",
+        "value": 0.0,
+        "key": [
+          51,
+          8,
+          0
+        ]
+      },
+      {
+        "text": "CYCLE",
+        "value": 1.0,
+        "key": [
+          51,
+          8,
+          1
+        ]
+      }
+    ],
+    "21": [
+      {
+        "text": "valve 1",
+        "value": 1.0,
+        "key": [
+          51,
+          21,
+          1
+        ]
+      },
+      {
+        "text": "valve 2",
+        "value": 2.0,
+        "key": [
+          51,
+          21,
+          2
+        ]
+      },
+      {
+        "text": "valve 3",
+        "value": 3.0,
+        "key": [
+          51,
+          21,
+          3
+        ]
+      },
+      {
+        "text": "valve 4",
+        "value": 4.0,
+        "key": [
+          51,
+          21,
+          4
+        ]
+      },
+      {
+        "text": "valve 5",
+        "value": 5.0,
+        "key": [
+          51,
+          21,
+          5
+        ]
+      }
+    ],
+    "13": [
+      {
+        "text": "pencent",
+        "value": 0.0,
+        "key": [
+          51,
+          13,
+          0
+        ]
+      },
+      {
+        "text": "quantity",
+        "value": 1.0,
+        "key": [
+          51,
+          13,
+          1
+        ]
+      }
+    ],
+    "14": [
+      {
+        "text": "Heat  Cool Analog",
+        "value": 0.0,
+        "key": [
+          51,
+          14,
+          0
+        ]
+      },
+      {
+        "text": "heatdig coolanalog",
+        "value": 3.0,
+        "key": [
+          51,
+          14,
+          3
+        ]
+      },
+      {
+        "text": "Heat analog Cool dig",
+        "value": 2.0,
+        "key": [
+          51,
+          14,
+          2
+        ]
+      },
+      {
+        "text": "Heat  Cool Digital",
+        "value": 1.0,
+        "key": [
+          51,
+          14,
+          1
+        ]
+      }
+    ],
+    "478": [
+      {
+        "text": "Lev. RUN, compatible",
+        "value": 0.0,
+        "key": [
+          51,
+          478,
+          0
+        ]
+      },
+      {
+        "text": "Level INTERVENT",
+        "value": 1.0,
+        "key": [
+          51,
+          478,
+          1
+        ]
+      },
+      {
+        "text": "Level INTERVENT, ask",
+        "value": 2.0,
+        "key": [
+          51,
+          478,
+          2
+        ]
+      }
+    ],
+    "479": [
+      {
+        "text": "Lev.EINGRIFF,compati",
+        "value": 0.0,
+        "key": [
+          51,
+          479,
+          0
+        ]
+      },
+      {
+        "text": "Level INFO",
+        "value": 1.0,
+        "key": [
+          51,
+          479,
+          1
+        ]
+      }
+    ],
+    "525": [
+      {
+        "text": "Log file",
+        "value": 0.0,
+        "key": [
+          51,
+          525,
+          0
+        ]
+      },
+      {
+        "text": "CSV analog",
+        "value": 1.0,
+        "key": [
+          51,
+          525,
+          1
+        ]
+      },
+      {
+        "text": "CSV analog & digital",
+        "value": 2.0,
+        "key": [
+          51,
+          525,
+          2
+        ]
+      },
+      {
+        "text": "CSVUC analog",
+        "value": 3.0,
+        "key": [
+          51,
+          525,
+          3
+        ]
+      },
+      {
+        "text": "CSVUC analog&digital",
+        "value": 4.0,
+        "key": [
+          51,
+          525,
+          4
+        ]
+      }
+    ],
+    "300": [
+      {
+        "text": "Digital",
+        "value": 0.0,
+        "key": [
+          51,
+          300,
+          0
+        ]
+      },
+      {
+        "text": "Analog",
+        "value": 1.0,
+        "key": [
+          51,
+          300,
+          1
+        ]
+      },
+      {
+        "text": "Diff",
+        "value": 2.0,
+        "key": [
+          51,
+          300,
+          2
+        ]
+      }
+    ],
+    "394": [
+      {
+        "text": "without alarm",
+        "value": 0.0,
+        "key": [
+          51,
+          394,
+          0
+        ]
+      },
+      {
+        "text": "with alarm",
+        "value": 2.0,
+        "key": [
+          51,
+          394,
+          1
+        ]
+      }
+    ]
+  },
+  "cnf_sha256": "68f002aa495847688101ad41f7e53b7924506a2bb8a7962d90ee142a675fc50a",
+  "source": "TYPECONF.CNF",
+  "source_policy": "Function ID & parameters strictly decoded from Config/TYPECONF.CNF (never from .AWL PLC logic).",
+  "generated_at": "2026-11-28T11:25:34.216445"
+}

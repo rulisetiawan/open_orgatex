@@ -1,0 +1,40 @@
+{
+  "machine": "DONPRO",
+  "awl_count": 1,
+  "files": [
+    {
+      "filename": "SC26.AWL",
+      "cpu_type": "UNKNOWN",
+      "size_bytes": 851516,
+      "sha256": "d00e0ab6c041b86d79ef3fcdeb99646cb04eaa55b1d80cd69811e04f00c1eeee",
+      "project_names": [
+        "jDBFB20260928_08.pro"
+      ],
+      "primary_project": "jDBFB20260928_08.pro",
+      "dates_found": [],
+      "plc_symbols_sample": [
+        "Setex35794",
+        "Level",
+        "Drain",
+        "Dosing",
+        "Heating",
+        "Cooling",
+        "Pressure",
+        "batch",
+        "SEMAinit",
+        "DOS_SC",
+        "DOS_SCinit",
+        "DPID_SC",
+        "DPID_SCinit",
+        "MDOS_SC",
+        "MDOS_SCinit",
+        "PID_SC",
+        "PID_SCinit",
+        "Read_Me_SCTPID",
+        "TPID_SC",
+        "TPID_SCinit"
+      ],
+      "header_hex_16": "0300000056f40c00c0000000b7080000"
+    }
+  ]
+}

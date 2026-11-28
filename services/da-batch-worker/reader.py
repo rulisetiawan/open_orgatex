@@ -267,9 +267,11 @@ class SetexFolderReader:
             if result["status_bytes"]:
                 sb = result["status_bytes"]
                 if len(sb) >= 48:
-                    raw_b = sb[36:48].split(b'\0')[0].decode('latin1', errors='ignore').strip()
-                    if raw_b and re.match(r'^[A-Za-z0-9_-]+$', raw_b):
-                        batch_no = raw_b
+                    for b_off in (38, 36):
+                        raw_b = sb[b_off:48].split(b'\0')[0].decode('latin1', errors='ignore').strip()
+                        if raw_b and re.match(r'^[A-Za-z0-9_-]+$', raw_b):
+                            batch_no = raw_b
+                            break
                 if not batch_no:
                     batches = sorted(list(set(m.group(0).decode('latin1') for m in re.finditer(rb'\b\d{6}\b', sb))))
                     if batches:
@@ -283,11 +285,12 @@ class SetexFolderReader:
                     raw_pn = re.sub(r'#.*$', '', raw_pn).strip()
                     if raw_pn:
                         program_name = raw_pn
-                # PERHATIAN: pada SECOM 777 (STATUS.ACT 10104 byte) offset 0x15C adalah NOMOR STEP,
-                # bukan nomor program. Nomor program asli hanya ada di header file .PRG (offset 8).
-                # Hanya 797CE (10188 byte) yang menaruh nomor program di 0x15C.
-                if len(sb) == 10188:
-                    p_val = struct.unpack_from("<H", sb, 0x15C)[0]
+                # Nomor program asli di Block 0 (+0x08):
+                # - SECOM 777   (10104 B, base=0x0152) -> 0x015A
+                # - SECOM 797CE (10188 B, base=0x0154) -> 0x015C
+                block_base = 0x0154 if len(sb) == 10188 else 0x0152
+                if len(sb) >= block_base + 0x0A:
+                    p_val = struct.unpack_from("<H", sb, block_base + 0x08)[0]
                     if 1 <= p_val <= 9999:
                         prog_no = p_val
 
@@ -318,44 +321,37 @@ class SetexFolderReader:
                 except Exception:
                     continue
 
-            # 1. Cek Database terlebih dahulu (Program Studio di PostgreSQL).
-            # Jika program beserta step-stepnya sudah ada di DB, TIDAK PERLU download .PRG via FTP!
-            if db_program_loader is not None and (prog_no or program_name or program_code):
-                try:
-                    db_prog = db_program_loader(prog_no, program_name, program_code)
-                    if db_prog and db_prog.get("scada_steps"):
-                        result["db_program"] = db_prog
-                        result["prg_from_db"] = True
-                except Exception as e_dbp:
-                    logger.debug(f"DB program lookup notice for {ip}: {e_dbp}")
+            # 1. PRIORITAS UTAMA: Ambil file .PRG ASLI dari controller saat load pertama kali per (mesin, batch, prog_no).
+            #    Salinan resep di folder BATCH/<batch>/ adalah sumber kebenaran agar nama program & daftar step tidak pernah
+            #    salah akibat data lama/cross-machine di PostgreSQL. Setelah ter-download sekali, di-cache per (ip, batch, prog_no).
+            ip_safe = re.sub(r"[^0-9A-Za-z_-]", "_", ip)
+            prg_cache_key = f"{batch_no or ''}_{prog_no or 0}"
+            local_batch_dir = os.path.abspath(
+                os.path.join(os.path.dirname(__file__), "..", "data", "OT", "BATCH", ip_safe, batch_no or "_")
+            )
 
-            # 2. PRG hanya perlu diambil SEKALI per batch jika belum ada di DB (salinan resep di folder
-            # BATCH/<batch>/ tidak berubah selama batch berjalan). Kunci cache = nomor batch saja.
-            prg_cache_key = str(batch_no or "")
-            local_batch_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "data", "OT", "BATCH", batch_no or "_"))
-            if not result.get("prg_from_db"):
-                mem_cached = _PRG_CACHE.get(ip)
-                if batch_no and mem_cached and mem_cached.get("key") == prg_cache_key:
-                    result["prg_bytes"] = mem_cached["bytes"]
-                    result["prg_from_cache"] = True
-                elif batch_no and os.path.isdir(local_batch_dir):
-                    for fn_disk in sorted(os.listdir(local_batch_dir)):
-                        if fn_disk.upper().endswith(".PRG"):
-                            try:
-                                with open(os.path.join(local_batch_dir, fn_disk), "rb") as f_disk:
-                                    disk_bytes = f_disk.read()
-                                if len(disk_bytes) >= 384:
-                                    result["prg_bytes"] = disk_bytes
-                                    result["prg_from_cache"] = True
-                                    _PRG_CACHE[ip] = {"key": prg_cache_key, "bytes": disk_bytes}
-                                    break
-                            except Exception:
-                                pass
+            mem_cached = _PRG_CACHE.get(ip)
+            if batch_no and mem_cached and mem_cached.get("key") == prg_cache_key:
+                result["prg_bytes"] = mem_cached["bytes"]
+                result["prg_from_cache"] = True
+            elif batch_no and os.path.isdir(local_batch_dir):
+                expected_fn = f"M_{prog_no:04d}.PRG".upper() if prog_no else ""
+                disk_files = sorted([f for f in os.listdir(local_batch_dir) if f.upper().endswith(".PRG")])
+                chosen_disk = next((f for f in disk_files if expected_fn and f.upper() == expected_fn), None) or (disk_files[0] if disk_files else None)
+                if chosen_disk:
+                    try:
+                        with open(os.path.join(local_batch_dir, chosen_disk), "rb") as f_disk:
+                            disk_bytes = f_disk.read()
+                        if len(disk_bytes) >= 384:
+                            result["prg_bytes"] = disk_bytes
+                            result["prg_from_cache"] = True
+                            _PRG_CACHE[ip] = {"key": prg_cache_key, "bytes": disk_bytes}
+                    except Exception:
+                        pass
 
-            # Prioritas ambil PRG dari folder batch aktif dulu; jika tidak ada dan prog_no diketahui,
-            # fallback ke folder Programs/ di HMI agar seluruh step & parameter tetap terbaca dan tersimpan ke DB.
+            # Jika belum ada di cache untuk (mesin, batch, prog_no) ini -> WAJIB download .PRG via FTP!
             candidate_prg_targets = []
-            if batch_no and not result.get("prg_from_db") and not result.get("prg_bytes"):
+            if batch_no and not result.get("prg_bytes"):
                 if is_797:
                     if prog_no:
                         candidate_prg_targets.append(f"/Flashdisk/SC797CE/BATCH/{batch_no}/M_{prog_no:04d}.PRG")
@@ -363,12 +359,11 @@ class SetexFolderReader:
                     if prog_no:
                         candidate_prg_targets.append(f"/Flashdisk/SC797CE/Programs/M_{prog_no:04d}.PRG")
                 else:
+                    if prog_no:
+                        candidate_prg_targets.append(f"/Storage/sc777ce/BATCH/{batch_no}/M_{prog_no:04d}.PRG")
                     candidate_prg_targets.append(f"/Storage/sc777ce/BATCH/{batch_no}")
                     if prog_no:
                         candidate_prg_targets.append(f"/Storage/sc777ce/Programs/M_{prog_no:04d}.PRG")
-
-            if result.get("prg_bytes"):
-                candidate_prg_targets = []  # sudah ada di cache, skip download
 
             for target in candidate_prg_targets:
                 try:
@@ -404,7 +399,7 @@ class SetexFolderReader:
                 except Exception:
                     continue
 
-            # Simpan PRG yang baru di-download ke cache memori + disk, pakai nomor program ASLI dari header PRG.
+            # Simpan PRG yang baru di-download ke cache memori + disk (per mesin + batch), pakai nomor program ASLI dari header PRG.
             if result.get("prg_bytes") and batch_no and not result.get("prg_from_cache"):
                 _PRG_CACHE[ip] = {"key": prg_cache_key, "bytes": result["prg_bytes"]}
                 try:
@@ -416,6 +411,16 @@ class SetexFolderReader:
                         f_save.write(pb)
                 except Exception:
                     pass
+
+            # 2. FALLBACK ke PostgreSQL HANYA jika file .PRG gagal di-download via FTP
+            if not result.get("prg_bytes") and db_program_loader is not None and (prog_no or program_name or program_code):
+                try:
+                    db_prog = db_program_loader(prog_no, program_name, program_code)
+                    if db_prog and db_prog.get("scada_steps"):
+                        result["db_program"] = db_prog
+                        result["prg_from_db"] = True
+                except Exception as e_dbp:
+                    logger.debug(f"DB program fallback notice for {ip}: {e_dbp}")
 
             try:
                 ftp.quit()
@@ -570,8 +575,10 @@ class SetexFolderReader:
                 if raw_pn:
                     program_name = raw_pn
 
-            # Header status & fault words (0x0010 and 0x0020)
+            # Header status, run-mode (0x0018), and fault words (0x0020)
             status_raw = struct.unpack_from("<H", data, 0x10)[0] if size >= 0x12 else 0
+            run_mode_word = struct.unpack_from("<H", data, 0x18)[0] if size >= 0x1A else 0
+            run_mode_code = data[0x19] if size >= 0x1A else 0
             fault_word = struct.unpack_from("<H", data, 0x20)[0] if size >= 0x22 else 0
             fault_bits = {
                 "bit4_plc_offline": 1 if (fault_word & (1 << 4)) else 0,
@@ -708,8 +715,26 @@ class SetexFolderReader:
             if function_code == 141 and active_params and 15.0 <= active_params[0]["val_b"] <= 150.0:
                 sp = round(active_params[0]["val_b"], 1)
 
+            # Determine machine run state from 0x0018 (byte 0x19), block_state (+0x10), and function_code (+0x12):
+            # - 0x0300 (code 3) + active function -> RUNNING
+            # - 0x0400 (code 4)                   -> PAUSED (BREAK)
+            # - 0x0600 (code 6) or func==2 or block_state==5 -> IDLE (PROGRAM END)
+            is_program_end = 1 if (run_mode_code == 6 or function_code == 2 or block_state == 5) else 0
+            is_paused = 1 if (run_mode_code == 4 and not is_program_end) else 0
+            is_running = 1 if (run_mode_code == 3 and not is_program_end) else (
+                1 if (run_mode_code == 0 and block_state == 35 and function_code not in (0, 2)) else 0
+            )
+            if is_running:
+                derived_status = "RUNNING"
+            elif is_paused:
+                derived_status = "PAUSED"
+            elif is_program_end:
+                derived_status = "IDLE"
+            else:
+                derived_status = "ONLINE" if current_batch != "UNKNOWN" else "IDLE"
+
             return {
-                "status": "RUNNING" if current_batch != "UNKNOWN" else "ONLINE",
+                "status": derived_status,
                 "machine_id": machine_id,
                 "current_batch": current_batch,
                 "prog_no": prog_no,
@@ -717,6 +742,11 @@ class SetexFolderReader:
                 "program_name": program_name,
                 "current_step": step_no,
                 "status_raw": status_raw,
+                "run_mode_word": run_mode_word,
+                "run_mode_code": run_mode_code,
+                "is_running": is_running,
+                "is_paused": is_paused,
+                "is_program_end": is_program_end,
                 "fault_word": fault_word,
                 "fault_bits": fault_bits,
                 "block_state": block_state,

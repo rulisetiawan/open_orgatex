@@ -163,3 +163,71 @@ def test_all_templates_validate_cleanly():
             tmpl.get("outputs"),
         )
         assert res["error"] is None
+
+
+def test_machine_config_variables_in_formula():
+    ctx_donpro = build_batch_context(
+        {"fabric_weight_kg": 400, "liquor_ratio": 10},
+        machine_no="DONPRO",
+    )
+    assert ctx_donpro["machine_capacity_kg"] == 600.0
+    assert ctx_donpro["machine_min_load_kg"] == 150.0
+    assert ctx_donpro["machine_max_fill_l"] == 6600.0
+    assert ctx_donpro["machine_max_temp_c"] == 135.0
+    assert ctx_donpro["machine_dt1_max_l"] == 450.0
+    assert ctx_donpro["machine_st1_max_l"] == 3000.0
+
+    # Clamp volume air terhadap batas min/max dari MACHCONF mesin
+    f_clamp = {
+        "formula_type": "MATH",
+        "output_mode": "SINGLE",
+        "definition": {"expression": "clamp(fabric_weight_kg * liquor_ratio, machine_min_fill_l, machine_max_fill_l)"},
+        "decimal_places": 0,
+    }
+    res_donpro = evaluate_formula(f_clamp, ctx_donpro)
+    assert res_donpro["value"] == 4000.0
+
+    # Untuk mesin kecil (DA01: max_fill_l=250), otomatis terpotong ke 250 L
+    ctx_da01 = build_batch_context(
+        {"fabric_weight_kg": 25, "liquor_ratio": 15},
+        machine_no="DA01",
+    )
+    assert ctx_da01["machine_capacity_kg"] == 30.0
+    assert ctx_da01["machine_max_fill_l"] == 250.0
+    res_da01 = evaluate_formula(f_clamp, ctx_da01)
+    assert res_da01["value"] == 250.0
+
+    # IF_ELSE membandingkan variabel batch terhadap parameter config mesin & mengembalikan parameter config mesin
+    f_if_mc = {
+        "formula_type": "IF_ELSE",
+        "output_mode": "SINGLE",
+        "definition": {
+            "rules": [
+                {
+                    "label": "Melebihi batas air mesin",
+                    "logic": "AND",
+                    "conditions": [{"var": "total_water_l", "op": ">", "value": "machine_max_fill_l"}],
+                    "result_expr": "machine_max_fill_l",
+                }
+            ],
+            "else_expr": "total_water_l",
+        },
+        "decimal_places": 0,
+    }
+    assert evaluate_formula(f_if_mc, ctx_da01)["value"] == 250.0
+    assert evaluate_formula(f_if_mc, ctx_donpro)["value"] == 4000.0
+
+    # Dynamic MACHCONF.CNF parameters (Cat 20 mc_p*, Cat 19 mc_t*, Cat 31 mc_s*)
+    from open_orgatex.backend.services.formula_engine import load_machine_config_catalog
+    cat_donpro = load_machine_config_catalog("DONPRO")
+    assert len(cat_donpro) >= 150
+    assert ctx_donpro["mc_p24"] == 45.0   # level mid, MT
+    assert ctx_donpro["mc_t7"] == 15.0    # Heat pre-drain time
+    f_dyn = {
+        "formula_type": "MATH",
+        "output_mode": "SINGLE",
+        "definition": {"expression": "mc_p24 + mc_t7"},
+        "decimal_places": 0,
+    }
+    assert evaluate_formula(f_dyn, ctx_donpro)["value"] == 60.0
+

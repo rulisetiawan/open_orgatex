@@ -1419,7 +1419,7 @@ def get_compiled_prg_bytes_for_batch(
                 m_obj = sess.query(Machine).filter(Machine.machine_no == clean_m).first()
                 if m_obj and m_obj.capacity_kg is not None:
                     mach_cap = float(m_obj.capacity_kg)
-            ctx = build_batch_context(batch_dict, machine_capacity_kg=mach_cap)
+            ctx = build_batch_context(batch_dict, machine_capacity_kg=mach_cap, machine_no=clean_m)
             f_map = load_formula_map(sess, list(needed_ids))
             resolved_steps, _ = resolve_program_steps_for_batch(steps, f_map, ctx)
             title = prg_data.get("program_name", f"PRG {program_no}")

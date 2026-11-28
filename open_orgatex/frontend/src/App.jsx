@@ -9,6 +9,7 @@ const Machines = lazy(() => import('./pages/Machines'));
 const Recipes = lazy(() => import('./pages/Recipes'));
 const Programs = lazy(() => import('./pages/Programs'));
 const Formulas = lazy(() => import('./pages/Formulas'));
+const FunctionFormulas = lazy(() => import('./pages/FunctionFormulas'));
 const KanbanView = lazy(() => import('./pages/Planning/KanbanView'));
 const CalendarView = lazy(() => import('./pages/Planning/CalendarView'));
 const BatchListView = lazy(() => import('./pages/Planning/BatchListView'));
@@ -48,6 +49,7 @@ function App() {
               <Route path="/recipes" element={<Recipes />} />
               <Route path="/programs" element={<Programs />} />
               <Route path="/formulas" element={<Formulas />} />
+              <Route path="/function-formulas" element={<FunctionFormulas />} />
               {/* Sementara dialihkan ke /programs agar tidak bingung */}
               <Route path="/programs-edx" element={<Navigate to="/programs" replace />} />
               <Route path="/planning" element={<Navigate to="/planning/list" replace />} />

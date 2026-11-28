@@ -44,6 +44,8 @@ class OutputSpecIn(BaseModel):
     max_value: Optional[float] = None
     default_fallback: Optional[float] = 0.0
     default_param_slot: Optional[int] = None
+    target_function_id: Optional[int] = None
+    target_function_name: Optional[str] = None
 
 
 class FormulaUpsertIn(BaseModel):
@@ -185,8 +187,35 @@ def get_formula_templates():
 def get_machine_groups(db: Session = Depends(get_db)):
     """
     Mengembalikan daftar Grup Mesin unik dari tabel machines,
-    beserta jumlah mesin, daftar kode mesin, dan jumlah formula terpasang.
+    beserta jumlah mesin, daftar kode mesin, tipe HMI dari TYPECONF.CNF, dan jumlah formula terpasang.
     """
+    import os
+    import struct
+    from ..services.machine_config_service import (
+        WORKSPACE_BASE,
+        normalize_folder_name,
+        _decode_cnf_records,
+    )
+
+    def _read_hmi_identity(machine_no: str) -> Dict[str, str]:
+        tc_path = os.path.join(WORKSPACE_BASE, normalize_folder_name(machine_no), "01_CONFIG_DARI_HMI", "TYPECONF.CNF")
+        if not os.path.exists(tc_path):
+            return {"hmi_controller": "", "hmi_type": ""}
+        try:
+            recs = _decode_cnf_records(tc_path, expected_len=290)
+            ctrl = ""
+            t_name = ""
+            if (97, 0, 1) in recs:
+                ctrl = recs[(97, 0, 1)][6:20].split(b"\x00", 1)[0].decode("cp437", errors="replace").strip()
+            if (35, 0, 1) in recs:
+                raw35 = recs[(35, 0, 1)]
+                short_t = raw35[23:34].split(b"\x00", 1)[0].decode("cp437", errors="replace").strip()
+                long_t = raw35[35:65].split(b"\x00", 1)[0].decode("cp437", errors="replace").strip()
+                t_name = long_t or short_t
+            return {"hmi_controller": ctrl, "hmi_type": t_name}
+        except Exception:
+            return {"hmi_controller": "", "hmi_type": ""}
+
     machines = db.query(Machine).order_by(Machine.group_name.asc(), Machine.machine_no.asc()).all()
     groups_map: Dict[str, Dict[str, Any]] = {}
     for m in machines:
@@ -198,10 +227,14 @@ def get_machine_groups(db: Session = Depends(get_db)):
                 "machines": [],
                 "formula_count": 0,
             }
+        hmi_id = _read_hmi_identity(m.machine_no)
         groups_map[g_name]["machine_count"] += 1
         groups_map[g_name]["machines"].append({
             "machine_no": m.machine_no,
             "display_name": m.display_name,
+            "controller_type": m.controller_type or "",
+            "hmi_controller": hmi_id["hmi_controller"],
+            "hmi_type": hmi_id["hmi_type"],
             "capacity_kg": float(m.capacity_kg) if m.capacity_kg is not None else 350.0,
         })
 
@@ -225,7 +258,22 @@ def get_machine_groups(db: Session = Depends(get_db)):
                     }
                 groups_map[gn]["formula_count"] += 1
 
-    return {"groups": sorted(groups_map.values(), key=lambda x: x["group_name"].lower())}
+    sorted_groups = sorted(groups_map.values(), key=lambda x: x["group_name"].lower())
+    machine_group_map: Dict[str, Dict[str, Any]] = {}
+    for idx, grp in enumerate(sorted_groups, start=1):
+        gid = f"GRP-{idx:02d}"
+        grp["group_no"] = idx
+        grp["group_id"] = gid
+        for m in grp["machines"]:
+            m["group_id"] = gid
+            m["group_name"] = grp["group_name"]
+            machine_group_map[m["machine_no"]] = {
+                "group_no": idx,
+                "group_id": gid,
+                "group_name": grp["group_name"],
+            }
+
+    return {"groups": sorted_groups, "machine_group_map": machine_group_map}
 
 
 # =============================================================================
@@ -634,7 +682,7 @@ def preview_program_formulas(payload: ProgramPreviewIn, db: Session = Depends(ge
     try:
         prg_data = get_program(payload.program_no, machine_code=mach_clean, db=db)
     except HTTPException:
-        return {"has_formulas": False, "resolved_items": [], "context": build_batch_context(payload.batch_context, mach_cap)}
+        return {"has_formulas": False, "resolved_items": [], "context": build_batch_context(payload.batch_context, mach_cap, machine_no=mach_clean)}
 
     steps = prg_data.get("steps") or []
     needed_ids = set()
@@ -646,7 +694,7 @@ def preview_program_formulas(payload: ProgramPreviewIn, db: Session = Depends(ge
                 elif isinstance(binding, int):
                     needed_ids.add(binding)
 
-    ctx = build_batch_context(payload.batch_context, machine_capacity_kg=mach_cap)
+    ctx = build_batch_context(payload.batch_context, machine_capacity_kg=mach_cap, machine_no=mach_clean)
     if not needed_ids:
         return {
             "has_formulas": False,
@@ -665,4 +713,154 @@ def preview_program_formulas(payload: ProgramPreviewIn, db: Session = Depends(ge
         "program_name": prg_data.get("program_name", ""),
         "resolved_items": resolved_items,
         "context": ctx,
+    }
+
+
+# =============================================================================
+# MACHINE CONFIG FORMULA & PARAMETER INSPECTOR (TYPEFORM / MACHCONF / TYPECONF)
+# =============================================================================
+
+@router.get("/machine-config/{machine_no}")
+def get_machine_formula_config(machine_no: str):
+    """
+    Membaca file konfigurasi HMI mesin dari WORKSPACE_PROGRAM_MESIN/MESIN_<ID>/01_CONFIG_DARI_HMI/:
+      - TYPEFORM.CNF: daftar Global Formula (cat=7) & jumlah mapping Function Formula (cat=36)
+      - MACHCONF.CNF: konstanta/parameter mesin (cat=18) & tabel kalibrasi kurva (cat=75)
+      - TYPECONF.CNF: definisi controller parameters (cat=17) & ringkasan fungsi/parameter
+    """
+    import os
+    import struct
+    import sys
+    from ..services.machine_config_service import (
+        DA_TEX_ROOT,
+        WORKSPACE_BASE,
+        normalize_folder_name,
+        _decode_cnf_records,
+    )
+
+    folder_name = normalize_folder_name(machine_no)
+    raw_dir = os.path.join(WORKSPACE_BASE, folder_name, "01_CONFIG_DARI_HMI")
+    dec_dir = os.path.join(WORKSPACE_BASE, folder_name, "02_CONFIG_SIAP_PAKAI")
+
+    tf_path = os.path.join(raw_dir, "TYPEFORM.CNF")
+    mc_path = os.path.join(raw_dir, "MACHCONF.CNF")
+    tc_path = os.path.join(raw_dir, "TYPECONF.CNF")
+    tc_json_path = os.path.join(dec_dir, "typeconf_functions.json")
+
+    analisis_dir = os.path.join(DA_TEX_ROOT, "program", "Analisis")
+    if analisis_dir not in sys.path:
+        sys.path.append(analisis_dir)
+
+    def _decode_txt_safe(b: bytes) -> str:
+        return b.split(b"\x00", 1)[0].decode("cp437", errors="replace").strip()
+
+    typeform_formulas: List[Dict[str, Any]] = []
+    typeform_function_links_count = 0
+    if os.path.exists(tf_path):
+        try:
+            tf_recs = _decode_cnf_records(tf_path, expected_len=None)
+            for (cat, sub, idx), raw in sorted(tf_recs.items()):
+                if cat == 7 and len(raw) >= 48:
+                    n_local = _decode_txt_safe(raw[6:27])
+                    n_en = _decode_txt_safe(raw[27:48]) or n_local
+                    typeform_formulas.append({
+                        "id": idx,
+                        "name": n_en,
+                        "name_local": n_local,
+                    })
+                elif cat == 36:
+                    typeform_function_links_count += 1
+        except Exception:
+            pass
+
+    machconf_constants: List[Dict[str, Any]] = []
+    machconf_calibrations: List[Dict[str, Any]] = []
+    if os.path.exists(mc_path):
+        try:
+            mc_recs = _decode_cnf_records(mc_path, expected_len=None)
+            for (cat, sub, idx), raw in sorted(mc_recs.items()):
+                if cat == 18:
+                    vals = []
+                    for off in range(6, min(len(raw) - 4, 62), 4):
+                        v = struct.unpack_from("<f", raw, off)[0]
+                        if v == v and abs(v) < 1e7 and abs(v) > 1e-4:
+                            vals.append(round(v, 3))
+                    if vals:
+                        machconf_constants.append({
+                            "group": sub,
+                            "index": idx,
+                            "values": vals[:8],
+                        })
+                elif cat == 75:
+                    pts = []
+                    for off in range(6, min(len(raw) - 8, 94), 8):
+                        x, y = struct.unpack_from("<ff", raw, off)
+                        if x == x and y == y and 0 < abs(x) < 1e6 and 0 < abs(y) < 1e6:
+                            pts.append({"x": round(x, 2), "y": round(y, 2)})
+                    if pts:
+                        machconf_calibrations.append({
+                            "group": sub,
+                            "index": idx,
+                            "points": pts[:10],
+                        })
+        except Exception:
+            pass
+
+    controller_params: List[Dict[str, Any]] = []
+    if os.path.exists(tc_path):
+        try:
+            tc_recs = _decode_cnf_records(tc_path, expected_len=290)
+            for (cat, sub, idx), raw in sorted(tc_recs.items()):
+                if cat == 17 and len(raw) >= 48:
+                    n_local = _decode_txt_safe(raw[6:27])
+                    n_en = _decode_txt_safe(raw[27:48]) or n_local
+                    if n_en and n_en.lower() != "not used":
+                        controller_params.append({
+                            "group": sub,
+                            "index": idx,
+                            "name": n_en,
+                            "name_local": n_local,
+                        })
+        except Exception:
+            pass
+
+    typeconf_fn_count = 0
+    typeconf_param_count = 0
+    if os.path.exists(tc_json_path):
+        try:
+            with open(tc_json_path, "r", encoding="utf-8") as f:
+                tc_json = json.load(f)
+            typeconf_fn_count = len(tc_json.get("functions") or {})
+            typeconf_param_count = len(tc_json.get("parameters") or {})
+        except Exception:
+            pass
+
+    from ..services.formula_engine import load_machine_config_vars, load_machine_config_catalog
+    config_vars = load_machine_config_vars(machine_no)
+    machconf_catalog = load_machine_config_catalog(machine_no)
+
+    return {
+        "machine_no": machine_no.upper(),
+        "folder_name": folder_name,
+        "config_vars": config_vars,
+        "machconf_catalog": machconf_catalog,
+        "files": {
+            "TYPEFORM.CNF": os.path.exists(tf_path),
+            "MACHCONF.CNF": os.path.exists(mc_path),
+            "TYPECONF.CNF": os.path.exists(tc_path),
+        },
+        "typeform": {
+            "formulas": typeform_formulas,
+            "function_links_count": typeform_function_links_count,
+        },
+        "machconf": {
+            "constants": machconf_constants,
+            "calibrations": machconf_calibrations,
+        },
+        "typeconf": {
+            "functions_count": typeconf_fn_count,
+            "parameters_count": typeconf_param_count,
+            "controller_params": controller_params[:80],
+            "controller_params_total": len(controller_params),
+        },
     }

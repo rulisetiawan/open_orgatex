@@ -506,7 +506,7 @@ def load_program_from_db(
         cur = conn.cursor()
 
         row = None
-        # 1. Exact match on same machine_code (by number or name)
+        # 1. Exact match on same machine_code ONLY (by number AND/OR name) — never match across different machines!
         if prog_no and prog_no > 0:
             cur.execute("""
                 SELECT pc.id, pc.number, pc.name
@@ -518,7 +518,13 @@ def load_program_from_db(
                 ORDER BY pc.modification_time DESC NULLS LAST, pc.id DESC
                 LIMIT 1
             """, (clean_m, str(prog_no)))
-            row = cur.fetchone()
+            cand = cur.fetchone()
+            # Guard: if STATUS.ACT also reports a program_name, verify DB program name matches it
+            if cand and clean_name:
+                cand_name = (cand[2] or "").strip().upper()
+                if cand_name and not (cand_name.startswith(clean_name) or clean_name.startswith(cand_name)):
+                    cand = None
+            row = cand
 
         if not row and clean_name:
             cur.execute("""
@@ -531,19 +537,6 @@ def load_program_from_db(
                 ORDER BY pc.modification_time DESC NULLS LAST, pc.id DESC
                 LIMIT 1
             """, (clean_m, clean_name))
-            row = cur.fetchone()
-
-        # 2. Fallback: exact program name match across machines (same factory recipe library)
-        if not row and clean_name and len(clean_name) >= 4:
-            cur.execute("""
-                SELECT pc.id, pc.number, pc.name
-                FROM program_components pc
-                WHERE pc.level = 1
-                  AND UPPER(TRIM(pc.name)) = %s
-                  AND EXISTS (SELECT 1 FROM steps s WHERE s.parent_component_id = pc.id)
-                ORDER BY pc.modification_time DESC NULLS LAST, pc.id DESC
-                LIMIT 1
-            """, (clean_name,))
             row = cur.fetchone()
 
         if not row:
@@ -1152,18 +1145,25 @@ def process_single_machine(m: Dict[str, Any]) -> Dict[str, Any]:
         m_state = st.get("status") or "RUNNING"
         intervention_events = detect_act_interventions(m_no, st, act_alarm=act_alarm_parsed)
 
-        # Publish lean Status to EMQX (only attaches intervention_events when operator changes occur)
+        # Publish lean Status + Machine Run-State indicators from STATUS.ACT to EMQX
         topic_status = f"smm/jetflow/{asset_id}/status"
         payload_status: Dict[str, Any] = {
             "timestamp": datetime.now(timezone.utc).isoformat(),
             "asset_id": asset_id,
             "machine_id": m_no,
-            "connection_status": "ONLINE" if m_state in ("RUNNING", "ONLINE") else "OFFLINE",
+            "connection_status": "ONLINE" if m_state in ("RUNNING", "PAUSED", "IDLE", "ONLINE") else "OFFLINE",
+            "machine_state": m_state,
             "batch_no": batch_no,
             "step_no": step_no,
             "program_no": str(prog_no),
             "program_code": st.get("program_code") or "",
             "program_name": prog_name,
+            "is_running": int(st.get("is_running") or 0),
+            "is_paused": int(st.get("is_paused") or 0),
+            "is_program_end": int(st.get("is_program_end") or 0),
+            "run_mode_code": int(st.get("run_mode_code") or 0),
+            "block_state": int(st.get("block_state") or 0),
+            "function_code": int(st.get("function_code") or 0),
         }
         if intervention_events:
             payload_status["intervention_events"] = intervention_events
@@ -1206,33 +1206,9 @@ def process_single_machine(m: Dict[str, Any]) -> Dict[str, Any]:
         return steps_list
 
     # 1b. Publish Recipe Steps + Operator Audit Intelligence for SCADA & Open OrgaTEX
-    if batch_no and bundle.get("db_program"):
-        db_p = bundle["db_program"]
-        scada_steps = _enrich_steps_with_actuals(list(db_p.get("scada_steps") or []))
-        if scada_steps:
-            db_pno_str = str(db_p.get("program_no") or prog_no)
-            prog_int = int(db_pno_str) if db_pno_str.isdigit() else 0
-            topic_prog = f"smm/jetflow/{asset_id}/batch_program"
-            payload_prog = {
-                "asset_id": asset_id,
-                "machine_no": m_no,
-                "batch_no": batch_no,
-                "program_no": db_pno_str,
-                "program_name": db_p.get("program_name") or prog_name,
-                "program_file": f"M_{prog_int:04d}.PRG" if prog_int > 0 else "",
-                "program_source": "DATABASE_PROGRAM_STUDIO",
-                "current_step": int(step_no),
-                "total_steps": len(scada_steps),
-                "batch_info": pr_meta.get("batch_info") or {},
-                "operator_timeline": pr_meta.get("operator_timeline") or [],
-                "setpoint_overrides": pr_meta.get("setpoint_overrides") or [],
-                "batch_alarms": pr_meta.get("batch_alarms") or [],
-                "batch_summary": pr_meta.get("batch_summary") or {},
-                "intervent_active": int(pr_meta.get("intervent_active") or 0),
-                "program": scada_steps,
-            }
-            _mqtt_client.publish(topic_prog, json.dumps(payload_prog), qos=1)
-    elif bundle.get("prg_bytes") and batch_no:
+    #     Prioritas #1: .PRG asli dari controller (FTP / cache per mesin+batch+prog_no) agar nama program & step selalu akurat.
+    #     Fallback #2: DB program_components hanya jika .PRG tidak tersedia di FTP.
+    if bundle.get("prg_bytes") and batch_no:
         try:
             pb = bundle["prg_bytes"]
             real_prog_no = struct.unpack_from("<H", pb, 8)[0] if len(pb) >= 10 else 0
@@ -1242,8 +1218,7 @@ def process_single_machine(m: Dict[str, Any]) -> Dict[str, Any]:
 
             raw_steps = SetexFolderReader.parse_prg_steps(pb, machine_no=m_no)
             if raw_steps:
-                # Auto-insert ke PostgreSQL (program_components + steps + step_functions + step_function_parameters)
-                # supaya siklus & batch berikutnya tidak perlu download .PRG lagi via FTP
+                # Auto-sync ke PostgreSQL saat pertama kali download .PRG untuk batch ini
                 if not bundle.get("prg_from_cache"):
                     save_prg_steps_to_db(m_no, effective_prog_no, effective_prog_name, raw_steps)
 
@@ -1281,6 +1256,32 @@ def process_single_machine(m: Dict[str, Any]) -> Dict[str, Any]:
                 _mqtt_client.publish(topic_prog, json.dumps(payload_prog), qos=1)
         except Exception as pe:
             logger.debug(f"PRG parse notice for {m_no}: {pe}")
+    elif batch_no and bundle.get("db_program"):
+        db_p = bundle["db_program"]
+        scada_steps = _enrich_steps_with_actuals(list(db_p.get("scada_steps") or []))
+        if scada_steps:
+            db_pno_str = str(db_p.get("program_no") or prog_no)
+            prog_int = int(db_pno_str) if db_pno_str.isdigit() else 0
+            topic_prog = f"smm/jetflow/{asset_id}/batch_program"
+            payload_prog = {
+                "asset_id": asset_id,
+                "machine_no": m_no,
+                "batch_no": batch_no,
+                "program_no": db_pno_str,
+                "program_name": db_p.get("program_name") or prog_name,
+                "program_file": f"M_{prog_int:04d}.PRG" if prog_int > 0 else "",
+                "program_source": "DATABASE_PROGRAM_STUDIO",
+                "current_step": int(step_no),
+                "total_steps": len(scada_steps),
+                "batch_info": pr_meta.get("batch_info") or {},
+                "operator_timeline": pr_meta.get("operator_timeline") or [],
+                "setpoint_overrides": pr_meta.get("setpoint_overrides") or [],
+                "batch_alarms": pr_meta.get("batch_alarms") or [],
+                "batch_summary": pr_meta.get("batch_summary") or {},
+                "intervent_active": int(pr_meta.get("intervent_active") or 0),
+                "program": scada_steps,
+            }
+            _mqtt_client.publish(topic_prog, json.dumps(payload_prog), qos=1)
 
     # 2. Parse PR<batch>.LOG
     points_count = 0

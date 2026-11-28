@@ -2,7 +2,7 @@
   "machine_no": "17C",
   "folder_name": "MESIN_17C",
   "controller_type": "SETEX SECOM 777 (Windows CE)",
-  "max_temp_c": 140.0,
+  "max_temp_c": 135,
   "has_custom_hmi_config": true,
   "status": "ready",
   "ip_address": "172.16.130.117",
@@ -52,5 +52,55 @@
     "plc_execution_logic_only": [
       "Config/CP14.AWL"
     ]
+  },
+  "timezone": "SE Asia Standard Time",
+  "min_load_kg": 100,
+  "capacity_kg": 650,
+  "min_fill_l": 0,
+  "max_fill_l": 6000,
+  "min_liquor_ratio": 4,
+  "max_liquor_ratio": 10,
+  "max_diff_pressure_bar": 2.5,
+  "has_stock_tank": false,
+  "tanks": {
+    "main_tank": {
+      "min_fill_l": 0,
+      "max_fill_l": 6000,
+      "batch_fill_level_l": null,
+      "filling_valves": null,
+      "draining_types": null,
+      "level_min_pct": null,
+      "level_mid_pct": null,
+      "level_rinse_pct": null,
+      "level_max_pct": null,
+      "power_drain_level_pct": null
+    },
+    "dt1": {
+      "max_fill_l": null,
+      "max_temp_c": null,
+      "filling_valves": null,
+      "stirrer_level_pct": null,
+      "level_min_pct": null,
+      "level_mid_pct": null,
+      "level_max_pct": null
+    },
+    "dt2": {
+      "max_fill_l": null,
+      "max_temp_c": null,
+      "filling_valves": null,
+      "stirrer_level_pct": null,
+      "level_min_pct": null,
+      "level_mid_pct": null,
+      "level_max_pct": null
+    },
+    "stock_tank": {
+      "enabled": false,
+      "max_fill_l": null,
+      "max_temp_c": null,
+      "filling_valves": 1,
+      "level_min_pct": null,
+      "level_mid_pct": null,
+      "level_max_pct": null
+    }
   }
 }

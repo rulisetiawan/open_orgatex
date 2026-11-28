@@ -1,0 +1,1696 @@
+{
+  "source": "MACHCONF.CNF",
+  "sha256": "92a3040c0a1fa0396cc0d04779b6919dbe125971ead5d3dfa6fc1ba4cf24836b",
+  "size_bytes": 6656,
+  "record_count": 59,
+  "summary": {
+    "controller_machine_id": "MA01",
+    "controller_label": "SECOM737",
+    "timezone": "China Standard Time",
+    "orgatex_paths": [
+      "\\OT\\PROCEDUR",
+      "\\OT\\REPORTS",
+      "\\OT\\MACHINES",
+      "\\OT\\BATCH",
+      "\\OT\\DOSING",
+      "\\OT\\OPTIDYE",
+      "\\OT\\CFG\\USER"
+    ],
+    "min_load_kg": 150,
+    "capacity_kg": 600,
+    "min_fill_l": 500,
+    "max_fill_l": 6600,
+    "min_liquor_ratio": 0,
+    "max_liquor_ratio": 9,
+    "winch_min_speed": 0,
+    "winch_max_speed": 350,
+    "max_diff_pressure_bar": 3,
+    "max_temp_c": 135,
+    "depressure_temp_c": 85,
+    "ht_enable_temp_c": 90,
+    "pressurize_temp_c": 90,
+    "seam_quantity": 2,
+    "addition_tanks_count": 2,
+    "has_stock_tank": true,
+    "tanks_count": 3,
+    "tanks": {
+      "main_tank": {
+        "min_fill_l": 500,
+        "max_fill_l": 6600,
+        "batch_fill_level_l": 6600,
+        "filling_valves": 4,
+        "draining_types": 4,
+        "level_min_pct": 10,
+        "level_mid_pct": 45,
+        "level_rinse_pct": 60,
+        "level_max_pct": 100,
+        "power_drain_level_pct": 20
+      },
+      "dt1": {
+        "max_fill_l": 450,
+        "max_temp_c": 70,
+        "filling_valves": 2,
+        "stirrer_level_pct": 30,
+        "level_min_pct": 2,
+        "level_mid_pct": 40,
+        "level_max_pct": 100
+      },
+      "dt2": {
+        "max_fill_l": 450,
+        "max_temp_c": 70,
+        "filling_valves": 2,
+        "stirrer_level_pct": 30,
+        "level_min_pct": 3,
+        "level_mid_pct": 40,
+        "level_max_pct": 100
+      },
+      "stock_tank": {
+        "enabled": true,
+        "max_fill_l": 3000,
+        "max_temp_c": 60,
+        "filling_valves": 5,
+        "level_min_pct": 3,
+        "level_mid_pct": 40,
+        "level_max_pct": 100
+      }
+    }
+  },
+  "machine_parameters": {
+    "1": {
+      "id": 1,
+      "name": "min. load",
+      "value": 150
+    },
+    "2": {
+      "id": 2,
+      "name": "max. load",
+      "value": 600
+    },
+    "3": {
+      "id": 3,
+      "name": "min. Fill quantity",
+      "value": 500
+    },
+    "4": {
+      "id": 4,
+      "name": "max. Fill quantity",
+      "value": 6600
+    },
+    "5": {
+      "id": 5,
+      "name": "min. liquor ratio",
+      "value": 0
+    },
+    "6": {
+      "id": 6,
+      "name": "max. liquor ratio",
+      "value": 9
+    },
+    "7": {
+      "id": 7,
+      "name": "Winch min. speed",
+      "value": 0
+    },
+    "8": {
+      "id": 8,
+      "name": "Winch max. speed",
+      "value": 350
+    },
+    "9": {
+      "id": 9,
+      "name": "min. diff. pressure",
+      "value": 0
+    },
+    "10": {
+      "id": 10,
+      "name": "max. diff. pressure",
+      "value": 3
+    },
+    "11": {
+      "id": 11,
+      "name": "Drain Mode",
+      "value": 1
+    },
+    "12": {
+      "id": 12,
+      "name": "Seam quantity",
+      "value": 2
+    },
+    "13": {
+      "id": 13,
+      "name": "DEPRESSURE TEMP.",
+      "value": 85
+    },
+    "14": {
+      "id": 14,
+      "name": "max. temperature",
+      "value": 135
+    },
+    "15": {
+      "id": 15,
+      "name": "limit temp. HT enab.",
+      "value": 90
+    },
+    "16": {
+      "id": 16,
+      "name": "Temperat. pressurize",
+      "value": 90
+    },
+    "17": {
+      "id": 17,
+      "name": "Batch fill level",
+      "value": 6600
+    },
+    "18": {
+      "id": 18,
+      "name": "max. filling valves",
+      "value": 4
+    },
+    "20": {
+      "id": 20,
+      "name": "max. draining types",
+      "value": 4
+    },
+    "22": {
+      "id": 22,
+      "name": "PowerDrn Lev, MT",
+      "value": 20
+    },
+    "23": {
+      "id": 23,
+      "name": "level min, MT",
+      "value": 10
+    },
+    "24": {
+      "id": 24,
+      "name": "level mid, MT",
+      "value": 45
+    },
+    "25": {
+      "id": 25,
+      "name": "level rins, MT",
+      "value": 60
+    },
+    "26": {
+      "id": 26,
+      "name": "level max, MT",
+      "value": 100
+    },
+    "28": {
+      "id": 28,
+      "name": "Amount ADD",
+      "value": 2
+    },
+    "29": {
+      "id": 29,
+      "name": "Inject mode",
+      "value": 1
+    },
+    "31": {
+      "id": 31,
+      "name": "max.fill.quant. DT1",
+      "value": 450
+    },
+    "32": {
+      "id": 32,
+      "name": "filling valves DT1",
+      "value": 2
+    },
+    "33": {
+      "id": 33,
+      "name": "Stirrer Level DT1",
+      "value": 30
+    },
+    "34": {
+      "id": 34,
+      "name": "max. level DT1",
+      "value": 100
+    },
+    "35": {
+      "id": 35,
+      "name": "level min, DT1",
+      "value": 2
+    },
+    "36": {
+      "id": 36,
+      "name": "level middle, DT1",
+      "value": 40
+    },
+    "37": {
+      "id": 37,
+      "name": "level max, DT1",
+      "value": 100
+    },
+    "38": {
+      "id": 38,
+      "name": "max temperature DT1",
+      "value": 70
+    },
+    "39": {
+      "id": 39,
+      "name": "rinsing routine DT1",
+      "value": 5
+    },
+    "40": {
+      "id": 40,
+      "name": "Mix level DT1",
+      "value": 15
+    },
+    "41": {
+      "id": 41,
+      "name": "max.fill.quant. DT2",
+      "value": 450
+    },
+    "42": {
+      "id": 42,
+      "name": "filling valves DT2",
+      "value": 2
+    },
+    "43": {
+      "id": 43,
+      "name": "Stirrer Level DT2",
+      "value": 30
+    },
+    "44": {
+      "id": 44,
+      "name": "max. level DT2",
+      "value": 100
+    },
+    "45": {
+      "id": 45,
+      "name": "level min, DT2",
+      "value": 3
+    },
+    "46": {
+      "id": 46,
+      "name": "level middle, DT2",
+      "value": 40
+    },
+    "47": {
+      "id": 47,
+      "name": "level max, DT2",
+      "value": 100
+    },
+    "48": {
+      "id": 48,
+      "name": "max temperature DT2",
+      "value": 70
+    },
+    "49": {
+      "id": 49,
+      "name": "max clean cycl DT2",
+      "value": 2
+    },
+    "50": {
+      "id": 50,
+      "name": "Have Stock Tank",
+      "value": 1
+    },
+    "51": {
+      "id": 51,
+      "name": "max.fill.quant. ST1",
+      "value": 3000
+    },
+    "52": {
+      "id": 52,
+      "name": "filling valves ST",
+      "value": 5
+    },
+    "53": {
+      "id": 53,
+      "name": "AT2 Sirrer Level",
+      "value": 20
+    },
+    "54": {
+      "id": 54,
+      "name": "max. level ST",
+      "value": 3000
+    },
+    "55": {
+      "id": 55,
+      "name": "level min, ST1",
+      "value": 3
+    },
+    "56": {
+      "id": 56,
+      "name": "level middle, ST1",
+      "value": 40
+    },
+    "57": {
+      "id": 57,
+      "name": "level max, ST1",
+      "value": 100
+    },
+    "58": {
+      "id": 58,
+      "name": "max. temp. ST/Rinse",
+      "value": 60
+    },
+    "59": {
+      "id": 59,
+      "name": "max. temp. ST",
+      "value": 60
+    },
+    "60": {
+      "id": 60,
+      "name": "Fill min flow quant.",
+      "value": 0
+    },
+    "61": {
+      "id": 61,
+      "name": "Fill max flow quant.",
+      "value": 100
+    },
+    "62": {
+      "id": 62,
+      "name": "level heat, ADD1",
+      "value": 35
+    },
+    "63": {
+      "id": 63,
+      "name": "level slat, ADD1",
+      "value": 60
+    },
+    "65": {
+      "id": 65,
+      "name": "levFill offset, main",
+      "value": 250
+    },
+    "66": {
+      "id": 66,
+      "name": "IF=offset Lvl VL=?%",
+      "value": 50
+    },
+    "67": {
+      "id": 67,
+      "name": "RinIntell.Lev offset",
+      "value": 100
+    },
+    "68": {
+      "id": 68,
+      "name": "Winch Control Band 1",
+      "value": 100
+    },
+    "69": {
+      "id": 69,
+      "name": "Winch Control Band 2",
+      "value": 50
+    },
+    "70": {
+      "id": 70,
+      "name": "M.Pump min. speed",
+      "value": 50
+    },
+    "71": {
+      "id": 71,
+      "name": "M.Pump  max. speed",
+      "value": 100
+    },
+    "72": {
+      "id": 72,
+      "name": "Q.Drain Pump speed",
+      "value": 60
+    },
+    "73": {
+      "id": 73,
+      "name": "Q.ST->MT Pump speed",
+      "value": 100
+    },
+    "74": {
+      "id": 74,
+      "name": "Fan min. speed",
+      "value": 40
+    },
+    "75": {
+      "id": 75,
+      "name": "Fan Max. speed",
+      "value": 100
+    },
+    "76": {
+      "id": 76,
+      "name": "Winch L",
+      "value": 0
+    },
+    "77": {
+      "id": 77,
+      "name": "Heating Cooling Mode",
+      "value": 0
+    },
+    "80": {
+      "id": 80,
+      "name": "Reverse times",
+      "value": 0
+    },
+    "81": {
+      "id": 81,
+      "name": "Hot Drain Temp.Offs",
+      "value": 5
+    },
+    "83": {
+      "id": 83,
+      "name": "Blower=?KW",
+      "value": 30
+    },
+    "84": {
+      "id": 84,
+      "name": "Main pump=?KW",
+      "value": 7.5
+    },
+    "85": {
+      "id": 85,
+      "name": "Every winch=?KW",
+      "value": 2.5
+    },
+    "86": {
+      "id": 86,
+      "name": "Every winch=?KW",
+      "value": 2.5
+    },
+    "87": {
+      "id": 87,
+      "name": "Add pump=?KW",
+      "value": 1.5
+    }
+  },
+  "machine_timers": {
+    "4": {
+      "id": 4,
+      "name": "wHysRotCtrlGreater",
+      "value": 30
+    },
+    "5": {
+      "id": 5,
+      "name": "wHysRotCtrlGreater",
+      "value": 10
+    },
+    "7": {
+      "id": 7,
+      "name": "Heat pre-drain time",
+      "value": 15
+    },
+    "8": {
+      "id": 8,
+      "name": "Delay open pre-drain",
+      "value": 3
+    },
+    "9": {
+      "id": 9,
+      "name": "ventilate time heat",
+      "value": 10
+    },
+    "10": {
+      "id": 10,
+      "name": "Winch start delay",
+      "value": 10
+    },
+    "11": {
+      "id": 11,
+      "name": "sATC.TI.wVentingTime",
+      "value": 5
+    },
+    "12": {
+      "id": 12,
+      "name": "sAT1.TI.wSaltOscTime",
+      "value": 5
+    },
+    "13": {
+      "id": 13,
+      "name": "sATC.TI.wVentingTime",
+      "value": 5
+    },
+    "14": {
+      "id": 14,
+      "name": "Winch start delay",
+      "value": 5
+    },
+    "15": {
+      "id": 15,
+      "name": "Winch start delay",
+      "value": 20
+    },
+    "16": {
+      "id": 16,
+      "name": "MPstop delay",
+      "value": 10
+    },
+    "18": {
+      "id": 18,
+      "name": "sATC.TI.wVentingTime",
+      "value": 5
+    },
+    "19": {
+      "id": 19,
+      "name": "sATC.TI.wmixTime",
+      "value": 5
+    },
+    "20": {
+      "id": 20,
+      "name": "Feed I/P Max Open",
+      "value": 80
+    },
+    "21": {
+      "id": 21,
+      "name": "1.remaintime DT1",
+      "value": 5
+    },
+    "22": {
+      "id": 22,
+      "name": "1.time cleaning DT1",
+      "value": 3
+    },
+    "23": {
+      "id": 23,
+      "name": "2.remaintime DT1",
+      "value": 7
+    },
+    "24": {
+      "id": 24,
+      "name": "2.time cleaning DT1",
+      "value": 3
+    },
+    "25": {
+      "id": 25,
+      "name": "3.remaintime DT1",
+      "value": 7
+    },
+    "26": {
+      "id": 26,
+      "name": "1.remaintime DT2",
+      "value": 10
+    },
+    "27": {
+      "id": 27,
+      "name": "1.time cleaning DT2",
+      "value": 3
+    },
+    "28": {
+      "id": 28,
+      "name": "2.remaintime DT2",
+      "value": 8
+    },
+    "29": {
+      "id": 29,
+      "name": "2.time cleaning DT2",
+      "value": 3
+    },
+    "30": {
+      "id": 30,
+      "name": "res.drain time DT2",
+      "value": 15
+    },
+    "31": {
+      "id": 31,
+      "name": "1.remaintime ST",
+      "value": 10
+    },
+    "32": {
+      "id": 32,
+      "name": "1.time cleaning ST",
+      "value": 5
+    },
+    "33": {
+      "id": 33,
+      "name": "2.remaintime ST",
+      "value": 10
+    },
+    "34": {
+      "id": 34,
+      "name": "2.time cleaning ST",
+      "value": 5
+    },
+    "35": {
+      "id": 35,
+      "name": "3.remaintime ST",
+      "value": 10
+    },
+    "36": {
+      "id": 36,
+      "name": "MANUAL TRN/DRN DT1",
+      "value": 10
+    },
+    "37": {
+      "id": 37,
+      "name": "MANUAL TRN/DRN DT2",
+      "value": 10
+    },
+    "38": {
+      "id": 38,
+      "name": "time injecting AT",
+      "value": 5
+    },
+    "40": {
+      "id": 40,
+      "name": "Slat Drain Time",
+      "value": 10
+    },
+    "41": {
+      "id": 41,
+      "name": "1.remaintime SD",
+      "value": 10
+    },
+    "42": {
+      "id": 42,
+      "name": "1.time cleaning SD",
+      "value": 5
+    },
+    "43": {
+      "id": 43,
+      "name": "2.remaintime SD",
+      "value": 3
+    },
+    "44": {
+      "id": 44,
+      "name": "2.time cleaning SD",
+      "value": 5
+    },
+    "45": {
+      "id": 45,
+      "name": "3.remaintime SD",
+      "value": 15
+    },
+    "56": {
+      "id": 56,
+      "name": "filter motor on",
+      "value": 60
+    },
+    "57": {
+      "id": 57,
+      "name": "filter motor off",
+      "value": 1
+    },
+    "58": {
+      "id": 58,
+      "name": "filter drain t",
+      "value": 10
+    },
+    "60": {
+      "id": 60,
+      "name": "Light put off delay",
+      "value": 30
+    },
+    "71": {
+      "id": 71,
+      "name": "Hold Temp.",
+      "value": 3
+    },
+    "72": {
+      "id": 72,
+      "name": "Test time",
+      "value": 10
+    },
+    "73": {
+      "id": 73,
+      "name": "I/P=K5000 Cool rate",
+      "value": 0
+    },
+    "74": {
+      "id": 74,
+      "name": "ST->MT required time",
+      "value": 2
+    },
+    "75": {
+      "id": 75,
+      "name": "ST.MAX.Lvl Delay",
+      "value": 1
+    },
+    "76": {
+      "id": 76,
+      "name": "Delay ST min level",
+      "value": 3
+    },
+    "77": {
+      "id": 77,
+      "name": "ST Heat Mixing time",
+      "value": 2
+    },
+    "79": {
+      "id": 79,
+      "name": "ADD Pump protect T",
+      "value": 5
+    },
+    "80": {
+      "id": 80,
+      "name": "Reverse time",
+      "value": 10
+    },
+    "81": {
+      "id": 81,
+      "name": "Hold time Tangle",
+      "value": 10
+    },
+    "82": {
+      "id": 82,
+      "name": "Inject Salt 3/4",
+      "value": 30
+    },
+    "83": {
+      "id": 83,
+      "name": "Inject Salt 4/4",
+      "value": 60
+    },
+    "85": {
+      "id": 85,
+      "name": "Ciol drain on delay",
+      "value": 3
+    },
+    "86": {
+      "id": 86,
+      "name": "Ciol drain off delay",
+      "value": 90
+    },
+    "87": {
+      "id": 87,
+      "name": "SD.TI.wSaltOscT_ON",
+      "value": 5
+    },
+    "88": {
+      "id": 88,
+      "name": "SD.TI.wVentingTime",
+      "value": 5
+    },
+    "89": {
+      "id": 89,
+      "name": "slat reback time",
+      "value": 0
+    },
+    "90": {
+      "id": 90,
+      "name": "SD.TI.wSaltOscT_OF",
+      "value": 5
+    },
+    "91": {
+      "id": 91,
+      "name": "slat on time",
+      "value": 0
+    },
+    "92": {
+      "id": 92,
+      "name": "slat off time",
+      "value": 0
+    },
+    "95": {
+      "id": 95,
+      "name": "stand. time filling",
+      "value": 10
+    },
+    "96": {
+      "id": 96,
+      "name": "stand. time draining",
+      "value": 10
+    },
+    "97": {
+      "id": 97,
+      "name": "time filling 100L",
+      "value": 1
+    },
+    "98": {
+      "id": 98,
+      "name": "Delay min lev machin",
+      "value": 5
+    },
+    "99": {
+      "id": 99,
+      "name": "Drain level delay",
+      "value": 30
+    },
+    "100": {
+      "id": 100,
+      "name": "Pressurize time",
+      "value": 10
+    }
+  },
+  "system_parameters": {
+    "1": {
+      "id": 1,
+      "name": "max. no of batches",
+      "value": 5
+    },
+    "2": {
+      "id": 2,
+      "name": "max. no of alarms",
+      "value": 50
+    },
+    "3": {
+      "id": 3,
+      "name": "language system text",
+      "value": 1
+    },
+    "4": {
+      "id": 4,
+      "name": "language configurat.",
+      "value": 1
+    },
+    "5": {
+      "id": 5,
+      "name": "reserved",
+      "value": 0
+    },
+    "6": {
+      "id": 6,
+      "name": "program selection",
+      "value": 0
+    },
+    "7": {
+      "id": 7,
+      "name": "batch mode",
+      "value": 0
+    },
+    "8": {
+      "id": 8,
+      "name": "data logging",
+      "value": 1
+    },
+    "9": {
+      "id": 9,
+      "name": "host report",
+      "value": 0
+    },
+    "10": {
+      "id": 10,
+      "name": "PLC initialization",
+      "value": 0
+    },
+    "11": {
+      "id": 11,
+      "name": "alarm retry count",
+      "value": 2
+    },
+    "12": {
+      "id": 12,
+      "name": "download retry count",
+      "value": 3
+    },
+    "13": {
+      "id": 13,
+      "name": "arcnet mode",
+      "value": 0
+    },
+    "14": {
+      "id": 14,
+      "name": "mode asynchron fcts.",
+      "value": 2
+    },
+    "15": {
+      "id": 15,
+      "name": "batch overlapping",
+      "value": 0
+    },
+    "16": {
+      "id": 16,
+      "name": "max no alarm changes",
+      "value": 1
+    },
+    "18": {
+      "id": 18,
+      "name": "Optidye import",
+      "value": 0
+    },
+    "19": {
+      "id": 19,
+      "name": "Optidye file mode",
+      "value": 0
+    },
+    "20": {
+      "id": 20,
+      "name": "Protocol 1",
+      "value": 0
+    },
+    "21": {
+      "id": 21,
+      "name": "Protocol 2",
+      "value": 0
+    },
+    "22": {
+      "id": 22,
+      "name": "Protocol 3",
+      "value": 0
+    },
+    "23": {
+      "id": 23,
+      "name": "reserved",
+      "value": 0
+    },
+    "24": {
+      "id": 24,
+      "name": "max. logging time",
+      "value": 24
+    },
+    "25": {
+      "id": 25,
+      "name": "Jump To Step",
+      "value": 0
+    },
+    "26": {
+      "id": 26,
+      "name": "reserved",
+      "value": 0
+    },
+    "27": {
+      "id": 27,
+      "name": "reserved",
+      "value": 0
+    },
+    "28": {
+      "id": 28,
+      "name": "mode correction key",
+      "value": 2
+    },
+    "29": {
+      "id": 29,
+      "name": "Change copied funct.",
+      "value": 0
+    },
+    "30": {
+      "id": 30,
+      "name": "host mode",
+      "value": 0
+    },
+    "31": {
+      "id": 31,
+      "name": "auto start",
+      "value": 0
+    },
+    "32": {
+      "id": 32,
+      "name": "status display",
+      "value": 0
+    },
+    "33": {
+      "id": 33,
+      "name": "auto download",
+      "value": 0
+    },
+    "34": {
+      "id": 34,
+      "name": "batch create mode",
+      "value": 0
+    },
+    "35": {
+      "id": 35,
+      "name": "parameter calculat.",
+      "value": 1
+    },
+    "36": {
+      "id": 36,
+      "name": "barcode program no",
+      "value": 0
+    },
+    "37": {
+      "id": 37,
+      "name": "barcode support",
+      "value": 0
+    },
+    "38": {
+      "id": 38,
+      "name": "reserved",
+      "value": 0
+    },
+    "39": {
+      "id": 39,
+      "name": "reserved",
+      "value": 0
+    },
+    "40": {
+      "id": 40,
+      "name": "reserved",
+      "value": 0
+    },
+    "41": {
+      "id": 41,
+      "name": "reserved",
+      "value": 0
+    },
+    "42": {
+      "id": 42,
+      "name": "reserved",
+      "value": 0
+    },
+    "43": {
+      "id": 43,
+      "name": "functiontime display",
+      "value": 1
+    },
+    "44": {
+      "id": 44,
+      "name": "settime calculation",
+      "value": 1
+    },
+    "45": {
+      "id": 45,
+      "name": "act.value setcurve",
+      "value": 3
+    },
+    "46": {
+      "id": 46,
+      "name": "Process picture mode",
+      "value": 2
+    },
+    "47": {
+      "id": 47,
+      "name": "mode operator key",
+      "value": 0
+    },
+    "48": {
+      "id": 48,
+      "name": "display statistics",
+      "value": 1
+    },
+    "49": {
+      "id": 49,
+      "name": "manual operation",
+      "value": 1
+    },
+    "50": {
+      "id": 50,
+      "name": "master machine",
+      "value": 0
+    },
+    "51": {
+      "id": 51,
+      "name": "screen saver mode",
+      "value": 0
+    },
+    "52": {
+      "id": 52,
+      "name": "screen saver time",
+      "value": 10
+    },
+    "54": {
+      "id": 54,
+      "name": "mode edit fields",
+      "value": 0
+    },
+    "60": {
+      "id": 60,
+      "name": "user management",
+      "value": 0
+    },
+    "61": {
+      "id": 61,
+      "name": "auto logout",
+      "value": 0
+    },
+    "62": {
+      "id": 62,
+      "name": "login with reader",
+      "value": 0
+    },
+    "65": {
+      "id": 65,
+      "name": "max. no of events",
+      "value": 100
+    },
+    "66": {
+      "id": 66,
+      "name": "date format",
+      "value": 0
+    },
+    "67": {
+      "id": 67,
+      "name": "value/picture change",
+      "value": 0
+    },
+    "69": {
+      "id": 69,
+      "name": "plc arcnet address",
+      "value": 2
+    },
+    "70": {
+      "id": 70,
+      "name": "plc type",
+      "value": 8
+    },
+    "71": {
+      "id": 71,
+      "name": "hostalarm retrycount",
+      "value": 0
+    },
+    "72": {
+      "id": 72,
+      "name": "mode request file",
+      "value": 0
+    },
+    "73": {
+      "id": 73,
+      "name": "Datalogging cycle",
+      "value": 0
+    },
+    "74": {
+      "id": 74,
+      "name": "requests dispensing",
+      "value": 0
+    },
+    "75": {
+      "id": 75,
+      "name": "slave mode",
+      "value": 0
+    },
+    "76": {
+      "id": 76,
+      "name": "cycle read status",
+      "value": 10
+    },
+    "78": {
+      "id": 78,
+      "name": "mode change step",
+      "value": 0
+    },
+    "79": {
+      "id": 79,
+      "name": "mode Poti Panel",
+      "value": 1
+    },
+    "80": {
+      "id": 80,
+      "name": "stop reasons",
+      "value": 0
+    },
+    "81": {
+      "id": 81,
+      "name": "window after STOP",
+      "value": 0
+    },
+    "82": {
+      "id": 82,
+      "name": "autoreset aft. START",
+      "value": 0
+    },
+    "83": {
+      "id": 83,
+      "name": "Ask for change",
+      "value": 0
+    },
+    "85": {
+      "id": 85,
+      "name": "stop: operator STOP",
+      "value": 541
+    },
+    "86": {
+      "id": 86,
+      "name": "stop: no batch",
+      "value": 511
+    },
+    "87": {
+      "id": 87,
+      "name": "stop: power on",
+      "value": 542
+    },
+    "90": {
+      "id": 90,
+      "name": "no of machines",
+      "value": 1
+    },
+    "91": {
+      "id": 91,
+      "name": "same machine group",
+      "value": 0
+    },
+    "92": {
+      "id": 92,
+      "name": "LED mode",
+      "value": 0
+    },
+    "100": {
+      "id": 100,
+      "name": "OT-DRQ communication",
+      "value": 0
+    },
+    "101": {
+      "id": 101,
+      "name": "recipe display",
+      "value": 0
+    },
+    "102": {
+      "id": 102,
+      "name": "maintenance list",
+      "value": 0
+    },
+    "110": {
+      "id": 110,
+      "name": "mode send set values",
+      "value": 0
+    },
+    "120": {
+      "id": 120,
+      "name": "background colour",
+      "value": 0
+    }
+  },
+  "controllers_calibration": {
+    "6_31": {
+      "key": [
+        18,
+        6,
+        31
+      ],
+      "name": "Niveaumat No. 1",
+      "values": [
+        12.0,
+        10000.0,
+        600.0,
+        0.0
+      ]
+    },
+    "6_32": {
+      "key": [
+        18,
+        6,
+        32
+      ],
+      "name": "Niveaumat No. 2",
+      "values": [
+        2.0,
+        10000.0,
+        1.0,
+        0.0
+      ]
+    },
+    "6_33": {
+      "key": [
+        18,
+        6,
+        33
+      ],
+      "name": "Niveaumat No. 3",
+      "values": [
+        2.0,
+        10000.0,
+        1.0,
+        0.0
+      ]
+    },
+    "6_34": {
+      "key": [
+        18,
+        6,
+        34
+      ],
+      "name": "Niveaumat No. 4",
+      "values": [
+        2.0,
+        10000.0,
+        1.0,
+        0.0
+      ]
+    },
+    "13_47": {
+      "key": [
+        18,
+        13,
+        47
+      ],
+      "name": "Step control",
+      "values": [
+        10.0,
+        20.0,
+        0.0,
+        2.0,
+        1.0,
+        1.0,
+        2.0,
+        0.0,
+        20.0,
+        100.0,
+        100.0,
+        0.0,
+        1.0,
+        5.0
+      ]
+    },
+    "14_48": {
+      "key": [
+        18,
+        14,
+        48
+      ],
+      "name": "Dosing",
+      "values": [
+        30.0,
+        80.0,
+        0.0,
+        2.0,
+        1.0,
+        1.0,
+        0.0,
+        0.0,
+        8.0,
+        1.0,
+        1.0,
+        0.0,
+        1.0,
+        10.0
+      ]
+    },
+    "15_101": {
+      "key": [
+        18,
+        15,
+        101
+      ],
+      "name": "temperaturecontrol 1",
+      "values": [
+        30.0,
+        100.0,
+        0.0,
+        30.0,
+        100.0,
+        0.0,
+        0.0,
+        0.0,
+        2.0,
+        1.0,
+        1.0,
+        2.0,
+        0.5,
+        8.0,
+        1.0,
+        1.0
+      ]
+    },
+    "21_51": {
+      "key": [
+        18,
+        21,
+        51
+      ],
+      "name": "mk press",
+      "values": [
+        0.0,
+        1.0,
+        10000.0,
+        10000.0,
+        0.0,
+        500.0,
+        1000.0,
+        1500.0,
+        2000.0,
+        2500.0,
+        3000.0,
+        100.0
+      ]
+    },
+    "21_52": {
+      "key": [
+        18,
+        21,
+        52
+      ],
+      "name": "Nozzle press",
+      "values": [
+        0.0,
+        0.0,
+        10000.0,
+        10000.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        100.0
+      ]
+    },
+    "22_55": {
+      "key": [
+        18,
+        22,
+        55
+      ],
+      "name": "MK Cloth 1",
+      "values": [
+        3500.0,
+        0.0,
+        7200.0,
+        1000.0
+      ]
+    },
+    "22_56": {
+      "key": [
+        18,
+        22,
+        56
+      ],
+      "name": "MK Cloth 2",
+      "values": [
+        3600.0,
+        0.0,
+        7500.0,
+        1000.0,
+        1.0,
+        0.0,
+        2.0,
+        0.0,
+        20.0,
+        100.0,
+        100.0,
+        0.0,
+        1.0,
+        5.0
+      ]
+    },
+    "23_53": {
+      "key": [
+        18,
+        23,
+        53
+      ],
+      "name": "Turbidimeter",
+      "values": [
+        2000.0,
+        0.0,
+        10000.0,
+        100.0,
+        20.0,
+        30.0,
+        40.0,
+        50.0,
+        60.0,
+        2.0,
+        10.0
+      ]
+    }
+  },
+  "level_calibration_curves": {
+    "31": {
+      "key": [
+        75,
+        6,
+        31
+      ],
+      "name": "Niveaumat No. 1",
+      "points_count": 12,
+      "points": [
+        {
+          "volume_l": 0.0,
+          "raw_adc": 1824.0
+        },
+        {
+          "volume_l": 600.0,
+          "raw_adc": 4000.0
+        },
+        {
+          "volume_l": 1200.0,
+          "raw_adc": 4808.0
+        },
+        {
+          "volume_l": 1800.0,
+          "raw_adc": 5473.0
+        },
+        {
+          "volume_l": 2400.0,
+          "raw_adc": 6148.0
+        },
+        {
+          "volume_l": 3000.0,
+          "raw_adc": 6680.0
+        },
+        {
+          "volume_l": 3600.0,
+          "raw_adc": 7212.0
+        },
+        {
+          "volume_l": 4200.0,
+          "raw_adc": 7621.0
+        },
+        {
+          "volume_l": 4800.0,
+          "raw_adc": 8163.0
+        },
+        {
+          "volume_l": 5400.0,
+          "raw_adc": 8694.0
+        },
+        {
+          "volume_l": 6000.0,
+          "raw_adc": 9098.0
+        },
+        {
+          "volume_l": 6600.0,
+          "raw_adc": 9635.0
+        }
+      ]
+    },
+    "32": {
+      "key": [
+        75,
+        6,
+        32
+      ],
+      "name": "Niveaumat No. 2",
+      "points_count": 2,
+      "points": [
+        {
+          "volume_l": 0.0,
+          "raw_adc": 2100.0
+        },
+        {
+          "volume_l": 3500.0,
+          "raw_adc": 4736.0
+        }
+      ]
+    },
+    "33": {
+      "key": [
+        75,
+        6,
+        33
+      ],
+      "name": "Niveaumat No. 3",
+      "points_count": 2,
+      "points": [
+        {
+          "volume_l": 0.0,
+          "raw_adc": 2080.0
+        },
+        {
+          "volume_l": 450.0,
+          "raw_adc": 7323.0
+        }
+      ]
+    },
+    "34": {
+      "key": [
+        75,
+        6,
+        34
+      ],
+      "name": "Niveaumat No. 4",
+      "points_count": 2,
+      "points": [
+        {
+          "volume_l": 2.0,
+          "raw_adc": 2080.0
+        },
+        {
+          "volume_l": 450.0,
+          "raw_adc": 7261.0
+        }
+      ]
+    }
+  },
+  "io_boards": [
+    {
+      "slot": 1,
+      "name": "dig. input board 16I",
+      "active": true,
+      "config_bytes_nonzero": 36
+    },
+    {
+      "slot": 2,
+      "name": "dig. input board 16I",
+      "active": false,
+      "config_bytes_nonzero": 0
+    },
+    {
+      "slot": 3,
+      "name": "dig. input board 16I",
+      "active": false,
+      "config_bytes_nonzero": 0
+    },
+    {
+      "slot": 5,
+      "name": "dig.output board 16O",
+      "active": false,
+      "config_bytes_nonzero": 0
+    },
+    {
+      "slot": 6,
+      "name": "dig.output board 16O",
+      "active": false,
+      "config_bytes_nonzero": 0
+    },
+    {
+      "slot": 7,
+      "name": "dig.output board 16O",
+      "active": false,
+      "config_bytes_nonzero": 0
+    },
+    {
+      "slot": 10,
+      "name": "CR16 Analog 5E/2A",
+      "active": true,
+      "config_bytes_nonzero": 28
+    },
+    {
+      "slot": 11,
+      "name": "add on analog board",
+      "active": true,
+      "config_bytes_nonzero": 18
+    },
+    {
+      "slot": 17,
+      "name": "FMD 32 I/O-Modul",
+      "active": true,
+      "config_bytes_nonzero": 4
+    },
+    {
+      "slot": 18,
+      "name": "FMD 16A I/O-Modul",
+      "active": true,
+      "config_bytes_nonzero": 30
+    }
+  ],
+  "identity_strings": [
+    "#=|",
+    "%OTypeTan",
+    "DEFAULT",
+    "MA01",
+    "F:",
+    "OTSERVER",
+    "ORGATEX",
+    "SECOM737",
+    "\\OT\\PROCEDUR",
+    "\\OT\\REPORTS",
+    "\\OT\\MACHINES",
+    "\\OT\\BATCH",
+    "\\OT\\DOSING",
+    "\\OT\\OPTIDYE",
+    "SECOM",
+    "SECOM-",
+    "oP",
+    "proxy",
+    "China Standard Time",
+    "\\OT\\CFG\\USER"
+  ],
+  "metadata_strings": [
+    "%OTypeTan",
+    "DEFAULT",
+    "MA01",
+    "OTSERVER",
+    "ORGATEX",
+    "SECOM737",
+    "\\OT\\PROCEDUR",
+    "\\OT\\REPORTS",
+    "\\OT\\MACHINES",
+    "\\OT\\BATCH",
+    "\\OT\\DOSING",
+    "\\OT\\OPTIDYE",
+    "SECOM",
+    "SECOM-",
+    "proxy",
+    "China Standard Time",
+    "\\OT\\CFG\\USER"
+  ],
+  "generated_at": "2026-11-28T11:28:48.908910"
+}

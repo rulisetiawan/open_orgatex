@@ -54,6 +54,15 @@ CANDIDATE_CONFIG_DIRS = [
     "/Storage/SC797CE/Config",
     "/Flashdisk/SC797CE",
     "/flashdisk/sc797ce",
+    # SECOM 757 / 737 (e.g. DONPRO)
+    "/Storage/SC757CE/Config",
+    "/Storage/sc757ce/Config",
+    "/Flashdisk/SC757CE/Config",
+    "/Flashdisk/sc757ce/Config",
+    "/Storage/SC737CE/Config",
+    "/Storage/sc737ce/Config",
+    "/Flashdisk/SC737CE/Config",
+    "/Flashdisk/sc737ce/Config",
     # Generic
     "/Config",
     "/CONFIG",
@@ -322,19 +331,139 @@ def decode_userconf_if_possible(userconf_path: str, output_json_path: str) -> bo
         return False
 
 
-def decode_machconf_if_possible(machconf_path: str, output_json_path: str) -> bool:
+def _tc_record_label(raw: Optional[bytes]) -> str:
+    """Extracts human-readable label (English preferred, fallback local) from a 290-byte TYPECONF record."""
+    if not raw or len(raw) < 48:
+        return ""
+    en = raw[27:48].split(b"\0", 1)[0].decode("cp437", errors="replace").strip()
+    lo = raw[6:27].split(b"\0", 1)[0].decode("cp437", errors="replace").strip()
+    return en or lo
+
+
+def decode_machconf_if_possible(
+    machconf_path: str,
+    output_json_path: str,
+    typeconf_path: Optional[str] = None
+) -> bool:
     """
-    Decodes Config/MACHCONF.CNF metadata (machine-specific calibration/options summary).
+    Decodes Config/MACHCONF.CNF full machine parameters, timers, system settings,
+    sensor/PID calibration, tank volume calibration curves, I/O boards, and identity strings.
+    Cross-references TYPECONF.CNF (when available) for exact parameter labels.
     """
     try:
         import re
+        import math
+        import struct
         import hashlib
+
         allrecords = _decode_cnf_records(machconf_path, expected_len=None)
         with open(machconf_path, "rb") as f_raw:
             raw_bytes = f_raw.read()
         sha = hashlib.sha256(raw_bytes).hexdigest()
 
+        # Load TYPECONF.CNF for label cross-referencing if available
+        if not typeconf_path:
+            candidate_tc = os.path.join(os.path.dirname(machconf_path), "TYPECONF.CNF")
+            if os.path.isfile(candidate_tc):
+                typeconf_path = candidate_tc
+        tc_records: Dict[tuple, bytes] = {}
+        if typeconf_path and os.path.isfile(typeconf_path):
+            try:
+                tc_records = _decode_cnf_records(typeconf_path, expected_len=290)
+            except Exception:
+                tc_records = {}
+
+        def _read_float_table(rec_bytes: bytes, cat_id: int, max_idx: int = 120) -> Dict[str, Dict[str, Any]]:
+            payload = rec_bytes[6:]
+            out: Dict[str, Dict[str, Any]] = {}
+            max_slots = min(max_idx, len(payload) // 4)
+            for i in range(1, max_slots + 1):
+                t_rec = tc_records.get((cat_id, 0, i))
+                if not t_rec:
+                    continue
+                val = struct.unpack_from("<f", payload, (i - 1) * 4)[0]
+                if not math.isfinite(val):
+                    continue
+                rounded = int(val) if float(val).is_integer() else round(float(val), 4)
+                out[str(i)] = {
+                    "id": i,
+                    "name": _tc_record_label(t_rec),
+                    "value": rounded
+                }
+            return out
+
+        machine_params = _read_float_table(allrecords[(20, 0, 1)], 20, 100) if (20, 0, 1) in allrecords else {}
+        machine_timers = _read_float_table(allrecords[(19, 0, 1)], 19, 100) if (19, 0, 1) in allrecords else {}
+        system_params = _read_float_table(allrecords[(31, 0, 1)], 31, 120) if (31, 0, 1) in allrecords else {}
+
+        # Cat 18: Controllers & sensor calibration
+        controllers: Dict[str, Dict[str, Any]] = {}
+        for k in sorted(allrecords.keys()):
+            if k[0] != 18:
+                continue
+            payload = allrecords[k][6:]
+            vals = []
+            for j in range(min(16, len(payload) // 4)):
+                v = struct.unpack_from("<f", payload, j * 4)[0]
+                vals.append(round(float(v), 4) if math.isfinite(v) else 0.0)
+            # Trim trailing zeros while keeping at least 4 entries
+            while len(vals) > 4 and vals[-1] == 0.0:
+                vals.pop()
+            controllers[f"{k[1]}_{k[2]}"] = {
+                "key": list(k),
+                "name": _tc_record_label(tc_records.get(k)) or f"Controller {k[1]}/{k[2]}",
+                "values": vals
+            }
+
+        # Cat 75: Level/Volume Calibration Curves (Niveaumat)
+        level_curves: Dict[str, Dict[str, Any]] = {}
+        for k in sorted(allrecords.keys()):
+            if k[0] != 75:
+                continue
+            payload = allrecords[k][6:]
+            points = []
+            for j in range(min(30, len(payload) // 8)):
+                vol = struct.unpack_from("<f", payload, j * 8)[0]
+                adc = struct.unpack_from("<f", payload, j * 8 + 4)[0]
+                if not (math.isfinite(vol) and math.isfinite(adc)):
+                    continue
+                if vol == 0.0 and adc == 0.0 and j > 0:
+                    break
+                points.append({
+                    "volume_l": round(float(vol), 2),
+                    "raw_adc": round(float(adc), 2)
+                })
+            niv_name = _tc_record_label(tc_records.get((18, k[1], k[2]))) or f"Niveaumat {k[2]}"
+            level_curves[str(k[2])] = {
+                "key": list(k),
+                "name": niv_name,
+                "points_count": len(points),
+                "points": points
+            }
+
+        # Cat 39: I/O Hardware Boards
+        io_boards: List[Dict[str, Any]] = []
+        for k in sorted(allrecords.keys()):
+            if k[0] != 39:
+                continue
+            b_name = _tc_record_label(tc_records.get(k))
+            nz_bytes = sum(1 for b in allrecords[k][6:] if b != 0)
+            if b_name or nz_bytes > 0:
+                io_boards.append({
+                    "slot": k[2],
+                    "name": b_name or f"Slot {k[2]}",
+                    "active": nz_bytes > 0,
+                    "config_bytes_nonzero": nz_bytes
+                })
+
+        # Cat 35 & general printable metadata strings
         info_strings: List[str] = []
+        identity_strings: List[str] = []
+        if (35, 0, 1) in allrecords:
+            for m in re.findall(rb"[\x20-\x7e]{2,50}", allrecords[(35, 0, 1)][6:]):
+                s = m.decode("cp1252", errors="ignore").strip()
+                if s and s not in identity_strings:
+                    identity_strings.append(s)
         for (_, _, _), rec in sorted(allrecords.items()):
             for m in re.findall(rb"[\x20-\x7e]{4,40}", rec):
                 s = m.decode("cp1252", errors="ignore").strip()
@@ -345,11 +474,130 @@ def decode_machconf_if_possible(machconf_path: str, output_json_path: str) -> bo
             if len(info_strings) >= 25:
                 break
 
+        # Build normalized lookup by lowercase parameter name for summary extraction
+        p_by_name = {
+            v["name"].lower().strip(): v["value"]
+            for v in machine_params.values()
+            if v.get("name")
+        }
+
+        def _find_param(*patterns: str) -> Optional[float]:
+            for pat in patterns:
+                pl = pat.lower()
+                if pl in p_by_name:
+                    return p_by_name[pl]
+            for pat in patterns:
+                pl = pat.lower()
+                for k_name, val in p_by_name.items():
+                    if pl in k_name:
+                        return val
+            return None
+
+        # Extract controller machine ID & label from Cat 35 strings
+        ctrl_machine_id = None
+        ctrl_label = None
+        timezone_str = None
+        ot_paths = [s for s in identity_strings if s.startswith("\\OT\\")]
+        for s in identity_strings:
+            if not ctrl_label and "SECOM" in s.upper() and any(ch.isdigit() for ch in s):
+                ctrl_label = s
+            if not timezone_str and "TIME" in s.upper() and " " in s:
+                timezone_str = s
+        if "DEFAULT" in identity_strings:
+            idx_def = identity_strings.index("DEFAULT")
+            if idx_def + 1 < len(identity_strings):
+                cand = identity_strings[idx_def + 1]
+                if len(cand) <= 12 and not cand.startswith("\\"):
+                    ctrl_machine_id = cand
+
+        amount_add = _find_param("amount add")
+        has_stock_val = _find_param("have stock tank")
+        has_stock_tank = bool(has_stock_val) if has_stock_val is not None else (_find_param("max.fill.quant. st1") or 0) > 0
+        add_count = int(amount_add) if amount_add is not None else (
+            (1 if _find_param("max.fill.quant. dt1") else 0) + (1 if _find_param("max.fill.quant. dt2") else 0)
+        )
+        tanks_total = add_count + (1 if has_stock_tank else 0)
+
+        summary = {
+            "controller_machine_id": ctrl_machine_id,
+            "controller_label": ctrl_label,
+            "timezone": timezone_str,
+            "orgatex_paths": ot_paths,
+            "min_load_kg": _find_param("min. load"),
+            "capacity_kg": _find_param("max. load"),
+            "min_fill_l": _find_param("min. fill quantity"),
+            "max_fill_l": _find_param("max. fill quantity"),
+            "min_liquor_ratio": _find_param("min. liquor ratio"),
+            "max_liquor_ratio": _find_param("max. liquor ratio"),
+            "winch_min_speed": _find_param("winch min. speed"),
+            "winch_max_speed": _find_param("winch max. speed"),
+            "max_diff_pressure_bar": _find_param("max. diff. pressure"),
+            "max_temp_c": _find_param("max. temperature"),
+            "depressure_temp_c": _find_param("depressure temp."),
+            "ht_enable_temp_c": _find_param("limit temp. ht enab."),
+            "pressurize_temp_c": _find_param("temperat. pressurize"),
+            "seam_quantity": _find_param("seam quantity"),
+            "addition_tanks_count": add_count if add_count > 0 else None,
+            "has_stock_tank": has_stock_tank,
+            "tanks_count": tanks_total if tanks_total > 0 else None,
+            "tanks": {
+                "main_tank": {
+                    "min_fill_l": _find_param("min. fill quantity"),
+                    "max_fill_l": _find_param("max. fill quantity"),
+                    "batch_fill_level_l": _find_param("batch fill level"),
+                    "filling_valves": _find_param("max. filling valves"),
+                    "draining_types": _find_param("max. draining types"),
+                    "level_min_pct": _find_param("level min, mt"),
+                    "level_mid_pct": _find_param("level mid, mt"),
+                    "level_rinse_pct": _find_param("level rins, mt"),
+                    "level_max_pct": _find_param("level max, mt"),
+                    "power_drain_level_pct": _find_param("powerdrn lev, mt"),
+                },
+                "dt1": {
+                    "max_fill_l": _find_param("max.fill.quant. dt1"),
+                    "max_temp_c": _find_param("max temperature dt1"),
+                    "filling_valves": _find_param("filling valves dt1"),
+                    "stirrer_level_pct": _find_param("stirrer level dt1"),
+                    "level_min_pct": _find_param("level min, dt1"),
+                    "level_mid_pct": _find_param("level middle, dt1"),
+                    "level_max_pct": _find_param("level max, dt1"),
+                },
+                "dt2": {
+                    "max_fill_l": _find_param("max.fill.quant. dt2"),
+                    "max_temp_c": _find_param("max temperature dt2"),
+                    "filling_valves": _find_param("filling valves dt2"),
+                    "stirrer_level_pct": _find_param("stirrer level dt2"),
+                    "level_min_pct": _find_param("level min, dt2"),
+                    "level_mid_pct": _find_param("level middle, dt2"),
+                    "level_max_pct": _find_param("level max, dt2"),
+                },
+                "stock_tank": {
+                    "enabled": has_stock_tank,
+                    "max_fill_l": _find_param("max.fill.quant. st1"),
+                    "max_temp_c": _find_param("max. temp. st"),
+                    "filling_valves": _find_param("filling valves st"),
+                    "level_min_pct": _find_param("level min, st1"),
+                    "level_mid_pct": _find_param("level middle, st1"),
+                    "level_max_pct": _find_param("level max, st1"),
+                }
+            }
+        }
+        # Clean None values from top-level summary
+        summary = {k: v for k, v in summary.items() if v is not None}
+
         export_data = {
             "source": os.path.basename(machconf_path),
             "sha256": sha,
             "size_bytes": len(raw_bytes),
             "record_count": len(allrecords),
+            "summary": summary,
+            "machine_parameters": machine_params,
+            "machine_timers": machine_timers,
+            "system_parameters": system_params,
+            "controllers_calibration": controllers,
+            "level_calibration_curves": level_curves,
+            "io_boards": io_boards,
+            "identity_strings": identity_strings,
             "metadata_strings": info_strings,
             "generated_at": datetime.now().isoformat()
         }
@@ -411,8 +659,14 @@ def sync_machine_ready_config(machine_no: str, ip_address: Optional[str] = None)
         decode_userconf_if_possible(uc_file, target_userconf)
 
     # 4. Machine Parameters from MACHCONF.CNF
+    machconf_summary: Dict[str, Any] = {}
     if has_mc:
-        decode_machconf_if_possible(mc_file, target_machconf)
+        if decode_machconf_if_possible(mc_file, target_machconf, typeconf_path=tc_file if has_tc else None):
+            try:
+                with open(target_machconf, "r", encoding="utf-8") as f_mc:
+                    machconf_summary = json.load(f_mc).get("summary", {})
+            except Exception:
+                machconf_summary = {}
 
     # Machine profile JSON
     prof_data = {}
@@ -425,6 +679,34 @@ def sync_machine_ready_config(machine_no: str, ip_address: Optional[str] = None)
 
     raw_files = os.listdir(raw_dir) if os.path.exists(raw_dir) else []
     awl_files = [f for f in raw_files if f.upper().endswith(".AWL")]
+
+    # Promote key physical specs from MACHCONF.CNF into machine_profile.json
+    if machconf_summary:
+        for field in (
+            "controller_machine_id",
+            "controller_label",
+            "timezone",
+            "min_load_kg",
+            "capacity_kg",
+            "min_fill_l",
+            "max_fill_l",
+            "min_liquor_ratio",
+            "max_liquor_ratio",
+            "winch_min_speed",
+            "winch_max_speed",
+            "max_diff_pressure_bar",
+            "max_temp_c",
+            "depressure_temp_c",
+            "ht_enable_temp_c",
+            "pressurize_temp_c",
+            "seam_quantity",
+            "addition_tanks_count",
+            "has_stock_tank",
+            "tanks_count",
+            "tanks",
+        ):
+            if field in machconf_summary and machconf_summary[field] is not None:
+                prof_data[field] = machconf_summary[field]
 
     prof_data.update({
         "machine_no": machine_no.upper(),
@@ -707,6 +989,15 @@ CANDIDATE_PROGRAM_DIRS = [
     "/sc797ce/Programs",
     "/Storage/SC797CE/Programs",
     "\\Storage\\SC797CE\\Programs",
+    # SECOM 757 / 737 (e.g. DONPRO)
+    "/Storage/SC757CE/Programs",
+    "/Storage/sc757ce/Programs",
+    "/Flashdisk/SC757CE/Programs",
+    "/Flashdisk/sc757ce/Programs",
+    "/Storage/SC737CE/Programs",
+    "/Storage/sc737ce/Programs",
+    "/Flashdisk/SC737CE/Programs",
+    "/Flashdisk/sc737ce/Programs",
     # Generic root programs
     "/Programs",
     "/PROGRAMS",
